@@ -1,3 +1,8 @@
+# Three Queues
+This is a simple model which represents three queues that are organized in a sequence. 
+This model doesn't have a particular meaning, it's meant only to  understand how the simulation environment works. 
+
+## Usage
 In order to run the three queues model type the following:
 
 > make
