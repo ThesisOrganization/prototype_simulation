@@ -1,3 +1,4 @@
+#define  _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include "header.h"
@@ -19,7 +20,7 @@ int * getTopology(){
   //read first line, assess number of nodes, allocate array
   read = getline(&numberOfNodes, &len, fp);
   int nn = atoi(numberOfNodes);
-  printf("There are %d sender nodes.\n",nn);
+  //printf("There are %d sender nodes.\n",nn);
   int * topArray = malloc(sizeof(int) * nn);
 
   //read the file, first token in each line is the sender node, second and following the receivers
@@ -33,7 +34,7 @@ int * getTopology(){
       ptr=strtok(NULL, ",");
     }
   }
-  printf("Array created, sending it to topology and closing file.\n");
+  //printf("Array created, sending it to topology and closing file.\n");
   fclose(fp);
 
   return(topArray);
