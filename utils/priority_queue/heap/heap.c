@@ -69,7 +69,7 @@ static void exchange(_heap * h, int i, int j) {
 	h->array[j]->position = j;
 }
 
-heap_entry * heap_add(heap * hh, int key, void * payload) {
+heap_entry * heap_add(heap * hh, double key, void * payload) {
 	
 	_heap * h = hh;
 
@@ -206,7 +206,7 @@ void heap_print(heap * hh) {
 	_heap * h = hh;
 	int k;
 	for (k = 0; k < h->used; k++)
-		printf(" %d", h->array[k]->key);
+		printf(" %lf", h->array[k]->key);
 	printf("\n\n");
 }
 
@@ -245,12 +245,12 @@ static void sift_up(_heap * h, int i){
 	}
 }
 
-void heap_update_key(heap * hh, heap_entry * ee, int key) {
+void heap_update_key(heap * hh, heap_entry * ee, double key) {
 
 	_heap * h = hh;
 	_heap_entry * e = ee;
 
-	int oldKey = e->key;
+	double oldKey = e->key;
 	e->key = key;
 
 	//printf("position: %d - oldKey: %d\n", e->position, oldKey);

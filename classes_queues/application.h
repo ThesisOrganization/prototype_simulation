@@ -14,19 +14,22 @@ typedef struct _job_info {
 } job_info;
 
 typedef struct _sensor_state {
-    int num_jobs_generated;
     job_type job_generated;
 } sensor_state;
 
 typedef struct _node_state {
-    int num_jobs;
-    int num_jobs_processed;
+    int num_jobs_in_queue;
     void * queues;
 } node_state;
 
 typedef union {
     sensor_state * sensor;
     node_state * node;
+} state_info;
+
+typedef struct _state {
+    int num_jobs_processed;
+    state_info info;
 } state;
 
 /*

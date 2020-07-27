@@ -10,8 +10,10 @@
 #define TOTAL_NUMBER_OF_EVENTS 100
 #define DELAY_MEAN 1
 #define ARRIVE_RATE 10
-#define FINISH_RATE 10
+#define FINISH_RATE 5
 #define LEN_QUEUE 50
+
+#define RANGE_TIMESTAMP 10
 
 #define SENSOR 0
 #define NODE 1
@@ -36,25 +38,35 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     
     switch(event_type) {
         case INIT:
-
             state = malloc(sizeof(state));
             SetState(state);
 
+            //state->info = malloc(sizeof(state_info));
+            state->num_jobs_processed = 0;
+            
             //initializza strutture (if sensors and ecc)
             if(my_type[me] == NODE){
                 
+                state->info.node = malloc(sizeof(node_state));
+                state->info.node->num_jobs_in_queue = 0;
+                state->info.node->queues = create_queue();
+                /*
                 state->node = malloc(sizeof(node_state));
                 state->node->num_jobs = 0;
                 state->node->num_jobs_processed = 0;
                 state->node->queues = create_queue();
-
+*/
             }
             else if(my_type[me] == SENSOR){
+
+                state->info.sensor = malloc(sizeof(sensor_state));
+                state->info.sensor->job_generated = my_job_type[me];
                 
+                /*
                 state->sensor = malloc(sizeof(sensor_state));
                 state->sensor->num_jobs_generated = 0;
                 state->sensor->job_generated = my_job_type[me];
-
+*/
                 //schedule generate for all sensors
                 ScheduleNewEvent(me, ts_arrive, GENERATE, NULL, 0);
 
@@ -89,17 +101,17 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
         case GENERATE:
             
             //check number of events is up to
-            if(state->sensor->num_jobs_generated <= TOTAL_NUMBER_OF_EVENTS){
+            if(state->num_jobs_processed <= TOTAL_NUMBER_OF_EVENTS){
 
                 info = malloc(sizeof(job_info));
                 info->type = my_job_type[me];
-                info->timestamp = RandomRange(1, 10); //should be random, like now + random
+                info->timestamp = now + (Random() * RANGE_TIMESTAMP); //should be random, like now + random
 
                 ScheduleNewEvent(my_up_node[me], ts_delay, ARRIVE, info, sizeof(job_info));
 
                 ScheduleNewEvent(me, ts_arrive, GENERATE, NULL, 0);
 
-                state->sensor->num_jobs_generated++;
+                state->num_jobs_processed++;
 
             }
 
@@ -110,14 +122,14 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             //content has job type
             
             //schedule finish if queue empty
-            if(state->node->num_jobs < 1)
+            if(state->info.node->num_jobs_in_queue < 1)
                 ScheduleNewEvent(me, ts_finish, FINISH, content, sizeof(job_info));
 
             //add in the right queue
-            enqueue(state->node->queues, ((job_info*) content)->timestamp, content);
+            enqueue(state->info.node->queues, ((job_info*) content)->timestamp, content);
 
             //update statistics
-            state->node->num_jobs++;
+            state->info.node->num_jobs_in_queue++;
 
             
 
@@ -151,7 +163,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             
             //send arrive to next LP
             
-            info = dequeue(state->node->queues);
+            info = dequeue(state->info.node->queues);
             
             up_node = my_up_node[me];
             if(up_node != -1){
@@ -159,11 +171,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             }
             
             //change state
-            state->node->num_jobs_processed++;
-            state->node->num_jobs--;
+            state->num_jobs_processed++;
+            state->info.node->num_jobs_in_queue--;
             
             //schedule new event if other are presents (num clients)
-            if(state->node->num_jobs > 0)
+            if(state->info.node->num_jobs_in_queue > 0)
                 ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
             
             
@@ -197,24 +209,15 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 bool OnGVT(int me, state *snapshot)
 {
+        if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS)
+            return true;
+
         unsigned int my_type[3] = {SENSOR, NODE, NODE}; //0 sensor, 1 node
 
         if(my_type[me] == NODE){
 
-            printf("Number of elements in the queue: %d\n", snapshot->node->num_jobs);
-                
-            if(snapshot->node->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS)
-                return true;
-
+            printf("Number of elements in the queue: %d\n", snapshot->info.node->num_jobs_in_queue);
         }
-        else if(my_type[me] == SENSOR){
-                
-            if(snapshot->sensor->num_jobs_generated > TOTAL_NUMBER_OF_EVENTS)
-                return true;
-
-        }
-        else
-            return true;
 
     return false;
 

@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 typedef struct _heap_entry{
-	int key;
+	double key;
     void * payload;
 	int position;
 } _heap_entry;
