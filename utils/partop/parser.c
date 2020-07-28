@@ -4,7 +4,7 @@
 #include "header.h"
 #include <string.h>
 
-int * getTopology(){
+struct topArray * getTopology(){
 
   FILE * fp;
   char * line = NULL;
@@ -21,22 +21,35 @@ int * getTopology(){
   read = getline(&numberOfNodes, &len, fp);
   int nn = atoi(numberOfNodes);
   //printf("There are %d sender nodes.\n",nn);
-  int * topArray = malloc(sizeof(int) * nn);
+  struct topArray * returnArray = malloc(sizeof(struct topArray) * nn);
 
   //read the file, first token in each line is the sender node, second and following the receivers
   while ((read = getline(&line, &len, fp)) != -1) {
+    struct topArray tp;
     char * ptr = strtok(line, ",");
     int temp = atoi(ptr); //sender
+    int index = 0;
     ptr=strtok(NULL, ",");
     //For now looping is useless but we hold it in case of future implementations of broadcasts
     while(ptr){
-      topArray[temp] = atoi(ptr);//receiver(s)
+      if(index == 0){
+        tp.receiver = atoi(ptr);//receiver(s)
+      }
+      else{
+        //should probably remove /n
+        char * tmp = strdup(ptr);
+        tp.info = tmp;
+      }
+      index+=1;
       ptr=strtok(NULL, ",");
     }
+    tp.nn = nn;
+    returnArray[temp] = tp;
+
   }
+
   //printf("Array created, sending it to topology and closing file.\n");
   fclose(fp);
 
-  return(topArray);
-
+  return(returnArray);
 }
