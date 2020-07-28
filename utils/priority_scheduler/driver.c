@@ -23,13 +23,13 @@ void sort_test(){
 	queue_conf** arr1=malloc(sizeof(queue_conf)*3);
 
 	printf("sorting test:\n");
-	i1->type=QUEUE_BATCH;
+	i1->type=BATCH;
 	i1->queue=malloc(sizeof(char)*strlen("first\0"));
 	sprintf(i1->queue, "first");
-	i2->type=QUEUE_RT;
+	i2->type=REAL_TIME;
 	i2->queue=malloc(sizeof(char)*strlen("second\0"));
 	sprintf(i2->queue, "second");
-	i3->type=QUEUE_RT;
+	i3->type=REAL_TIME;
 	i3->queue=malloc(sizeof(char)*strlen("third\0"));
 	sprintf(i3->queue, "third");
 
@@ -45,7 +45,9 @@ void sort_test(){
 
 }
 
-///Testing the sorting algorithm inside the scheduler and the scheduling with 3 input queues, 1 output queues and 10 jobs.
+/**Testing the sorting algorithm inside the scheduler and the scheduling with 3 input queues, 1 output queues and 10 jobs.
+ * The jobs have a random timestamp between 0 and 9 so it is possible that some job in the lossy queue can be discarded
+ */
 int main(int argc, char** argv) {
 
 	sort_test();
@@ -54,25 +56,25 @@ int main(int argc, char** argv) {
 	queue_conf** arr=malloc(sizeof(queue_conf*)*3);
 
 	printf("schedule test with 3 input queue and 1 output queue:\n");
-	i1->type=QUEUE_RT;
+	i1->type=REAL_TIME;
 	i1->queue=create_queue();
 	i1->enqueue=enqueue;
 	i1->dequeue=dequeue;
 	i1->check_presence=check_presence;
 	i1->check_full=NULL;
-	i2->type=QUEUE_LOSSY;
+	i2->type=LOSSY;
 	i2->queue=create_queue();
 	i2->enqueue=enqueue;
 	i2->dequeue=dequeue;
 	i2->check_presence=check_presence;
 	i2->check_full=NULL;
-	i3->type=QUEUE_BATCH;
+	i3->type=BATCH;
 	i3->queue=create_queue();
 	i3->enqueue=enqueue;
 	i3->dequeue=dequeue;
 	i3->check_presence=check_presence;
 	i3->check_full=NULL;
-	o->type=QUEUE_BATCH;
+	o->type=BATCH;
 	o->queue=create_queue();
 	o->enqueue=enqueue;
 	o->dequeue=dequeue;
@@ -89,16 +91,16 @@ int main(int argc, char** argv) {
 
 	priority_scheduler* sched=new_prio_scheduler(arr, &o, 3, 1, 0, UPGRADE_PRIO);
 
-	int i;
-	int payload[10];
+	int i=0;
+	job_info *tmp=NULL;
 
-	printf("enqueuing jobs\n");
-
+	printf("scheduling jobs on the input queues\n");
 	for(i=0;i<10;i++){
-		payload[i]=rand();
-		enqueue(i1->queue,rand(),&payload[i]);
-		enqueue(i2->queue,rand(),&payload[i]);
-		enqueue(i3->queue,rand(),&payload[i]);
+		tmp=malloc(sizeof(job_info));
+		tmp->type=rand()%3; // we choose a random priority between REAL_TIME, LOSSY and BATCH
+		tmp->timestamp=rand() % 10;
+		tmp->payload==NULL;
+		schedule_in(sched,tmp);
 	}
 	printf("queues before scheduling\n");
 	for(i=0;i<3;i++){
@@ -109,9 +111,9 @@ int main(int argc, char** argv) {
 	print_queue(o);
 
 
-	printf("scheduling jobs\n");
+	printf("scheduling out jobs\n");
 	for(i=0;i<10;i++){
-		schedule(sched);
+		schedule_out(sched,i);
 	}
 
 	printf("queues after scheduling\n");
@@ -119,9 +121,18 @@ int main(int argc, char** argv) {
 		printf("input queue %d\n type: %d, items: %d\n contents:\n",i,arr[i]->type,(arr[i]->check_presence)(arr[i]->queue));
 		print_queue(arr[i]->queue);
 	}
+	printf("extracting elements from the output queue and printing them:\n");
+
+	while((o->check_presence)(o->queue)){
+		printf("output queue \n type: %d, items: %d\n contents:\n",o->type,(o->check_presence)(o->queue));
+		print_queue(o->queue);
+		tmp=dequeue(o->queue);
+		printf("%p\n",tmp);
+		printf("job type: %d, timestamp %d\n",tmp->type,tmp->timestamp);
+		free(tmp);
+	}
 	printf("output queue \n type: %d, items: %d\n contents:\n",o->type,(o->check_presence)(o->queue));
 	print_queue(o->queue);
-
 
 	return EXIT_SUCCESS;
 }

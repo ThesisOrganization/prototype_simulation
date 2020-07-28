@@ -23,34 +23,49 @@ priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, 
 	sched->num_output_queues=num_output;
 	sched->events_to_schedule=events;
 	sched->mix_prio=prio;
-
+	sched->scheduler_timestamp=0;
+	sched->rejected_rt=0;
+	sched->rejected_lossy=0;
+	sched->rejected_batch=0;
 	return sched;
 }
 
 /** \brief Check is an output queue is infinite or has still space for jobs
  * \param[in] output The output queue to be checked
  */
-int check_queues(queue_conf* output){
+int check_queues(queue_conf* queue){
 	int infinite_queue,queue_full=0;
 	//check if the queue is infinite
-	infinite_queue= output->check_full==NULL;
+	infinite_queue= queue->check_full==NULL;
 	if(!infinite_queue){
 		//check if the queue is full
-		queue_full=(output->check_full)(output->queue);
+		queue_full=(queue->check_full)(queue->queue);
 	}
 	return infinite_queue || !queue_full;
 }
 
 /**
- * To schedule the jobs extract them in order from the input queues, according to the type of queue.
+ * To schedule the jobs on the output queues we extract them in order from the input queues, according to the type of queue.
  * The queue in which a job is placed is chosen by considering the order in which the output queues are placed, with the
  * possibility to upgrade the priority of a job (See `::UPGRADE_PRIO`) if there is a suitable queue available.
  * __NOTE:__ It is possible that some jobs can be not scheduled depending on the output queue characteristics and on the usage of `::UPDATE_PRIO`.
+ * Before scheduling jobs, if the output queues are all empty the `scheduler_timestamp` is reset, to try avoiding overflows.
+ * Real time jobs that don't meet the deadline are scheduled regardless (they shoul always meet the deadline).
  */
-void schedule(priority_scheduler* sched){
-	int i,output_index=0;
-	int job_index=0;
-	void* job;
+void schedule_out(priority_scheduler* sched,int deadline){
+	int i,output_index=0,output_empty=1,job_index=0;
+	job_info* job;
+
+	// we check if all output queues are empty
+	for(i=0;i<sched->num_output_queues && output_empty;i++){
+		output_empty= output_empty && check_queues(sched->output_queues[i]);
+	}
+
+	//if all output queues are empty we can reset the scheduler timestamp
+	if(output_empty){
+		sched->scheduler_timestamp=0;
+	}
+
 	// we schedule events from the input queues (sorted by type and priority) to the output queues (sorted by type and priority)
 	for(i=0;i<sched->num_input_queues;i++){
 		//we schedule jobs from the input queue to the output queues, according to the configured number of events to be scheduled
@@ -62,7 +77,6 @@ void schedule(priority_scheduler* sched){
 					output_index++;
 					//if we don't have any other output queues we cannot schedule jobs
 					if(output_index>=sched->num_output_queues){
-						/// \todo what happens when we cannot schedule jobs from an RT queue?
 						return;
 					}
 				}
@@ -72,15 +86,63 @@ void schedule(priority_scheduler* sched){
 					output_index=i;
 				} else {
 					// we cannot schedule an event from the ith input queue, so we jump to the next input queue
-					/// \todo see if an error must be raised if an RT queue is jumped
 					break;
 				}
 			}
 			//we can now schedule the job from the ith input queue to a suitable output queue
 			//we dequeue the job from the ith input queue
 			job=(sched->input_queues[i]->dequeue)(sched->input_queues[i]->queue);
-			//we enqueue the job on the chosen output queue
-			(sched->output_queues[output_index]->enqueue)(sched->output_queues[output_index]->queue,job_index,job);
+			//we check if the job timestamp is not after the deadline (only for lossy queues)
+			if((sched->input_queues[i]->type!=LOSSY && job->type!=LOSSY) || job->timestamp<=deadline){
+				//we enqueue the job on the chosen output queue
+				(sched->output_queues[output_index]->enqueue)(sched->output_queues[output_index]->queue,sched->scheduler_timestamp,job);
+				//we increment the timestamp of the scheduler since we have scheduled one more job
+				sched->scheduler_timestamp++;
+				// we also want to know how many real time jobs didn't meet the deadline
+				if(sched->input_queues[i]->type==REAL_TIME && job->type==REAL_TIME) && job->timestamp>deadline){
+					sched->rejected_rt++;
+				}
+			} else {
+				//update stats for the lossy job discarded
+				sched->rejected_lossy++;
+				//free job's memory
+				if(job->payload!=NULL){
+					free(job->payload);
+				}
+				free(job);
+			}
 		}
+	}
+}
+
+/**
+ * Schedule a new event in the first appropriate queue which has free space
+ */
+void schedule_in(priority_scheduler* sched, job_info* job){
+	int i, done=0;
+	//we find a suitable queue
+	for(i=0;i<sched->num_input_queues && !done;i++){
+		if(sched->input_queues[i]->type==job->type && check_queues(sched->input_queues[i])){
+			//the queue has the same type of the event and is not full so we can add the job in it
+			(sched->input_queues[i]->enqueue)(sched->input_queues[i]->queue,job->timestamp,job);
+			done=1;
+		}
+	}
+	//update stats if the job is not scheduled
+	if(!done){
+		if(job->type==REAL_TIME){
+			sched->rejected_rt++;
+		}else{
+			if(job->type==LOSSY){
+				sched->rejected_lossy++;
+			}else{
+				sched->rejected_batch++;
+			}
+		}
+		//free job's memory
+		if(job->payload!=NULL){
+			free(job->payload);
+		}
+		free(job);
 	}
 }

@@ -2,19 +2,10 @@
 #define APPLICATION_H
 
 
-typedef enum {
-    REAL_TIME = 0,
-    DISCARD,
-    BATCH
-} job_type;
-
-typedef struct _job_info {
-    job_type type;
-    int timestamp;
-} job_info;
+#include "utils/priority_scheduler/priority_datatypes.h"
 
 typedef struct _sensor_state {
-    job_type job_generated;
+    prio_type job_generated;
 } sensor_state;
 
 typedef struct _node_state {
