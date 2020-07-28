@@ -6,10 +6,14 @@ int main()
   //We retrieve the topology, answer the question of who needs to receive for each sender node in the data
 
   printf("Main starting, retrieving array..\n");
-  int * topArray = getTopology();
+  struct topArray * topArray = getTopology();
   printf("Checking array integrity..\n");
   for(int i = 0; i < 5; i++){
+
     int solution = getNext(topArray, i);
-    printf("node %d sends to node %d\n",i,solution);
+    printf("Node %d sends to node %d.\n",i,solution);
+
+    char * info = getInfo(topArray, i);
+    printf("Node %d has this information:%s",i,info);
   }
 }
