@@ -8,12 +8,25 @@ int main()
   printf("Main starting, retrieving array..\n");
   struct topArray * topArray = getTopology();
   printf("Checking array integrity..\n");
-  for(int i = 0; i < 5; i++){
 
-    int solution = getNext(topArray, i);
-    printf("Node %d sends to node %d.\n",i,solution);
+  for(int i = 0; i < 6; i++){
 
-    char * info = getInfo(topArray, i);
-    printf("Node %d has this information:%s",i,info);
+    int * solution = getNext(topArray, i);
+    int numReceiv = getNumberReceiv(topArray, i);
+    int j = 0;
+    while(j < numReceiv){
+      printf("Node %d sends to node %d\n",i,solution[j]);
+      j+=1;
+    }
+
+    char ** info = getInfo(topArray, i);
+    int numInf = getNumberInfos(topArray, i);
+    j=0;
+    while(j < numInf){
+      printf("Node %d has this info: %s\n",i,info[j]);
+      j+=1;
+    }
+
+
   }
 }

@@ -2,12 +2,20 @@
 #include "header.h"
 
 //for now extremely simple function, just returning the node to send the data, will get messier.
-int getNext(struct topArray * array, int index)
+int * getNext(struct topArray * array, int index)
 {
   return(array[index].receiver);
 }
 
-char * getInfo(struct topArray * array, int index)
+char ** getInfo(struct topArray * array, int index)
 {
   return(array[index].info);
+}
+
+int getNumberReceiv(struct topArray * array, int index){
+  return(array[index].numberOfReceivers);
+}
+
+int getNumberInfos(struct topArray * array, int index){
+  return(array[index].numberInfos);
 }
