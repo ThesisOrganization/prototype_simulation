@@ -1,6 +1,5 @@
-struct topArray
+  struct topArray
 {
-int nn;
 int numberOfReceivers;
 int numberInfos;
 
@@ -9,7 +8,13 @@ char ** info;
 
 };
 
-struct topArray * getTopology();
+struct generalTopology{
+  int total_nodes;
+  int sensor_nodes;
+  struct topArray * topArr;
+};
+
+struct generalTopology getTopology();
 int getNumberReceiv(struct topArray * array, int index);
 int getNumberInfos(struct topArray * array, int index);
 
