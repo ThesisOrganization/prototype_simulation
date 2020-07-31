@@ -37,6 +37,8 @@ int main(int argc, char** argv) {
 
     printf("%d\n", check_presence(pq) );
 
+    delete_queue(pq);
+
 
     
     return EXIT_SUCCESS;

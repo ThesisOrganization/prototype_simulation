@@ -30,6 +30,12 @@ int check_presence(priority_queue * pq){
 
 }
 
+void delete_queue(priority_queue * pq){
+
+    heap_delete(pq);
+
+}
+
 void print_queue(priority_queue * pq){
 
     heap_print(pq);

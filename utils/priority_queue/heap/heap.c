@@ -155,7 +155,7 @@ void * heap_poll(heap * hh) {
 		heapify(h, 0);
 		//key = e->key;
 		payload = e->payload;
-		//free(e); //not to free for Root-Sim
+		free(e); 
 	}
 		
 	return payload;
