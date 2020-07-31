@@ -1,3 +1,6 @@
+#ifndef HEADER_H
+#define HEADER_H
+
 typedef struct _topArray
 {
 int numberOfReceivers;
@@ -20,3 +23,5 @@ int getNumberInfos(topology * top, int index);
 
 int * getNext(topology * top, int next);
 char ** getInfo(topology * top, int index);
+
+#endif /* HEADER_H */
