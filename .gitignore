@@ -1,0 +1,9 @@
+.*
+!.gitignore
+ROOT-Sim-*
+*.o*
+driver
+*.kde*
+*~
+queues
+*_model

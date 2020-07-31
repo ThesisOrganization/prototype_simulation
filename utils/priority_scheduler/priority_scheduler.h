@@ -14,6 +14,8 @@
 /** \brief The object that represents the scheduler.
  * The scheduler is composed by a set of input queues and a set of output queues, each set with its own priority,
  * defined by the index of the element in the array. (Lowest -> Max Priority).
+ * The scheduler can also be configured to have 0 output queues, and it will return the events t be scheduled to the
+ * caller.
  * __Note:__ Queues are required use the `::job_info` struct to charachterize the priority and timestamp of single jobs.
 */
 typedef struct priority_scheduler{
@@ -24,6 +26,7 @@ typedef struct priority_scheduler{
 	int events_to_schedule;	///< Number to events to schedule at each call.
 																		///< If this number is 0 we move events from the input queues to the output queues
 																		///< until the input queues are all empty or the output queues are all full.
+																		///< If there are no output queues this parameter cannot be 0.
 	int mix_prio;	///< This parameter tells the scheduler if the events can change priority when are scheduled with more
 								///< than one output queue. See `::UPGRADE_PRIO`.
 	int scheduler_timestamp;	///< The scheduler timestamp, used to schedule events in the output queues instead of the timestamp
@@ -46,9 +49,10 @@ priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, 
 
 /** \brief Schedules events from the input queues to the output queues.
  * \param[in] sched The scheduler which must be used to schedule events.
- * \param[in] deadline The current timestamp, used to determine if a lossy event must be discarded.
+ * \param[in] timestamp The current timestamp, used to determine if a lossy event must be discarded.
+ * \returns `NULL` if there is at least one output queue, an array of `events_to_schedule` elements if there are no output queues. The returned array can also have less than `events_to_schedule` elements depending on the input queue status, its last element is always NULL.
  */
-void schedule_out(priority_scheduler* sched,int deadline);
+job_info** schedule_out(priority_scheduler* sched,int timestamp);
 
 /** \brief Schedules an event to one of the input queues.
  * \param[in] sched The scheduler which must be used to schedule events.
