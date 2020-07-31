@@ -21,6 +21,7 @@ typedef union {
 
 typedef struct _state {
     int num_jobs_processed;
+    topology * topology;
     state_info info;
 } state;
 

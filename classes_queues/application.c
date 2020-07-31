@@ -25,7 +25,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 {
     unsigned int my_type[3] = {SENSOR, NODE, NODE}; //0 sensor, 1 node
     unsigned int my_job_type[1] = {REAL_TIME};
-    unsigned int my_up_node[3] = {1, 2, -1};
+    //unsigned int my_up_node[3] = {1, 2, -1};
 
     simtime_t ts_arrive = now + (ARRIVE_RATE * Poisson());
     simtime_t ts_finish = now + (FINISH_RATE * Poisson());
@@ -42,6 +42,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             //state->info = malloc(sizeof(state_info));
             state->num_jobs_processed = 0;
+            state->topology = getTopology(); //later we will use a static struct
             
             //initializza strutture (if sensors and ecc)
             if(my_type[me] == NODE){
@@ -106,7 +107,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             
             info = dequeue(state->info.node->queues);
             
-            up_node = my_up_node[me];
+            //up_node = my_up_node[me];
+            up_node = getNext(state->topology, me)[0]; 
             if(up_node != -1){
                 ScheduleNewEvent(up_node, ts_delay, ARRIVE, info, sizeof(job_info));
             }
