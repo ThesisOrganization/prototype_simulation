@@ -2,7 +2,8 @@
 #define APPLICATION_H
 
 
-#include "utils/priority_scheduler/priority_datatypes.h"
+#include "../utils/priority_scheduler/priority_datatypes.h"
+#include "../utils/partop/header.h"
 
 typedef struct _sensor_state {
     prio_type job_generated;
@@ -20,6 +21,7 @@ typedef union {
 
 typedef struct _state {
     int num_jobs_processed;
+    topology * topology;
     state_info info;
 } state;
 
