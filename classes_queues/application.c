@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "application.h"
 #include "../utils/priority_queue/priority_queue.h"
+#include "../utils/priority_scheduler/priority_scheduler.h"
+#include "../utils/partop/header.h"
 
 #define EVENT 1
 #define ARRIVE 2
@@ -69,6 +71,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 info = malloc(sizeof(job_info));
                 info->type = my_job_type[me];
                 info->timestamp = now + (Random() * RANGE_TIMESTAMP); //should be random, like now + random
+                info->payload = NULL;
 
                 ScheduleNewEvent(my_up_node[me], ts_delay, ARRIVE, info, sizeof(job_info));
 

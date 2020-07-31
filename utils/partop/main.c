@@ -7,16 +7,16 @@ int main()
 
   printf("Main starting, retrieving array..\n");
 
-  struct generalTopology genTop = getTopology();
-  printf("Contents of generalTopology, total nodes : %d, sensor nodes: %d. \n",genTop.total_nodes,genTop.sensor_nodes);
+  topology * genTop = getTopology();
+  printf("Contents of generalTopology, total nodes : %d, sensor nodes: %d. \n",genTop->total_nodes,genTop->sensor_nodes);
 
-  struct topArray * topArray = genTop.topArr;
+  //topArray ** topArray = genTop->topArr;
   printf("Checking array integrity..\n");
 
   for(int i = 0; i < 6; i++){
 
-    int * solution = getNext(topArray, i);
-    int numReceiv = getNumberReceiv(topArray, i);
+    int * solution = getNext(genTop, i);
+    int numReceiv = getNumberReceiv(genTop, i);
     int j = 0;
 
     while(j < numReceiv){
@@ -24,8 +24,8 @@ int main()
       j+=1;
     }
 
-    char ** info = getInfo(topArray, i);
-    int numInf = getNumberInfos(topArray, i);
+    char ** info = getInfo(genTop, i);
+    int numInf = getNumberInfos(genTop, i);
     j=0;
 
     while(j < numInf){

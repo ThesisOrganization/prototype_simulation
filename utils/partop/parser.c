@@ -4,7 +4,7 @@
 #include "header.h"
 #include <string.h>
 
-struct generalTopology getTopology(){
+topology * getTopology(){
 
   FILE * fp;
   char * line = NULL;
@@ -26,12 +26,12 @@ struct generalTopology getTopology(){
 
   printf("There are %d nodes.\n",nn);
   printf("There are %d sensor nodes.\n",ns);
-  struct generalTopology genTop;
-  struct topArray * returnArray = malloc(sizeof(struct topArray) * ns);
+  topology * genTop = malloc(sizeof(topology));
+  topArray ** returnArray = malloc(sizeof(topArray *) * ns);
   //iterate through the remaining lines, having the following syntax:
   //receiver;#senders;senders;#info;info
   while ((read = getline(&line, &len, fp)) != -1) {
-    struct topArray tp;
+    topArray * tp = malloc(sizeof(topArray));
 
     //tokenize the line using ";" as a separator
     char *end_str;
@@ -79,18 +79,18 @@ struct generalTopology getTopology(){
       ptr=strtok_r(NULL, ";",&end_str);
     }
 
-    tp.numberOfReceivers = numberOfReceivers;
-    tp.numberInfos = numberOfInfos;
-    tp.receiver = receiversArray;
-    tp.info = infoArray;
+    tp->numberOfReceivers = numberOfReceivers;
+    tp->numberInfos = numberOfInfos;
+    tp->receiver = receiversArray;
+    tp->info = infoArray;
     returnArray[temp] = tp;
   }
 
   fclose(fp);
 
-  genTop.total_nodes = nn;
-  genTop.sensor_nodes = ns;
-  genTop.topArr = returnArray;
+  genTop->total_nodes = nn;
+  genTop->sensor_nodes = ns;
+  genTop->topArr = returnArray;
 
-  return(genTop);
+  return genTop;
 }
