@@ -6,8 +6,8 @@ int main()
   //We retrieve the topology, answer the question of who needs to receive for each sender node in the data
 
   printf("Main starting, retrieving array..\n");
-
-  topology * genTop = getTopology();
+  char * path = "test.txt";
+  topology * genTop = getTopology(path);
   printf("Contents of generalTopology, total nodes : %d, sensor nodes: %d. \n",genTop->total_nodes,genTop->sensor_nodes);
 
   //topArray ** topArray = genTop->topArr;
