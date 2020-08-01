@@ -11,8 +11,8 @@ priority_queue * create_queue(){
 
 }
 
-void enqueue(priority_queue * pq, int timestamp, void * payload){
-    
+void enqueue(priority_queue * pq, double timestamp, void * payload){
+
     heap_add(pq, timestamp, payload);
 
 }

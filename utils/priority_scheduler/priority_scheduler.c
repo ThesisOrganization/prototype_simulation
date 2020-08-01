@@ -63,7 +63,7 @@ int check_queues(queue_conf* queue){
  * Real time jobs that don't meet the deadline are scheduled regardless (they shoul always meet the deadline).
  * If there were no output queues supplied, the function will return up to `events_to_schedule` jobs, according to the scheduler configuration.
  */
-job_info** schedule_out(priority_scheduler* sched,int timestamp){
+job_info** schedule_out(priority_scheduler* sched,double timestamp){
 	int i,output_index=0,output_empty=1,job_index=0;
 	job_info *job, **jobs=NULL;
 
@@ -127,6 +127,8 @@ job_info** schedule_out(priority_scheduler* sched,int timestamp){
 				//we increment the timestamp of the scheduler since we have scheduled one more job
 				sched->scheduler_timestamp++;
 			} else {
+					//we decrement job_index, since the job we have picked is not valid
+					job_index--;
 				//update stats for the lossy job discarded
 				sched->rejected_lossy++;
 				//free job's memory

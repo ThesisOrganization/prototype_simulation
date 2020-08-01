@@ -29,7 +29,9 @@ typedef struct priority_scheduler{
 																		///< If there are no output queues this parameter cannot be 0.
 	int mix_prio;	///< This parameter tells the scheduler if the events can change priority when are scheduled with more
 								///< than one output queue. See `::UPGRADE_PRIO`.
-	int scheduler_timestamp;	///< The scheduler timestamp, used to schedule events in the output queues instead of the timestamp
+	int scheduler_timestamp;	///< The scheduler timestamp, used to schedule events in the output queues instead of the
+														///< real timestamp so the order of events in and between input queues is respected in the
+														///< output queues.
 											///< of the job to take into account the job timestamp and the queue priority.
 	int rejected_rt; ///< Number of real time jobs rejected.
 	int rejected_lossy; ///< Number of lossy jobs rejected.
@@ -52,7 +54,7 @@ priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, 
  * \param[in] timestamp The current timestamp, used to determine if a lossy event must be discarded.
  * \returns `NULL` if there is at least one output queue, an array of `events_to_schedule` elements if there are no output queues. The returned array can also have less than `events_to_schedule` elements depending on the input queue status, its last element is always NULL.
  */
-job_info** schedule_out(priority_scheduler* sched,int timestamp);
+job_info** schedule_out(priority_scheduler* sched,double timestamp);
 
 /** \brief Schedules an event to one of the input queues.
  * \param[in] sched The scheduler which must be used to schedule events.

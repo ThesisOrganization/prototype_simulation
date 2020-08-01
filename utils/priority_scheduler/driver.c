@@ -60,7 +60,8 @@ int main(int argc, char** argv) {
 
 	printf("put queues into an array\n");
 
-	priority_scheduler* sched=new_prio_scheduler(arr, &o, 3, 1, 2, UPGRADE_PRIO);
+	//priority_scheduler* sched=new_prio_scheduler(arr, &o, 3, 1, 2, UPGRADE_PRIO);
+	priority_scheduler* sched=new_prio_scheduler(arr, NULL, 3, 0, 2, UPGRADE_PRIO);
 
 	int i=0,j;
 	job_info *tmp=NULL;
@@ -68,8 +69,8 @@ int main(int argc, char** argv) {
 	printf("scheduling jobs on the input queues\n");
 	for(i=0;i<10;i++){
 		tmp=malloc(sizeof(job_info));
-		tmp->type=rand()%3; // we choose a random priority between REAL_TIME, LOSSY and BATCH
-		tmp->deadline=rand() % 10;
+		tmp->type=rand() % 3; // we choose a random priority between REAL_TIME, LOSSY and BATCH
+		tmp->deadline=drand48()*9+1;
 		tmp->payload=NULL;
 		schedule_in(sched,tmp);
 	}
@@ -88,13 +89,14 @@ int main(int argc, char** argv) {
 	for(i=0;i<10;i++){
 		job=schedule_out(sched,i);
 		printf("time: %d\n",i);
-		printf("elements in o %d\n",o->check_presence(o->queue));
-	/*	for(j=0;job!=NULL && job[j]!=NULL;j++){
-			printf("job type: %d, timestamp %d\n",job[j]->type,job[j]->timestamp);
+		if(job!=NULL){
+		for(j=0;job[j]!=NULL;j++){
+			printf("job type: %d, deadline %f\n",job[j]->type,job[j]->deadline);
 			free(job[j]);
 		}
 			free(job);
-		printf("time++\n");*/
+		}
+		printf("time++\n");
 	}
 
 	printf("input queues after scheduling\n");
@@ -108,15 +110,18 @@ int main(int argc, char** argv) {
 		printf("output queue \n type: %d, items: %d\n contents:\n",o->type,(o->check_presence)(o->queue));
 		print_queue(o->queue);
 		tmp=dequeue(o->queue);
-		printf("job type: %d, deadline %d\n",tmp->type,tmp->deadline);
+		printf("job type: %d, deadline %f\n",tmp->type,tmp->deadline);
 		free(tmp);
 	}
 	printf("output queue \n type: %d, items: %d\n contents:\n",o->type,(o->check_presence)(o->queue));
 	print_queue(o->queue);
-	/*TODO */
-	/* deallocating queues
+	// deallocating queues
 	for(i=0;i<3;i++){
-
-	}*/
+		delete_queue(arr[i]->queue);
+		free(arr[i]);
+	}
+	free(arr);
+	delete_queue(o->queue);
+	free(o);
 	return EXIT_SUCCESS;
 }
