@@ -39,17 +39,34 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
         case INIT:
             state = malloc(sizeof(state));
             SetState(state);
-
+            
+            char path[] = "./test.txt";
+            
             //state->info = malloc(sizeof(state_info));
             state->num_jobs_processed = 0;
-            state->topology = getTopology(); //later we will use a static struct
+            state->topology = getTopology(path); //later we will use a static struct
             
             //initializza strutture (if sensors and ecc)
             if(my_type[me] == NODE){
                 
                 state->info.node = malloc(sizeof(node_state));
                 state->info.node->num_jobs_in_queue = 0;
-                state->info.node->queues = create_queue();
+                //state->info.node->queues = create_queue();
+
+                int num_queues = 3;
+                queue_conf** queues = malloc(sizeof(queue_conf *) * num_queues);
+                for(int i = 0; i < num_queues; i++){
+                    queues[i] = malloc(sizeof(queue_conf));
+                    queues[i]->queue = create_queue();
+                    queues[i]->type = i;
+                    queues[i]->enqueue = enqueue;
+                    queues[i]->dequeue = dequeue;
+                    queues[i]->check_presence = check_presence;
+                    queues[i]->check_full = NULL;
+                }
+
+                state->info.node->queues = new_prio_scheduler(queues, NULL, num_queues, 0, 1, UPGRADE_PRIO);
+
             }
             else if(my_type[me] == SENSOR){
 
@@ -71,10 +88,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
                 info = malloc(sizeof(job_info));
                 info->type = my_job_type[me];
-                info->timestamp = now + (Random() * RANGE_TIMESTAMP); //should be random, like now + random
+                info->deadline = now + (Random() * RANGE_TIMESTAMP); //should be random, like now + random
                 info->payload = NULL;
 
-                ScheduleNewEvent(my_up_node[me], ts_delay, ARRIVE, info, sizeof(job_info));
+                up_node = getNext(state->topology, me)[0]; 
+                ScheduleNewEvent(up_node, ts_delay, ARRIVE, info, sizeof(job_info));
 
                 ScheduleNewEvent(me, ts_arrive, GENERATE, NULL, 0);
 
@@ -93,7 +111,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 ScheduleNewEvent(me, ts_finish, FINISH, content, sizeof(job_info));
 
             //add in the right queue
-            enqueue(state->info.node->queues, ((job_info*) content)->timestamp, content);
+            //enqueue(state->info.node->queues, ((job_info*) content)->deadline, content);
+            schedule_in(state->info.node->queues, content);
 
             //update statistics
             state->info.node->num_jobs_in_queue++;
@@ -105,7 +124,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             
             //send arrive to next LP
             
-            info = dequeue(state->info.node->queues);
+            //info = dequeue(state->info.node->queues);
+            info = schedule_out(state->info.node->queues, now)[0];
             
             //up_node = my_up_node[me];
             up_node = getNext(state->topology, me)[0]; 

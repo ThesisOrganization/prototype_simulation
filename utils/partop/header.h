@@ -17,7 +17,7 @@ typedef struct _topology{
   topArray ** topArr; //array of poiters to topArray
 } topology;
 
-topology * getTopology();
+topology * getTopology(char * path);
 int getNumberReceiv(topology * top, int index);
 int getNumberInfos(topology * top, int index);
 

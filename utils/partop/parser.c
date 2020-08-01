@@ -4,7 +4,7 @@
 #include "header.h"
 #include <string.h>
 
-topology * getTopology(){
+topology * getTopology(char * path){
 
   FILE * fp;
   char * line = NULL;
@@ -12,7 +12,7 @@ topology * getTopology(){
   ssize_t read;
   char * numberOfNodes;
 
-  fp = fopen("test.txt", "r");
+  fp = fopen(path, "r");
 
   if (fp == NULL)
       exit(EXIT_FAILURE);
@@ -39,13 +39,13 @@ topology * getTopology(){
     //first element is the sender
     int temp = atoi(ptr);
 
-    int numberOfReceivers;
-    int numberOfInfos;
+    int numberOfReceivers = 0;
+    int numberOfInfos = 0;
     int index = 0;//keep track of how many ";" token we iterated on so we know
     //which kind data we are analyzing
 
-    int * receiversArray;
-    char ** infoArray;
+    int * receiversArray = NULL;
+    char ** infoArray = NULL;
 
     ptr = strtok_r(NULL, ";", &end_str);
     //loop through all the other tokens in the line
