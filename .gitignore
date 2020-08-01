@@ -6,5 +6,6 @@ driver
 *.kde*
 *~
 queues
+main
 *_model
 */outputs*
