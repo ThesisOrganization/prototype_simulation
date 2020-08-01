@@ -8,7 +8,7 @@ int * getNext(topology * top, int index)
   return array[index]->receiver;
 }
 
-char ** getInfo(topology * top, int index)
+void * getInfo(topology * top, int index)
 {
   topArray ** array = top->topArr;
   return array[index]->info;

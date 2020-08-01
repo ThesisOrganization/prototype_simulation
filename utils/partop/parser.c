@@ -4,7 +4,7 @@
 #include "header.h"
 #include <string.h>
 
-topology * getTopology(char * path){
+topology * getTopology(char * path, void* (*converting)(char **)){
 
   FILE * fp;
   char * line = NULL;
@@ -82,7 +82,8 @@ topology * getTopology(char * path){
     tp->numberOfReceivers = numberOfReceivers;
     tp->numberInfos = numberOfInfos;
     tp->receiver = receiversArray;
-    tp->info = infoArray;
+    tp->info = converting(infoArray);
+    //tp->info = infoArray;
     returnArray[temp] = tp;
   }
 

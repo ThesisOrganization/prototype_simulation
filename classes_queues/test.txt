@@ -1,5 +1,5 @@
 2
 1
-0;1;1;1;sensor0
-1;1;2;1;node1
-2;1;-1;1;node2
+0;1;1;2;SENSOR,REAL_TIME
+1;1;2;1;NODE
+2;1;-1;1;NODE

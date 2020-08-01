@@ -7,7 +7,7 @@ int numberOfReceivers;
 int numberInfos;
 
 int * receiver;
-char ** info;
+void * info;
 
 } topArray;
 
@@ -17,11 +17,11 @@ typedef struct _topology{
   topArray ** topArr; //array of poiters to topArray
 } topology;
 
-topology * getTopology(char * path);
+topology * getTopology(char * path, void* (*converting)(char **) );
 int getNumberReceiv(topology * top, int index);
 int getNumberInfos(topology * top, int index);
 
 int * getNext(topology * top, int next);
-char ** getInfo(topology * top, int index);
+void * getInfo(topology * top, int index);
 
 #endif /* HEADER_H */

@@ -1,5 +1,7 @@
 #include <ROOT-Sim.h>
 #include <stdio.h>
+#include <string.h>
+
 #include "application.h"
 #include "../utils/priority_queue/priority_queue.h"
 #include "../utils/priority_scheduler/priority_scheduler.h"
@@ -17,15 +19,37 @@
 
 #define RANGE_TIMESTAMP 10
 
-#define SENSOR 0
-#define NODE 1
+void * parse_strings(char ** strings){
+    lp_infos * infos = malloc(sizeof(lp_infos));
+    
+    if( !strcmp(strings[0], "NODE\n") ){
+
+        infos->lp_type = NODE;
+
+    }
+    else if( !strcmp(strings[0], "SENSOR") ){
+
+        infos->lp_type = SENSOR;
+        if( !strcmp(strings[1], "REAL_TIME\n") )
+            infos->type_job = REAL_TIME;
+        else if( !strcmp(strings[1], "LOSSY\n") )
+            infos->type_job = LOSSY;
+        else if( !strcmp(strings[1], "BATCH\n") )
+            infos->type_job = BATCH;
+        else
+            exit(EXIT_FAILURE);
+
+    }
+    else{
+        exit(EXIT_FAILURE);
+    }
+    
+    return infos;
+}
 
 
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, state * state)
 {
-    unsigned int my_type[3] = {SENSOR, NODE, NODE}; //0 sensor, 1 node
-    unsigned int my_job_type[1] = {REAL_TIME};
-    //unsigned int my_up_node[3] = {1, 2, -1};
 
     simtime_t ts_arrive = now + (ARRIVE_RATE * Poisson());
     simtime_t ts_finish = now + (FINISH_RATE * Poisson());
@@ -42,16 +66,17 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             
             char path[] = "./test.txt";
             
-            //state->info = malloc(sizeof(state_info));
             state->num_jobs_processed = 0;
-            state->topology = getTopology(path); //later we will use a static struct
+            state->topology = getTopology(path, parse_strings); //later we will use a static struct
             
+            lp_infos * infos = getInfo(state->topology, me);
+            state->type = infos->lp_type;
+
             //initializza strutture (if sensors and ecc)
-            if(my_type[me] == NODE){
+            if(state->type == NODE){
                 
                 state->info.node = malloc(sizeof(node_state));
                 state->info.node->num_jobs_in_queue = 0;
-                //state->info.node->queues = create_queue();
 
                 int num_queues = 3;
                 queue_conf** queues = malloc(sizeof(queue_conf *) * num_queues);
@@ -68,10 +93,10 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 state->info.node->queues = new_prio_scheduler(queues, NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
             }
-            else if(my_type[me] == SENSOR){
+            else if(state->type == SENSOR){
 
                 state->info.sensor = malloc(sizeof(sensor_state));
-                state->info.sensor->job_generated = my_job_type[me];
+                state->info.sensor->job_generated = infos->type_job;
                 
                 //schedule generate for all sensors
                 ScheduleNewEvent(me, ts_arrive, GENERATE, NULL, 0);
@@ -87,7 +112,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             if(state->num_jobs_processed <= TOTAL_NUMBER_OF_EVENTS){
 
                 info = malloc(sizeof(job_info));
-                info->type = my_job_type[me];
+                info->type = state->info.sensor->job_generated;
                 info->deadline = now + (Random() * RANGE_TIMESTAMP); //should be random, like now + random
                 info->payload = NULL;
 
@@ -111,7 +136,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 ScheduleNewEvent(me, ts_finish, FINISH, content, sizeof(job_info));
 
             //add in the right queue
-            //enqueue(state->info.node->queues, ((job_info*) content)->deadline, content);
             schedule_in(state->info.node->queues, content);
 
             //update statistics
@@ -124,10 +148,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             
             //send arrive to next LP
             
-            //info = dequeue(state->info.node->queues);
             info = schedule_out(state->info.node->queues, now)[0];
             
-            //up_node = my_up_node[me];
             up_node = getNext(state->topology, me)[0]; 
             if(up_node != -1){
                 ScheduleNewEvent(up_node, ts_delay, ARRIVE, info, sizeof(job_info));
@@ -153,9 +175,7 @@ bool OnGVT(int me, state *snapshot)
         if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS)
             return true;
 
-        unsigned int my_type[3] = {SENSOR, NODE, NODE}; //0 sensor, 1 node
-
-        if(my_type[me] == NODE){
+        if(snapshot->type == NODE){
 
             printf("Number of elements in the queue: %d\n", snapshot->info.node->num_jobs_in_queue);
         }
