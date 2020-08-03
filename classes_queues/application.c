@@ -13,7 +13,7 @@
 #define GENERATE 4
 #define TOTAL_NUMBER_OF_EVENTS 100
 #define DELAY_MEAN 1
-#define ARRIVE_RATE 10
+#define ARRIVE_RATE 30
 #define FINISH_RATE 5
 #define LEN_QUEUE 50
 

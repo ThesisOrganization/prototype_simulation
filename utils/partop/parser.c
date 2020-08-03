@@ -27,7 +27,7 @@ topology * getTopology(char * path, void* (*converting)(char **)){
   printf("There are %d nodes.\n",nn);
   printf("There are %d sensor nodes.\n",ns);
   topology * genTop = malloc(sizeof(topology));
-  topArray ** returnArray = malloc(sizeof(topArray *) * ns);
+  topArray ** returnArray = malloc(sizeof(topArray *) * (ns + nn));
   //iterate through the remaining lines, having the following syntax:
   //receiver;#senders;senders;#info;info
   while ((read = getline(&line, &len, fp)) != -1) {
