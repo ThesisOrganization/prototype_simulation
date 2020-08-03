@@ -156,7 +156,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             
             //schedule finish if queue empty
             if(state->info.node->num_jobs_in_queue < 1)
-                ScheduleNewEvent(me, ts_finish, FINISH, content, sizeof(job_info));
+                ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
 
             //add in the right queue
             schedule_in(state->info.node->queues, content);
