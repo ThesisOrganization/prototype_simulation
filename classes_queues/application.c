@@ -21,6 +21,24 @@
 
 #define NUM_QUEUES 3
 
+queue_conf** create_new_queues(int num_queues){
+
+    
+    queue_conf** queues = malloc(sizeof(queue_conf *) * num_queues);
+    for(int i = 0; i < num_queues; i++){
+        queues[i] = malloc(sizeof(queue_conf));
+        queues[i]->queue = create_queue();
+        queues[i]->type = i;
+        queues[i]->enqueue = enqueue;
+        queues[i]->dequeue = dequeue;
+        queues[i]->check_presence = check_presence;
+        queues[i]->check_full = NULL;
+    }
+
+    return queues;
+
+}
+
 void * parse_strings(char ** strings){
     lp_infos * infos = malloc(sizeof(lp_infos));
     
@@ -49,6 +67,7 @@ void * parse_strings(char ** strings){
     return infos;
 }
 
+char topology_path[] = "./topology.txt";
 
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
@@ -66,10 +85,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             state = malloc(sizeof(lp_state));
             SetState(state);
             
-            char path[] = "./test.txt";
-            
             state->num_jobs_processed = 0;
-            state->topology = getTopology(path, parse_strings); //later we will use a static struct
+            state->topology = getTopology(topology_path, parse_strings); //later we will use a static struct
 
             int num_nodes = state->topology->total_nodes;
             int num_sensor = state->topology->sensor_nodes;
@@ -95,20 +112,9 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 
                 state->info.node = malloc(sizeof(node_state));
                 state->info.node->num_jobs_in_queue = 0;
-
+                
                 int num_queues = NUM_QUEUES;
-                queue_conf** queues = malloc(sizeof(queue_conf *) * num_queues);
-                for(int i = 0; i < num_queues; i++){
-                    queues[i] = malloc(sizeof(queue_conf));
-                    queues[i]->queue = create_queue();
-                    queues[i]->type = i;
-                    queues[i]->enqueue = enqueue;
-                    queues[i]->dequeue = dequeue;
-                    queues[i]->check_presence = check_presence;
-                    queues[i]->check_full = NULL;
-                }
-
-                state->info.node->queues = new_prio_scheduler(queues, NULL, num_queues, 0, 1, UPGRADE_PRIO);
+                state->info.node->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
             }
             else if(state->type == SENSOR){
