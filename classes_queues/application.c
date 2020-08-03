@@ -64,11 +64,28 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     switch(event_type) {
         case INIT:
             state = malloc(sizeof(lp_state));
+            SetState(state);
             
             char path[] = "./test.txt";
             
             state->num_jobs_processed = 0;
             state->topology = getTopology(path, parse_strings); //later we will use a static struct
+
+            int num_nodes = state->topology->total_nodes;
+            int num_sensor = state->topology->sensor_nodes;
+
+            //if there are too few LPs, exit
+            if(num_nodes + num_sensor > n_prc_tot){
+                printf("Error: too few LPs, add more LPs\n");
+                exit(EXIT_FAILURE);
+            }
+
+            //if there are too may LPs, return it
+            if(me >= num_nodes + num_sensor){
+                state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
+                break;
+            }
+
             
             lp_infos * infos = getInfo(state->topology, me);
             state->type = infos->lp_type;
@@ -103,8 +120,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 ScheduleNewEvent(me, ts_arrive, GENERATE, NULL, 0);
 
             }
-
-            SetState(state);
 
             break;
 
