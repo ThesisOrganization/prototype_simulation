@@ -29,7 +29,7 @@ typedef struct _state {
     state_type type;
     topology * topology;
     state_info info;
-} state;
+} lp_state;
 
 typedef struct _lp_infos {
     state_type lp_type;

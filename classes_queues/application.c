@@ -19,6 +19,8 @@
 
 #define RANGE_TIMESTAMP 10
 
+#define NUM_QUEUES 3
+
 void * parse_strings(char ** strings){
     lp_infos * infos = malloc(sizeof(lp_infos));
     
@@ -48,7 +50,7 @@ void * parse_strings(char ** strings){
 }
 
 
-void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, state * state)
+void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
 
     simtime_t ts_arrive = now + (ARRIVE_RATE * Poisson());
@@ -61,8 +63,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     
     switch(event_type) {
         case INIT:
-            state = malloc(sizeof(state));
-            SetState(state);
+            state = malloc(sizeof(lp_state));
             
             char path[] = "./test.txt";
             
@@ -78,7 +79,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 state->info.node = malloc(sizeof(node_state));
                 state->info.node->num_jobs_in_queue = 0;
 
-                int num_queues = 3;
+                int num_queues = NUM_QUEUES;
                 queue_conf** queues = malloc(sizeof(queue_conf *) * num_queues);
                 for(int i = 0; i < num_queues; i++){
                     queues[i] = malloc(sizeof(queue_conf));
@@ -103,6 +104,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             }
 
+            SetState(state);
 
             break;
 
@@ -170,7 +172,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     }
 }
 
-bool OnGVT(int me, state *snapshot)
+bool OnGVT(int me, lp_state *snapshot)
 {
         if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS)
             return true;
