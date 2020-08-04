@@ -79,6 +79,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     int up_node;
 
     job_info * info;
+    processing_info * more_info;
     
     switch(event_type) {
         case INIT:
@@ -112,6 +113,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 
                 state->info.node = malloc(sizeof(node_state));
                 state->info.node->num_jobs_in_queue = 0;
+                state->info.node->num_jobs_arrived = 0;
+                state->info.node->last_arrived_in_node_timestamp = 0.0;
+                state->info.node->sum_all_service_time = 0.0;
+                state->info.node->sum_all_time_between_arrivals = 0.0;
+                state->info.node->sum_all_response_time = 0.0;
                 
                 int num_queues = NUM_QUEUES;
                 state->info.node->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
@@ -155,15 +161,22 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             //content has job type
             
             //schedule finish if queue empty
-            if(state->info.node->num_jobs_in_queue < 1)
-                ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
+            if(state->info.node->num_jobs_in_queue < 1){
+                more_info = malloc(sizeof(processing_info));
+                more_info->start_processing_timestamp = now;
+                ScheduleNewEvent(me, ts_finish, FINISH, more_info, sizeof(processing_info));
+            }
 
             //add in the right queue
+            ( (job_info *) content)->arrived_in_node_timestamp = now;
             schedule_in(state->info.node->queues, content);
 
             //update statistics
             state->info.node->num_jobs_in_queue++;
+            state->info.node->num_jobs_arrived++;
 
+            state->info.node->sum_all_time_between_arrivals += now - state->info.node->last_arrived_in_node_timestamp;
+            state->info.node->last_arrived_in_node_timestamp = now;
             
             break;
 
@@ -172,21 +185,30 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             //send arrive to next LP
             
             info = schedule_out(state->info.node->queues, now)[0];
+
+            //printf("START:%lf\n", ( (processing_info*) content)->start_processing_timestamp);
             
             up_node = getNext(state->topology, me)[0]; 
             if(up_node != -1){
                 ScheduleNewEvent(up_node, ts_delay, ARRIVE, info, sizeof(job_info));
             }
             
+            double service_time = now - ( (processing_info*) content)->start_processing_timestamp;
+            double response_time = now - info->arrived_in_node_timestamp;
+
             //change state
             state->num_jobs_processed++;
             state->info.node->num_jobs_in_queue--;
+            state->info.node->sum_all_service_time += service_time;
+            state->info.node->sum_all_response_time += response_time;
+
             
             //schedule new event if other are presents (num clients)
-            if(state->info.node->num_jobs_in_queue > 0)
-                ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
-            
-            
+            if(state->info.node->num_jobs_in_queue > 0){
+                more_info = malloc(sizeof(processing_info));
+                more_info->start_processing_timestamp = now;
+                ScheduleNewEvent(me, ts_finish, FINISH, more_info, sizeof(processing_info));
+            }
 
             break;
 
@@ -201,6 +223,13 @@ bool OnGVT(int me, lp_state *snapshot)
         if(snapshot->type == NODE){
 
             printf("Number of elements in the queue: %d\n", snapshot->info.node->num_jobs_in_queue);
+            double average_processing_rate = snapshot->info.node->sum_all_service_time / snapshot->num_jobs_processed;
+            double average_arrivial_rate = snapshot->info.node->sum_all_time_between_arrivals / snapshot->info.node->num_jobs_arrived;
+
+            printf("%lf,%lf\n", average_arrivial_rate, average_processing_rate);
+
+            double ro = average_processing_rate / average_arrivial_rate;
+            printf("Ro in the queue: %lf\n", ro);
         }
 
     return false;

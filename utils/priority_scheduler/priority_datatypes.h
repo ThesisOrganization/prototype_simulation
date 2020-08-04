@@ -14,6 +14,7 @@ typedef enum {
 /// Metadata used to charhterize a job type and priority.
 typedef struct _job_info {
     prio_type type; ///< The type of job.
+    double arrived_in_node_timestamp;
     double deadline; ///< The deadline at which the job must be completed.
 		void* payload; ///< The actual job data.
 } job_info;

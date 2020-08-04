@@ -16,6 +16,11 @@ typedef struct _sensor_state {
 
 typedef struct _node_state {
     int num_jobs_in_queue;
+    int num_jobs_arrived;
+    double last_arrived_in_node_timestamp;
+    double sum_all_service_time;
+    double sum_all_time_between_arrivals;
+    double sum_all_response_time;
     void * queues;
 } node_state;
 
@@ -36,21 +41,9 @@ typedef struct _lp_infos {
     prio_type type_job; 
 } lp_infos;
 
-/*
-
-typedef struct _state_type {
-    //int executed_events;
-    int *queue;
-    int index_insert;
-    int index_remove;
-    int num_clients;
-    //info for statistics and termination
-    int tot_num_clients;
-    int sum_all_queue_number;
-    int num_of_sums;
-    int max_queue_len;
-} state_type;
-*/
+typedef struct _processing_info {
+    double start_processing_timestamp;
+} processing_info;
 
 
 #endif /* APPLICATION_H */
