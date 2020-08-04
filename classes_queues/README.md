@@ -43,5 +43,6 @@ The simulation program sometimes prints on the shell some information on the sim
 ## Setup
 In order to run it, simply type:
 > make
+
 > ./queues --sequential --lp 5
 
