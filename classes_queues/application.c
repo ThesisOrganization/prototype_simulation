@@ -42,7 +42,7 @@ queue_conf** create_new_queues(int num_queues){
 void * parse_strings(char ** strings){
     lp_infos * infos = malloc(sizeof(lp_infos));
     
-    if( !strcmp(strings[0], "NODE\n") ){
+    if( !strcmp(strings[0], "NODE") ){
 
         infos->lp_type = NODE;
 
@@ -50,11 +50,11 @@ void * parse_strings(char ** strings){
     else if( !strcmp(strings[0], "SENSOR") ){
 
         infos->lp_type = SENSOR;
-        if( !strcmp(strings[1], "REAL_TIME\n") )
+        if( !strcmp(strings[1], "REAL_TIME") )
             infos->type_job = REAL_TIME;
-        else if( !strcmp(strings[1], "LOSSY\n") )
+        else if( !strcmp(strings[1], "LOSSY") )
             infos->type_job = LOSSY;
-        else if( !strcmp(strings[1], "BATCH\n") )
+        else if( !strcmp(strings[1], "BATCH") )
             infos->type_job = BATCH;
         else
             exit(EXIT_FAILURE);
