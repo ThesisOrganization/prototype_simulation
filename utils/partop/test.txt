@@ -1,8 +1,11 @@
-10
-6
-0;2;2,3;1;priority_queue
-1;2;3,4;2;priority_sender, sensor2
-2;1;4;1;sensor4
-3;1;5;1;sensor usb
-4;1;5;1;gated_queue
-5;3;6,7,8;1;Upper level broadcast
+5
+4
+0;2;2,3;1;NODE
+1;2;3,4;1;NODE
+2;1;4;2;SENSOR,REAL_TIME
+3;1;5;2;SENSOR,LOSSY
+4;1;5;2;SENSOR,BATCH
+5;3;6,7,8;2;SENSOR,BATCH
+6;1;-1;1;NODE
+7;1;-1;1;NODE
+8;1;-1;1;NODE

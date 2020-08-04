@@ -69,7 +69,12 @@ topology * getTopology(char * path, void* (*converting)(char **)){
           infoArray = malloc(sizeof(char *)*numberOfInfos);
         }
         else{//infos
-          infoArray[counter] = strdup(ptr2);
+          char * tempString = strdup(ptr2);
+          //remove endline char from the info
+          if(counter == numberOfInfos - 1){
+            tempString[strlen(tempString)-1] = 0;
+          }
+          infoArray[counter] = tempString;
         }
         counter+=1;
         ptr2 = strtok_r(NULL,",",&end_token);
