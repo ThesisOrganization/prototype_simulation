@@ -222,14 +222,16 @@ bool OnGVT(int me, lp_state *snapshot)
 
         if(snapshot->type == NODE){
 
-            printf("Number of elements in the queue: %d\n", snapshot->info.node->num_jobs_in_queue);
-            double average_processing_rate = snapshot->info.node->sum_all_service_time / snapshot->num_jobs_processed;
-            double average_arrivial_rate = snapshot->info.node->sum_all_time_between_arrivals / snapshot->info.node->num_jobs_arrived;
+            printf("Number of jobs in the node %d: %d\n", me, snapshot->info.node->num_jobs_in_queue);
+            double average_processing = snapshot->info.node->sum_all_service_time / snapshot->num_jobs_processed;
+            double average_arrivial = snapshot->info.node->sum_all_time_between_arrivals / snapshot->info.node->num_jobs_arrived;
+            double average_response = snapshot->info.node->sum_all_response_time / snapshot->num_jobs_processed;
 
-            printf("%lf,%lf\n", average_arrivial_rate, average_processing_rate);
+            printf("Average response time: %lf\n", average_response);
+            printf("Average arrival rate: %lf\nAverage processing rate: %lf\n", 1/average_arrivial, 1/average_processing);
 
-            double ro = average_processing_rate / average_arrivial_rate;
-            printf("Ro in the queue: %lf\n", ro);
+            double ro = average_processing / average_arrivial;
+            printf("Utilization factor in the node %d: %lf\n", me, ro);
         }
 
     return false;
