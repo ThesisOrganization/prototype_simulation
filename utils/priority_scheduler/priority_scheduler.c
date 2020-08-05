@@ -112,6 +112,8 @@ job_info** schedule_out(priority_scheduler* sched,double timestamp){
 			job=(sched->input_queues[i]->dequeue)(sched->input_queues[i]->queue);
 			//we check if the job timestamp is not after the deadline (only for lossy queues)
 			if((sched->input_queues[i]->type!=LOSSY && job->type!=LOSSY)|| job->deadline>=timestamp){
+					sched->rejected_lossy++;
+			}
 				// we also want to know how many real time jobs didn't meet the deadline
 				if(sched->input_queues[i]->type==REAL_TIME && job->type==REAL_TIME && job->deadline<timestamp){
 					sched->rejected_rt++;
@@ -126,17 +128,6 @@ job_info** schedule_out(priority_scheduler* sched,double timestamp){
 				}
 				//we increment the timestamp of the scheduler since we have scheduled one more job
 				sched->scheduler_timestamp++;
-			} else {
-					//we decrement job_index, since the job we have picked is not valid
-					job_index--;
-				//update stats for the lossy job discarded
-				sched->rejected_lossy++;
-				//free job's memory
-				if(job->payload!=NULL){
-					free(job->payload);
-				}
-				free(job);
-			}
 		}
 	}
 	return jobs;

@@ -1,5 +1,5 @@
 CC = rootsim-cc
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -ggdb
 TARGET = queues
 
 SRCS = application.c ../utils/priority_queue/priority_queue.c ../utils/priority_queue/heap/heap.c ../utils/partop/parser.c ../utils/partop/topology.c ../utils/priority_scheduler/priority_scheduler.c ../utils/priority_scheduler/quick_sort.c

@@ -22,6 +22,7 @@ typedef struct _node_state {
     double sum_all_time_between_arrivals;
     double sum_all_response_time;
     void * queues;
+		simtime_t ts;
 } node_state;
 
 typedef union {
@@ -38,7 +39,7 @@ typedef struct _state {
 
 typedef struct _lp_infos {
     state_type lp_type;
-    prio_type type_job; 
+    prio_type type_job;
 } lp_infos;
 
 typedef struct _processing_info {
