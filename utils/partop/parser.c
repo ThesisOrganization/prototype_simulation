@@ -65,7 +65,7 @@ topology * getTopology(char * path, void* (*converting)(char **)){
         }
         else if(index == 2){//#info
           numberOfInfos = atoi(ptr2);
-          //printf("Node %d has %d informations",temp,numberOfInfos);
+          //printf("Node %d has %d informations.\n",temp,numberOfInfos);
           infoArray = malloc(sizeof(char *)*numberOfInfos);
         }
         else{//infos
@@ -75,6 +75,7 @@ topology * getTopology(char * path, void* (*converting)(char **)){
             tempString[strlen(tempString)-1] = 0;
           }
           infoArray[counter] = tempString;
+          //printf("info on node %d : %s.\n",temp,tempString);
         }
         counter+=1;
         ptr2 = strtok_r(NULL,",",&end_token);
@@ -85,13 +86,11 @@ topology * getTopology(char * path, void* (*converting)(char **)){
     }
 
     tp->numberOfReceivers = numberOfReceivers;
-    tp->numberInfos = numberOfInfos;
     tp->receiver = receiversArray;
     tp->info = converting(infoArray);
     //tp->info = infoArray;
     returnArray[temp] = tp;
   }
-
   fclose(fp);
 
   genTop->total_nodes = nn;

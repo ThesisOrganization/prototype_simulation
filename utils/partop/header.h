@@ -4,11 +4,8 @@
 typedef struct _topArray
 {
 int numberOfReceivers;
-int numberInfos;
-
 int * receiver;
 void * info;
-
 } topArray;
 
 typedef struct _topology{
@@ -19,7 +16,6 @@ typedef struct _topology{
 
 topology * getTopology(char * path, void* (*converting)(char **) );
 int getNumberReceiv(topology * top, int index);
-int getNumberInfos(topology * top, int index);
 
 int * getNext(topology * top, int next);
 void * getInfo(topology * top, int index);

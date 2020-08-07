@@ -18,8 +18,3 @@ int getNumberReceiv(topology * top, int index){
   topArray ** array = top->topArr;
   return array[index]->numberOfReceivers;
 }
-
-int getNumberInfos(topology * top, int index){
-  topArray ** array = top->topArr;
-  return array[index]->numberInfos;
-}
