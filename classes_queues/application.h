@@ -22,7 +22,6 @@ typedef struct _node_state {
     double sum_all_time_between_arrivals;
     double sum_all_response_time;
     void * queues;
-		simtime_t ts;
 } node_state;
 
 typedef union {
@@ -32,6 +31,7 @@ typedef union {
 
 typedef struct _state {
     int num_jobs_processed;
+	simtime_t ts;
     state_type type;
     topology * topology;
     state_info info;

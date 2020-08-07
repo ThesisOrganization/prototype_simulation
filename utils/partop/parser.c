@@ -10,7 +10,7 @@ topology * getTopology(char * path, void* (*converting)(char **)){
   char * line = NULL;
   size_t len = 0;
   ssize_t read;
-  char * numberOfNodes;
+  char * numberOfNodes = NULL;
 
   fp = fopen(path, "r");
 
@@ -24,8 +24,8 @@ topology * getTopology(char * path, void* (*converting)(char **)){
   read = getline(&numberOfNodes, &len, fp);
   int ns = atoi(numberOfNodes);
 
-  printf("There are %d nodes.\n",nn);
-  printf("There are %d sensor nodes.\n",ns);
+  //printf("There are %d nodes.\n",nn);
+  //printf("There are %d sensor nodes.\n",ns);
   topology * genTop = malloc(sizeof(topology));
   topArray ** returnArray = malloc(sizeof(topArray *) * (ns + nn));
   //iterate through the remaining lines, having the following syntax:

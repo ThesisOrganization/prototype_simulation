@@ -80,7 +80,9 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     int up_node;
 
     job_info * info;
-    processing_info * more_info;
+
+    job_info info_to_send;
+    processing_info proc_info_to_send;
 
     switch(event_type) {
         case INIT:
@@ -108,6 +110,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             lp_infos * infos = getInfo(state->topology, me);
             state->type = infos->lp_type;
+			state->ts=now;
 
             //initializza strutture (if sensors and ecc)
             if(state->type == NODE){
@@ -119,7 +122,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 state->info.node->sum_all_service_time = 0.0;
                 state->info.node->sum_all_time_between_arrivals = 0.0;
                 state->info.node->sum_all_response_time = 0.0;
-								state->info.node->ts=now;
 
                 int num_queues = NUM_QUEUES;
                 state->info.node->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
@@ -139,45 +141,38 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
         case GENERATE:
 
-				//update timestamp in the node
-				if(state->type==NODE){
-						state->info.node->ts=now;
-				}
+			//update timestamp in the node
+			state->ts=now;
             //check number of events is up to
+            info_to_send.type = state->info.sensor->job_generated;
+            info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
+            info_to_send.payload = NULL;
 
-                info = malloc(sizeof(job_info));
-                info->type = state->info.sensor->job_generated;
-                info->deadline = now + (Random() * RANGE_TIMESTAMP); //should be random, like now + random
-                info->payload = NULL;
+            up_node = getNext(state->topology, me)[0];
+            ScheduleNewEvent(up_node, ts_delay, ARRIVE, &info_to_send, sizeof(job_info));
 
-                up_node = getNext(state->topology, me)[0];
-                ScheduleNewEvent(up_node, ts_delay, ARRIVE, info, sizeof(job_info));
+            ScheduleNewEvent(me, ts_arrive, GENERATE, NULL, 0);
 
-                ScheduleNewEvent(me, ts_arrive, GENERATE, NULL, 0);
-
-                state->num_jobs_processed++;
+            state->num_jobs_processed++;
 
 
             break;
 
         case ARRIVE:
-						//update timestamp in the node
-						if(state->type==NODE){
-								state->info.node->ts=now;
-						}
+			//update timestamp in the node
+			state->ts=now;
 
-
-            //content has job type
             //schedule finish if queue empty
             if(state->info.node->num_jobs_in_queue < 1){
-                more_info = malloc(sizeof(processing_info));
-                more_info->start_processing_timestamp = now;
-                ScheduleNewEvent(me, ts_finish, FINISH, more_info, sizeof(processing_info));
+                //more_info = malloc(sizeof(processing_info));
+                proc_info_to_send.start_processing_timestamp = now;
+                ScheduleNewEvent(me, ts_finish, FINISH, &proc_info_to_send, sizeof(processing_info));
             }
 
             //add in the right queue
-            info=malloc(sizeof(job_info));
-						memcpy(info,content,sizeof(job_info));
+            info = malloc(sizeof(job_info));
+			memcpy(info, content, sizeof(job_info));
+
             info->arrived_in_node_timestamp = now;
             schedule_in(state->info.node->queues, info);
 
@@ -191,37 +186,36 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             break;
 
         case FINISH:
-						//update timestamp in the node
-						if(state->type==NODE){
-								state->info.node->ts=now;
-						}
-
+			//update timestamp in the node
+			state->ts=now;
 
             //send arrive to next LP
-
             info = schedule_out(state->info.node->queues, now)[0];
-						if(info !=NULL){
-            //printf("START:%lf\n", ( (processing_info*) content)->start_processing_timestamp);
-            up_node = getNext(state->topology, me)[0];
-            if(up_node != -1){
-                ScheduleNewEvent(up_node, ts_delay, ARRIVE, info, sizeof(job_info));
-            }
 
-            double service_time = now - ( (processing_info*) content)->start_processing_timestamp;
-            double response_time = now - info->arrived_in_node_timestamp;
+			if(info != NULL){
 
-            //change state
-            state->num_jobs_processed++;
-            state->info.node->sum_all_service_time += service_time;
-            state->info.node->sum_all_response_time += response_time;
+                up_node = getNext(state->topology, me)[0];
+                if(up_node != -1){
+                    ScheduleNewEvent(up_node, ts_delay, ARRIVE, info, sizeof(job_info));
+                }
 
-						}
+                double service_time = now - ( (processing_info*) content)->start_processing_timestamp;
+                double response_time = now - info->arrived_in_node_timestamp;
+
+                //change state
+                state->num_jobs_processed++;
+                state->info.node->sum_all_service_time += service_time;
+                state->info.node->sum_all_response_time += response_time;
+
+                free(info);
+
+			}
             state->info.node->num_jobs_in_queue--;
+
             //schedule new event if other are presents (num clients)
             if(state->info.node->num_jobs_in_queue > 0){
-                more_info = malloc(sizeof(processing_info));
-                more_info->start_processing_timestamp = now;
-                ScheduleNewEvent(me, ts_finish, FINISH, more_info, sizeof(processing_info));
+                proc_info_to_send.start_processing_timestamp = now;
+                ScheduleNewEvent(me, ts_finish, FINISH, &proc_info_to_send, sizeof(processing_info));
             }
 
             break;
@@ -235,8 +229,9 @@ bool OnGVT(int me, lp_state *snapshot)
             return true;
 
         if(snapshot->type == NODE){
-						printf("################################################\n");
-						printf("Node %d timestamp: %f\n",me,snapshot->info.node->ts);
+            
+			printf("################################################\n");
+			printf("Node %d timestamp: %f\n",me,snapshot->ts);
             printf("Number of jobs in the node %d: %d\n", me, snapshot->info.node->num_jobs_in_queue);
             double average_processing = snapshot->info.node->sum_all_service_time / snapshot->num_jobs_processed;
             double average_arrivial = snapshot->info.node->sum_all_time_between_arrivals / snapshot->info.node->num_jobs_arrived;
@@ -247,8 +242,9 @@ bool OnGVT(int me, lp_state *snapshot)
 
             double ro = average_processing / average_arrivial;
             printf("Utilization factor in the node %d: %lf\n", me, ro);
-						priority_scheduler* sched=(priority_scheduler*) snapshot->info.node->queues;
-						printf("Rejected lossy job in node %d: %d\n",me,sched->rejected_lossy);
+			priority_scheduler* sched=(priority_scheduler*) snapshot->info.node->queues;
+			printf("Rejected lossy job in node %d: %d\n",me,sched->rejected_lossy);
+            
         }
 
     return false;
