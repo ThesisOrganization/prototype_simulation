@@ -78,7 +78,7 @@ typedef enum {
 
 //temp struct, to make things uniform with application.c
 //and check integrity in this main file
-typedef struct _parsingStruct
+typedef struct _lp_infos
 {
 int lp_type;
 int type_job;
@@ -88,7 +88,7 @@ int node_type;
 int sensor_type;
 int actuator_type;
 int measure_type;
-} parsingStruct;
+} lp_infos;
 
 typedef struct _topArray
 {
