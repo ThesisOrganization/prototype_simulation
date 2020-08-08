@@ -4,8 +4,9 @@ This folder will contain modules to parse input file and get informations in the
 Being a work in progress project, this is subject to frequent changes and won't be a final version:
 4
 2
-1;2;3,4;3;NODE,SCHEDULER2,14.5
-2;1;4;2;SENSOR,REAL_TIME
+0;2;2,3;4;NODE,SCHEDULER1,28.2, CENTRAL
+4;1;5;4;SENSOR,BATCH, SENSOR_TYPE1, MEASURE1
+4;1;5;2;ACTUATOR,BATCH, ACTUATOR_TYPE0, MEASURE2
 ...
 
 First line: number of nodes
@@ -13,8 +14,9 @@ Second line: number of sensor nodes
 Sender node, #receiver nodes,{receiver nodes},#informations,{informations}
 
 {informations} is different based on the type of node:
-Sensor: Scheduler type, response time
-Node: type of job created
+Sensor: type of job, Sensor type, measure done
+Node: scheduler, response time, type of node
+Actuator: type of job, actuator type, measure done
 
 ## Data structure 1
 TopArray is composed by:
@@ -35,11 +37,20 @@ parsingStruct is a temporary data structure, used to uniform this module to the 
 int lp_type : Node/Sensor
 int type_job : only for sensors, BATCH/REAL TIME/LOSSY;
 int scheduler : Nodes only, which scheduler used, for now SCHEDULER1,SCHEDULER2, SCHEDULER3;
-float response_time: for nodes, the service response time;
-
+double response_time: for nodes, the service response time;
+int node_type: Central/Regional/Network;
+//The following are placeholders, while waiting for more specifics.
+int sensor_type;
+int actuator_type;
+int measure_type;
 
 
 ## Usage
 This module should be used at startup with the function in parser.c
 getTopology(); returns a struct with general informations and an array of topArray one for each sensor.
 Then in topology.c all useful retrieval functions are written, for now need to pass the topArray array, if needed will be modified to accept generalTopology struct.
+
+
+##TODO
+-Add LINES to txt file and parsing
+-Use the (still to impelement) general file for DEFINE

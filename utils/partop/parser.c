@@ -4,7 +4,98 @@
 #include "header.h"
 #include <string.h>
 
-topology * getTopology(char * path, void* (*converting)(char **)){
+void * parse_strings(char ** strings){
+
+    parsingStruct * infos = malloc(sizeof(parsingStruct));
+    char * ptr;
+    int flag = 0;
+    if( !strcmp(strings[0], "NODE") ){
+
+        infos->lp_type = NODE;
+
+        if( !strcmp(strings[1], "SCHEDULER1") )
+            infos->scheduler = SCHEDULER1;
+        else if( !strcmp(strings[1], "SCHEDULER2") )
+            infos->scheduler = SCHEDULER2;
+        else if( !strcmp(strings[1], "SCHEDULER3") )
+            infos->scheduler = SCHEDULER3;
+        else
+            exit(EXIT_FAILURE);
+
+        double resp_time = strtod(strings[2], &ptr);
+        infos->response_time = resp_time;
+
+        if( !strcmp(strings[3], "CENTRAL") )
+            infos->node_type = CENTRAL;
+        else if( !strcmp(strings[3], "REGIONAL") )
+            infos->node_type = REGIONAL;
+        else if( !strcmp(strings[3], "NETWORK") )
+            infos->node_type = NETWORK;
+        else
+            exit(EXIT_FAILURE);
+
+    }
+    else if( !strcmp(strings[0], "SENSOR") ){
+
+        infos->lp_type = SENSOR;
+
+        if( !strcmp(strings[1], "BATCH") )
+            infos->type_job = BATCH;
+        else if( !strcmp(strings[1], "REAL_TIME") )
+            infos->type_job = REAL_TIME;
+        else if( !strcmp(strings[1], "LOSSY") )
+            infos->type_job = LOSSY;
+        else
+            exit(EXIT_FAILURE);
+
+        if( !strcmp(strings[2], "SENSOR_TYPE0") )
+            infos->sensor_type = SENSOR_TYPE0;
+        else if( !strcmp(strings[2], "SENSOR_TYPE1") )
+            infos->sensor_type = SENSOR_TYPE1;
+        else
+            exit(EXIT_FAILURE);
+
+        flag = 1;
+
+    }
+    else if( !strcmp(strings[0], "ACTUATOR") ){
+        infos->lp_type = ACTUATOR;
+
+        if( !strcmp(strings[1], "BATCH") )
+            infos->type_job = BATCH;
+        else if( !strcmp(strings[1], "REAL_TIME") )
+            infos->type_job = REAL_TIME;
+        else if( !strcmp(strings[1], "LOSSY") )
+            infos->type_job = LOSSY;
+        else
+            exit(EXIT_FAILURE);
+
+        if( !strcmp(strings[2], "ACTUATOR_TYPE0") )
+            infos->actuator_type = ACTUATOR_TYPE0;
+        else
+            exit(EXIT_FAILURE);
+
+        flag = 1;
+
+    }
+
+    else{
+        exit(EXIT_FAILURE);
+    }
+    if(flag){//Either sensor or actuator
+      if( !strcmp(strings[3], "MEASURE0") )
+          infos->measure_type = MEASURE0;
+      else if( !strcmp(strings[3], "MEASURE1") )
+          infos->measure_type = MEASURE1;
+      else if( !strcmp(strings[3], "MEASURE2") )
+          infos->measure_type = MEASURE2;
+      else
+        exit(EXIT_FAILURE);
+    }
+    return infos;
+}
+
+topology * getTopology(char * path){
 
   FILE * fp;
   char * line = NULL;
@@ -75,7 +166,6 @@ topology * getTopology(char * path, void* (*converting)(char **)){
             tempString[strlen(tempString)-1] = 0;
           }
           infoArray[counter] = tempString;
-          //printf("info on node %d : %s.\n",temp,tempString);
         }
         counter+=1;
         ptr2 = strtok_r(NULL,",",&end_token);
@@ -84,10 +174,9 @@ topology * getTopology(char * path, void* (*converting)(char **)){
       index+=1;
       ptr=strtok_r(NULL, ";",&end_str);
     }
-
     tp->numberOfReceivers = numberOfReceivers;
     tp->receiver = receiversArray;
-    tp->info = converting(infoArray);
+    tp->info = parse_strings(infoArray);
     //tp->info = infoArray;
     returnArray[temp] = tp;
   }
