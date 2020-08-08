@@ -1,15 +1,15 @@
 #ifndef HEADER_H
 #define HEADER_H
 
-#define NODE 1
-#define SENSOR 2
-#define ACTUATOR 3
+//#define NODE 1
+//#define SENSOR 2
+//#define ACTUATOR 3
 #define SCHEDULER1 101
 #define SCHEDULER2 102
 #define SCHEDULER3 103
-#define REAL_TIME 201
-#define LOSSY 202
-#define BATCH 203
+#define REAL_TIME 1
+#define LOSSY 2
+#define BATCH 3
 #define SENSOR_TYPE0 301
 #define SENSOR_TYPE1 302
 #define ACTUATOR_TYPE0 401
@@ -21,11 +21,17 @@
 #define MEASURE1 602
 #define MEASURE2 603
 
+typedef enum {
+    NODE = 0,
+    SENSOR,
+    ACTUATOR
+} state_type;
+
 //temp struct, to make things uniform with application.c
 //and check integrity in this main file
 typedef struct _parsingStruct
 {
-int lp_type;
+state_type lp_type;
 int type_job;
 int scheduler;
 double response_time;

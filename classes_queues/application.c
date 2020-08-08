@@ -38,7 +38,7 @@ queue_conf** create_new_queues(int num_queues){
     return queues;
 
 }
-
+/*
 void * parse_strings(char ** strings){
     lp_infos * infos = malloc(sizeof(lp_infos));
 
@@ -66,7 +66,7 @@ void * parse_strings(char ** strings){
 
     return infos;
 }
-
+*/
 char topology_path[] = "./topology.txt";
 
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
@@ -90,7 +90,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             SetState(state);
 
             state->num_jobs_processed = 0;
-            state->topology = getTopology(topology_path, parse_strings); //later we will use a static struct
+            state->topology = getTopology(topology_path); //later we will use a static struct
 
             int num_nodes = state->topology->total_nodes;
             int num_sensor = state->topology->sensor_nodes;
@@ -108,7 +108,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             }
 
 
-            lp_infos * infos = getInfo(state->topology, me);
+            parsingStruct * infos = getInfo(state->topology, me);
             state->type = infos->lp_type;
 			state->ts=now;
 
@@ -130,6 +130,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             else if(state->type == SENSOR){
 
                 state->info.sensor = malloc(sizeof(sensor_state));
+                printf("%d\n", infos->type_job);
                 state->info.sensor->job_generated = infos->type_job;
 
                 //schedule generate for all sensors

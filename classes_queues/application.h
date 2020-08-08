@@ -5,10 +5,6 @@
 #include "../utils/priority_scheduler/priority_datatypes.h"
 #include "../utils/partop/header.h"
 
-typedef enum {
-    NODE = 0,
-    SENSOR
-} state_type;
 
 typedef struct _sensor_state {
     prio_type job_generated;
@@ -36,12 +32,12 @@ typedef struct _state {
     topology * topology;
     state_info info;
 } lp_state;
-
+/*
 typedef struct _lp_infos {
     state_type lp_type;
     prio_type type_job;
 } lp_infos;
-
+*/
 typedef struct _processing_info {
     double start_processing_timestamp;
 } processing_info;
