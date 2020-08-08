@@ -1,6 +1,7 @@
 #ifndef APPLICATION_DATATYPES_H
 #define APPLICATION_DATATYPES_H
 
+#include <ROOT-Sim.h>
 //#############################################
 //SCHEDULER DATA
 //#############################################
@@ -13,7 +14,7 @@
 typedef enum {
     REAL_TIME = 0, ///< Real time events
     LOSSY, ///< Events with a non strict deadline (meaningless after the deadline has expired)
-    BATCH ///< Events with no deadline
+    BATCH, ///< Events with no deadline
     NUM_OF_PRIO_TYPES ///< this must be at the end of the enum because denote the number of types
 } prio_type;
 
@@ -119,7 +120,7 @@ typedef struct _topology{
 //#define NUM_QUEUES 3
 
 typedef enum { //INIT should be 0
-    ARRIVE = 1
+    ARRIVE = 1,
     FINISH,
     GENERATE
 } events_type;
