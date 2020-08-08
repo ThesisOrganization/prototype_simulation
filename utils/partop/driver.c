@@ -20,19 +20,19 @@ int main()
     int numReceiv = getNumberReceiv(genTop, i);
     int j = 0;
 
-    parsingStruct * infos = getInfo(genTop, i);
+    lp_infos * infos = getInfo(genTop, i);
 
     while(j < numReceiv){
       printf("Node %d sends to node %d.\n",i,solution[j]);
       j+=1;
     }
 
-    if(infos->lp_type == 1){//node
+    if(infos->lp_type == 0){//node
       printf("Node %d has this response_time: %f.\n",i,infos->response_time);
       printf("Node %d has this scheduler: %d.\n",i,infos->scheduler);
       printf("Node %d has this type: %d.\n",i,infos->node_type);
     }
-    else if(infos->lp_type ==2){
+    else if(infos->lp_type ==1){
       printf("Sensor %d has this job type: %d.\n",i,infos->type_job);
       printf("Sensor %d is of this type: %d.\n",i,infos->sensor_type);
       printf("Sensor %d has this measure type: %d.\n",i,infos->measure_type);

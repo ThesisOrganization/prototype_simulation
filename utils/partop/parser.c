@@ -3,10 +3,11 @@
 #include <stdlib.h>
 #include "header.h"
 #include <string.h>
+#include "../application_datatypes.h"
 
 void * parse_strings(char ** strings){
 
-    parsingStruct * infos = malloc(sizeof(parsingStruct));
+    lp_infos * infos = malloc(sizeof(lp_infos));
     char * ptr;
     int flag = 0;
     if( !strcmp(strings[0], "NODE") ){
