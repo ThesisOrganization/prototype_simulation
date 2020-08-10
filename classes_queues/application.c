@@ -1,11 +1,12 @@
-#include <ROOT-Sim.h>
+//#include <ROOT-Sim.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "application.h"
+//#include "application.h"
 #include "../utils/priority_queue/priority_queue.h"
 #include "../utils/priority_scheduler/priority_scheduler.h"
 #include "../utils/partop/header.h"
+#include "../utils/application_datatypes.h"
 
 #define EVENT 1
 #define ARRIVE 2
@@ -38,35 +39,7 @@ queue_conf** create_new_queues(int num_queues){
     return queues;
 
 }
-/*
-void * parse_strings(char ** strings){
-    lp_infos * infos = malloc(sizeof(lp_infos));
 
-    if( !strcmp(strings[0], "NODE") ){
-
-        infos->lp_type = NODE;
-
-    }
-    else if( !strcmp(strings[0], "SENSOR") ){
-
-        infos->lp_type = SENSOR;
-        if( !strcmp(strings[1], "REAL_TIME") )
-            infos->type_job = REAL_TIME;
-        else if( !strcmp(strings[1], "LOSSY") )
-            infos->type_job = LOSSY;
-        else if( !strcmp(strings[1], "BATCH") )
-            infos->type_job = BATCH;
-        else
-            exit(EXIT_FAILURE);
-
-    }
-    else{
-        exit(EXIT_FAILURE);
-    }
-
-    return infos;
-}
-*/
 char topology_path[] = "./topology.txt";
 
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
@@ -108,7 +81,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             }
 
 
-            parsingStruct * infos = getInfo(state->topology, me);
+            lp_infos* infos = getInfo(state->topology, me);
             state->type = infos->lp_type;
 			state->ts=now;
 
