@@ -6,7 +6,8 @@
  * from n input queues that have different priorities and schedule them on m output queues.
  */
 
-#include "priority_datatypes.h"
+//#include "priority_datatypes.h"
+#include "../application_datatypes.h"
 
 /// This macro specifies that jobs from the ith input queue can be placed inside the jth queue when j < i.
 #define UPGRADE_PRIO 1
