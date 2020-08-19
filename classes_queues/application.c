@@ -52,7 +52,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
     int up_node;
 
-    job_info * info;
+    job_info * info,**info_arr;
 
     job_info info_to_send;
     processing_info proc_info_to_send;
@@ -65,8 +65,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             state->num_jobs_processed = 0;
             state->topology = getTopology(topology_path); //later we will use a static struct
 
-            int num_nodes = state->topology->total_nodes;
-            int num_sensor = state->topology->sensor_nodes;
+            unsigned int num_nodes = state->topology->total_nodes;
+            unsigned int num_sensor = state->topology->sensor_nodes;
 
             //if there are too few LPs, exit
             if(num_nodes + num_sensor > n_prc_tot){
@@ -83,7 +83,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             lp_infos* infos = getInfo(state->topology, me);
             state->type = infos->lp_type;
-			state->ts=now;
+            state->ts=now;
 
             //initializza strutture (if sensors and ecc)
             if(state->type == NODE){
@@ -91,6 +91,9 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 state->info.node = malloc(sizeof(node_state));
                 state->info.node->num_jobs_in_queue = 0;
                 state->info.node->num_jobs_arrived = 0;
+                state->info.node->num_lossy_jobs_rejected=0;
+                state->info.node->num_rt_jobs_rejected=0;
+                state->info.node->num_batch_jobs_rejected=0;
                 state->info.node->last_arrived_in_node_timestamp = 0.0;
                 state->info.node->sum_all_service_time = 0.0;
                 state->info.node->sum_all_time_between_arrivals = 0.0;
@@ -114,9 +117,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             break;
 
         case GENERATE:
-
-			//update timestamp in the node
-			state->ts=now;
+            //update timestamp in the node
+            state->ts=now;
             //check number of events is up to
             info_to_send.type = state->info.sensor->job_generated;
             info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
@@ -133,8 +135,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             break;
 
         case ARRIVE:
-			//update timestamp in the node
-			state->ts=now;
+           //update timestamp in the node
+            state->ts=now;
 
             //schedule finish if queue empty
             if(state->info.node->num_jobs_in_queue < 1){
@@ -145,7 +147,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             //add in the right queue
             info = malloc(sizeof(job_info));
-			memcpy(info, content, sizeof(job_info));
+            memcpy(info, content, sizeof(job_info));
 
             info->arrived_in_node_timestamp = now;
             schedule_in(state->info.node->queues, info);
@@ -160,30 +162,34 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             break;
 
         case FINISH:
-			//update timestamp in the node
-			state->ts=now;
+            //update timestamp in the node
+            state->ts=now;
 
             //send arrive to next LP
-            info = schedule_out(state->info.node->queues, now)[0];
+            info_arr = schedule_out(state->info.node->queues);
+            info=info_arr[0];
 
-			if(info != NULL){
+            up_node = getNext(state->topology, me)[0];
+            //we send a new arrive event if we have a receiver and the job has not expired is is lossy.
+            if(up_node != -1 && (info->type==LOSSY && info->deadline>=now)){
+                ScheduleNewEvent(up_node, ts_delay, ARRIVE, info, sizeof(job_info));
+            }
+            //check if the lossy job has been rejected and remeber that
+            if(info->type==LOSSY && info->deadline<now){
+                state->info.node->num_lossy_jobs_rejected++;
+           }
 
-                up_node = getNext(state->topology, me)[0];
-                if(up_node != -1){
-                    ScheduleNewEvent(up_node, ts_delay, ARRIVE, info, sizeof(job_info));
-                }
+            double service_time = now - ( (processing_info*) content)->start_processing_timestamp;
+            double response_time = now - info->arrived_in_node_timestamp;
 
-                double service_time = now - ( (processing_info*) content)->start_processing_timestamp;
-                double response_time = now - info->arrived_in_node_timestamp;
+            //change state
+            state->num_jobs_processed++;
+            state->info.node->sum_all_service_time += service_time;
+            state->info.node->sum_all_response_time += response_time;
 
-                //change state
-                state->num_jobs_processed++;
-                state->info.node->sum_all_service_time += service_time;
-                state->info.node->sum_all_response_time += response_time;
+            free(info_arr);
+            free(info);
 
-                free(info);
-
-			}
             state->info.node->num_jobs_in_queue--;
 
             //schedule new event if other are presents (num clients)
@@ -203,9 +209,9 @@ bool OnGVT(int me, lp_state *snapshot)
             return true;
 
         if(snapshot->type == NODE){
-            
-			printf("################################################\n");
-			printf("Node %d timestamp: %f\n",me,snapshot->ts);
+
+            printf("################################################\n");
+            printf("Node %d timestamp: %f\n",me,snapshot->ts);
             printf("Number of jobs in the node %d: %d\n", me, snapshot->info.node->num_jobs_in_queue);
             double average_processing = snapshot->info.node->sum_all_service_time / snapshot->num_jobs_processed;
             double average_arrivial = snapshot->info.node->sum_all_time_between_arrivals / snapshot->info.node->num_jobs_arrived;
@@ -216,9 +222,8 @@ bool OnGVT(int me, lp_state *snapshot)
 
             double ro = average_processing / average_arrivial;
             printf("Utilization factor in the node %d: %lf\n", me, ro);
-			priority_scheduler* sched=(priority_scheduler*) snapshot->info.node->queues;
-			printf("Rejected lossy job in node %d: %d\n",me,sched->rejected_lossy);
-            
+            printf("Rejected lossy job in node %d: %d\n",me,snapshot->info.node->num_lossy_jobs_rejected);
+
         }
 
     return false;

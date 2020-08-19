@@ -3,7 +3,7 @@
 
 typedef void priority_queue;
 
-priority_queue * create_queue();
+priority_queue * create_queue(void);
 void enqueue(priority_queue * pq, double timestamp, void * payload);
 void * dequeue(priority_queue * pq);
 int check_presence(priority_queue * pq);

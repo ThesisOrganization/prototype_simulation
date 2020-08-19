@@ -34,9 +34,6 @@ priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, 
 	}
 	sched->mix_prio=prio;
 	sched->scheduler_timestamp=0;
-	sched->rejected_rt=0;
-	sched->rejected_lossy=0;
-	sched->rejected_batch=0;
 	return sched;
 }
 
@@ -63,7 +60,7 @@ int check_queues(queue_conf* queue){
  * Real time jobs that don't meet the deadline are scheduled regardless (they shoul always meet the deadline).
  * If there were no output queues supplied, the function will return up to `events_to_schedule` jobs, according to the scheduler configuration.
  */
-job_info** schedule_out(priority_scheduler* sched,double timestamp){
+job_info** schedule_out(priority_scheduler* sched){
 	int i,output_index=0,output_empty=1,job_index=0;
 	job_info *job, **jobs=NULL;
 
@@ -110,14 +107,6 @@ job_info** schedule_out(priority_scheduler* sched,double timestamp){
 			//we can now schedule the job from the ith input queue to a suitable output queue
 			//we dequeue the job from the ith input queue
 			job=(sched->input_queues[i]->dequeue)(sched->input_queues[i]->queue);
-			//we check if the job timestamp is not after the deadline (only for lossy queues)
-			if((sched->input_queues[i]->type!=LOSSY && job->type!=LOSSY)|| job->deadline>=timestamp){
-					sched->rejected_lossy++;
-			}
-				// we also want to know how many real time jobs didn't meet the deadline
-				if(sched->input_queues[i]->type==REAL_TIME && job->type==REAL_TIME && job->deadline<timestamp){
-					sched->rejected_rt++;
-				}
 
 				if(sched->num_output_queues>0){
 					//we enqueue the job on the chosen output queue
@@ -134,33 +123,17 @@ job_info** schedule_out(priority_scheduler* sched,double timestamp){
 }
 
 /**
- * Schedule a new event in the first appropriate queue which has free space
+ * Schedule a new event in the first appropriate queue which has free space.
  */
-void schedule_in(priority_scheduler* sched, job_info* job){
-	int i, done=0;
+int schedule_in(priority_scheduler* sched, job_info* job){
+	int i, done=SCHEDULE_FAIL;
 	//we find a suitable queue
 	for(i=0;i<sched->num_input_queues && !done;i++){
 		if(sched->input_queues[i]->type==job->type && check_queues(sched->input_queues[i])){
 			//the queue has the same type of the event and is not full so we can add the job in it
 			(sched->input_queues[i]->enqueue)(sched->input_queues[i]->queue,job->deadline,job);
-			done=1;
+			done=SCHEDULE_DONE;
 		}
 	}
-	//update stats if the job is not scheduled
-	if(!done){
-		if(job->type==REAL_TIME){
-			sched->rejected_rt++;
-		}else{
-			if(job->type==LOSSY){
-				sched->rejected_lossy++;
-			}else{
-				sched->rejected_batch++;
-			}
-		}
-		//free job's memory
-		if(job->payload!=NULL){
-			free(job->payload);
-		}
-		free(job);
-	}
+	return done;
 }

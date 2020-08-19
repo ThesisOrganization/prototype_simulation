@@ -14,10 +14,10 @@ void swap(queue_conf** a, queue_conf** b)
  * of pivot */
 int partition (queue_conf** arr, int low, int high)
 {
-	int pivot = arr[high]->type; // pivot
+	prio_type pivot = arr[high]->type; // pivot
 	int i = (low - 1); // Index of smaller element
-
-	for (int j = low; j <= high - 1; j++){
+	int true_high=high-1;
+	for (int j = low; j <= true_high; j++){
 		// If current element is smaller than the pivot
 		if (arr[j]->type < pivot){
 			i++; // increment index of smaller element

@@ -35,18 +35,18 @@ static int get_parent_index(int i) {
 
 static int is_root_index(int i) {
 	return i == 0 ? 1 : 0;
-} 
+}
 
-static int get_left_index(_heap * h, int i) {
+static int get_left_index(int i) {
 	return 2 * i + 1;
 }
-	
-static int get_right_index(_heap * h, int i) {
-	return get_left_index(h, i) + 1;
+
+static int get_right_index(int i) {
+	return get_left_index(i) + 1;
 }
 
 static int is_leaf(_heap * h, int i) {
-	return get_left_index(h, i) >= h->used;
+	return get_left_index(i) >= h->used;
 }
 
 static int compare(_heap * h, int i, int j) {
@@ -70,7 +70,7 @@ static void exchange(_heap * h, int i, int j) {
 }
 
 heap_entry * heap_add(heap * hh, double key, void * payload) {
-	
+
 	_heap * h = hh;
 
 	if(h->used >= h->size)
@@ -81,7 +81,7 @@ heap_entry * heap_add(heap * hh, double key, void * payload) {
     e->payload = payload;
 	e->position = h->used;
 	h->array[h->used] = e;
-	
+
 	int i = h->used;
 	int j = get_parent_index(i);
 	while(!is_root_index(i) && compare(h, i, j)) {
@@ -105,14 +105,14 @@ int heap_size(heap * hh) {
 }
 
 static int get_max_child_index(_heap * h, int k) {
-	
+
 	if(is_leaf(h, k))
 		return -1;
 
 	else {
 
-		int l = get_left_index(h, k);
-		int r = get_right_index(h, k);
+		int l = get_left_index(k);
+		int r = get_right_index(k);
 		int max = l;
 		if(r < h->used && compare(h, r, l))
 			max = r;
@@ -143,7 +143,7 @@ static void heapify(_heap * h, int i) {
 }
 
 void * heap_poll(heap * hh) {
-	
+
 	_heap * h = hh;
 
 	//int key = -1;
@@ -155,9 +155,9 @@ void * heap_poll(heap * hh) {
 		heapify(h, 0);
 		//key = e->key;
 		payload = e->payload;
-		free(e); 
+		free(e);
 	}
-		
+
 	return payload;
 }
 
@@ -236,11 +236,11 @@ static void sift_up(_heap * h, int i){
 
 		int p = get_parent_index(i);
 		if (compare(h, i, p)) {
-		
+
 			exchange(h, i, p);
 			i = p;
 
-		} else 
+		} else
 			return;
 	}
 }
@@ -262,8 +262,8 @@ void heap_update_key(heap * hh, heap_entry * ee, double key) {
 		if (keyDecrease)
 			sift_up(h, e->position);
 		else
-			heapify(h, e->position);		
-	
+			heapify(h, e->position);
+
 	} else {
 
 		if (!keyDecrease)
@@ -272,6 +272,6 @@ void heap_update_key(heap * hh, heap_entry * ee, double key) {
 			heapify(h, e->position);
 
 	}
-        
+
 }
 

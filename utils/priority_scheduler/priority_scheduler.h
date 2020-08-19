@@ -1,12 +1,16 @@
 #pragma once
 
+/// We failed to schedule in a job
+#define SCHEDULE_FAIL 0
+/// We have scheduled a job in successfully
+#define SCHEDULE_DONE 1
+
 /** \file priority_scheduler.h
  * \brief APIs for the usage of a priority scheduler.
  * This header file contains the structures and the methods of a simple priority scheduler, which will take k events
  * from n input queues that have different priorities and schedule them on m output queues.
  */
 
-//#include "priority_datatypes.h"
 #include "../application_datatypes.h"
 
 /// This macro specifies that jobs from the ith input queue can be placed inside the jth queue when j < i.
@@ -33,10 +37,6 @@ typedef struct priority_scheduler{
 	int scheduler_timestamp;	///< The scheduler timestamp, used to schedule events in the output queues instead of the
 														///< real timestamp so the order of events in and between input queues is respected in the
 														///< output queues.
-											///< of the job to take into account the job timestamp and the queue priority.
-	int rejected_rt; ///< Number of real time jobs rejected.
-	int rejected_lossy; ///< Number of lossy jobs rejected.
-	int rejected_batch; ///< Number of batch jobs rejected.
 } priority_scheduler;
 
 /** \brief Creates and returns a new priority_scheduler.
@@ -52,13 +52,13 @@ priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, 
 
 /** \brief Schedules events from the input queues to the output queues.
  * \param[in] sched The scheduler which must be used to schedule events.
- * \param[in] timestamp The current timestamp, used to determine if a lossy event must be discarded.
  * \returns `NULL` if there is at least one output queue, an array of `events_to_schedule` elements if there are no output queues. The returned array can also have less than `events_to_schedule` elements depending on the input queue status, its last element is always NULL.
  */
-job_info** schedule_out(priority_scheduler* sched,double timestamp);
+job_info** schedule_out(priority_scheduler* sched);
 
-/** \brief Schedules an event to one of the input queues.
+/** \brief Schedules a job to one of the input queues.
  * \param[in] sched The scheduler which must be used to schedule events.
  * \param[in] job The event to be inserted in an input queue.
+ * \returns ::SCHEDULE_FAIL if the job has been rejected or ::SCHEDULE_DONE otherwise.
  */
-void schedule_in(priority_scheduler* sched,job_info* job);
+int schedule_in(priority_scheduler* sched,job_info* job);

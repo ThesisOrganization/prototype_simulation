@@ -103,6 +103,7 @@ topology * getTopology(char * path){
   size_t len = 0;
   ssize_t read;
   char * numberOfNodes = NULL;
+	int i,counter;
 
   fp = fopen(path, "r");
 
@@ -145,7 +146,7 @@ topology * getTopology(char * path){
       char * end_token;
       char *ptr2 = strtok_r(ptr,",",&end_token);
       //tokenize each ";" token through ",", iterate until end of the line
-      int counter = 0;//used to keep track of how many "," we iterated on
+      counter = 0;//used to keep track of how many "," we iterated on
       while(ptr2){
         if(index == 0){//#receivers
           numberOfReceivers = atoi(ptr2);
@@ -179,6 +180,10 @@ topology * getTopology(char * path){
     tp->receiver = receiversArray;
     tp->info = parse_strings(infoArray);
     //tp->info = infoArray;
+		for(i=0;i<counter;i++){
+				free(infoArray[i]);
+		}
+		free(infoArray);
     returnArray[temp] = tp;
   }
   fclose(fp);

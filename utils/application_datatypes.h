@@ -132,6 +132,9 @@ typedef struct _sensor_state {
 typedef struct _node_state {
     int num_jobs_in_queue;
     int num_jobs_arrived;
+    int num_lossy_jobs_rejected;
+    int num_rt_jobs_rejected;
+    int num_batch_jobs_rejected;
     double last_arrived_in_node_timestamp;
     double sum_all_service_time;
     double sum_all_time_between_arrivals;

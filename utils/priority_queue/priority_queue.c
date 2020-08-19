@@ -5,7 +5,7 @@
 #define CAPACITY 50
 
 
-priority_queue * create_queue(){
+priority_queue* create_queue(void){
 
     return heap_new(MIN_HEAP, CAPACITY);
 
