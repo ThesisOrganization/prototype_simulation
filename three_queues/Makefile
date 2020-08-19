@@ -1,4 +1,4 @@
-CC = rootsim-cc
+CC = ../ROOT-Sim-bin/bin/rootsim-cc
 CFLAGS = -Wall -Wextra
 TARGET = queues
 
@@ -16,4 +16,4 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:
-	$(RM) *.o $(TARGET)
+	$(RM) *.o *.o.rs $(TARGET)

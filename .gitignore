@@ -9,3 +9,5 @@ queues
 main
 *_model
 */outputs*
+docs/latex/*
+docs/html/*

@@ -1,4 +1,4 @@
-#include "priority_scheduler.h"
+#include "../application_datatypes.h"
 /// A utility function to swap two elements
 void swap(queue_conf** a, queue_conf** b)
 {

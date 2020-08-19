@@ -103,7 +103,7 @@ topology * getTopology(char * path){
   size_t len = 0;
   ssize_t read;
   char * numberOfNodes = NULL;
-	int i,counter;
+  int i=0,counter=0;
 
   fp = fopen(path, "r");
 
