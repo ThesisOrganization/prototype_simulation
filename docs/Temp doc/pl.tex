@@ -6,6 +6,7 @@
 \usepackage{setspace}
 \usepackage{color}
 \usepackage{float}
+\usepackage[inkscapelatex=false,inkscapearea=page]{svg}
 \onehalfspacing
 %\doublespacing
 
@@ -45,22 +46,47 @@ Now, row by row we will justify or explain our answers:
 \section{Structural scheme}
 First of all, due to assumption 5, the following is the extended LAN model:\\
 \begin{figure}[H]
-  \frame{\includegraphics[width=15cm, height=6cm]{CentralRegional.png}}
+	\hspace*{-3.75cm}
+	\centering
+  \frame{\includesvg[width=20cm]{centralregional}}
   \caption{Focus on Central and Regional nodes}
 \end{figure}
 \begin{figure}[H]
-  \frame{\includegraphics[width=15cm, height=6cm]{RegionalPrimarySensor.png}}
-  \caption{Focus on Regional, Primary/Secondary and end points}
+	\hspace*{-3.75cm}
+	\frame{\includesvg[width=20cm]{primarysecondary}}
+	\caption{Focus on Regional and Primary/Secondary nodes}
+\end{figure}
+\begin{figure}[H]
+	\hspace*{-3.75cm}
+  \frame{\includesvg[width=20cm]{primarysensor}}
+  \caption{Focus on Primary/Secondary nodes and end points}
 \end{figure}
 As it can be seen, between an upper level node and a lower level one there is a router connected to a LAN which receives and sends messages to all the lower level nodes. Keeping in mind assumption 1 on the horizontal level communication, even if the nodes on a level share a lan they can only send and receive from the upper level router.\\
 Furthermore this iteration is parametric so a central node manages n regional nodes. Each regional node manages m primary and k secondary nodes, these parameters varies with the regional node they are associated to. Same thing extends to primary/secondary with respect to the sensors/actuators, respectively in numbers s and a.\\
 One last note about the scheme is that at the moment we divided on two LANs primary and secondary for clarity since they have different rate, operations and technology. Likewise for the different communication technology with actuators and sensors.\\
 The whole scheme:
 \begin{figure}[H]
-  \frame{\includegraphics[width=15cm, height=6cm]{take_2.png}}
+	\hspace*{-3.75cm}
+	\frame{\includesvg[width=20cm]{structural_scheme_wan}}
   \caption{Structural scheme}
 \end{figure}
 \section{Queues Scheme}
+\begin{figure}[H]
+	\hspace*{-3.75cm}
+	\frame{\includesvg[width=20cm]{queue_network_centralregional}}
+	\caption{Focus on Central and Regional nodes}
+\end{figure}
+\begin{figure}[H]
+	\hspace*{-3.75cm}
+	\frame{\includesvg[width=20cm]{queue_network_primarysensor}}
+	\caption{Focus on Regional nodes, Primary/Secondary nodes and sensor/actuators}
+\end{figure}
+\begin{figure}[H]
+	\vspace*{-0.5cm}
+	\hspace*{-3.75cm}
+	\frame{\includesvg[width=20cm]{queue_network_wan}}
+	\caption{The whole scheme}
+\end{figure}
 
 \section{Open Queues Formulas}
 
@@ -82,7 +108,7 @@ The various elements are called:
 \item Disk: $d$.
 \end{itemize}
 Each node has a summary section which describes the total response time for that node type.\\
-To develop the following formulas, we started from the network queue in the case of an open network. 
+To develop the following formulas, we started from the network queue in the case of an open network.
 
 \section{Node}
 
@@ -400,11 +426,11 @@ The arrival rate for transition type formula is given by the fact that there are
 \end{equation}
 
 \subsection{Disk}
-The arrival rate of the telemetry events on disks is halved because after the last aggregation, the data is saved on the disk. 
+The arrival rate of the telemetry events on disks is halved because after the last aggregation, the data is saved on the disk.
 \begin{equation}
     \begin{array}{l}
         V_{d, t} = 1 \\
-        V_{d, e} = 1 \\ 
+        V_{d, e} = 1 \\
         \lambda_{d, t} = \frac{\lambda_{l, t}}{2} \\ %after the last aggregation you save
         \lambda_{d, e} = \lambda_{l, e} \\
     \end{array}
