@@ -10,9 +10,9 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    sodipodi:docname="e-r_scheme.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
-   width="1920px"
-   height="1080px"
-   viewBox="0 0 1920 1080"
+   width="1920"
+   height="1520"
+   viewBox="0 0 1920 1520"
    version="1.1"
    id="SVGRoot">
   <defs
@@ -42,16 +42,16 @@
          id="stop1579" />
     </linearGradient>
     <rect
-       x="1961.4372"
+       x="1961.4373"
        y="1130.8538"
        width="176.42455"
-       height="95.74944"
+       height="95.749443"
        id="rect1494" />
     <rect
-       x="1726.2907"
+       x="1726.2906"
        y="1275.4994"
-       width="161.67472"
-       height="91.889636"
+       width="161.67471"
+       height="91.889633"
        id="rect1436" />
     <inkscape:path-effect
        effect="spiro"
@@ -94,7 +94,7 @@
        inkscape:collect="always"
        xlink:href="#linearGradient1581"
        id="linearGradient1583"
-       x1="901.57706"
+       x1="901.57709"
        y1="443.04886"
        x2="1008.9393"
        y2="443.04886"
@@ -128,9 +128,9 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
-     inkscape:cy="529.09656"
-     inkscape:cx="885.55018"
-     inkscape:zoom="1.4142136"
+     inkscape:cy="858.72363"
+     inkscape:cx="891.9673"
+     inkscape:zoom="0.50000001"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1.0"
@@ -144,7 +144,7 @@
      inkscape:bbox-nodes="true"
      inkscape:snap-bbox-midpoints="true"
      inkscape:snap-global="true"
-     showborder="false" />
+     showborder="true" />
   <metadata
      id="metadata412">
     <rdf:RDF>
@@ -153,7 +153,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -241,7 +241,7 @@
          style="stroke-width:0.660563"
          sodipodi:role="line"
          x="992.60681"
-         y="672.25146"
+         y="672.2514"
          id="tspan112" /></text>
     <rect
        inkscape:connector-avoid="true"
@@ -611,7 +611,7 @@
          sodipodi:arg1="0.52955809"
          sodipodi:r2="13.157709"
          sodipodi:r1="26.315418"
-         sodipodi:cy="507.62446"
+         sodipodi:cy="507.62445"
          sodipodi:cx="1113.7571"
          sodipodi:sides="3"
          id="path76"
@@ -633,8 +633,8 @@
          style="display:inline;fill:#000000;stroke:#000000;stroke-width:0.403966"
          id="path76-3"
          sodipodi:sides="3"
-         sodipodi:cx="1439.2486"
-         sodipodi:cy="848.48194"
+         sodipodi:cx="1439.2487"
+         sodipodi:cy="848.48193"
          sodipodi:r1="26.315418"
          sodipodi:r2="13.157709"
          sodipodi:arg1="0.52955809"
@@ -782,7 +782,7 @@
          sodipodi:role="line">Global</tspan><tspan
          id="tspan351-1"
          style="font-size:8.66667px;text-align:center;text-anchor:middle;stroke-width:0.660563"
-         y="247.99738"
+         y="247.99739"
          x="1449.6711"
          sodipodi:role="line">Connection</tspan></text>
     <text
@@ -1180,8 +1180,8 @@
          sodipodi:arg1="0.52955809"
          sodipodi:r2="13.157709"
          sodipodi:r1="26.315418"
-         sodipodi:cy="859.95913"
-         sodipodi:cx="848.87953"
+         sodipodi:cy="859.95911"
+         sodipodi:cx="848.87952"
          sodipodi:sides="3"
          id="path76-3-2"
          style="display:inline;fill:#000000;stroke:#000000;stroke-width:0.403966"
@@ -1427,7 +1427,7 @@
     <text
        xml:space="preserve"
        id="text1434"
-       style="font-family:sans-serif;font-size:13.33333333px;line-height:1.25;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect1436);" />
+       style="font-size:13.3333px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect1436);" />
     <rect
        style="display:inline;fill:none;stroke:#1b9e77;stroke-width:0.686629;stroke-opacity:1"
        id="rect493-6-7-5-3-9-3-2"
@@ -1469,7 +1469,7 @@
     <text
        xml:space="preserve"
        id="text1492"
-       style="font-family:sans-serif;font-size:13.33333333px;line-height:1.25;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect1494);" />
+       style="font-size:13.3333px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect1494);" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#1b9e77;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 1079.0905,1188.8524 456.3174,-65.7474"
