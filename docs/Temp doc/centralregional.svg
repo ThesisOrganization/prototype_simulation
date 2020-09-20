@@ -36,7 +36,7 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="89.165191"
+     inkscape:cy="88.912653"
      inkscape:cx="78.441665"
      inkscape:zoom="3.959798"
      inkscape:pageshadow="2"
@@ -63,7 +63,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -292,7 +292,7 @@
          id="tspan8496-92-9-5"
          x="636.64716"
          y="111.82883"
-         style="stroke-width:0.066;stroke-miterlimit:4;stroke-dasharray:none">LAN PRIMARY-SECONDARY N</tspan></text>
+         style="stroke-width:0.066;stroke-miterlimit:4;stroke-dasharray:none">LAN PRIMARY-SECONDARY 1</tspan></text>
     <path
        style="opacity:1;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.0413578;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 649.9717,110.60409 -16.37229,0.0114"
