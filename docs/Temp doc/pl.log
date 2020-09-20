@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2020.8.29)  19 SEP 2020 19:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2020.8.29)  20 SEP 2020 19:10
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -276,113 +276,136 @@ Overfull \hbox (66.78635pt too wide) in paragraph at lines 29--32
 File: ./svg-inkscape/centralregional_svg-raw.pdf Graphic file (type pdf)
 <use ./svg-inkscape/centralregional_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/centralregional_svg-raw.pdf  used on in
-put line 51.
+put line 53.
 (pdftex.def)             Requested size: 145.74448pt x 85.4999pt.
 
-Overfull \hbox (105.01205pt too wide) in paragraph at lines 49--52
+Overfull \hbox (105.01205pt too wide) in paragraph at lines 51--54
  []|  [] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 47--53
-
  []
 
 <./svg-inkscape/primarysecondary_svg-raw.pdf, id=19, 191.30682pt x 81.98657pt>
 File: ./svg-inkscape/primarysecondary_svg-raw.pdf Graphic file (type pdf)
 <use ./svg-inkscape/primarysecondary_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/primarysecondary_svg-raw.pdf  used on i
-nput line 56.
+nput line 58.
 (pdftex.def)             Requested size: 191.30634pt x 81.98636pt.
 
-Overfull \hbox (104.95767pt too wide) in paragraph at lines 55--57
+Overfull \hbox (104.95767pt too wide) in paragraph at lines 57--59
 []|  [] 
  []
 
-<./svg-inkscape/primarysensor_svg-raw.pdf, id=20, 96.70013pt x 55.00874pt>
+[4] [5 <./svg-inkscape/centralregional_svg-raw.pdf>]
+<./svg-inkscape/primarysensor_svg-raw.pdf, id=34, 96.70013pt x 55.00874pt>
 File: ./svg-inkscape/primarysensor_svg-raw.pdf Graphic file (type pdf)
 <use ./svg-inkscape/primarysensor_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/primarysensor_svg-raw.pdf  used on inpu
-t line 61.
+t line 64.
 (pdftex.def)             Requested size: 96.69989pt x 55.00859pt.
 
-Overfull \hbox (104.86252pt too wide) in paragraph at lines 60--62
+Overfull \hbox (104.86252pt too wide) in paragraph at lines 63--65
 []|  [] 
  []
 
-[4 <./svg-inkscape/centralregional_svg-raw.pdf>] [5 <./svg-inkscape/primaryseco
-ndary_svg-raw.pdf>]
-<./svg-inkscape/structural_scheme_wan_svg-raw.pdf, id=43, 506.05199pt x 157.444
+
+Overfull \hbox (11.175pt too wide) in paragraph at lines 61--66
+\OT1/cmr/m/n/10.95 while Fig-ure 2 shows the con-nec-tion be-tween Re-gional an
+d Pri-mary/Secondary.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 61--66
+
+ []
+
+[6 <./svg-inkscape/primarysecondary_svg-raw.pdf>]
+<./svg-inkscape/structural_scheme_wan_svg-raw.pdf, id=46, 506.05199pt x 157.444
 12pt>
 File: ./svg-inkscape/structural_scheme_wan_svg-raw.pdf Graphic file (type pdf)
 <use ./svg-inkscape/structural_scheme_wan_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/structural_scheme_wan_svg-raw.pdf  used
- on input line 70.
+ on input line 73.
 (pdftex.def)             Requested size: 506.05075pt x 157.44373pt.
 
-Overfull \hbox (104.84183pt too wide) in paragraph at lines 69--71
+Overfull \hbox (104.84183pt too wide) in paragraph at lines 72--74
 []|  [] 
  []
 
-[6 <./svg-inkscape/primarysensor_svg-raw.pdf>]
-<./svg-inkscape/queue_network_centralregional_svg-raw.pdf, id=55, 281.3097pt x 
+
+Overfull \hbox (23.00418pt too wide) in paragraph at lines 67--75
+[]\OT1/cmr/m/n/10.95 Instead in fig-ure 3, which dis-plays the con-nec-tion be-
+tween Pri-mary/Secondary
+ []
+
+[7 <./svg-inkscape/primarysensor_svg-raw.pdf>] [8 <./svg-inkscape/structural_sc
+heme_wan_svg-raw.pdf>]
+<./svg-inkscape/queue_network_centralregional_svg-raw.pdf, id=73, 281.3097pt x 
 86.71501pt>
 File: ./svg-inkscape/queue_network_centralregional_svg-raw.pdf Graphic file (ty
 pe pdf)
 <use ./svg-inkscape/queue_network_centralregional_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/queue_network_centralregional_svg-raw.p
-df  used on input line 76.
+df  used on input line 107.
 (pdftex.def)             Requested size: 281.309pt x 86.71478pt.
 
-Overfull \hbox (104.90805pt too wide) in paragraph at lines 75--77
+Overfull \hbox (104.90805pt too wide) in paragraph at lines 106--108
 []|  [] 
  []
 
-<./svg-inkscape/queue_network_primarysensor_svg-raw.pdf, id=56, 227.3792pt x 13
+<./svg-inkscape/queue_network_primarysensor_svg-raw.pdf, id=74, 227.3792pt x 13
 0.02365pt>
 File: ./svg-inkscape/queue_network_primarysensor_svg-raw.pdf Graphic file (type
  pdf)
 <use ./svg-inkscape/queue_network_primarysensor_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/queue_network_primarysensor_svg-raw.pdf
-  used on input line 81.
+  used on input line 112.
 (pdftex.def)             Requested size: 227.37863pt x 130.02333pt.
 
-Overfull \hbox (104.79965pt too wide) in paragraph at lines 80--82
+Overfull \hbox (104.79965pt too wide) in paragraph at lines 111--113
 []|  [] 
  []
 
-[7 <./svg-inkscape/structural_scheme_wan_svg-raw.pdf>]
-<./svg-inkscape/queue_network_wan_svg-raw.pdf, id=69, 543.27055pt x 523.07683pt
+[9]
+<./svg-inkscape/queue_network_wan_svg-raw.pdf, id=78, 543.27055pt x 523.07683pt
 >
 File: ./svg-inkscape/queue_network_wan_svg-raw.pdf Graphic file (type pdf)
 <use ./svg-inkscape/queue_network_wan_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/queue_network_wan_svg-raw.pdf  used on 
-input line 87.
+input line 118.
 (pdftex.def)             Requested size: 543.26923pt x 523.07555pt.
 
-Overfull \hbox (104.81035pt too wide) in paragraph at lines 86--88
+Overfull \hbox (104.81035pt too wide) in paragraph at lines 117--119
 []|  [] 
  []
 
-[8 <./svg-inkscape/queue_network_centralregional_svg-raw.pdf>] [9 <./svg-inksca
-pe/queue_network_primarysensor_svg-raw.pdf>]
+[10 <./svg-inkscape/queue_network_centralregional_svg-raw.pdf>] [11 <./svg-inks
+cape/queue_network_primarysensor_svg-raw.pdf>]
 Overfull \vbox (20.92128pt too high) has occurred while \output is active []
 
 
-[10 <./svg-inkscape/queue_network_wan_svg-raw.pdf>] [11] [12]
-Underfull \hbox (badness 10000) in paragraph at lines 216--217
+[12 <./svg-inkscape/queue_network_wan_svg-raw.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 124--125
 
  []
 
-[13] [14] [15] [16] [17] [18] [19] (./pl.aux) ) 
+
+Underfull \hbox (badness 10000) in paragraph at lines 130--137
+
+ []
+
+[13] [14] [15] [16] [17] [18]
+Underfull \hbox (badness 10000) in paragraph at lines 364--365
+
+ []
+
+[19] [20] [21] [22] [23] [24] [25] (./pl.aux) ) 
 Here is how much of TeX's memory you used:
- 3587 strings out of 480478
- 54747 string characters out of 5905959
- 326346 words of memory out of 5000000
- 19531 multiletter control sequences out of 15000+600000
+ 3589 strings out of 480478
+ 54773 string characters out of 5905959
+ 327343 words of memory out of 5000000
+ 19533 multiletter control sequences out of 15000+600000
  538748 words of font info for 46 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 44i,11n,53p,380b,331s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 44i,11n,53p,720b,331s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc
 /dvips/cm-super/cm-super-ts1.enc}</usr/share/texmf-dist/fonts/type1/public/amsf
 onts/cm/cmbx10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12
@@ -395,10 +418,10 @@ cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr
 t/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/
 public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super
 /sfrm1095.pfb>
-Output written on pl.pdf (19 pages, 293572 bytes).
+Output written on pl.pdf (25 pages, 304917 bytes).
 PDF statistics:
- 180 PDF objects out of 1000 (max. 8388607)
- 123 compressed objects within 2 object streams
+ 199 PDF objects out of 1000 (max. 8388607)
+ 136 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  41 words of extra memory for PDF output out of 10000 (max. 10000000)
 

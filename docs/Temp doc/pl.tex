@@ -10,7 +10,7 @@
 \onehalfspacing
 %\doublespacing
 
-\title {Architecture and Open Queue Formulas \\ \bigskip \large Thesis}
+\title {Architecture and Open Queue Model \\ \bigskip \large Thesis}
 \date{21 September 2020}
 
 \begin{document}
@@ -20,10 +20,10 @@ This section will deal with the assumptions we've made so far and why we've made
 \subsection{Assumptions}
 \begin{enumerate}
 \item \textbf{Assumption 1}: All layers have no horizontal connection. The scheme we will present in section 2 will feature LANs accessible by all nodes of the same layer so this type of communication is actually possible through those LANs, but for now decided to not have horizontality in the message system.
-\item \textbf{Assumption 2}: The only entity needing a disk is the Central Node, in particular we are assuming that all other nodes receive information that can be processed, stored and aggregated in the RAM which will never be full. This is a strong assumption that can be relaxed if needed by adding disks in the regional and primary/secondary layer.
+\item \textbf{Assumption 2}: The only entity needing a storage system is the Central Node, in particular we are assuming that all other nodes receive information that can be processed, stored and aggregated in the RAM which will never be full. This is a strong assumption that can be relaxed if needed by adding disks in the regional and primary/secondary layer.
 \item \textbf{Assumption 3}: The RAM element of the nodes doesn't need its own queue model, indeed it can be modeled in symbiosis with the CPU since it is used by only that component.
 \item \textbf{Assumption 4}: In this first stage we won't be holding account of the fault tolerance of the system, in particular we are not considering duplication of the data not in storaging neither in multiple link sending.
-\item \textbf{Assumption 5}:In the edge platform high level architecture document between a central node and the regionals there is a wan, and the same happens for the lower level. We propose two models, one having the wired WAN interpreted as a long distance LAN and another one where it is an actual WAN.
+\item \textbf{Assumption 5}: Equiprobability of receiving a message on any given level, indeed we will assume that, each time a central sends a message to a node on a level the probability that any one of them is the target is the same, this can be relaxed easily by putting a fixed probability parameter in the formulas.
 \end{enumerate}
 \subsection{Table}
 First of all, we started by compiling the table with the responses as we expect them to be. The green ones are those decisions we made while the black ones are trivial ones that have no alternatives.\\
@@ -44,7 +44,9 @@ Now, row by row we will justify or explain our answers:
 \end{enumerate}
 
 \section{Structural scheme}
-First of all, due to assumption 5, the following is the extended LAN model:\\
+This section will explain how the structural scheme for the system is made and its project's choices.\\
+In the model we are going to show, we used as connection between the upper level node and the LAN of the lower level nodes a WAN between two routers. An alternative is possible if we transform this WAN into a long distance LAN where only one router is needed for this connection on the upper level node side.\\
+The choice of a WAN was made due to the high regional spam that the second level nodes are going to cover.
 \begin{figure}[H]
 	\hspace*{-3.75cm}
 	\centering
@@ -56,12 +58,13 @@ First of all, due to assumption 5, the following is the extended LAN model:\\
 	\frame{\includesvg[width=20cm]{primarysecondary}}
 	\caption{Focus on Regional and Primary/Secondary nodes}
 \end{figure}
+Figure 1 represents the connection between Central and Regional nodes, while Figure 2 shows the connection between Regional and Primary/Secondary. We can  see that lower level router is used as an interface for lower level nodes to receive and send messages to the upper level node. Keeping in mind assumption 1 on the horizontal level communication, even if the nodes on a level share a LAN they won't send messages to their peers.\\
 \begin{figure}[H]
 	\hspace*{-3.75cm}
   \frame{\includesvg[width=20cm]{primarysensor}}
   \caption{Focus on Primary/Secondary nodes and end points}
 \end{figure}
-As it can be seen, between an upper level node and a lower level one there is a router connected to a LAN which receives and sends messages to all the lower level nodes. Keeping in mind assumption 1 on the horizontal level communication, even if the nodes on a level share a lan they can only send and receive from the upper level router.\\
+Instead in figure 3, which displays the connection between Primary/Secondary nodes and the end points of the edge system, namely actuators and sensors, one LAN is used for each type of connection technology, in this case MANET and WIRELESS, both spanning between end points and their respective upper level node node.\\
 Furthermore this iteration is parametric so a central node manages n regional nodes. Each regional node manages m primary and k secondary nodes, these parameters varies with the regional node they are associated to. Same thing extends to primary/secondary with respect to the sensors/actuators, respectively in numbers s and a.\\
 One last note about the scheme is that at the moment we divided on two LANs primary and secondary for clarity since they have different rate, operations and technology. Likewise for the different communication technology with actuators and sensors.\\
 The whole scheme:
@@ -70,7 +73,40 @@ The whole scheme:
 	\frame{\includesvg[width=20cm]{structural_scheme_wan}}
   \caption{Structural scheme}
 \end{figure}
-\section{Queues Scheme}
+
+\section{Queues Scheme and Formulas}
+\subsection{Classes}
+-open multiclass quindi formule triviali
+-Multiclass, which classes, why
+-Keywords, messages,reply, command
+\subsection{Notation}
+We will deline the notation in the following formulas, each of them has one or many subscripts for the item they refer to, the same type of element in a different part has the same notation even though it's not the same element:
+\begin{itemize}
+\item $\lambda_t$ and $\lambda_e$: $\lambda$ is the arrival rate, respectively for the data type telemetry and transition.
+\item $V$: mean number of visits.
+\item $S$: service time.
+\item $D$: service demand.
+\item $U$: utilization factor.
+\item $R$: response time.
+\end{itemize}
+
+\begin{itemize}
+\item cn : central node.
+\item cns : central node storage
+\item rn : regional node.
+\item pn : primary node.
+\item sn : secondary node.
+\item wl : wireless.
+\item mt : manet.
+\item pl : primary lan.
+\item sl : secondary lan.
+\item ps : primary-secondary lan.
+\item rl : regional lan.
+\item cl : central lan.
+\end{itemize}
+Each node has a summary section which describes the total response time for that node type.\\
+To develop the following formulas, we started from the network queue in the case of an open network.
+
 \begin{figure}[H]
 	\hspace*{-3.75cm}
 	\frame{\includesvg[width=20cm]{queue_network_centralregional}}
@@ -88,384 +124,278 @@ The whole scheme:
 	\caption{The whole scheme}
 \end{figure}
 
-\section{Open Queues Formulas}
 
-\section{Notation}
-We will deline the notation in the following formulas, each of them has one or many subscripts for the item they refer to, the same type of element in a different part has the same notation even though it's not the same element:
-\begin{itemize}
-\item $\lambda_t$ and $\lambda_e$: $\lambda$ is the arrival rate, respectively for the data type telemetry and transition.
-\item $V$: mean number of visits.
-\item $S$: service time.
-\item $D$: service demand.
-\item $U$: utilization factor.
-\item $R$: response time.
-\end{itemize}
+\subsection{Actuators and Sensors}
+Sensors at the moment don't receive any command, we still have drawn them as queues for future extensions.\\
 
-The various elements are called:
-\begin{itemize}
-\item Lan: $l$;
-\item CPU: $c$;
-\item Disk: $d$.
-\end{itemize}
-Each node has a summary section which describes the total response time for that node type.\\
-To develop the following formulas, we started from the network queue in the case of an open network.
+\subsection{WIRELESS/MANET Lan}
+e:transition, t: telemtery, c:command
+-n,m,k,s,a già usati
 
-\section{Node}
-
-
-%\begin{itemize}
-%
-%    \item $\lambda_t$, arrival rate for telemetry data
-%    \item $\lambda_e$, arrival rate for events data
-%    \item $S_{node\_wlan, \ t}$, service time wifi lan
-%    \item $V_{node\_wlan, \ t}$, number of visits to wifi lan
-%    \item $S_{node\_wlan, \ e}$, service time wifi lan
-%    \item $V_{node\_wlan, \ e}$, number of visits to wifi lan
-%
-%    \item $S_{node\_cpu, \ t}$, service time wifi lan
-%    \item $V_{node\_cpu, \ t}$, number of visits to wifi lan
-%    \item $S_{node\_cpu, \ e}$, service time wifi lan
-%    \item $V_{node\_cpu, \ e}$, number of visits to wifi lan
-%
-%    \item $S_{node\_ram, \ t}$, service time wifi lan
-%    \item $V_{node\_ram, \ t}$, number of visits to wifi lan
-%    \item $S_{node\_ram, \ e}$, service time wifi lan
-%    \item $V_{node\_ram, \ e}$, number of visits to wifi lan
-%
-%    \item $S_{node\_lan, \ t}$, service time wifi lan
-%    \item $V_{node\_lan, \ t}$, number of visits to wifi lan
-%    \item $S_{node\_lan, \ e}$, service time wifi lan
-%    \item $V_{node\_lan, \ e}$, number of visits to wifi lan
-%
-%\end{itemize}
-
-
-
-\subsection{Wifi card}
-In the equations of the wifi card, the element is called $w$. So $V_{w, t}$ is the mean number of visits for the wifi card in the case of a telemetry data type.\\
-For the wifi card, since there are 4 sensors, the arrival rate for the telemetry data type is four times the total arrival rate, while due to the single actuator, in the case of a transition event the arrival rate is exactly the same.
+The first element we are going to look at is the WIRELESS lan. At this stage we are not considering the implication of the different technology thus we will only show the formulas for Wireless and the Manet's formulas will be mirrored.\\
+For the formulas we used the assumption 5 on equiprobability and the table presented in section 1.2, in particular the first four columns.\\
+The mean number of visits is trivially one for telemetry and commands since only one messages goes through the LAN, it's two for transition since a reply is needed.\\
+More interesting are the formulas regarding the arrival rates.\\
+In the telemetry cases the total arrival rate $\lambda_{wl, t}$ is the rate of a single sensor multiplied by the number of sensors.\\
+For transition instead, $\lambda_{wl, e}$ will be a sum of two terms, since both actuators and sensors send messages.\\
+Finally for $\lambda_{wl, c}$, the first term is the case where the central node issues a command, so the sent command of that class of messages will arrive to an actuator with a certain probability, given the assumption 5 this probability is one over the sum of all possible paths that can be taken by this message: one of the regional node, then one of the primary or secondary node and then the MANET or WIRELESS LAN. The second term instead is the case where a command is prompted due to a transition message so we multiply the arrival rate of transition event for primary or secondary node by a probability of the transition to generate a command, divided by two because the two paths, WIRELESS or MANET.\\
 \begin{equation}
     \begin{array}{l}
-        V_{w, t} = 1 \\
-        V_{w, e} = 1 \\
-        \lambda_{w, t} = 4*\lambda_{t} \\ %4 sensors
-        \lambda_{w, e} = \lambda_{e} \\ %1 actuator
+        V_{wl, t} = 1 \\
+        V_{wl, e} = 2 \\ %reply
+        V_{wl,c} = 1 \\
+        \lambda_{wl, t} = s*\lambda_{s, t} \\
+        \lambda_{wl, e} = s*\lambda_{s, e} + a*\lambda_{a, e} \\
+        \lambda_{wl, c} = \frac{\lambda_{cn, c}}{n*(m+k)*2} + prb * \frac{\lambda_{pn, e}}{2}  \\\
+    \end{array}
+\end{equation}
+In the last equation, the second term requires a change from primary node arrival rate to secondary node arrival rate in the case that the upper node is indeed a secondary.\\
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
+\begin{equation}
+    \begin{array}{l}
+        D_{wl, t} = V_{wl, t} * S_{wl, t} \\
+        D_{wl, e} = V_{wl, e} * S_{wl, e} \\
+        D_{wl, c} = V_{wl, c} * S_{wl, c} \\
+        U_{wl, t} = \lambda_{wl, t} * D_{wl, t} \\
+        U_{wl, e} = \lambda_{wl, e} * D_{wl, e} \\
+        U_{wl, c} = \lambda_{wl, c} * D_{wl, c} \\
+        U_{wl} = U_{wl, t} + U_{wl, e} + U_{wl, c} \\
+        R_{wl, t} = \frac{D_{wl, t}}{1 - U_{wl}} \\
+        R_{wl, e} = \frac{D_{wl, e}}{1 - U_{wl}} \\
+        R_{wl, c} = \frac{D_{wl, c}}{1 - U_{wl}} \\
     \end{array}
 \end{equation}
 
+\subsection{Primary Node}
+All formulas in this chapter are relatable to the previous one and thus we won't need any note on them.\\
+Formulas for secondary nodes are the same as primary ones for now so we will only discuss these one.\\
+The equations of the previous element will be used as arrival rates for the primary node thus both MANET and WIRELESS will be referred to.
 \begin{equation}
     \begin{array}{l}
-        D_{w, t} = V_{w, t} * S_{w, t} \\
-        D_{w, e} = V_{w, e} * S_{w, e} \\
-        U_{w, t} = \lambda_{w, t} * D_{w, t} \\
-        U_{w, e} = \lambda_{w, e} * D_{w, e} \\
-        U_{w} = U_{w, t} + U_{w, e} \\
-        R_{w, t} = \frac{D_{w, t}}{1 - U_{w}} \\
-        R_{w, e} = \frac{D_{w, e}}{1 - U_{w}} \\
+        V_{pn, t} = 1 \\
+        V_{pn, e} = 2 \\ %reply
+        V_{pn,c} = 1 \\
+        \lambda_{pn, t} = \lambda_{wl, t} + \lambda_{mt, t} \\
+        \lambda_{pn, e} = \lambda_{wl, e} + \lambda_{mt, e} \\
+        \lambda_{pn, c} = \frac{\lambda_{cn, c}}{n*(m+k)} + prb * \lambda_{pn, e}  \\\
+    \end{array}
+\end{equation}
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
+\begin{equation}
+    \begin{array}{l}
+        D_{pn, t} = V_{pn, t} * S_{pn, t} \\
+        D_{pn, e} = V_{pn, e} * S_{pn, e} \\
+        D_{pn, c} = V_{pn, c} * S_{pn, c} \\
+        U_{pn, t} = \lambda_{pn, t} * D_{pn, t} \\
+        U_{pn, e} = \lambda_{pn, e} * D_{pn, e} \\
+        U_{pn, c} = \lambda_{pn, c} * D_{pn, c} \\
+        U_{pn} = U_{pn, t} + U_{pn, e} + U_{pn, c} \\
+        R_{pn, t} = \frac{D_{pn, t}}{1 - U_{pn}} \\
+        R_{pn, e} = \frac{D_{pn, e}}{1 - U_{pn}} \\
+        R_{pn, c} = \frac{D_{pn, c}}{1 - U_{pn}} \\
     \end{array}
 \end{equation}
 
-\subsection{Ram}
-The mean number of visits for the transition events is two because after receiving it you need to reply and thus the visits double.
+\subsection{Primary LAN}
+-riceve m volte rate primary node diviso aggregazione
+-aggregation param aggr\_pn
+-parla della m* roba
+-rispiega la probabilità-qui mettiamo anche la WAN
 \begin{equation}
     \begin{array}{l}
-        V_{r, t} = 1 \\
-        V_{r, e} = 2 \\ %reply
-        \lambda_{r, t} = \lambda_{w, t} \\
-        \lambda_{r, e} = \lambda_{w, e} \\
+        V_{pl, t} = 1 \\
+        V_{pl, e} = 2 \\ %reply
+        V_{pl,c} = 1 \\
+        \lambda_{pl, t} = m*\frac{\lambda_{pn, t}}{aggr_{pn}} \\
+        \lambda_{pl, e} = m*\lambda_{pn, e} \\
+        \lambda_{pl, c} = m*\frac{\lambda_{cn, c}}{n*(m+k)}  \\\
+    \end{array}
+\end{equation}
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
+\begin{equation}
+    \begin{array}{l}
+        D_{pl, t} = V_{pl, t} * S_{pl, t} \\
+        D_{pl, e} = V_{pl, e} * S_{pl, e} \\
+        D_{pl, c} = V_{pl, c} * S_{pl, c} \\
+        U_{pl, t} = \lambda_{pl, t} * D_{pl, t} \\
+        U_{pl, e} = \lambda_{pl, e} * D_{pl, e} \\
+        U_{pl, c} = \lambda_{pl, c} * D_{pl, c} \\
+        U_{pl} = U_{pl, t} + U_{pl, e} + U_{pl, c} \\
+        R_{pl, t} = \frac{D_{pl, t}}{1 - U_{pl}} \\
+        R_{pl, e} = \frac{D_{pl, e}}{1 - U_{pl}} \\
+        R_{pl, c} = \frac{D_{pl, c}}{1 - U_{pl}} \\
+    \end{array}
+\end{equation}
+Regarding the WAN PRIMARY, it forwards all the messages received from the LAN PRIMARY-SECONDARY directly to the LAN PRIMARY. The LAN PRIMARY needs to forward all the messages received from the primary nodes towards the WAN PRIMARY; so we will have the same rate and number of visits per message. The only parameter that can be different between these two LANs is the service time.
+The same formulas can also be applied to the WAN SECONDARY and the LAN SECONDARY using the parameters that characterize these network.
+\subsection{Lan Primary-Secondary}
+- spiega probabilità per i comandi dal centrale
+- spiega somma dei rate per lan primarie e secondarie (telemetry e transition)
+\begin{equation}
+    \begin{array}{l}
+        V_{ps, t} = 1 \\
+        V_{ps, e} = 2 \\ %reply
+        V_{ps,c} = 1 \\
+				\lambda_{ps, t} = \lambda_{pl, t} + \lambda_{sl,t} \\
+				\lambda_{ps, e} = \lambda_{pl, e} + \lambda_{sl,e} \\
+				\lambda_{ps, c} = (m+k)*\frac{\lambda_{cn, c}}{n*(m+k)} = \frac{\lambda_{cn, c}}{n} \\
+    \end{array}
+\end{equation}
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
+\begin{equation}
+    \begin{array}{l}
+        D_{ps, t} = V_{ps, t} * S_{ps, t} \\
+        D_{ps, e} = V_{ps, e} * S_{ps, e} \\
+        D_{ps, c} = V_{ps, c} * S_{ps, c} \\
+        U_{ps, t} = \lambda_{ps, t} * D_{ps, t} \\
+        U_{ps, e} = \lambda_{ps, e} * D_{ps, e} \\
+        U_{ps, c} = \lambda_{ps, c} * D_{ps, c} \\
+        U_{ps} = U_{ps, t} + U_{ps, e} + U_{ps, c} \\
+        R_{ps, t} = \frac{D_{ps, t}}{1 - U_{ps}} \\
+        R_{ps, e} = \frac{D_{ps, e}}{1 - U_{ps}} \\
+        R_{ps, c} = \frac{D_{ps, c}}{1 - U_{ps}} \\
     \end{array}
 \end{equation}
 
+\subsection{Regional Node}
+- spiega probabilità
+- spiega rate uguali alla primary-secondary lan
 \begin{equation}
-    \begin{array}{l}
-        D_{r, t} = V_{r, t} * S_{r, t} \\
-        D_{r, e} = V_{r, e} * S_{r, e} \\
-        U_{r, t} = \lambda_{r, t} * D_{r, t} \\
-        U_{r, e} = \lambda_{r, e} * D_{r, e} \\
-        U_{r} = U_{r, t} + U_{r, e} \\
-        R_{r, t} = \frac{D_{r, t}}{1 - U_{r}} \\
-        R_{r, e} = \frac{D_{r, e}}{1 - U_{r}} \\
-    \end{array}
+	\begin{array}{l}
+		V_{rn, t} = 1 \\
+		V_{rn, e} = 2 \\ %reply
+		V_{rn,c} = 1 \\
+		\lambda_{rn, t} = \lambda_{ps, t} \\
+		\lambda_{rn, e} = \lambda_{ps, e} \\
+		\lambda_{rn, c} = \frac{\lambda_{cn, c}}{n} \\
+	\end{array}
+\end{equation}
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
+\begin{equation}
+	\begin{array}{l}
+		D_{rn, t} = V_{rn, t} * S_{rn, t} \\
+		D_{rn, e} = V_{rn, e} * S_{rn, e} \\
+		D_{rn, c} = V_{rn, c} * S_{rn, c} \\
+		U_{rn, t} = \lambda_{rn, t} * D_{rn, t} \\
+		U_{rn, e} = \lambda_{rn, e} * D_{rn, e} \\
+		U_{rn, c} = \lambda_{rn, c} * D_{rn, c} \\
+		U_{rn} = U_{rn, t} + U_{rn, e} + U_{rn, c} \\
+		R_{rn, t} = \frac{D_{rn, t}}{1 - U_{rn}} \\
+		R_{rn, e} = \frac{D_{rn, e}}{1 - U_{rn}} \\
+		R_{rn, c} = \frac{D_{rn, c}}{1 - U_{rn}} \\
+	\end{array}
 \end{equation}
 
-\subsection{Lan}
-As in the ram, since there is a reply needed for the transition type the mean number of visits doubles.
-Every two received messages of the telemetry type, we aggregate them in a single message and send them to the upper level, thus the halving of the arrival rate.
+\subsection{Regional LAN}
+- spiega aggregazione (aggr\_rn)
+- qui mettiamo anche la WAN
+- spiega probabilità comandi
+- spiega che ci sono n regional quindi il rate si moltiplica
 \begin{equation}
-    \begin{array}{l}
-        V_{l, t} = 1 \\
-        V_{l, e} = 2 \\ %reply
-        \lambda_{l, t} = \frac{\lambda_{w, t}}{2} \\ %ogni 2 msg ricevuti, aggreghi e invii
-        \lambda_{l, e} = \lambda_{w, e} \\
-    \end{array}
+	\begin{array}{l}
+		V_{rl, t} = 1 \\
+		V_{rl, e} = 2 \\ %reply
+		V_{rl,c} = 1 \\
+		\lambda_{rl, t} = n*\frac{\lambda_{rn, t}}{aggr_{rn}} \\
+		\lambda_{rl, e} = n*\lambda_{rn, e} \\
+		\lambda_{rl, c} = \lambda_{cn, c} \\
+	\end{array}
+\end{equation}
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
+\begin{equation}
+	\begin{array}{l}
+		D_{rl, t} = V_{rl, t} * S_{rl, t} \\
+		D_{rl, e} = V_{rl, e} * S_{rl, e} \\
+		D_{rl, c} = V_{rl, c} * S_{rl, c} \\
+		U_{rl, t} = \lambda_{rl, t} * D_{rl, t} \\
+		U_{rl, e} = \lambda_{rl, e} * D_{rl, e} \\
+		U_{rl, c} = \lambda_{rl, c} * D_{rl, c} \\
+		U_{rl} = U_{rl, t} + U_{rl, e} + U_{rl, c} \\
+		R_{rl, t} = \frac{D_{rl, t}}{1 - U_{rl}} \\
+		R_{rl, e} = \frac{D_{rl, e}}{1 - U_{rl}} \\
+		R_{rl, c} = \frac{D_{rl, c}}{1 - U_{rl}} \\
+	\end{array}
+\end{equation}
+Regarding the WAN CENTRAL, it forwards all messages from the CENTRAL LAN to the REGIONAL LAN. The REGIONAL LAN instead, forwards all the messages from the regional nodes to the WAN CENTRAL, so the service time and number of visits per message are the same, with the exception of the service time which can be different.
+\subsection{Central LAN}
+- spiega che le formule sono uguali alla regional LAN ma cambiano i service time
+- aggiungi che questa LAN esiste perchè possono essereci più central node se la availability viene considerata
+\begin{equation}
+	\begin{array}{l}
+		V_{cl, t} = 1 \\
+		V_{cl, e} = 2 \\ %reply
+		V_{cl,c} = 1 \\
+		\lambda_{cl, t} = \lambda_{rl,t} \\
+		\lambda_{cl, e} = \lambda_{rl,e} \\
+		\lambda_{cl, c} = \lambda_{cn, c} \\
+	\end{array}
+\end{equation}
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
+\begin{equation}
+	\begin{array}{l}
+		D_{cl, t} = V_{cl, t} * S_{cl, t} \\
+		D_{cl, e} = V_{cl, e} * S_{cl, e} \\
+		D_{cl, c} = V_{cl, c} * S_{cl, c} \\
+		U_{cl, t} = \lambda_{cl, t} * D_{cl, t} \\
+		U_{cl, e} = \lambda_{cl, e} * D_{cl, e} \\
+		U_{cl, c} = \lambda_{cl, c} * D_{cl, c} \\
+		U_{cl} = U_{cl, t} + U_{cl, e} + U_{cl, c} \\
+		R_{cl, t} = \frac{D_{cl, t}}{1 - U_{cl}} \\
+		R_{cl, e} = \frac{D_{cl, e}}{1 - U_{cl}} \\
+		R_{cl, c} = \frac{D_{cl, c}}{1 - U_{cl}} \\
+	\end{array}
+\end{equation}
+\subsection{Central Node}
+-qua mettiamo anche disk
+- spiega aggregation central (sul disco)
+- spiega $\lambda_{cn,c}$
+- spiega che i rate per eventi e telemetria sono uguali a quelli di central lan.
+\begin{equation}
+	\begin{array}{l}
+		V_{cn, t} = 1 \\
+		V_{cn, e} = 2 \\ %reply
+		V_{cn,c} = 1 \\
+		\lambda_{cn, t} = \lambda_{cl,t} \\
+		\lambda_{cn, e} = \lambda_{cl,e} \\
+	\end{array}
+\end{equation}
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
+\begin{equation}
+	\begin{array}{l}
+		D_{cn, t} = V_{cn, t} * S_{cn, t} \\
+		D_{cn, e} = V_{cn, e} * S_{cn, e} \\
+		D_{cn, c} = V_{cn, c} * S_{cn, c} \\
+		U_{cn, t} = \lambda_{cn, t} * D_{cn, t} \\
+		U_{cn, e} = \lambda_{cn, e} * D_{cn, e} \\
+		U_{cn, c} = \lambda_{cn, c} * D_{cn, c} \\
+		U_{cn} = U_{cn, t} + U_{cn, e} + U_{cn, c} \\
+		R_{cn, t} = \frac{D_{cn, t}}{1 - U_{cn}} \\
+		R_{cn, e} = \frac{D_{cn, e}}{1 - U_{cn}} \\
+		R_{cn, c} = \frac{D_{cn, c}}{1 - U_{cn}} \\
+	\end{array}
 \end{equation}
 
+\subsubsection{Central node storage system}
+- spiega che per ora è solo una coda ma può essere più complesso
+- spiega aggr\_cn
 \begin{equation}
-    \begin{array}{l}
-        D_{l, t} = V_{l, t} * S_{l, t} \\
-        D_{l, e} = V_{l, e} * S_{l, e} \\
-        U_{l, t} = \lambda_{l, t} * D_{l, t} \\
-        U_{l, e} = \lambda_{l, e} * D_{l, e} \\
-        U_{l} = U_{l, t} + U_{l, e} \\
-        R_{l, t} = \frac{D_{l, t}}{1 - U_{l}} \\
-        R_{l, e} = \frac{D_{l, e}}{1 - U_{l}} \\
-    \end{array}
+	\begin{array}{l}
+		V_{cns, t} = 1 \\
+		V_{cns, e} = 1 \\
+		\lambda_{cns, t} = \frac{\lambda_{cn,t}}{aggr_{cn}} \\
+		\lambda_{cns, e} = \lambda_{cn,e} \\
+	\end{array}
 \end{equation}
-
-\subsection{Cpu}
-We will now make a note that will be useful for following formulas as well, focusing on the service demand in both data type cases.\\
-\begin{itemize}
-\item $\frac{1}{2}S_{c, t, mem} + \frac{1}{2}S_{c, t, aggr}$ : in the cpu service demand for the telemetry case, we put the sum of half the service time in memorization and aggregation because the aggregation rate is $\frac{1}{2}$. Indeed, each time a telemetry event arrives can trigger one of the two actions with the same probability.
-\item $\frac{1}{2}S_{c, e, new} + \frac{1}{2}S_{c, e, repl}$ : specularly in the case of a transition event, the two cases are when the cpu receives a new message or it receives an acknowledgment of a message it already sent.
-\end{itemize}
-
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
-    \begin{array}{l}
-        V_{c, t} = 1 \\
-        V_{c, e} = 2 \\ %reply
-        \lambda_{c, t} = \lambda_{w, t} \\
-        \lambda_{c, e} = \lambda_{w, t} \\
-    \end{array}
+	\begin{array}{l}
+		D_{cn, t} = V_{cn, t} * S_{cn, t} \\
+		D_{cn, e} = V_{cn, e} * S_{cn, e} \\
+		U_{cn, t} = \lambda_{cn, t} * D_{cn, t} \\
+		U_{cn, e} = \lambda_{cn, e} * D_{cn, e} \\
+		U_{cn} = U_{cn, t} + U_{cn, e} \\
+		R_{cn, t} = \frac{D_{cn, t}}{1 - U_{cn}} \\
+		R_{cn, e} = \frac{D_{cn, e}}{1 - U_{cn}} \\
+	\end{array}
 \end{equation}
-
-\begin{equation}
-    \begin{array}{l}
-        D_{c, t} = V_{c, t} * (\frac{1}{2}S_{c, t, mem} + \frac{1}{2}S_{c, t, aggr}) \\ %(1 - 1/aggregazione)
-        D_{c, e} = V_{c, e} * (\frac{1}{2}S_{c, e, new} + \frac{1}{2}S_{c, e, repl}) \\
-        U_{c, t} = \lambda_{c, t} * D_{c, t} \\
-        U_{c, e} = \lambda_{c, e} * D_{c, e} \\
-        U_{c} = U_{c, t} + U_{c, e} \\
-        R_{c, t} = \frac{D_{c, t}}{1 - U_{c}} \\
-        R_{c, e} = \frac{D_{c, e}}{1 - U_{c}} \\
-    \end{array}
-\end{equation}
-
-\subsection{Summary}
-\begin{equation}
-    \begin{array}{l}
-        R_{node, \ t} = R_{w, t} + R_{r, t} + R_{c, t} + R_{l, t} \\
-        R_{node, \ e} = R_{w, e} + R_{r, e} + R_{c, e} + R_{l, e} \\
-    \end{array}
-\end{equation}
-
-
-\section{Regional Node}
-
-\subsection{Lan down}
-The arrival rate for transition type formula is given by the fact that there are two clients but there is aggregation so we have $\frac{\lambda_{w, t}}{2}$ for each client.
-\begin{equation}
-    \begin{array}{l}
-        V_{ld, t} = 1 \\
-        V_{ld, e} = 2 \\
-        \lambda_{ld, t} = 2*\frac{\lambda_{w, t}}{2} \\ %two client but aggregation
-        \lambda_{ld, e} = 2*\lambda_{w, e} \\
-    \end{array}
-\end{equation}
-
-\begin{equation}
-    \begin{array}{l}
-        D_{ld, t} = V_{ld, t} * S_{ld, t} \\
-        D_{ld, e} = V_{ld, e} * S_{ld, e} \\
-        U_{ld, t} = \lambda_{ld, t} * D_{ld, t} \\
-        U_{ld, e} = \lambda_{ld, e} * D_{ld, e} \\
-        U_{ld} = U_{ld, t} + U_{ld, e} \\
-        R_{ld, t} = \frac{D_{ld, t}}{1 - U_{ld}} \\
-        R_{ld, e} = \frac{D_{ld, e}}{1 - U_{ld}} \\
-    \end{array}
-\end{equation}
-
-\subsection{Ram}
-
-\begin{equation}
-    \begin{array}{l}
-        V_{r, t} = 1 \\
-        V_{r, e} = 2 \\ %reply
-        \lambda_{r, t} = \lambda_{ld, t} \\
-        \lambda_{r, e} = \lambda_{ld, e} \\
-    \end{array}
-\end{equation}
-
-\begin{equation}
-    \begin{array}{l}
-        D_{r, t} = V_{r, t} * S_{r, t} \\
-        D_{r, e} = V_{r, e} * S_{r, e} \\
-        U_{r, t} = \lambda_{r, t} * D_{r, t} \\
-        U_{r, e} = \lambda_{r, e} * D_{r, e} \\
-        U_{r} = U_{r, t} + U_{r, e} \\
-        R_{r, t} = \frac{D_{r, t}}{1 - U_{r}} \\
-        R_{r, e} = \frac{D_{r, e}}{1 - U_{r}} \\
-    \end{array}
-\end{equation}
-
-\subsection{Lan Up}
-
-\begin{equation}
-    \begin{array}{l}
-        V_{lu, t} = 1 \\
-        V_{lu, e} = 2 \\ %replay
-        \lambda_{lu, t} = \frac{\lambda_{ld, t}}{2} \\ %ogni 2 msg ricevuti, aggreghi e invii
-        \lambda_{lu, e} = \lambda_{ld, e} \\
-    \end{array}
-\end{equation}
-
-\begin{equation}
-    \begin{array}{l}
-        D_{lu, t} = V_{lu, t} * S_{lu, t} \\
-        D_{lu, e} = V_{lu, e} * S_{lu, e} \\
-        U_{lu, t} = \lambda_{lu, t} * D_{lu, t} \\
-        U_{lu, e} = \lambda_{lu, e} * D_{lu, e} \\
-        U_{lu} = U_{lu, t} + U_{lu, e} \\
-        R_{lu, t} = \frac{D_{lu, t}}{1 - U_{lu}} \\
-        R_{lu, e} = \frac{D_{lu, e}}{1 - U_{lu}} \\
-    \end{array}
-\end{equation}
-
-\subsection{Cpu}
-
-\begin{equation}
-    \begin{array}{l}
-        V_{c, t} = 1 \\
-        V_{c, e} = 2 \\ %replay
-        \lambda_{c, t} = \lambda_{ld, t} \\
-        \lambda_{c, e} = \lambda_{ld, e} \\
-    \end{array}
-\end{equation}
-
-\begin{equation}
-    \begin{array}{l}
-        D_{c, t} = V_{c, t} * (\frac{1}{2}S_{c, t, mem} + \frac{1}{2}S_{c, t, aggr}) \\ %(1 - 1/aggregazione)
-        D_{c, e} = V_{c, e} * (\frac{1}{2}S_{c, e, new} + \frac{1}{2}S_{c, e, repl}) \\
-        U_{c, t} = \lambda_{c, t} * D_{c, t} \\
-        U_{c, e} = \lambda_{c, e} * D_{c, e} \\
-        U_{c} = U_{c, t} + U_{c, e} \\
-        R_{c, t} = \frac{D_{c, t}}{1 - U_{c}} \\
-        R_{c, e} = \frac{D_{c, e}}{1 - U_{c}} \\
-    \end{array}
-\end{equation}
-
-
-\subsection{Summary}
-\begin{equation}
-    \begin{array}{l}
-        R_{regional, \ t} = R_{ld, t} + R_{r, t} + R_{c, t} + R_{lu, t} \\
-        R_{regional, \ e} = R_{ld, e} + R_{r, e} + R_{c, e} + R_{lu, e} \\
-    \end{array}
-\end{equation}
-
-\section{Central}
-
-
-\subsection{Lan}
-
-\begin{equation}
-    \begin{array}{l}
-        V_{l, t} = 1 \\
-        V_{l, e} = 2 \\ %reply
-        \lambda_{l, t} = 2*\frac{\lambda_{ld, t}}{2} \\ %ogni 2 msg ricevuti, aggreghi e invii
-        \lambda_{l, e} = 2*\lambda_{ld, e} \\
-    \end{array}
-\end{equation}
-
-\begin{equation}
-    \begin{array}{l}
-        D_{l, t} = V_{l, t} * S_{l, t} \\
-        D_{l, e} = V_{l, e} * S_{l, e} \\
-        U_{l, t} = \lambda_{l, t} * D_{l, t} \\
-        U_{l, e} = \lambda_{l, e} * D_{l, e} \\
-        U_{l} = U_{l, t} + U_{l, e} \\
-        R_{l, t} = \frac{D_{l, t}}{1 - U_{l}} \\
-        R_{l, e} = \frac{D_{l, e}}{1 - U_{l}} \\
-    \end{array}
-\end{equation}
-
-\subsection{Ram}
-
-\begin{equation}
-    \begin{array}{l}
-        V_{r, t} = 1 \\
-        V_{r, e} = 2 \\ %reply
-        \lambda_{r, t} = \lambda_{l, t} \\
-        \lambda_{r, e} = \lambda_{l, e} \\
-    \end{array}
-\end{equation}
-
-\begin{equation}
-    \begin{array}{l}
-        D_{r, t} = V_{r, t} * S_{r, t} \\
-        D_{r, e} = V_{r, e} * S_{r, e} \\
-        U_{r, t} = \lambda_{r, t} * D_{r, t} \\
-        U_{r, e} = \lambda_{r, e} * D_{r, e} \\
-        U_{r} = U_{r, t} + U_{r, e} \\
-        R_{r, t} = \frac{D_{r, t}}{1 - U_{r}} \\
-        R_{r, e} = \frac{D_{r, e}}{1 - U_{r}} \\
-    \end{array}
-\end{equation}
-
-
-\subsection{Cpu}
-
-\begin{equation}
-    \begin{array}{l}
-        V_{c, t} = 1 \\
-        V_{c, e} = 2 \\ %reply
-        \lambda_{c, t} = \lambda_{l, t} \\
-        \lambda_{c, e} = \lambda_{l, e} \\
-    \end{array}
-\end{equation}
-
-\begin{equation}
-    \begin{array}{l}
-        D_{c, t} = V_{c, t} * (\frac{1}{2}S_{c, t, mem} + \frac{1}{2}S_{c, t, aggr}) \\ %(1 - 1/aggregazione)
-        D_{c, e} = V_{c, e} * (\frac{1}{2}S_{c, e, new} + \frac{1}{2}S_{c, e, repl}) \\
-        U_{c, t} = \lambda_{c, t} * D_{c, t} \\
-        U_{c, e} = \lambda_{c, e} * D_{c, e} \\
-        U_{c} = U_{c, t} + U_{c, e} \\
-        R_{c, t} = \frac{D_{c, t}}{1 - U_{c}} \\
-        R_{c, e} = \frac{D_{c, e}}{1 - U_{c}} \\
-    \end{array}
-\end{equation}
-
-\subsection{Disk}
-The arrival rate of the telemetry events on disks is halved because after the last aggregation, the data is saved on the disk.
-\begin{equation}
-    \begin{array}{l}
-        V_{d, t} = 1 \\
-        V_{d, e} = 1 \\
-        \lambda_{d, t} = \frac{\lambda_{l, t}}{2} \\ %after the last aggregation you save
-        \lambda_{d, e} = \lambda_{l, e} \\
-    \end{array}
-\end{equation}
-
-\begin{equation}
-    \begin{array}{l}
-        D_{d, t} = V_{d, t} * S_{d, t} \\ %(1 - 1/aggregazione)
-        D_{d, e} = V_{d, e} * S_{d, e} \\
-        U_{d, t} = \lambda_{d, t} * D_{d, t} \\
-        U_{d, e} = \lambda_{d, e} * D_{d, e} \\
-        U_{d} = U_{d, t} + U_{d, e} \\
-        R_{d, t} = \frac{D_{d, t}}{1 - U_{d}} \\
-        R_{d, e} = \frac{D_{d, e}}{1 - U_{d}} \\
-    \end{array}
-\end{equation}
-
-
-\subsection{Summary}
-\begin{equation}
-    \begin{array}{l}
-        R_{central, \ t} = R_{l, t} + R_{r, t} + R_{c, t} + R_{d, t} \\
-        R_{central, \ e} = R_{l, e} + R_{r, e} + R_{c, e} + R_{d, e} \\
-    \end{array}
-\end{equation}
-
-
-\section{Results}
-The following equations we impose a constraint on the total response time for the two message types.
-\begin{equation}
-    \begin{array}{l}
-        R_{t} = R_{node, t} + R_{regional, t} + R_{central, t} < Max_t \\
-        R_{e} = R_{node, e} + R_{regional, e} + R_{central, e} < Max_e \\
-    \end{array}
-\end{equation}
-
-
 \end{document}
