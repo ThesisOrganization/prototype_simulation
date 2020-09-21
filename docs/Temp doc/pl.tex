@@ -22,19 +22,19 @@ This section will deal with the assumptions we have made so far and why we've ma
 \begin{enumerate}
 \item \textbf{Assumption 1}: All layers have no horizontal connection. The scheme we will present in section 2 will feature LANs accessible by all nodes of the same layer so this type of communication is actually possible through those LANs, but for now decided to not have horizontality in the message system.
 \item \textbf{Assumption 2}: The only entity needing a storage system is the Central Node, in particular we are assuming that all other nodes receive information that can be processed, stored and aggregated in the RAM which will never be full. This is a strong assumption that can be relaxed if needed by adding disks in the regional and primary/secondary layer.
-\item \textbf{Assumption 3}: The RAM element of the nodes doesn't need its own queue model, indeed it can be modeled in symbiosis with the CPU since it is used by only that component.
+\item \textbf{Assumption 3}: more of a design choice for the moment, each node is modeled as a simple queue composed of CPU+RAM, in future they will be extended(for example a disk) and may need more component and a review of the entire queue model.
 \item \textbf{Assumption 4}: In this first stage we won't be holding account of the fault tolerance of the system, in particular we are not considering duplication of the data not in storaging neither in multiple link sending.
-\item \textbf{Assumption 5}: Equiprobability of receiving a message on any given level, indeed we will assume that, each time a central sends a message to a node on a level the probability that any one of them is the target is the same, this can be relaxed easily by putting a fixed probability parameter in the formulas.
-\item \textbf{Assumption 6}: more of a design choice for the moment, each node is modeled as a simple queue composed of CPU+RAM, in future they will be extended(for example a disk) and may need more component and a review of the entire queue model.
+\item \textbf{Assumption 5}: Equiprobability of receiving a command message on any given level, indeed we will assume that, each time a central sends a command message to a node on a level the probability that any one of them is the target is the same, this can be relaxed easily by putting a fixed probability parameter in the formulas.
+
 \end{enumerate}
 \subsection{Table}
 First of all, we started by compiling the table with the responses as we expect them to be. The green ones are those decisions we made while the black ones are trivial ones that have no alternatives.\\
 \includegraphics[width=15cm, height=10cm]{table.png}
 Now, row by row we will justify or explain our answers:
 \begin{enumerate}
-\item Generate a transition or telemetry message: the sensor give telemetry informations to the upper node with a certain rate. Both actuators and sensor will generete a transitions message in the case that their state is changed without a transition command received. All others entities have no case in which they need to do so.
+\item Generate a transition or telemetry message: the sensor gives telemetry informations to the upper node with a certain rate. Both actuators and sensor will generate a transitions message in the case that their state is changed without a transition command received. All others entities have no case in which they need to do so.
 \item Receives a reply to a transition message: sensor and actuators don't need an acknowledgment from the upper level, while all other entities do. The only exception is the Central node since he doesn't have an upper node to send to.
-\item Generates a command in response to a transition message: the primary reading the transition messages may need to issue commands to actuators in order to keep the system flowing.
+\item Generates a command in response to a transition message: the primary/secondary node reading the transition messages may need to issue commands to actuators in order to keep the system flowing.
 \item Generates a command independently from a transition message: none of the entities may generate a command without any trigger, the only exception being the central node which sends commands when needed.
 \item Transition messages are sent to nodes in the upper layer: all entities need to send to an upper level until the central node is reached.
 \item Telemetry messages are sent to nodes in the upper layer: same as last one.
@@ -47,8 +47,8 @@ Now, row by row we will justify or explain our answers:
 
 \section{Structural scheme}
 This section will explain how the structural scheme for the system is made and its project's choices.\\
-In the model we are going to show, we used as connection between the upper level node and the LAN of the lower level nodes a WAN between two routers. An alternative is possible if we transform this WAN into a long distance LAN where only one router is needed for this connection on the upper level node side.\\
-The choice of a WAN was made due to the high regional spam that the second level nodes are going to cover.
+In the model we are going to show, we used as connection between the upper level LAN (The central LAN was modeled since it could be used by replicas of the central node in future versions) and the LAN of the lower level nodes a WAN between two routers.  An alternative is possible if we transform this WAN into a long distance LAN where only one router is needed for this connection on the upper level node side.\\
+The choice of a LAN that connects all the regional nodes could be infeasible due to the high regional span that the second level nodes are going to cover. Another alternative is to connect each regional node to the WAN.
 \begin{figure}[H]
 	\hspace*{-3.75cm}
 	\centering
@@ -66,8 +66,8 @@ Figure 1 represents the connection between Central and Regional nodes, while Fig
   \frame{\includesvg[width=20cm]{primarysensor}}
   \caption{Focus on Primary/Secondary nodes and end points}
 \end{figure}
-Instead in figure 3, which displays the connection between Primary/Secondary nodes and the end points of the edge system, namely actuators and sensors, one LAN is used for each type of connection technology, in this case MANET and WIRELESS, both spanning between end points and their respective upper level node node.\\
-Furthermore this iteration is parametric so a central node manages n regional nodes. Each regional node manages m primary and k secondary nodes, these parameters varies with the regional node they are associated to. Same thing extends to primary/secondary with respect to the sensors/actuators, respectively in numbers s and a.\\
+Instead in figure 3, which displays the connection between Primary/Secondary nodes and the end points of the edge system, namely actuators and sensors, one LAN is used for each type of connection technology, in this case MANET and WIRELESS, both spanning between end points and their respective upper level node.\\
+Furthermore this model is parametric so a central node manages n regional nodes. Each regional node manages m primary and k secondary nodes, these parameters varies with the regional node they are associated to. Same thing extends to primary/secondary with respect to the sensors/actuators, respectively in numbers s and a.\\
 One last note about the scheme is that at the moment we divided on two LANs primary and secondary for clarity since they have different rate, operations and technology. Likewise for the different communication technology with actuators and sensors.\\
 The whole scheme:
 \begin{figure}[H]
@@ -93,7 +93,7 @@ Based on the specifics and the architecture, we opted for a multi-class open que
 \item c: command events, generated either indipendently by the central node when managing the network or by a primary node in response to a transition message from one of its sensors/actuators.
 \end{itemize}
 Another type of message flowing through the network is a reply message but since they are triggered only by transition events we aggregated them in the visits.
-Due to the nature of this kind of open queueing model, the formulas regarding Utilization factor, system demand and response time are given.
+Due to the nature of this kind of open queueing model, the formulas regarding Utilization factor, system demand and response time are very similar for the components.
 
 \subsection{Notation}
 We will deline the notation in the following formulas, each of them has one or many subscripts for the item they refer to, the same type of element in a different part has the same notation even though it's not the same element:
@@ -120,8 +120,7 @@ The elements we are going to analyze are:
 \item rl : regional lan.
 \item cl : central lan.
 \end{itemize}
-Each node has a summary section which describes the total response time for that node type.\\
-We will navigate the queue network starting from the sensors and actuators and until reaching the central node.
+We will navigate the queue network starting from the sensors and actuators until reaching the central node.
 
 \begin{figure}[H]
 	\centering
@@ -131,10 +130,10 @@ We will navigate the queue network starting from the sensors and actuators and u
 
 \subsection{Actuators and Sensors}
 Sensors at the moment don't receive any command, we still have drawn them as queues for future extensions. Conversely, actuators are modeled as queues since they can receive command from the central node or from the primary/secondary node where they are connected in response to a transition event.\\
-For sensors $\lambda_{s,t}$ and $\lambda_{s,e}$ are the rates at which the sensor sends a telemetry or a transition message respectively. The same is valid for actuators with $\lambda_{a,t}$ and $\lambda_{a,e}$.\\
+Regarding the sensors, $\lambda_{s,t}$ and $\lambda_{s,e}$ are the rates at which the sensor sends a telemetry or a transition message respectively. The same is valid for the transition events rate of the actuators with $\lambda_{a,e}$.\\
 We will now analyze the behaviour of an actuator which receives commands from its primary node though a wireless or MANET LAN. The same relations apply also if the actuator is connected to a secondary node.\\
 The mean number of visits for a command message is 1.
-The rate at which an actuator can receive a command ($\lambda_{a,c}$) is composed by the rate at which a command can be received from the central node and by the probability to receive a command message from the primary/secondary node in response to a transition message. We assumed that a command from the central node can reach any actuator in the whole network with the same probability, so we need to weight the rate of the central node issuing commands with all the possible paths that this command can follow. The probability of issuing a command in response to a transition message is $prb$ and must be weighted by all the possible actuators that can be contacted by that message.
+The rate at which an actuator can receive a command ($\lambda_{a,c}$) is composed by the rate at which a command can be received from the central node and by the probability to receive a command message from the primary/secondary node in response to a transition message. We assumed that commands from the central node are sent with a rate of $\lambda_{cn,c}$ and can reach any actuator in the whole network with the same probability by Assumption 5, so we need to weight the rate of the central node issuing commands with all the possible paths that this command can follow (over the possible $n$ regional nodes, their primary and secondary nodes, $m+k$ and over all the actuators connected to one of these primary/secondary nodes, $a_{wl}+a_{mt}$). The probability of issuing a command in response to a transition message received by the upper primary/secondary node (with a rate of $\lambda_{pn,e}$) is $prb$ and must be weighted by all the possible actuators connected to that node, $a_{mt}+a_{wl}$, which can be contacted by that message.
 \begin{equation}
 	\begin{array}{l}
 		V_{a,c} = 1 \\
@@ -151,13 +150,13 @@ From the previous formulas and the open queue model we can compute the Service D
 \end{equation}
 
 \subsection{WIRELESS/MANET Lan}
-The first element we are going to look at is the WIRELESS lan. At this stage we are not considering the implication of the different technology thus we will only show the formulas for Wireless and the Manet's formulas will be mirrored.\\
+We are not considering the implication of the different technology, since the difference between them is only the service time of the network. Thus we will only show the formulas for Wireless and the Manet's formulas will be mirrored.\\
 For the formulas we used the assumption 5 on equiprobability and the table presented in section 1.2, in particular the first four columns.\\
 The mean number of visits is trivially one for telemetry and commands since only one messages goes through the LAN, it's two for transition since a reply is needed.\\
 More interesting are the formulas regarding the arrival rates.\\
 In the telemetry cases the total arrival rate $\lambda_{wl, t}$ is the rate of a single sensor multiplied by the number of sensors.\\
 For transition instead, $\lambda_{wl, e}$ will be a sum of two terms, since both actuators and sensors send messages.\\
-Finally for $\lambda_{wl, c}$, the first term is the case where the central node issues a command, so the sent command of that class of messages will arrive to an actuator with a certain probability, given the assumption 5 this probability is one over the sum of all possible paths that can be taken by this message: one of the regional node, then one of the primary or secondary node and then one of all the actuators, in this case we are concerned only if they go on the WIRELESS($\frac{a_{wl}}{a_{wl}+a_{mt}}$). The second term instead is the case where a command is prompted due to a transition message so we multiply the arrival rate of transition event for primary or secondary node by a probability of the transition to generate a command, divided by the number of actuators connected to the node, since we are assuming that the actuators have the same probability to be contacted. It is a strong assumption and may need to be relaxed in future work.\\
+Finally for $\lambda_{wl, c}$, the first term is the case where the central node issues a command, so the sent command of that class of messages will arrive to an actuator with a certain probability, given the assumption 5 this probability is one over the sum of all possible paths that can be taken by this message: one of the regional node, then one of the primary or secondary node and then one of all the actuators, in this case we are concerned only if they go on the WIRELESS($\frac{a_{wl}}{a_{wl}+a_{mt}}$). The second term instead is the case where a command is prompted due to a transition message; so we multiply the arrival rate of transition event for primary or secondary node ($\lambda_{pn,e}$ or $\lambda_{sn,e}$ the LAN is connected to a secondary node) by the probability of the transition to generate a command ($prb$), multiplied by the probability that the message needs to reach an actuator in this network ($\frac{a_{wl}}{a_{wl}+a_{mt}}$). We are using Assumption 5 so all the actuators have the same probability to be contacted. It is a strong assumption and may need to be relaxed in future work.\\
 \begin{equation}
     \begin{array}{l}
         V_{wl, t} = 1 \\
@@ -186,7 +185,7 @@ From the previous formulas and the open queue model we can compute the Service D
 \end{equation}
 
 \subsection{Primary Node}
-All formulas in this chapter are relatable to the previous one and thus we won't need any note on them.\\
+All formulas in this section are relatable to the previous one and thus we won't need any note on them.\\
 Formulas for secondary nodes are the same as primary ones for now so we will only discuss these one.\\
 The equations of the previous element will be used as arrival rates for the primary node thus both MANET and WIRELESS will be referred to.\\
 While transitions and telemetries are simply the sum of the rates coming from MANET and WIRELESS, commands need an explanation.\\
@@ -422,8 +421,8 @@ From the previous formulas and the open queue model we can compute the Service D
 
 \subsubsection{Central node storage system}
 In this first draft, the central node storage system is not characterized with a specific system(RAID 1-5, etc) and it is modeled as a simple queue filled by the central node.\\
-Since the central node will do some aggregation and computations on the values received by the regional nodes, the rate arriving on the disk will be divided by the aggregation parameter of the central node.\\
-For now the commands go directly to the lower levels, in a future extension of the project they may need to be logged onto the disk and thus we will need a $\lambda_{cns, c}$.
+Since the central node will do some aggregation and computations on the telemetry messages received by the regional nodes, the rate arriving on the disk will be divided by the aggregation parameter of the central node.\\
+In this model the commands go directly to the lower levels, in a future extension of the project they may need to be logged onto the disk and thus we will need a $\lambda_{cns, c}$.
 
 \begin{equation}
 	\begin{array}{l}
@@ -445,6 +444,5 @@ From the previous formulas and the open queue model we can compute the Service D
 		R_{cn, e} = \frac{D_{cn, e}}{1 - U_{cn}} \\
 	\end{array}
 \end{equation}
-
 
 \end{document}

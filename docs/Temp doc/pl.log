@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2020.8.29)  21 SEP 2020 13:41
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2020.8.29)  21 SEP 2020 17:39
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -212,8 +212,7 @@ Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
 File: l3backend-pdfmode.def 2020-06-03 L3 backend support: PDF mode
 \l__kernel_color_stack_int=\count190
 \l__pdf_internal_box=\box50
-)
-No file pl.aux.
+) (./pl.aux)
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
 LaTeX Font Info:    ... okay on input line 17.
 LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
@@ -228,6 +227,7 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
 LaTeX Font Info:    ... okay on input line 17.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
 LaTeX Font Info:    ... okay on input line 17.
+
 (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count191
@@ -268,6 +268,15 @@ Overfull \hbox (66.79189pt too wide) in paragraph at lines 31--34
  []
 
 [2] [3 <./table.png>]
+Package svg Info: Calling Inkscape on input line 55.
+runsystem(inkscape "centralregional.svg" -C --export-filename="centralregional_
+svg-raw.pdf")...executed.
+
+runsystem(mkdir -p "./svg-inkscape/")...executed.
+
+runsystem(mv "centralregional_svg-raw.pdf" "./svg-inkscape/centralregional_svg-
+raw.pdf")...executed.
+
 <./svg-inkscape/centralregional_svg-raw.pdf, id=18, 145.74484pt x 85.50012pt>
 File: ./svg-inkscape/centralregional_svg-raw.pdf Graphic file (type pdf)
 <use ./svg-inkscape/centralregional_svg-raw.pdf>
@@ -279,7 +288,17 @@ Overfull \hbox (105.01205pt too wide) in paragraph at lines 53--56
  []|  [] 
  []
 
-<./svg-inkscape/primarysecondary_svg-raw.pdf, id=19, 191.30682pt x 81.98657pt>
+[4]
+Package svg Info: Calling Inkscape on input line 60.
+runsystem(inkscape "primarysecondary.svg" -C --export-filename="primarysecondar
+y_svg-raw.pdf")...executed.
+
+runsystem(mkdir -p "./svg-inkscape/")...executed.
+
+runsystem(mv "primarysecondary_svg-raw.pdf" "./svg-inkscape/primarysecondary_sv
+g-raw.pdf")...executed.
+
+<./svg-inkscape/primarysecondary_svg-raw.pdf, id=22, 191.30682pt x 81.98657pt>
 File: ./svg-inkscape/primarysecondary_svg-raw.pdf Graphic file (type pdf)
 <use ./svg-inkscape/primarysecondary_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/primarysecondary_svg-raw.pdf  used on i
@@ -290,7 +309,16 @@ Overfull \hbox (104.95767pt too wide) in paragraph at lines 59--61
 []|  [] 
  []
 
-[4] [5 <./svg-inkscape/centralregional_svg-raw.pdf>]
+[5 <./svg-inkscape/centralregional_svg-raw.pdf>]
+Package svg Info: Calling Inkscape on input line 66.
+runsystem(inkscape "primarysensor.svg" -C --export-filename="primarysensor_svg-
+raw.pdf")...executed.
+
+runsystem(mkdir -p "./svg-inkscape/")...executed.
+
+runsystem(mv "primarysensor_svg-raw.pdf" "./svg-inkscape/primarysensor_svg-raw.
+pdf")...executed.
+
 <./svg-inkscape/primarysensor_svg-raw.pdf, id=34, 96.70013pt x 55.00874pt>
 File: ./svg-inkscape/primarysensor_svg-raw.pdf Graphic file (type pdf)
 <use ./svg-inkscape/primarysensor_svg-raw.pdf>
@@ -314,6 +342,15 @@ Underfull \hbox (badness 10000) in paragraph at lines 63--68
  []
 
 [6 <./svg-inkscape/primarysecondary_svg-raw.pdf>]
+Package svg Info: Calling Inkscape on input line 75.
+runsystem(inkscape "structural_scheme_wan.svg" -C --export-filename="structural
+_scheme_wan_svg-raw.pdf")...executed.
+
+runsystem(mkdir -p "./svg-inkscape/")...executed.
+
+runsystem(mv "structural_scheme_wan_svg-raw.pdf" "./svg-inkscape/structural_sch
+eme_wan_svg-raw.pdf")...executed.
+
 <./svg-inkscape/structural_scheme_wan_svg-raw.pdf, id=46, 506.05199pt x 157.444
 12pt>
 File: ./svg-inkscape/structural_scheme_wan_svg-raw.pdf Graphic file (type pdf)
@@ -333,6 +370,15 @@ tween Pri-mary/Secondary
  []
 
 [7 <./svg-inkscape/primarysensor_svg-raw.pdf>]
+Package svg Info: Calling Inkscape on input line 85.
+runsystem(inkscape "queue_network_wan.svg" -C --export-filename="queue_network_
+wan_svg-raw.pdf")...executed.
+
+runsystem(mkdir -p "./svg-inkscape/")...executed.
+
+runsystem(mv "queue_network_wan_svg-raw.pdf" "./svg-inkscape/queue_network_wan_
+svg-raw.pdf")...executed.
+
 <./svg-inkscape/queue_network_wan_svg-raw.pdf, id=59, 543.27055pt x 523.07683pt
 >
 File: ./svg-inkscape/queue_network_wan_svg-raw.pdf Graphic file (type pdf)
@@ -350,95 +396,140 @@ Overfull \vbox (13.61021pt too high) has occurred while \output is active []
 
 
 [9 <./svg-inkscape/queue_network_wan_svg-raw.pdf>] [10]
+Package svg Info: Calling Inkscape on input line 127.
+runsystem(inkscape "queue_network_wireless_manet.svg" -C --export-filename="que
+ue_network_wireless_manet_svg-raw.pdf")...executed.
+
+runsystem(mkdir -p "./svg-inkscape/")...executed.
+
+runsystem(mv "queue_network_wireless_manet_svg-raw.pdf" "./svg-inkscape/queue_n
+etwork_wireless_manet_svg-raw.pdf")...executed.
+
 <./svg-inkscape/queue_network_wireless_manet_svg-raw.pdf, id=88, 45.6837pt x 64
 .27744pt>
 File: ./svg-inkscape/queue_network_wireless_manet_svg-raw.pdf Graphic file (typ
 e pdf)
 <use ./svg-inkscape/queue_network_wireless_manet_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/queue_network_wireless_manet_svg-raw.pd
-f  used on input line 128.
+f  used on input line 127.
 (pdftex.def)             Requested size: 45.68358pt x 64.27727pt.
- [11] [12 <./svg-inkscape/queue_network_wireless_manet_svg-raw.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 154--161
+ [11] [12 <./svg-inkscape/queue_network_wireless_manet_svg-raw.pdf>] [13]
+Underfull \hbox (badness 10000) in paragraph at lines 153--160
 
  []
 
-[13] [14] [15]
+[14] [15]
+Package svg Info: Calling Inkscape on input line 224.
+runsystem(inkscape "queue_network_primary_lan.svg" -C --export-filename="queue_
+network_primary_lan_svg-raw.pdf")...executed.
+
+runsystem(mkdir -p "./svg-inkscape/")...executed.
+
+runsystem(mv "queue_network_primary_lan_svg-raw.pdf" "./svg-inkscape/queue_netw
+ork_primary_lan_svg-raw.pdf")...executed.
+
 <./svg-inkscape/queue_network_primary_lan_svg-raw.pdf, id=117, 80.42964pt x 35.
 15237pt>
 File: ./svg-inkscape/queue_network_primary_lan_svg-raw.pdf Graphic file (type p
 df)
 <use ./svg-inkscape/queue_network_primary_lan_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/queue_network_primary_lan_svg-raw.pdf  
-used on input line 225.
+used on input line 224.
 (pdftex.def)             Requested size: 80.42943pt x 35.15227pt.
 
-Overfull \hbox (105.17477pt too wide) in paragraph at lines 223--226
+Overfull \hbox (105.17477pt too wide) in paragraph at lines 222--225
  []|  [] 
  []
 
 [16] [17 <./svg-inkscape/queue_network_primary_lan_svg-raw.pdf>]
+Package svg Info: Calling Inkscape on input line 265.
+runsystem(inkscape "queue_network_primary_secondary_lan.svg" -C --export-filena
+me="queue_network_primary_secondary_lan_svg-raw.pdf")...executed.
+
+runsystem(mkdir -p "./svg-inkscape/")...executed.
+
+runsystem(mv "queue_network_primary_secondary_lan_svg-raw.pdf" "./svg-inkscape/
+queue_network_primary_secondary_lan_svg-raw.pdf")...executed.
+
 <./svg-inkscape/queue_network_primary_secondary_lan_svg-raw.pdf, id=132, 76.028
 38pt x 42.14287pt>
 File: ./svg-inkscape/queue_network_primary_secondary_lan_svg-raw.pdf Graphic fi
 le (type pdf)
 <use ./svg-inkscape/queue_network_primary_secondary_lan_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/queue_network_primary_secondary_lan_svg
--raw.pdf  used on input line 266.
+-raw.pdf  used on input line 265.
 (pdftex.def)             Requested size: 76.02818pt x 42.14275pt.
 
-Overfull \hbox (105.00139pt too wide) in paragraph at lines 264--267
+Overfull \hbox (105.00139pt too wide) in paragraph at lines 263--266
  []|  [] 
  []
 
 [18]
-Underfull \hbox (badness 10000) in paragraph at lines 270--272
+Underfull \hbox (badness 10000) in paragraph at lines 269--271
 
  []
 
 [19 <./svg-inkscape/queue_network_primary_secondary_lan_svg-raw.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 299--300
+Underfull \hbox (badness 10000) in paragraph at lines 298--299
 
  []
 
 [20]
+Package svg Info: Calling Inkscape on input line 329.
+runsystem(inkscape "queue_network_regional_lan.svg" -C --export-filename="queue
+_network_regional_lan_svg-raw.pdf")...executed.
+
+runsystem(mkdir -p "./svg-inkscape/")...executed.
+
+runsystem(mv "queue_network_regional_lan_svg-raw.pdf" "./svg-inkscape/queue_net
+work_regional_lan_svg-raw.pdf")...executed.
+
 <./svg-inkscape/queue_network_regional_lan_svg-raw.pdf, id=151, 91.97487pt x 45
 .5414pt>
 File: ./svg-inkscape/queue_network_regional_lan_svg-raw.pdf Graphic file (type 
 pdf)
 <use ./svg-inkscape/queue_network_regional_lan_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/queue_network_regional_lan_svg-raw.pdf 
- used on input line 330.
+ used on input line 329.
 (pdftex.def)             Requested size: 91.97464pt x 45.54128pt.
 
-Overfull \hbox (105.01944pt too wide) in paragraph at lines 328--331
+Overfull \hbox (105.01944pt too wide) in paragraph at lines 327--330
  []|  [] 
  []
 
 [21] [22 <./svg-inkscape/queue_network_regional_lan_svg-raw.pdf>]
+Package svg Info: Calling Inkscape on input line 365.
+runsystem(inkscape "queue_network_central_lan.svg" -C --export-filename="queue_
+network_central_lan_svg-raw.pdf")...executed.
+
+runsystem(mkdir -p "./svg-inkscape/")...executed.
+
+runsystem(mv "queue_network_central_lan_svg-raw.pdf" "./svg-inkscape/queue_netw
+ork_central_lan_svg-raw.pdf")...executed.
+
 <./svg-inkscape/queue_network_central_lan_svg-raw.pdf, id=166, 76.62411pt x 22.
 80882pt>
 File: ./svg-inkscape/queue_network_central_lan_svg-raw.pdf Graphic file (type p
 df)
 <use ./svg-inkscape/queue_network_central_lan_svg-raw.pdf>
 Package pdftex.def Info: ./svg-inkscape/queue_network_central_lan_svg-raw.pdf  
-used on input line 366.
+used on input line 365.
 (pdftex.def)             Requested size: 76.62392pt x 22.80875pt.
 
-Overfull \hbox (105.24706pt too wide) in paragraph at lines 364--367
+Overfull \hbox (105.24706pt too wide) in paragraph at lines 363--366
  []|  [] 
  []
 
 [23] [24 <./svg-inkscape/queue_network_central_lan_svg-raw.pdf>] [25] [26]
 [27] (./pl.aux) ) 
 Here is how much of TeX's memory you used:
- 3612 strings out of 480478
- 56023 string characters out of 5905959
+ 3624 strings out of 480478
+ 56378 string characters out of 5905959
  326374 words of memory out of 5000000
- 19549 multiletter control sequences out of 15000+600000
+ 19559 multiletter control sequences out of 15000+600000
  538748 words of font info for 46 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 44i,11n,53p,968b,339s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 44i,11n,53p,1131b,339s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.e
 nc}</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share
 /texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fo
@@ -450,7 +541,7 @@ st/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/
 public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><
 /usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on pl.pdf (27 pages, 326599 bytes).
+Output written on pl.pdf (27 pages, 327842 bytes).
 PDF statistics:
  232 PDF objects out of 1000 (max. 8388607)
  158 compressed objects within 2 object streams
