@@ -130,7 +130,25 @@ We will navigate the queue network starting from the sensors and actuators and u
 \end{figure}
 
 \subsection{Actuators and Sensors}
-Sensors at the moment don't receive any command, we still have drawn them as queues for future extensions while actuators are defined by the rates.\\
+Sensors at the moment don't receive any command, we still have drawn them as queues for future extensions. Conversely, actuators are modeled as queues since they can receive command from the central node or from the primary/secondary node where they are connected in response to a transition event.\\
+For sensors $\lambda_{s,t}$ and $\lambda_{s,e}$ are the rates at which the sensor sends a telemetry or a transition message respectively. The same is valid for actuators with $\lambda_{a,t}$ and $\lambda_{a,e}$.\\
+We will now analyze the behaviour of an actuator which receives commands from its primary node though a wireless or MANET LAN. The same relations apply also if the actuator is connected to a secondary node.\\
+The mean number of visits for a command message is 1.
+The rate at which an actuator can receive a command ($\lambda_{a,c}$) is composed by the rate at which a command can be received from the central node and by the probability to receive a command message from the primary/secondary node in response to a transition message. We assumed that a command from the central node can reach any actuator in the whole network with the same probability, so we need to weight the rate of the central node issuing commands with all the possible paths that this command can follow. The probability of issuing a command in response to a transition message is $prb$ and must be weighted by all the possible actuators that can be contacted by that message.
+\begin{equation}
+	\begin{array}{l}
+		V_{a,c} = 1 \\
+		\lambda_{a, c} = \frac{1}{n} * (\frac{1}{m+k}) * \frac{1}{a_{mt}+a_{wl}} * \lambda_{cn, c} + prb * \frac{1}{a_{wl}+a_{mt}} * \lambda_{pn,e}   \\
+	\end{array}
+\end{equation}
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
+\begin{equation}
+	\begin{array}{l}
+		D_{a, c} = V_{a, c} * S_{a, c} \\
+		U_{a, c} = \lambda_{a, c} * D_{a, c} \\
+		R_{a, c} = \frac{D_{a, c}}{1 - U_{a,c}} \\
+	\end{array}
+\end{equation}
 
 \subsection{WIRELESS/MANET Lan}
 The first element we are going to look at is the WIRELESS lan. At this stage we are not considering the implication of the different technology thus we will only show the formulas for Wireless and the Manet's formulas will be mirrored.\\
@@ -139,7 +157,7 @@ The mean number of visits is trivially one for telemetry and commands since only
 More interesting are the formulas regarding the arrival rates.\\
 In the telemetry cases the total arrival rate $\lambda_{wl, t}$ is the rate of a single sensor multiplied by the number of sensors.\\
 For transition instead, $\lambda_{wl, e}$ will be a sum of two terms, since both actuators and sensors send messages.\\
-Finally for $\lambda_{wl, c}$, the first term is the case where the central node issues a command, so the sent command of that class of messages will arrive to an actuator with a certain probability, given the assumption 5 this probability is one over the sum of all possible paths that can be taken by this message: one of the regional node, then one of the primary or secondary node and then one of all the actuators, in this case we are concerned only if they go on the WIRELESS($\frac{a_{wl}}{a_{wl}+a_{mt}}$). The second term instead is the case where a command is prompted due to a transition message so we multiply the arrival rate of transition event for primary or secondary node by a probability of the transition to generate a command, divided by two because the two paths, WIRELESS or MANET, we are assuming that the message has the same probability to flow over the two networks. It is a strong assumption and may need to be relaxed in future work.\\
+Finally for $\lambda_{wl, c}$, the first term is the case where the central node issues a command, so the sent command of that class of messages will arrive to an actuator with a certain probability, given the assumption 5 this probability is one over the sum of all possible paths that can be taken by this message: one of the regional node, then one of the primary or secondary node and then one of all the actuators, in this case we are concerned only if they go on the WIRELESS($\frac{a_{wl}}{a_{wl}+a_{mt}}$). The second term instead is the case where a command is prompted due to a transition message so we multiply the arrival rate of transition event for primary or secondary node by a probability of the transition to generate a command, divided by the number of actuators connected to the node, since we are assuming that the actuators have the same probability to be contacted. It is a strong assumption and may need to be relaxed in future work.\\
 \begin{equation}
     \begin{array}{l}
         V_{wl, t} = 1 \\
@@ -147,7 +165,7 @@ Finally for $\lambda_{wl, c}$, the first term is the case where the central node
         V_{wl,c} = 1 \\
         \lambda_{wl, t} = s*\lambda_{s, t} \\
         \lambda_{wl, e} = s*\lambda_{s, e} + a*\lambda_{a, e} \\
-        \lambda_{wl, c} = \frac{1}{n*(m+k)} * \frac{a_{wl}}{a_{wl}+a_{mt}} * \lambda_{cn, c} + prb * \frac{\lambda_{pn, e}}{2}  \\\
+				\lambda_{wl, c} = \frac{1}{n*(m+k)} * \frac{a_{wl}}{a_{wl}+a_{mt}} * \lambda_{cn, c} + prb * \frac{a_{wl}}{a_{wl}+a_{mt}} * \lambda_{pn,e}   \\\
     \end{array}
 \end{equation}
 In the last equation, the second term requires a change from primary node arrival rate to secondary node arrival rate in the case that the upper node is indeed a secondary.\\
@@ -183,7 +201,7 @@ Indeed the first term is the rate arriving to a single primary node thus divided
         \lambda_{pn, c} = \frac{1}{n} * (\frac{1}{m+k}) * \lambda_{cn, c} + prb * \lambda_{pn, e}  \\\
     \end{array}
 \end{equation}
-From the previous formulas and the open queue-qui mettiamo anche la WAN model we can compute the Service Demand, Utilization factor and Response time.
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
     \begin{array}{l}
         D_{pn, t} = V_{pn, t} * S_{pn, t} \\
