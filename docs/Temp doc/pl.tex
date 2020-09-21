@@ -77,6 +77,14 @@ The whole scheme:
 \end{figure}
 
 \section{Queues Scheme and Formulas}
+The following open queue scheme will be divided in segments during the analysis of each queue.
+\begin{figure}[H]
+	\vspace*{-0.5cm}
+	\hspace*{-3.5cm}
+	\centering
+	\frame{\includesvg[width=25cm, height=19cm]{queue_network_wan}}
+	\caption{The open queue scheme}
+\end{figure}
 \subsection{Classes}
 Based on the specifics and the architecture, we opted for a multi-class open queueing model, in particular at the moment we have three different classes going through the system:
 \begin{itemize}
@@ -113,19 +121,13 @@ The elements we are going to analyze are:
 \item cl : central lan.
 \end{itemize}
 Each node has a summary section which describes the total response time for that node type.\\
+We will navigate the queue network starting from the sensors and actuators and until reaching the central node.
 
 \begin{figure}[H]
-	\hspace*{-3.75cm}
-	\frame{\includesvg[width=20cm]{queue_network_centralregional}}
-	\caption{Focus on Central and Regional nodes}
+	\centering
+	\frame{\includesvg[width=20cm, height=17cm]{queue_network_wireless_manet}}
+	\caption{Focus on actuators, sensors,  primary/secondary nodes, wireless and MANET LANs}
 \end{figure}
-\begin{figure}[H]
-	\hspace*{-3.75cm}
-	\frame{\includesvg[width=20cm]{queue_network_primarysensor}}
-	\caption{Focus on Regional nodes, Primary/Secondary nodes and sensor/actuators}
-\end{figure}
-
-
 
 \subsection{Actuators and Sensors}
 Sensors at the moment don't receive any command, we still have drawn them as queues for future extensions while actuators are defined by the rates.\\
@@ -198,8 +200,16 @@ From the previous formulas and the open queue-qui mettiamo anche la WAN model we
 \end{equation}
 
 \subsection{Primary LAN}
+
+\begin{figure}[H]
+	\hspace*{-3.75cm}
+	\centering
+	\frame{\includesvg[width=20cm, height=17cm]{queue_network_primary_lan}}
+	\caption{Focus on primary/secondary WAN, primary/secondary LAN and primary/secondary nodes}
+\end{figure}
+
 The primary LAN element of the system will deal with messages having as sender or receiver one of the $m$ primary nodes, thus all rates will be multiplied by $m$.\\
-Furthermore in the telemetry case, since the primary nodes do a first step of data aggregation, the arrival rate on the primary LAN will be divided by the aggregation rate of the primary nodes $aggr_{pn}$. \\ 
+Furthermore in the telemetry case, since the primary nodes do a first step of data aggregation, the arrival rate on the primary LAN will be divided by the aggregation rate of the primary nodes $aggr_{pn}$. \\
 Lastly, a command passes through the primary LAN if it is directed to one of the nodes that it manages, the probability that a message arrives then is the probability that it goes through its regional $\frac{1}{n}$ multiplied the probability that the message is for a primary instead of a secondary $\frac{m}{m+k}$.\\
 Regarding the secondary LAN the same formulas will be applied for now, instead of pl we will have sl and the fraction for command will be $\frac{k}{m+k}$.
 \begin{equation}
@@ -229,8 +239,17 @@ From the previous formulas and the open queue model we can compute the Service D
 \end{equation}
 Regarding the WAN PRIMARY, it forwards all the messages received from the LAN PRIMARY-SECONDARY directly to the LAN PRIMARY. The LAN PRIMARY needs to forward all the messages received from the primary nodes towards the WAN PRIMARY; so we will have the same rate and number of visits per message. The only parameter that can be different between these two LANs is the service time.
 The same formulas can also be applied to the WAN SECONDARY and the LAN SECONDARY using the parameters that characterize these network.
+
 \subsection{LAN Primary-Secondary}
-The Primary-Secondary LAN will relay messages to and from primary and secondary LANs.\\ 
+
+\begin{figure}[H]
+	\hspace*{-3.75cm}
+	\centering
+	\frame{\includesvg[width=20cm, height=17cm]{queue_network_primary_secondary_lan}}
+	\caption{Focus on regional nodes, LAN primary-secondary, primary WAN and secondary WAN}
+\end{figure}
+
+The Primary-Secondary LAN will relay messages to and from primary and secondary LANs.\\
 Telemetry and transition rate is the sum of the same rates for the lower level nodes, while for the command events, this LAN will receive $\frac{1}{n}$ command messages from the central, only the ones for its upper level regional node to be forwarded to the correct primary or secondary node.\\
 \begin{equation}
     \begin{array}{l}
@@ -287,6 +306,12 @@ From the previous formulas and the open queue model we can compute the Service D
 \end{equation}
 
 \subsection{Regional LAN}
+\begin{figure}[H]
+	\hspace*{-3.75cm}
+	\centering
+	\frame{\includesvg[width=20cm, height=17cm]{queue_network_regional_lan}}
+	\caption{Focus on regional LAN and regional nodes}
+\end{figure}
 The regional LAN connects the central node to all the regionals, for this reason the rate of transition and telemetry will be multiplied by $n$, the number of regional node.\\
 In particular, regarding the telemetry events the regional node rates will also be divided by the aggregation factor, made by those nodes which will cut the number of messages that will actually be sent up the LAN.\\
 The command rate is not divided by anything since all the commands will need to go through this LAN.
@@ -317,6 +342,12 @@ From the previous formulas and the open queue model we can compute the Service D
 \end{equation}
 Regarding the WAN CENTRAL, it forwards all messages from the CENTRAL LAN to the REGIONAL LAN. The REGIONAL LAN instead, forwards all the messages from the regional nodes to the WAN CENTRAL, so the service time and number of visits per message are the same, with the exception of the service time which can be different.
 \subsection{Central LAN}
+\begin{figure}[H]
+	\hspace*{-3.75cm}
+	\centering
+	\frame{\includesvg[width=20cm, height=17cm]{queue_network_central_lan}}
+	\caption{Focus on regional LAN, WAN central, central LAN and central node}
+\end{figure}
 The Central LAN has the same traffic as the Regional LAN, with the only different value being the service time.\\
 The reasoning behind this LAN's existence is that there may be more than one central node, by the specific there can be two for fault tolerance and availability.
 \begin{equation}
@@ -396,11 +427,6 @@ From the previous formulas and the open queue model we can compute the Service D
 		R_{cn, e} = \frac{D_{cn, e}}{1 - U_{cn}} \\
 	\end{array}
 \end{equation}
-\begin{figure}[H]
-	\vspace*{-0.5cm}
-	\hspace*{-3.75cm}
-	\frame{\includesvg[width=20cm]{queue_network_wan}}
-	\caption{The whole scheme}
-\end{figure}
+
 
 \end{document}
