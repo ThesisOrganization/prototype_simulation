@@ -20,9 +20,9 @@
 This section will deal with the assumptions we have made so far and why we've made them. Alternatives will be described for the various possibilities.\\
 \subsection{Assumptions}
 \begin{enumerate}
-\item \textbf{Assumption 2}: The only entity needing a storage system is the Central Node, in particular we are assuming that all other nodes receive information that can be processed, stored and aggregated in the RAM which will never be full.
-\item \textbf{Assumption 3}: more of a design choice for the moment, each node is modeled as a simple queue composed of CPU+RAM together, in future they will be extended and may need more component and a review of the entire queue model.
-\item \textbf{Assumption 4}: In this first stage we won't be holding account of the fault tolerance of the system, in particular we are not considering duplication of the data not in storaging neither in multiple link sending.
+\item \textbf{Assumption 1}: The only entity needing a storage system is the Central Node, in particular we are assuming that all other nodes receive information that can be processed, stored and aggregated in the RAM which will never be full.
+\item \textbf{Assumption 2}: more of a design choice for the moment, each node is modeled as a simple queue composed of CPU+RAM together, in future they will be extended and may need more component and a review of the entire queue model.
+\item \textbf{Assumption 3}: In this first stage we won't be holding account of the fault tolerance of the system, in particular we are not considering duplication of the data not in storaging neither in multiple link sending.
 \end{enumerate}
 
 \section{System functioning and message flow}
@@ -85,7 +85,7 @@ To make the notation less heavy in the graphical scheme we will use some variabl
 	 \item $N$: Number of local nodes connected to the regional nodes.
 	\end{itemize}
 \end{description}
-It's fundamental to note that the variables described are valid only for the queue network scheme, for the variabiles we will use the ones defined in the Notation section.\\
+It's fundamental to note that the variables described are valid only for the queue network scheme, during the queue analysis we will use the ones defined in the Notation section.\\
 \begin{figure}[H]
 	\vspace*{-0.5cm}
 	\hspace*{-3.5cm}
@@ -304,7 +304,7 @@ And for LAN OUT:
 \end{figure}
 
 %T'''
-Taken a local node j, and its upper level regional node i, remembering the definition of $T'$,$T''$ and $T'''$ from the previous section and modifying the definition of $T$ by amplifying the branch to include all LANs managed by this local node i we will define the new formulas. Note that at this point $T = T'''$, because our branch now is a local node. \\
+Taken a local node j, and its upper level regional node i, remembering the definition of $T'$,$T''$ and $T'''$ from the previous section and modifying the definition of $T$ by amplifying the branch to include all LANs managed by this local node $i$ we will define the new formulas. Note that at this point $T = T'''$, because our branch now is a local node. \\
 
 So, denoting $p_{cmd,ln}$ as the probability (or percentage) that a transition, arriving in the local node, generates a command and $\lambda^{\{s\}}_{lo, t}$ as the rate of the telemetry messages by the LAN $s$, we can write:
 
@@ -373,7 +373,7 @@ The main difference in the command rate will be that we won't notice a local lev
 
 	\end{array}
 \end{equation}
-where $\lambda^{\{ n \}}_{ln, b}$ denotes the rate of $n$-th local node of the regional that we are considering, i.e. $i$ regional. Also $aggr^{\{n\}}_{ln}$ denotes the aggregation done by the local node $n$ and $p_{cmd, rn}$ is the probability that a transition generates a command in the regional node. \\
+where $\lambda^{\{ n \}}_{ln, b}$ denotes the rate of $n$-th local node of the regional that we are considering, i.e. $i$-th regional. Also $aggr^{\{n\}}_{ln}$ denotes the aggregation done by the local node $n$ and $p_{cmd, rn}$ is the probability that a transition generates a command in the regional node. \\
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
 	\begin{array}{l}
