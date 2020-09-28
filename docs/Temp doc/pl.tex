@@ -28,20 +28,20 @@ This section will deal with the assumptions we have made so far and why we've ma
 \section{System functioning and message flow}
 The system is composed by:
 \begin{itemize}
-    \item Central Node: in our model we have one central. It manages all the regional nodes. The central aggregates the telemetry messages received by the regionals before saving them in the disk and also save all the transitions messages that it receives. All transition-command couples (i.e. what we called the batch data as we'll show in the next sections, that are basically a log of the command sent by central, regional and local nodes to the actuators) arrive here to be logged in the disk.
-\item Regional Node: Each regional node manages a subset of all local nodes, disjoint from any other regional node domain. Telemetries will flow through here to be aggregated and sent to the central node. Transitions that need a regional level command will reach this and all transitions-command couples fixed in local level will be forwarded here to be sent in batch to the central node.  
-\item Local Node: all transitions needing a local fix will go through them and be forwarded as a transition-command couple to the regional node. Also all transitions needing a regional or central level fix will be forwarded from here. A local node manages a subset of all actuators and sensors, disjoint from any other local node.
+    \item Central Node: in our model we have one central. It manages all the regional nodes. The central aggregates the telemetry messages received by the regionals before saving them in the disk and save all the transitions messages that it receives. Also the central may generate a command to the actuators in response to a transition message that it receives, but not all the times. All transition-command couples (i.e. what we called the batch data as we'll show in the next sections, that are basically a log of each command sent by central, regional and local nodes to the actuators) arrive here to be logged in the disk.
+\item Regional Node: each regional node manages a subset of all local nodes, disjoint from any other regional node domain. Telemetries will flow through here to be aggregated and sent to the central node. Also transitions flow through here and may generate a command to the actuators in the area controlled by the regional. Every batch data are forwared to the central node.  
+\item Local Node: each local node manages a subset of all actuators and sensors, disjoint from any other local node. The telemetry messages are aggregated and sent to the regional assign to the local node. Also the transitions received by the local are forwared to its regional, but also they may generate a command for its actuators. As before, the batch data are forwared to its regional to reach the central.  
 \item Actuator: commands will reach the actuators for a state change in the system, they can also send transitions to the higher levels when their state is changed without receiving a command message .
 \item Sensor: periodically will generate telemetry messages and send them to the local level to be forwarded up to the central node, also will generate and send transition messages when their state is changed. They only send, never receive.
 \end{itemize}
-Both local and regional nodes need an acknowledgement reply from the higher level, respectively regional and central nodes. \\
+Both local and regional nodes need an acknowledgement reply for every telemetry message from the higher level, respectively regional and central nodes. \\
 All aggregations we talked about are determinated by parameters that will be given.\\
 There is no duplication in sent messages.\\
 All message types will be throughly analyzed in the Classes section.\\
 
 \section{Structural scheme}
 This section will explain how the structural scheme for the system is made and its project's choices.\\
-In the model we are going to show, we used as connection between the upper level node and the lower level ones consists of a WAN connecting the upper level router to all lower level ones.\\
+In the model we are going to show, we used as connection between the upper level node and the lower level ones a WAN connecting the upper level router to all lower level ones.\\
 \begin{figure}[H]
 	\hspace*{-3.75cm}
 	\centering
@@ -94,15 +94,15 @@ It's fundamental to note that the variables described are valid only for the que
 	\caption{The open queue scheme}
 \end{figure}
 \subsection{Classes}
-Based on the specifics and the architecture, we opted for a multi-class open queueing model, in particular at the moment we have three different classes going through the system:
+Based on the specifics and the architecture, we opted for a multi-class open queueing model, in particular at the moment we have four different classes going through the system:
 \begin{itemize}
 \item t: telemetry events, where a sensors sends to its superior the data it has periodically, this data then will be aggregated at each level up until the central node.
-\item e: transition events, which are sent by actuators or sensors when their state changes.
+\item e: transition events, which are sent by actuators or sensors when their state or the physical network changes.
 \item c: command events, generated by local, regional or central nodes, in response to a transition message which reached it from an actuator or sensor.
-\item b: batch send, generated by the regional nodes periodically to send to the disk aggregated data about the transition-command pairs.
+\item b: batch send, generated by the central, regional and local nodes periodically to send to the central's disk data about the commands that were generated in the network.
 \end{itemize}
-Another type of message flowing through the network is a reply message but since they are triggered only by transition events we aggregated them in the visits.
-Due to the nature of this kind of open queueing model, the formulas regarding Utilization factor, system demand and response time are very similar for the components.
+Another type of message flowing through the network is a reply message but since they are triggered only by transition events we model them with the average number of visits equal to two.
+Due to the nature of this kind of open queueing model, the formulas regarding utilization factor, system demand and response time are very similar between the components.
 
 \subsection{Notation}
 We will deline the notation in the following formulas:
@@ -143,23 +143,27 @@ We will navigate the queue network starting from the sensors and actuators until
 \end{figure}
 
 \subsection{Actuators and Sensors}
-Sensors at the moment don't receive any command, we still have drawn them as queues for future extensions. Conversely, actuators are modeled as queues since they can receive command from the central node or from the primary/secondary node where they are connected in response to a transition event.\\
-Regarding the sensors, $\lambda_{s,t}$ and $\lambda_{s,e}$ are the rates at which the sensor sends a telemetry or a transition message respectively. The same is valid for the transition events rate of the actuators with $\lambda_{a,e}$.\\
+Actuators are modeled as queues since they can receive command from the central, regional and local node (to which they are connected) in response to a transition event.\\
+Regarding the sensors, they only send data, so we don't need to model them as queues. $\lambda^{\{w\}}_{s,t}$ and $\lambda^{\{w\}}_{s,e}$ are the rates at which the sensor sends a telemetry or a transition message respectively, in the case the sensor is a type $w$ of sensor. The same is valid for the transition events rate of the actuators with $\lambda^{\{w\}}_{a,e}$.\\
 
 %NEWWWW PARTTTTTT
-Before going to the main formula we need to do some pre-computation.
 %Let's suppose that we are in a branch of the system in which we belong to the $i$ regional node, $j$ local node and $k$ LAN.
 
 %Firstly let's compute the number of actuators in this branch for each type $t$ of actuator:
 %\begin{equation}
 %    a_{t} = \sum_{\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}}}{ | A^{\{m, n, s\}}_{t} | }
 %\end{equation}
-
-Firstly we need the set of actuators' types in all the system, where T is simply the sum of all actuators of all types:
+Before going to the main formula we need to do some pre-computation. Firstly we need the set of actuators' types in all the system:
 %Se volete in questa parte dite direttamente a parole che T è l'insieme di tutti i tipi di attuatori del sistema
 \begin{equation}
-    T' = t \ | \ (\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}} \land t \in A^{\{m,n,s\}})
+    T' = \{ t \ | \ (\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}} \land t \in A^{\{m,n,s\}}) \}
 \end{equation}
+
+Furthermore we will need two more sets:
+\begin{itemize}
+\item $T''$ : the set of all actuators managed by the regional node our local node refers to.
+\item $T'''$ the set of all actuators managed by our local node.
+\end{itemize}
 
 Then let's compute the number of actuators in all the system's branches for each type $t \in T$ of actuator in the system:
 \begin{equation}
@@ -173,11 +177,6 @@ Since when a command is generated it must be delivered to at least an actuator, 
 \begin{equation}
     \sum_{t \in T'}{p_t} = 1
 \end{equation}
-Furthermore we will need two more sets:
-\begin{itemize}
-\item $T''$ : the set of all actuators managed by the regional node our local node refers to.
-\item $T'''$ the set of all actuators managed by our local node.
-\end{itemize}
 Now we are ready to do the real computation. Denoting $w \in T'$ as the type of the actuator that we are considering, we can write:
 
 \begin{equation}
@@ -209,7 +208,7 @@ Let's suppose that we are in a branch of the system in which we belong to the $i
 Firstly we need the set of actuators' types in all the system:
 %Se volete in questa parte dite direttamente a parole che T è l'insieme di tutti i tipi di attuatori del sistema
 \begin{equation}
-    T' = t \ | \ (\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}} \land t \in A^{\{m,n,s\}})
+    T' = \{ t \ | \ (\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}} \land t \in A^{\{m,n,s\}}) \}
 \end{equation}
 
 
@@ -315,7 +314,11 @@ From the previous formulas and the open queue model we can compute the Service D
 	\frame{\includesvg[width=20cm, height=17cm]{queue_network_local_node}}
 	\caption{Focus on local nodes, and local WANs and regional nodes}
 \end{figure}
-Taken a local node j, and its upper level regional node i, remembering the definition of $T'$,$T''$ and $T'''$ from the previous section and modifying the definition of $T$ by amplyfing the branch to include all LANs managed by this local node i we will define the new formulas.\\
+
+%T'''
+Taken a local node j, and its upper level regional node i, remembering the definition of $T'$,$T''$ and $T'''$ from the previous section and modifying the definition of $T$ by amplifying the branch to include all LANs managed by this local node i we will define the new formulas.\\
+
+%da modificare
 The main difference here is that we don't have a fixed LAN so we need k to span across all LANs of the local node.
 \begin{equation}
     \begin{array}{l}
@@ -323,8 +326,10 @@ The main difference here is that we don't have a fixed LAN so we need k to span 
         V_{ln, e} = 2 \\ %reply
         V_{ln, c} = 1 \\
         V_{ln, b} = 1 \\
-        \lambda_{ln, t} = \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| S^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
-        \lambda_{ln, e} = \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| S^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| A^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
+        %\lambda_{ln, t} = \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| S^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
+        \lambda_{ln, t} = \sum\limits_{s \in LAN^{\{i,j\}}}{\lambda^{\{s\}}_{lo, t}}  \\
+        %\lambda_{ln, e} = \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| S^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| A^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
+        \lambda_{ln, e} = \sum\limits_{s \in LAN^{\{i,j\}}}{\lambda^{\{s\}}_{lo, e}} \\
 		\lambda_{ln, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + \lambda_{rn, c} *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a'_{t} * p_{t}}}  + p_{cmd,ln} * \lambda_{ln, e} \\\
 
 %* \frac{\sum\limits_{t \in T''}{a_{t} * p_{t}}}{\sum\limits_{t \in T'''}{a'_{t} * p_{t}}}  
@@ -338,13 +343,16 @@ From the previous formulas and the open queue model we can compute the Service D
         D_{pn, t} = V_{pn, t} * S_{pn, t} \\
         D_{pn, e} = V_{pn, e} * S_{pn, e} \\
         D_{pn, c} = V_{pn, c} * S_{pn, c} \\
+        D_{pn, b} = V_{pn, b} * S_{pn, b} \\
         U_{pn, t} = \lambda_{pn, t} * D_{pn, t} \\
         U_{pn, e} = \lambda_{pn, e} * D_{pn, e} \\
         U_{pn, c} = \lambda_{pn, c} * D_{pn, c} \\
-        U_{pn} = U_{pn, t} + U_{pn, e} + U_{pn, c} \\
+        U_{pn, b} = \lambda_{pn, b} * D_{pn, b} \\
+        U_{pn} = U_{pn, t} + U_{pn, e} + U_{pn, c} + U_{pn, b} \\
         R_{pn, t} = \frac{D_{pn, t}}{1 - U_{pn}} \\
         R_{pn, e} = \frac{D_{pn, e}}{1 - U_{pn}} \\
         R_{pn, c} = \frac{D_{pn, c}}{1 - U_{pn}} \\
+        R_{pn, b} = \frac{D_{pn, b}}{1 - U_{pn}} \\
     \end{array}
 \end{equation}
 \subsection{WAN}
@@ -356,7 +364,7 @@ Since the WAN is an external object that we decided to model as a delay, we will
 	\frame{\includesvg[width=20cm, height=17cm]{queue_network_regional}}
 	\caption{Focus on regional nodes and central WAN}
 \end{figure}
-As for the local node, we fix the regional node i while k and j will be free variables. We will extended again the definition of $T'$.\\
+As for the local node, we fix the regional node i while k and j will be free variables. We will extended again the definition of $T$.\\
 Regarding telemetry and transitions, we will also need to iterate over all local nodes below the regional node i.\\
 The main difference in the command rate will be that we won't notice a local level fix in the command arrival rate.
 \begin{equation}
@@ -365,27 +373,32 @@ The main difference in the command rate will be that we won't notice a local lev
 		V_{rn, e} = 2 \\ %reply
 		V_{rn, c} = 1 \\
 		V_{rn, b} = 1 \\
-        \lambda_{rn, t} = \sum\limits_{w \in T,s \in LAN^{\{i,j)},n \in L^i}{| S^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
-        \lambda_{rn, e} = \sum\limits_{w \in T,s \in LAN^{\{i,j)},n \in L^i}{| S^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{i,j}),n \in L^i}{| A^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
+        %\lambda_{rn, t} = \sum\limits_{w \in T,s \in LAN^{\{i,j)},n \in L^i}{| S^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
+        \lambda_{rn, t} = \sum\limits_{n \in L^{\{i\}}}{\frac{\lambda^{\{n\}}_{ln, t}}{aggr^{\{n\}}_{ln}}}  \\
+        %\lambda_{rn, e} = \sum\limits_{w \in T,s \in LAN^{\{i,j)},n \in L^i}{| S^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{i,j}),n \in L^i}{| A^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
+        \lambda_{rn, e} = \sum\limits_{n \in L^{\{i\}}}{\lambda^{\{n\}}_{ln, e}} \\
 		\lambda_{rn, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T'}{a_{t} * p_{t}}}{\sum\limits_{t \in T}{a'_{t} * p_{t}}} + p_{cmd,rn} * \lambda_{rn, e} \\\
-        \lambda_{rn, b} = \sum\limits_{n \in L^{\{ i \}}}{\lambda_{ln(n), b}} + p_{cmd, rn} * \lambda_{rn,e}
+        \lambda_{rn, b} = \sum\limits_{n \in L^{\{ i \}}}{\lambda^{\{ n \}}_{ln, b}} + p_{cmd, rn} * \lambda_{rn,e}
 
 	\end{array}
 \end{equation}
-where $ln(n)$ denotes the $n$-th local node of the regional that we are considering, i.e. $i$ regional.
+where $\lambda^{\{ n \}}_{ln, b}$ denotes the rate of $n$-th local node of the regional that we are considering, i.e. $i$ regional. \\
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
 	\begin{array}{l}
 		D_{rn, t} = V_{rn, t} * S_{rn, t} \\
 		D_{rn, e} = V_{rn, e} * S_{rn, e} \\
 		D_{rn, c} = V_{rn, c} * S_{rn, c} \\
+		D_{rn, b} = V_{rn, b} * S_{rn, b} \\
 		U_{rn, t} = \lambda_{rn, t} * D_{rn, t} \\
 		U_{rn, e} = \lambda_{rn, e} * D_{rn, e} \\
 		U_{rn, c} = \lambda_{rn, c} * D_{rn, c} \\
-		U_{rn} = U_{rn, t} + U_{rn, e} + U_{rn, c} \\
+		U_{rn, b} = \lambda_{rn, b} * D_{rn, b} \\
+        U_{rn} = U_{rn, t} + U_{rn, e} + U_{rn, c} + U_{rn, b} \\
 		R_{rn, t} = \frac{D_{rn, t}}{1 - U_{rn}} \\
 		R_{rn, e} = \frac{D_{rn, e}}{1 - U_{rn}} \\
 		R_{rn, c} = \frac{D_{rn, c}}{1 - U_{rn}} \\
+		R_{rn, c} = \frac{D_{rn, b}}{1 - U_{rn}} \\
 	\end{array}
 \end{equation}
 
@@ -404,8 +417,10 @@ Central node command rate is oblivious to the regional node command events, thus
 		V_{cn, e} = 2 \\ %reply
 		V_{cn, c} = 1 \\
 		V_{cn, b} = 1 \\
-        \lambda_{cn, t} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
-        \lambda_{cn, e} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{m,n}),n \in L^m, m \in R}{| A^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
+        %\lambda_{cn, t} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
+        \lambda_{cn, t} = \sum\limits_{m \in R}{ \frac{\lambda^{\{m\}}_{rn, t}}{aggr^{\{ m \}}_{rn}}}  \\
+        %\lambda_{cn, e} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{m,n}),n \in L^m, m \in R}{| A^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
+        \lambda_{cn, e} = \sum\limits_{m \in R}{\lambda^{\{m\}}_{rn, e}} \\
 		\lambda_{cn, c} = p_{cmd,cn} * \lambda_{cn, e} \\
 		\lambda_{cn, b} = \sum\limits_{m \in R}{\lambda_{rn(m), b}} + p_{cmd,cn} * \lambda_{cn, e}
 	\end{array}
@@ -417,13 +432,16 @@ From the previous formulas and the open queue model we can compute the Service D
 		D_{cn, t} = V_{cn, t} * S_{cn, t} \\
 		D_{cn, e} = V_{cn, e} * S_{cn, e} \\
 		D_{cn, c} = V_{cn, c} * S_{cn, c} \\
+		D_{cn, b} = V_{cn, b} * S_{cn, b} \\
 		U_{cn, t} = \lambda_{cn, t} * D_{cn, t} \\
 		U_{cn, e} = \lambda_{cn, e} * D_{cn, e} \\
 		U_{cn, c} = \lambda_{cn, c} * D_{cn, c} \\
-		U_{cn} = U_{cn, t} + U_{cn, e} + U_{cn, c} \\
+		U_{cn, b} = \lambda_{cn, b} * D_{cn, b} \\
+        U_{cn} = U_{cn, t} + U_{cn, e} + U_{cn, c} + U_{cn, b} \\
 		R_{cn, t} = \frac{D_{cn, t}}{1 - U_{cn}} \\
 		R_{cn, e} = \frac{D_{cn, e}}{1 - U_{cn}} \\
 		R_{cn, c} = \frac{D_{cn, c}}{1 - U_{cn}} \\
+		R_{cn, b} = \frac{D_{cn, b}}{1 - U_{cn}} \\
 	\end{array}
 \end{equation}
 
