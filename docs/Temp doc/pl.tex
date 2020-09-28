@@ -413,9 +413,10 @@ Central node command rate is oblivious to the regional node command events, thus
         %\lambda_{cn, e} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{m,n}),n \in L^m, m \in R}{| A^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
         \lambda_{cn, e} = \sum\limits_{m \in R}{\lambda^{\{m\}}_{rn, e}} \\
 		\lambda_{cn, c} = p_{cmd,cn} * \lambda_{cn, e} \\
-		\lambda_{cn, b} = \sum\limits_{m \in R}{\lambda_{rn(m), b}} + p_{cmd,cn} * \lambda_{cn, e}
+        \lambda_{cn, b} = \sum\limits_{m \in R}{\lambda^{\{ m \}}_{rn, b}} + p_{cmd,cn} * \lambda_{cn, e}
 	\end{array}
 \end{equation}
+where $\lambda^{\{ m \}}_{rn, b}$ is the rate of the batch data coming from the $m$-th regional.
 Obviously the ratio is not present in this case since it would be 1, since $T = T'$.\\
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
