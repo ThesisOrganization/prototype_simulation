@@ -223,69 +223,26 @@ From the previous formulas and the open queue model we can compute the Service D
 \subsection{LANs}
 This part will deal will all kind of LANs available in the lower level, the formulas are similar so we will show a general one.\\
 %NEW PARTTTTTT
-Before going to the main formula we need to do some pre-computation.
-Let's suppose that we are in a branch of the system in which we belong to the $i$ regional node, $j$ local node and $k$ LAN.
+As before, let's suppose that we are in a branch of the system in which we belong to the $i$ regional node, $j$ local node and LAN $k$.
 
-Firstly we need the set of actuators' types in all the system:
-%Se volete in questa parte dite direttamente a parole che T è l'insieme di tutti i tipi di attuatori del sistema
-\begin{equation}
-    T' = \{ t \ | \ (\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}} \land t \in A^{\{m,n,s\}}) \}
-\end{equation}
-
-
-And this is the set of types on this branch:
+The definitions of $T'$, $T''$, $T''$ are the same as the previous section (same thing for $a'_t$, $a''_t$, $a'''_t$ and the probability of each type $p_t$) but now we also need of the set of types on this branch (that in this case is the LAN $k$):
 \begin{equation}
     T = A^{\{i, j, k\}}
 \end{equation}
 
-Now let's compute the number of actuators in this branch for each type $t \in T$ of actuator:
+Consequently let's compute the number of actuators in this branch for each type $t \in T$ of actuator:
 \begin{equation}
     a_{t} = | A^{\{i, j, k\}}_{t} |
 \end{equation}
 
-Furthermore we will use a set T'' which is composed of the actuators in the sub tree managed by the regional node managing our local node.\\
-And the set T''' which are the actuators managed by our local node.\\
-
-
-Then let's compute the number of actuators in all the system's branches for each type $t \in T$ of actuator in the system:
-\begin{equation}
-    a'_{t} = \sum_{\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}}}{ |A^{\{m, n, s\}}_{t}| }
-\end{equation}
-
-
-Also we need to denote the probability of each type of actuator to receive a command. Indeed, the probability to receive a command it's not evenly distributed over the actuators' types, so there may be the case that a type of actuator receives more commands with respect to another type.
-For this reason we denote $p_t$ the probability associated to the $t$ type of actuator.
-Since when a command is generated it must be delivered to at least an actuator, we need to specify that the sum of all type's probabilities is 1:
-\begin{equation}
-    \sum_{t \in T'}{p_t} = 1
-\end{equation}
-
-Now we are ready to do the real computation. Denoting with $\lambda^{\{w\}}_{s, t}$ the arrival rate from the sensor of type $w \in T'$, first for the whole LAN:
-
-\begin{equation}
-    \begin{array}{l}
-        V_{LAN, t} = 1 \\
-        V_{LAN, e} = 2 \\ %reply
-        V_{LAN,c} = 1 \\
-        \lambda_{LAN, t} = \sum\limits_{w \in T}{| S^{\{i,j,k\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
-        \lambda_{LAN, e} = \sum\limits_{w \in T}{| S^{\{i,j,k\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T}{| A^{\{i,j,k\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
-		\lambda_{LAN, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + \lambda_{rn, c} *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a'_{t} * p_{t}}}  + \lambda_{ln, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'''}{a'_{t} * p_{t}}}  \\\
-
-    \end{array}
-\end{equation}
-We will explain the lambda formulas since from now on we will see some iterations of them that are simpler so explaining these ones should suffice.\\
-The telemetries are straightforward, fixed our lan k, the local node j and the regional node i, the total rate over the network is given by the composition of all sensors sending data over this lan thus we multiply the number of each type of sensors with their rate.\\
-The transition events are given by the sum of two elements, the first one representing the rate of all sensors in this lan and the second the rate of all actuators.\\
-By the approach we are using on command events, the rate of command events over the lan is given by the sum of three terms, the first one is composed of the probability of a command event being generated from the central node, the rate of generation of those events multiplied by the ratio of the number of actuators in this lan over all actuators in the system, which are the ones that can be targeted by the central with a command event.\\
-Likewise the other two terms reflect the cases in which respectively the regional node and the local node generate those events.\\
-The ratios are weighted by the type of actuator since each type has a different probability of receiving a command message.\\
+Now, denoting with $\lambda^{\{w\}}_{s, t}$ the arrival rate from the sensor of type $w \in T'$, we can compute the main formulas for the model.
 Dividing the LAN in Lan In and Out as we modeled them, we see Lan In having:
 \begin{equation}
     \begin{array}{l}
         V_{li, e} = 1 \\ %reply
         V_{li,c} = 1 \\
         \lambda_{li, e} = \sum\limits_{w \in T}{| S^{\{i,j,k\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T}{| A^{\{i,j,k\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
-		\lambda_{li, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + \lambda_{rn, c} *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a'_{t} * p_{t}}}  + \lambda_{ln, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'''}{a'_{t} * p_{t}}}  \\\
+		\lambda_{li, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + \lambda_{rn, c} *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a''_{t} * p_{t}}}  + \lambda_{ln, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'''}{a'''_{t} * p_{t}}}  \\\
 
     \end{array}
 \end{equation}
@@ -301,9 +258,17 @@ Now Lan Out, which will send both transitions and telemetries:
 
     \end{array}
 \end{equation}
+
+
+We will explain the lambda formulas since from now on we will see some iterations of them that are simpler so explaining these ones should suffice.\\
+The telemetries (in the LAN OUT) are straightforward, fixed our lan k, the local node j and the regional node i, the total rate over the network is given by the composition of all sensors sending data over this lan thus we multiply the number of each type of sensors with their rate.\\
+The transition events (both in LAN IN and LAN OUT) are given by the sum of two elements, the first one representing the rate of all sensors in this lan and the second the rate of all actuators.\\
+By the approach we are using on command events (in the LAN IN), the rate of command events over the lan is given by the sum of three terms, the first one is composed of the probability of a command event being generated from the central node, i.e. the rate of generation of those events multiplied by the ratio of the number of actuators in this lan over all actuators in the system, which are the ones that can be targeted by the central with a command event.\\
+Likewise the other two terms reflect the cases in which respectively the regional node and the local node generate those events.\\
+The ratios are weighted by the type of actuator since each type has a different probability of receiving a command message.\\
 %END NEW PART
 
-From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time. Formulas for Lan Out are specular.
+From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time for the LAN IN: 
 \begin{equation}
     \begin{array}{l}
         D_{li, e} = V_{li, e} * S_{li, e} \\
@@ -315,6 +280,8 @@ From the previous formulas and the open queue model we can compute the Service D
         R_{li, c} = \frac{D_{li, c}}{1 - U_{li}} \\
     \end{array}
 \end{equation}
+
+And for LAN OUT:
 
 \begin{equation}
     \begin{array}{l}
