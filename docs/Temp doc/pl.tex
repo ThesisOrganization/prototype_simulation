@@ -118,7 +118,7 @@ Since the structure of the network is very different between the branches of the
 \end{itemize}
 Now for the parameters we are going to use:
 \begin{itemize}
-\item $\lambda_t$, $\lambda_e$, $\lambda_c$: $\lambda$ is the arrival rate, respectively for the data type telemetry, transition and command.
+\item $\lambda_t$, $\lambda_e$, $\lambda_c$, $\lambda_b$: $\lambda$ is the arrival rate, respectively for the data type telemetry, transition, command and batch.
 \item $V$: mean number of visits.
 \item $S$: service time.
 \item $D$: service demand.
@@ -143,7 +143,7 @@ We will navigate the queue network starting from the sensors and actuators until
 \end{figure}
 
 \subsection{Actuators and Sensors}
-Actuators are modeled as queues since they can receive command from the central, regional and local node (to which they are connected) in response to a transition event.\\
+Actuators are modeled as queues since they can receive command from the central, regional and local nodes (to which they are connected) in response to a transition event.\\
 Regarding the sensors, they only send data, so we don't need to model them as queues. $\lambda^{\{w\}}_{s,t}$ and $\lambda^{\{w\}}_{s,e}$ are the rates at which the sensor sends a telemetry or a transition message respectively, in the case the sensor is a type $w$ of sensor. The same is valid for the transition events rate of the actuators with $\lambda^{\{w\}}_{a,e}$.\\
 
 %NEWWWW PARTTTTTT
@@ -153,40 +153,61 @@ Regarding the sensors, they only send data, so we don't need to model them as qu
 %\begin{equation}
 %    a_{t} = \sum_{\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}}}{ | A^{\{m, n, s\}}_{t} | }
 %\end{equation}
-Before going to the main formula we need to do some pre-computation. Firstly we need the set of actuators' types in all the system:
+Before going to the main formula we need to do some pre-computation. 
+Let's suppose that we are in an actuators that belongs to the regional $i$, in the local $j$ of this regional, and in the lan $k$ of the local that we are considering. \\
+Firstly we need some sets of actuators' types in various places in the network:
 %Se volete in questa parte dite direttamente a parole che T è l'insieme di tutti i tipi di attuatori del sistema
-\begin{equation}
-    T' = \{ t \ | \ (\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}} \land t \in A^{\{m,n,s\}}) \}
-\end{equation}
 
-Furthermore we will need two more sets:
+
 \begin{itemize}
-\item $T''$ : the set of all actuators managed by the regional node our local node refers to.
-\item $T'''$ the set of all actuators managed by our local node.
+    \item $T'$ : the set of all actuators in all the system (so managed by the central node). Analytically, it can be expressed by the following:
+    \begin{equation}
+        T' = \{ t \ | \ (\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}} \land \ t \in A^{\{m,n,s\}}) \}
+    \end{equation}
+    \item $T''$ : the set of all actuators managed by the regional node $i$ that our local node refers to. Analytically:
+    \begin{equation}
+        T'' = \{ t \ | \ (\forall n,s \ | \ n \in L^{\{i\}} \ \land \ s \in LAN^{\{i, n\}} \land \ t \in A^{\{i, n,s\}}) \}
+    \end{equation}
+    \item $T'''$ : the set of all actuators managed by our local node $j$ (that belongs to regional $i$). So:
+    \begin{equation}
+        T''' = \{ t \ | \ (\forall s \ | \ s \in LAN^{\{i, j\}} \land \ t \in A^{\{i,j,s\}}) \}
+    \end{equation}
 \end{itemize}
 
-Then let's compute the number of actuators in all the system's branches for each type $t \in T$ of actuator in the system:
+Note that in the next sections we are not going to specify how $T'$, $T''$, $T''$ are characterized analytically, but the reasoning is the same as we did in the last lines. \\
+
+Then let's compute the number of actuators in all the system's branches for each type $t \in T'$ of actuator in the system:
 \begin{equation}
     a'_{t} = \sum_{\forall m,n,s \ | \ m \in R \ \land \ n \in L^{\{m\}} \ \land \ s \in LAN^{\{m, n\}}}{ |A^{\{m, n, s\}}_{t}| }
 \end{equation}
+And let's do the same for $t \in T''$ (which are the number of actuators for each type seen only in the branch of the regional $i$):
+\begin{equation}
+    a''_{t} = \sum_{\forall n,s \ | \ n \in L^{\{i\}} \ \land \ s \in LAN^{\{i, n\}}}{ |A^{\{i, n, s\}}_{t}| }
+\end{equation}
+And for $t \in T'''$ (which are the number of actuators for each type seen only in the branch of the local $j$ that belongs to the regional $i$):
+\begin{equation}
+    a'''_{t} = \sum_{\forall s \ | \ s \in LAN^{\{i, j\}}}{ |A^{\{i, j, s\}}_{t}| }
+\end{equation}
+
+As before, note that in the next sections it's not necessary to specify how to characterized $a'_{t}$, $a''_{t}$, $a'''_{t}$ because the reasoning is the same as in the last lines.
 
 
-Also we need to denote the probability of each type of actuator to receive a command. Indeed, the probability to receive a command it's not evenly distributed over the actuators' types, so there may be the case that a type of actuator receives more commands with respect to another type.
-For this reason we denote $p_t$ the probability associated to the $t$ type of actuator.
-Since when a command is generated it must be delivered to at least an actuator, we need to specify that the sum of all type's probabilities is 1:
+Finally we need to denote the probability of each type of actuator to receive a command. Indeed, the probability to receive a command it's not evenly distributed over the actuators' types, so there may be the case that a type of actuator receives more commands with respect to another type.
+For this reason we denote $p_t$ as the probability associated to the $t$ type of actuator.
+Since when a command is generated it must be delivered to at least an actuator, so we need to specify that the sum of all type's probabilities is 1:
 \begin{equation}
     \sum_{t \in T'}{p_t} = 1
 \end{equation}
-Now we are ready to do the real computation. Denoting $w \in T'$ as the type of the actuator that we are considering, we can write:
+Now we are ready to do the real computation. Denoting $w \in T'$ as the type of the actuator that we are considering in our branch ($i$, $j$, $k$), we can write:
 
 \begin{equation}
 	\begin{array}{l}
 		V_{a,c} = 1 \\
 
-		\lambda_{a, c} = \lambda_{cn, c} * \frac{p_{w}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + \lambda_{rn, c} *\frac{p_{w}}{\sum\limits_{t \in T''}{a'_{t} * p_{t}}} + \lambda_{ln, c} * \frac{p_{w}}{\sum\limits_{t \in T'''}{a'_{t} * p_{t}}}   \\
+		\lambda_{a, c} = \lambda_{cn, c} * \frac{p_{w}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + \lambda_{rn, c} *\frac{p_{w}}{\sum\limits_{t \in T''}{a''_{t} * p_{t}}} + \lambda_{ln, c} * \frac{p_{w}}{\sum\limits_{t \in T'''}{a'''_{t} * p_{t}}}   \\
 	\end{array}
 \end{equation}
-The command event formula will be throughly explained in the next section, as a brief explanation it is composed by three members, each representing the case of a different level node sending the command event to the single actuator, indeed we see each term is composed by the probability of a command event from a central node to be generate, multiplied its rate and the weighted ratio between the single actuator's probability of receiving and all actuators. The other two terms are similar but regional and local nodes have a smaller reachable set of actuators.\\
+The command event formula will be throughly explained in the next section, as a brief explanation it is composed by three members, each representing the case of a different level node sending the command event to the single actuator, indeed we see each term is composed by the rate of command messages sent by the central node, multiplied the weighted ratio between the single actuator's probability of receiving and all actuators. The other two terms are similar but regional and local nodes have a smaller reachable set of actuators.\\
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
 	\begin{array}{l}
