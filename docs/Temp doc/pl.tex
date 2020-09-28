@@ -355,7 +355,7 @@ Since the WAN is an external object that we decided to model as a delay, we will
 	\frame{\includesvg[width=20cm, height=17cm]{queue_network_regional}}
 	\caption{Focus on regional nodes and central WAN}
 \end{figure}
-As for the local node, we fix the regional node i while k and j will be free variables. We will extended again the definition of $T$.\\
+As for the local node, we fix the regional node $i$, but we iterate over all the local nodes of the regional $i$. We will extended again the definition of $T$.\\
 Regarding telemetry and transitions, we will also need to iterate over all local nodes below the regional node i.\\
 The main difference in the command rate will be that we won't notice a local level fix in the command arrival rate.
 \begin{equation}
@@ -368,12 +368,12 @@ The main difference in the command rate will be that we won't notice a local lev
         \lambda_{rn, t} = \sum\limits_{n \in L^{\{i\}}}{\frac{\lambda^{\{n\}}_{ln, t}}{aggr^{\{n\}}_{ln}}}  \\
         %\lambda_{rn, e} = \sum\limits_{w \in T,s \in LAN^{\{i,j)},n \in L^i}{| S^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{i,j}),n \in L^i}{| A^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
         \lambda_{rn, e} = \sum\limits_{n \in L^{\{i\}}}{\lambda^{\{n\}}_{ln, e}} \\
-		\lambda_{rn, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T'}{a_{t} * p_{t}}}{\sum\limits_{t \in T}{a'_{t} * p_{t}}} + p_{cmd,rn} * \lambda_{rn, e} \\\
+		\lambda_{rn, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + p_{cmd,rn} * \lambda_{rn, e} \\\
         \lambda_{rn, b} = \sum\limits_{n \in L^{\{ i \}}}{\lambda^{\{ n \}}_{ln, b}} + p_{cmd, rn} * \lambda_{rn,e}
 
 	\end{array}
 \end{equation}
-where $\lambda^{\{ n \}}_{ln, b}$ denotes the rate of $n$-th local node of the regional that we are considering, i.e. $i$ regional. \\
+where $\lambda^{\{ n \}}_{ln, b}$ denotes the rate of $n$-th local node of the regional that we are considering, i.e. $i$ regional. Also $aggr^{\{n\}}_{ln}$ denotes the aggregation done by the local node $n$ and $p_{cmd, rn}$ is the probability that a transition generates a command in the regional node. \\
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
 	\begin{array}{l}
@@ -400,7 +400,7 @@ From the previous formulas and the open queue model we can compute the Service D
 	\frame{\includesvg[width=20cm, height=17cm]{queue_network_central}}
 	\caption{Focus on regional nodes and central node}
 \end{figure}
-In the highest level, we will need to work over all the regional nodes, meaning that also i won't be fixed in the following formulas.\\
+In the highest level, we will need to work over all the regional nodes in $R$.\\
 Central node command rate is oblivious to the regional node command events, thus the arrival rate is composed of only one element.
 \begin{equation}
 	\begin{array}{l}
@@ -416,7 +416,7 @@ Central node command rate is oblivious to the regional node command events, thus
 		\lambda_{cn, b} = \sum\limits_{m \in R}{\lambda_{rn(m), b}} + p_{cmd,cn} * \lambda_{cn, e}
 	\end{array}
 \end{equation}
-Obviously the ratio is not present in this case since it would be 1.\\
+Obviously the ratio is not present in this case since it would be 1, since $T = T'$.\\
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
 	\begin{array}{l}
