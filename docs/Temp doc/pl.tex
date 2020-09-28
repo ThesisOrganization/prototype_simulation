@@ -319,7 +319,7 @@ So, denoting $p_{cmd,ln}$ as the probability (or percentage) that a transition, 
         \lambda_{ln, t} = \sum\limits_{s \in LAN^{\{i,j\}}}{\lambda^{\{s\}}_{lo, t}}  \\
         %\lambda_{ln, e} = \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| S^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| A^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
         \lambda_{ln, e} = \sum\limits_{s \in LAN^{\{i,j\}}}{\lambda^{\{s\}}_{lo, e}} \\
-		\lambda_{ln, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + \lambda_{rn, c} *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a'_{t} * p_{t}}}  + p_{cmd,ln} * \lambda_{ln, e} \\\
+		\lambda_{ln, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + \lambda_{rn, c} *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a''_{t} * p_{t}}}  + p_{cmd,ln} * \lambda_{ln, e} \\\
 
 %* \frac{\sum\limits_{t \in T''}{a_{t} * p_{t}}}{\sum\limits_{t \in T'''}{a'_{t} * p_{t}}}  
         \lambda_{ln, b} = p_{cmd, ln} * \lambda_{ln,e}
