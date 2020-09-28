@@ -20,7 +20,7 @@
 This section will deal with the assumptions we have made so far and why we've made them. Alternatives will be described for the various possibilities.\\
 \subsection{Assumptions}
 \begin{enumerate}
-\item \textbf{Assumption 2}: The only entity needing a storage system is the Central Node, in particular we are assuming that all other nodes receive information that can be processed, stored and aggregated in the RAM which will never be full. 
+\item \textbf{Assumption 2}: The only entity needing a storage system is the Central Node, in particular we are assuming that all other nodes receive information that can be processed, stored and aggregated in the RAM which will never be full.
 \item \textbf{Assumption 3}: more of a design choice for the moment, each node is modeled as a simple queue composed of CPU+RAM together, in future they will be extended and may need more component and a review of the entire queue model.
 \item \textbf{Assumption 4}: In this first stage we won't be holding account of the fault tolerance of the system, in particular we are not considering duplication of the data not in storaging neither in multiple link sending.
 \end{enumerate}
@@ -36,7 +36,7 @@ The system is composed by:
 \end{itemize}
 Both local and regional nodes need an acknowledgement reply from the higher level, respectively regional and central nodes. \\
 All aggregations we talked about are determinated by parameters that will be given.\\
-There is no duplication in sent messages.\\ 
+There is no duplication in sent messages.\\
 All message types will be throughly analyzed in the Classes section.\\
 
 \section{Structural scheme}
@@ -69,11 +69,28 @@ The whole scheme:
 
 \section{Queues Scheme and Formulas}
 The following open queue scheme will be divided in segments during the analysis of each queue.
+To make the notation less heavy in the graphical scheme we will use some variables which will be reused with a different value for all the subtrees of a given level:
+\begin{description}
+	\item[Local LAN subtree]:
+	\begin{itemize}
+		\item $T_a$, $T_s$: number of actuator and sensor types, respectively, used in the LAN.
+		\item $a_i$,$s_i$: number of actuators and sensors, respectively, of a type $i$.
+	\end{itemize}
+	\item[Local node subtree]:
+	\begin{itemize}
+		\item $L$: Number of different local LANs connetected to the local node.
+	\end{itemize}
+	\item[Regional node subtree]:
+	\begin{itemize}
+	 \item $N$: Number of local nodes connected to the regional nodes.
+	\end{itemize}
+\end{description}
+It's fundamental to note that the variables described are valid only for the queue network scheme, for the variabiles we will use the ones defined in the Notation section.\\
 \begin{figure}[H]
 	\vspace*{-0.5cm}
 	\hspace*{-3.5cm}
 	\centering
-	\frame{\includesvg[width=25cm, height=19cm]{queue_network_wan}}
+	\frame{\includesvg[width=25cm, height=19cm]{queue_network_complete}}
 	\caption{The open queue scheme}
 \end{figure}
 \subsection{Classes}
@@ -121,8 +138,8 @@ We will navigate the queue network starting from the sensors and actuators until
 
 \begin{figure}[H]
 	\centering
-	\frame{\includesvg[width=20cm, height=17cm]{queue_network_wireless_manet}}
-	\caption{Focus on actuators, sensors,  local nodes, wireless and MANET LANs}
+	\frame{\includesvg[width=20cm, height=17cm]{queue_network_local_lan}}
+	\caption{Focus on actuators, sensors,  local nodes, and local LANs}
 \end{figure}
 
 \subsection{Actuators and Sensors}
@@ -166,7 +183,7 @@ Now we are ready to do the real computation. Denoting $w \in T$ as the type of t
 \begin{equation}
 	\begin{array}{l}
 		V_{a,c} = 1 \\
-		
+
 		\lambda_{a, c} = prob_{cmd,cn} * \lambda_{cn, c} * \frac{p_{w}}{\sum\limits_{t \in T}{a'_{t} * p_{t}}} + prob_{cmd,rn} * \lambda_{rn, c} *\frac{p_{w}}{\sum\limits_{t \in T''}{a'_{t} * p_{t}}} + prob_{cmd,ln} * \lambda_{ln, c} * \frac{p_{w}}{\sum\limits_{t \in T'''}{a'_{t} * p_{t}}}   \\
 	\end{array}
 \end{equation}
@@ -197,12 +214,12 @@ Firstly we need the set of actuators' types in all the system:
 
 Now let's compute the number of actuators in this branch for each type $t \in T$ of actuator:
 \begin{equation}
-    a_{t} = | A^{\{i, j, k\}}_{t} | 
+    a_{t} = | A^{\{i, j, k\}}_{t} |
 \end{equation}
 
 And this is the set of types on this branch:
 \begin{equation}
-    T' = | A^{\{i, j, k\}} | 
+    T' = | A^{\{i, j, k\}} |
 \end{equation}
 Furthermore we will use a set T'' which is composed of the actuators in the sub tree managed by the regional node managing our local node.\\
 And the set T''' which are the actuators managed by our local node.\\
@@ -221,7 +238,7 @@ Since when a command is generated it must be delivered to at least an actuator, 
     \sum_{t \in T}{p_t} = 1
 \end{equation}
 
-Now we are ready to do the real computation. Denoting with $\lambda^{\{w\}}_{s, t}$ the arrival rate from the sensor of type $w \in T$, first for the whole LAN: 
+Now we are ready to do the real computation. Denoting with $\lambda^{\{w\}}_{s, t}$ the arrival rate from the sensor of type $w \in T$, first for the whole LAN:
 
 \begin{equation}
     \begin{array}{l}
@@ -281,6 +298,12 @@ From the previous formulas and the open queue model we can compute the Service D
 \end{equation}
 
 \subsection{Local Node}
+\begin{figure}[H]
+	\centering
+	\hspace*{-3.7cm}
+	\frame{\includesvg[width=20cm, height=17cm]{queue_network_local_node}}
+	\caption{Focus on local nodes, and local WANs and regional nodes}
+\end{figure}
 Taken a local node j, and its upper level regional node i, remembering the definition of $T$,$T''$ and $T'''$ from the previous section and modifying the definition of $T'$ by amplyfing the branch to include all LANs managed by this local node i we will define the new formulas.\\
 The main difference here is that we don't have a fixed LAN so we need k to span across all LANs of the local node.
 \begin{equation}
@@ -312,6 +335,12 @@ From the previous formulas and the open queue model we can compute the Service D
 \subsection{WAN}
 Since the WAN is an external object that we decided to model as a delay, we will consider it in the response time functions but it won't have formulas of its own.
 \subsection{Regional Node}
+\begin{figure}[H]
+	\centering
+	\hspace*{-3.7cm}
+	\frame{\includesvg[width=20cm, height=17cm]{queue_network_regional}}
+	\caption{Focus on regional nodes and central WAN}
+\end{figure}
 As for the local node, we fix the regional node i while k and j will be free variables. We will extended again the definition of $T'$.\\
 Regarding telemetry and transitions, we will also need to iterate over all local nodes below the regional node i.\\
 The main difference in the command rate will be that we won't notice a local level fix in the command arrival rate.
@@ -343,6 +372,12 @@ From the previous formulas and the open queue model we can compute the Service D
 \end{equation}
 
 \subsection{Central Node}
+\begin{figure}[H]
+	\centering
+	\hspace*{-3.7cm}
+	\frame{\includesvg[width=20cm, height=17cm]{queue_network_central}}
+	\caption{Focus on regional nodes and central node}
+\end{figure}
 In the highest level, we will need to work over all the regional nodes, meaning that also i won't be fixed in the following formulas.\\
 Central node command rate is oblivious to the regional node command events, thus the arrival rate is composed of only one element.
 \begin{equation}

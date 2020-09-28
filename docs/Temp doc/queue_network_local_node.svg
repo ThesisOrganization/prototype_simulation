@@ -10,13 +10,13 @@
    inkscape:export-ydpi="96"
    inkscape:export-xdpi="96"
    inkscape:export-filename="/home/Deg96/Desktop/rete di code nuova con un router.png"
-   sodipodi:docname="queue_network_complete.svg"
+   sodipodi:docname="queue_network_local_node.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    id="svg8"
    version="1.1"
-   viewBox="0 0 192.43602 181.08883"
-   height="181.08882mm"
-   width="192.43602mm">
+   viewBox="0 0 61.123615 16.733449"
+   height="16.733448mm"
+   width="61.123615mm">
   <defs
      id="defs2">
     <inkscape:path-effect
@@ -18062,9 +18062,9 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="301.43874"
-     inkscape:cx="628.43398"
-     inkscape:zoom="4"
+     inkscape:cy="23.814243"
+     inkscape:cx="136.61508"
+     inkscape:zoom="8"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1.0"
@@ -18080,7 +18080,7 @@
      fit-margin-top="1"
      fit-margin-left="1"
      fit-margin-right="1"
-     fit-margin-bottom="1"
+     fit-margin-bottom="4"
      inkscape:snap-global="false" />
   <metadata
      id="metadata5">
@@ -18098,7 +18098,7 @@
      id="layer1"
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
-     transform="translate(111.30735,-160.94781)">
+     transform="translate(3.6059202,-175.26932)">
     <g
        transform="matrix(0.19719846,0,0,0.19755271,-74.334521,85.22458)"
        id="g6518-6">
@@ -19269,10 +19269,10 @@
        style="fill:none;stroke:#000000;stroke-width:0.0463802;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker86031)" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463802;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker88357)"
-       d="M -8.1876351,185.03123 H -8.3353164"
+       d="M -2.9136454,185.03123 H -3.0613267"
        id="path88351"
        inkscape:path-effect="#path-effect88353"
-       inkscape:original-d="m -8.1876351,185.03123 c -0.049224,-4e-5 -0.098448,-4e-5 -0.1476813,0" />
+       inkscape:original-d="m -2.9136454,185.03123 c -0.049224,-4e-5 -0.098448,-4e-5 -0.1476813,0" />
     <g
        id="g6518-6-0"
        transform="matrix(0.19719846,0,0,0.19755271,-102.74724,70.91876)">
@@ -31201,10 +31201,10 @@
        d="m 26.235247,202.91252 0.003,-0.24352"
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker26673-7-9-27-28-2-3-4)" />
     <path
-       inkscape:original-d="m 26.235365,182.5636 c 8.9e-4,-0.0812 0.002,-0.16235 0.003,-0.24352"
+       inkscape:original-d="m 26.235365,186.31656 c 8.9e-4,-0.0812 0.002,-0.16235 0.003,-0.24352"
        inkscape:path-effect="#path-effect63212"
        id="path24095-5-9-9-1-1-1-4-5"
-       d="m 26.235365,182.5636 0.003,-0.24352"
+       d="m 26.235365,186.31656 0.003,-0.24352"
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker26673-7-9-27-28-2-3-4-5)" />
     <g
        id="g6518-6-0-6"

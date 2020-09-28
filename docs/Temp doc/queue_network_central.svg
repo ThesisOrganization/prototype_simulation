@@ -10,13 +10,13 @@
    inkscape:export-ydpi="96"
    inkscape:export-xdpi="96"
    inkscape:export-filename="/home/Deg96/Desktop/rete di code nuova con un router.png"
-   sodipodi:docname="queue_network_complete.svg"
+   sodipodi:docname="queue_network_central.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    id="svg8"
    version="1.1"
-   viewBox="0 0 192.43602 181.08883"
-   height="181.08882mm"
-   width="192.43602mm">
+   viewBox="0 0 57.875801 11.50661"
+   height="11.50661mm"
+   width="57.875801mm">
   <defs
      id="defs2">
     <inkscape:path-effect
@@ -18054,17 +18054,17 @@
   <sodipodi:namedview
      inkscape:pagecheckerboard="false"
      inkscape:window-maximized="0"
-     inkscape:window-y="114"
-     inkscape:window-x="214"
+     inkscape:window-y="133"
+     inkscape:window-x="106"
      inkscape:window-height="912"
      inkscape:window-width="1501"
      showgrid="false"
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="301.43874"
-     inkscape:cx="628.43398"
-     inkscape:zoom="4"
+     inkscape:cy="36.415725"
+     inkscape:cx="7.4467238"
+     inkscape:zoom="90.509668"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1.0"
@@ -18098,7 +18098,7 @@
      id="layer1"
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
-     transform="translate(111.30735,-160.94781)">
+     transform="translate(8.3477784,-160.94781)">
     <g
        transform="matrix(0.19719846,0,0,0.19755271,-74.334521,85.22458)"
        id="g6518-6">
@@ -19257,10 +19257,11 @@
        inkscape:original-d="m -17.597681,166.49893 c 3.391834,9e-5 6.783827,9e-5 10.1760203,0" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463802;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker63255-8)"
-       d="m -6.8735312,177.58765 0.00624,0.24346"
+       d="m -6.8432185,170.21498 0.0023,0.25411"
        id="path63237-5"
        inkscape:path-effect="#path-effect84295"
-       inkscape:original-d="m -6.8735312,177.58765 c 0.00217,0.0812 0.0039,0.16231 0.00624,0.24346" />
+       inkscape:original-d="m -6.8432185,170.21498 c 0.00217,0.0812 -3.76e-5,0.17296 0.0023,0.25411"
+       sodipodi:nodetypes="cc" />
     <path
        inkscape:original-d="m -17.604502,177.27487 c 0.0022,-0.0811 0.0039,-0.16231 0.0062,-0.24346"
        inkscape:path-effect="#path-effect86027"

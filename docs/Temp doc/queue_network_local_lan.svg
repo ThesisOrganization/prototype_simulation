@@ -10,15 +10,20 @@
    inkscape:export-ydpi="96"
    inkscape:export-xdpi="96"
    inkscape:export-filename="/home/Deg96/Desktop/rete di code nuova con un router.png"
-   sodipodi:docname="queue_network_complete.svg"
+   sodipodi:docname="queue_network_local_lan.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    id="svg8"
    version="1.1"
-   viewBox="0 0 192.43602 181.08883"
-   height="181.08882mm"
-   width="192.43602mm">
+   viewBox="0 0 33.623112 41.968203"
+   height="41.968201mm"
+   width="33.623112mm">
   <defs
      id="defs2">
+    <inkscape:path-effect
+       lpeversion="1"
+       is_visible="true"
+       id="path-effect8915"
+       effect="spiro" />
     <inkscape:path-effect
        effect="spiro"
        id="path-effect91246"
@@ -14391,21 +14396,6 @@
        orient="auto"
        refY="0"
        refX="0"
-       id="marker26673-7-7-5"
-       style="overflow:visible"
-       inkscape:isstock="true">
-      <path
-         id="path26671-4-4-7"
-         d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
-         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
-    </marker>
-    <marker
-       inkscape:collect="always"
-       inkscape:stockid="Arrow1Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
        id="marker26673-7-9-27-9"
        style="overflow:visible"
        inkscape:isstock="true">
@@ -18050,6 +18040,21 @@
          d="M 0,0 5,-5 -12.5,0 5,5 Z"
          id="path88355-7" />
     </marker>
+    <marker
+       inkscape:collect="always"
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker26673-7-9-27-28-3"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path26671-4-49-33-43-6"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
   </defs>
   <sodipodi:namedview
      inkscape:pagecheckerboard="false"
@@ -18062,9 +18067,9 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="301.43874"
-     inkscape:cx="628.43398"
-     inkscape:zoom="4"
+     inkscape:cy="84.937164"
+     inkscape:cx="0.23238118"
+     inkscape:zoom="5.6568542"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1.0"
@@ -18098,7 +18103,7 @@
      id="layer1"
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
-     transform="translate(111.30735,-160.94781)">
+     transform="translate(-47.491041,-173.72497)">
     <g
        transform="matrix(0.19719846,0,0,0.19755271,-74.334521,85.22458)"
        id="g6518-6">
@@ -22463,13 +22468,6 @@
        id="path22729-5"
        d="m 51.117971,177.90453 v -1.77926"
        style="fill:none;stroke:#000000;stroke-width:0.066;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
-    <path
-       inkscape:original-d="m 56.105975,176.15805 c -0.0812,4e-5 -0.167948,-0.003 -0.249128,-0.003"
-       inkscape:path-effect="#path-effect67441"
-       id="path24095-5-4-3"
-       d="m 56.105975,176.15805 -0.249128,-0.003"
-       style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker26673-7-7-5)"
-       sodipodi:nodetypes="cc" />
     <path
        inkscape:original-d="m 51.176754,179.85685 c 8.9e-4,0.0812 0.002,0.16235 0.003,0.24352"
        inkscape:path-effect="#path-effect69412"
@@ -43490,5 +43488,11 @@
          x="72.515274"
          y="235.6738"
          style="stroke-width:0.264583" /></text>
+    <path
+       inkscape:original-d="m 49.008345,182.98212 c 8.9e-4,0.0812 0.002,0.16235 0.003,0.24352"
+       inkscape:path-effect="#path-effect8915"
+       id="path24095-5-9-9-1-7"
+       d="m 49.008345,182.98212 0.003,0.24352"
+       style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker26673-7-9-27-28-3)" />
   </g>
 </svg>

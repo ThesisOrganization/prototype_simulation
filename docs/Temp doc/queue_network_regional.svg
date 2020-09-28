@@ -10,15 +10,40 @@
    inkscape:export-ydpi="96"
    inkscape:export-xdpi="96"
    inkscape:export-filename="/home/Deg96/Desktop/rete di code nuova con un router.png"
-   sodipodi:docname="queue_network_complete.svg"
+   sodipodi:docname="queue_network_regional.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    id="svg8"
    version="1.1"
-   viewBox="0 0 192.43602 181.08883"
-   height="181.08882mm"
-   width="192.43602mm">
+   viewBox="0 0 55.225536 25.320852"
+   height="25.32085mm"
+   width="55.225536mm">
   <defs
      id="defs2">
+    <inkscape:path-effect
+       lpeversion="1"
+       is_visible="true"
+       id="path-effect8952"
+       effect="spiro" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect8927"
+       is_visible="true"
+       lpeversion="1" />
+    <inkscape:path-effect
+       lpeversion="1"
+       is_visible="true"
+       id="path-effect8953"
+       effect="spiro" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect8928"
+       is_visible="true"
+       lpeversion="1" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect8915"
+       is_visible="true"
+       lpeversion="1" />
     <inkscape:path-effect
        effect="spiro"
        id="path-effect91246"
@@ -18050,21 +18075,95 @@
          d="M 0,0 5,-5 -12.5,0 5,5 Z"
          id="path88355-7" />
     </marker>
+    <marker
+       inkscape:collect="always"
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker88357-7-36"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path88355-7-7" />
+    </marker>
+    <marker
+       inkscape:collect="always"
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker88357-7-35"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path88355-7-6" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker86031-9"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path86029-1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:collect="always"
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker73919-2-3"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path73917-4-6" />
+    </marker>
+    <marker
+       inkscape:collect="always"
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker26673-7-9-27-9-2-4-5"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path26671-4-49-33-0-9-5-3"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
   </defs>
   <sodipodi:namedview
      inkscape:pagecheckerboard="false"
      inkscape:window-maximized="0"
-     inkscape:window-y="36"
-     inkscape:window-x="-4"
+     inkscape:window-y="114"
+     inkscape:window-x="214"
      inkscape:window-height="912"
      inkscape:window-width="1501"
      showgrid="false"
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="369.50141"
-     inkscape:cx="366.31314"
-     inkscape:zoom="1"
+     inkscape:cy="78.666844"
+     inkscape:cx="-9.2324653"
+     inkscape:zoom="16"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1.0"
@@ -18090,7 +18189,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -18098,7 +18197,7 @@
      id="layer1"
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
-     transform="translate(111.30735,-160.94781)">
+     transform="translate(41.764951,-160.94781)">
     <g
        transform="matrix(0.19719846,0,0,0.19755271,-74.334521,85.22458)"
        id="g6518-6">
@@ -18818,18 +18917,23 @@
          id="tspan23005"
          x="69.740837"
          y="180.04649"
-         style="stroke-width:0.0409048">SENSOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8778">1</tspan></tspan></text>
     <text
        id="text23011"
        y="194.63672"
-       x="69.102257"
+       x="69.198608"
        style="font-size:0.490861px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="194.63672"
-         x="69.102257"
+         x="69.198608"
          id="tspan23009"
-         sodipodi:role="line">SENSOR ts,sts</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9043">T<tspan
+   id="tspan9045">S</tspan></tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:0.490861px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
@@ -20073,10 +20177,10 @@
        style="fill:none;stroke:#000000;stroke-width:0.0463802;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463802;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker88357-6-2-8)"
-       d="M 13.043884,171.21889 H 12.896203"
+       d="M 12.674211,171.21889 H 12.52653"
        id="path88351-6-1-6"
        inkscape:path-effect="#path-effect12143"
-       inkscape:original-d="m 13.043884,171.21889 c -0.04922,-3e-5 -0.09845,-3e-5 -0.147681,0" />
+       inkscape:original-d="m 12.674211,171.21889 c -0.04922,-3e-5 -0.09845,-3e-5 -0.147681,0" />
     <text
        xml:space="preserve"
        id="text12147"
@@ -20488,14 +20592,16 @@
     <text
        id="text23011-9"
        y="185.6843"
-       x="69.741463"
+       x="69.401024"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="185.6843"
-         x="69.741463"
+         x="69.401024"
          id="tspan23009-0"
-         sodipodi:role="line">SENSOR 1,s1</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9053">1</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19024)"
        d="m 72.468564,186.71316 h 1.34401"
@@ -20572,14 +20678,17 @@
     <text
        id="text23011-9-4"
        y="190.34589"
-       x="69.743431"
+       x="69.368423"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="190.34589"
-         x="69.743431"
+         x="69.368423"
          id="tspan23009-0-6"
-         sodipodi:role="line">SENSOR ts,1</tspan></text>
+         sodipodi:role="line">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9049">T<tspan
+   id="tspan9051">S</tspan></tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19034)"
        d="m 72.470524,191.37475 h 1.34401"
@@ -20649,14 +20758,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="75.085091"
+       x="75.639374"
        y="192.89188"
        id="text30567-9"><tspan
          sodipodi:role="line"
          id="tspan30565-3"
-         x="75.085091"
+         x="75.639374"
          y="192.89188"
-         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE ts</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9047">S</tspan></tspan></text>
     <g
        id="g21791-7"
        transform="matrix(0.15460111,0,0,-0.13963121,-39.504527,267.34189)">
@@ -21606,18 +21717,23 @@
          id="tspan23005-6"
          x="69.121437"
          y="198.68962"
-         style="stroke-width:0.0409048">ACTUATOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8808">1</tspan></tspan></text>
     <text
        id="text23011-8"
-       y="212.89568"
-       x="68.669762"
+       y="208.66887"
+       x="68.955841"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
-         y="212.89568"
-         x="68.669762"
+         y="208.66887"
+         x="68.955841"
          id="tspan23009-7"
-         sodipodi:role="line">ACTUATOR ta,ata</tspan></text>
+         sodipodi:role="line">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9035">T<tspan
+   id="tspan9037">A</tspan></tspan></tspan></text>
     <g
        id="g22249-3-4"
        transform="matrix(0.15460111,0,0,-0.13963121,-39.503897,273.12108)">
@@ -21911,7 +22027,9 @@
          y="204.45602"
          x="68.879387"
          id="tspan23009-0-9"
-         sodipodi:role="line">ACTUATOR 1,a1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9041">1</tspan></tspan></text>
     <path
        inkscape:original-d="m 67.313954,205.42108 c 0.70237,-0.003 1.40469,-0.005 2.10699,-0.007"
        inkscape:path-effect="#path-effect15864"
@@ -22268,15 +22386,18 @@
     </g>
     <text
        id="text23011-9-4-1"
-       y="209.09544"
-       x="68.926064"
+       y="212.9938"
+       x="69.261192"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
-         y="209.09544"
-         x="68.926064"
+         y="212.9938"
+         x="69.261192"
          id="tspan23009-0-6-7"
-         sodipodi:role="line">ACTUATOR ta,1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9029">T<tspan
+   id="tspan9039">A</tspan></tspan></tspan></text>
     <path
        inkscape:original-d="m 67.315914,210.08267 c 0.70237,-0.003 1.40469,-0.005 2.10699,-0.007"
        inkscape:path-effect="#path-effect15834"
@@ -22352,14 +22473,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="75.085106"
+       x="75.426872"
        y="211.63257"
        id="text30567-9-9"><tspan
          sodipodi:role="line"
          id="tspan30565-3-0"
-         x="75.085106"
+         x="75.426872"
          y="211.63257"
-         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE ta</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9033">A</tspan></tspan></text>
     <path
        inkscape:original-d="m 67.265594,199.67569 c 0.70237,-0.003 1.40469,-0.005 2.10699,-0.007"
        inkscape:path-effect="#path-effect15959"
@@ -22820,7 +22943,7 @@
          id="tspan22757-6"
          x="60.690636"
          y="221.01064"
-         style="stroke-width:0.0409048">LOCAL LAN N IN</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN L IN</tspan></text>
     <path
        inkscape:original-d="m 67.308409,224.24465 c 0,-0.1112 0,-0.22239 0,-0.33357"
        inkscape:path-effect="#path-effect85622"
@@ -22885,18 +23008,23 @@
          id="tspan23005-1"
          x="69.760536"
          y="221.13512"
-         style="stroke-width:0.0409048">SENSOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8894">1</tspan></tspan></text>
     <text
        id="text23011-3"
-       y="235.72534"
-       x="69.121956"
-       style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
+       y="235.73801"
+       x="69.280266"
+       style="font-size:0.455003px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
-         y="235.72534"
-         x="69.121956"
+         y="235.73801"
+         x="69.280266"
          id="tspan23009-02"
-         sodipodi:role="line">SENSOR ts,sts</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9013">T<tspan
+   id="tspan9015">S</tspan></tspan></tspan></text>
     <path
        id="path30409-9"
        d="m 59.174094,217.7477 v 4.28566"
@@ -23183,7 +23311,7 @@
          id="tspan22757-3-6"
          x="60.690659"
          y="216.19786"
-         style="stroke-width:0.0409048">LOCAL LAN N OUT</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN L OUT</tspan></text>
     <path
        inkscape:original-d="m 69.917109,217.19906 c -0.0812,4e-5 -0.16236,4e-5 -0.24354,0"
        inkscape:path-effect="#path-effect85602"
@@ -23207,14 +23335,16 @@
     <text
        id="text23011-9-0"
        y="226.77292"
-       x="69.761162"
+       x="69.6073"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="226.77292"
-         x="69.761162"
+         x="69.6073"
          id="tspan23009-0-3"
-         sodipodi:role="line">SENSOR 1,s1</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9005">1</tspan>  </tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19024-3)"
        d="m 72.488269,227.80179 h 1.34401"
@@ -23291,14 +23421,17 @@
     <text
        id="text23011-9-4-7"
        y="231.43451"
-       x="69.76313"
+       x="69.159836"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="231.43451"
-         x="69.76313"
+         x="69.159836"
          id="tspan23009-0-6-3"
-         sodipodi:role="line">SENSOR ts,1</tspan></text>
+         sodipodi:role="line">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9007">T<tspan
+   id="tspan9011">S</tspan></tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19034-1)"
        d="m 72.490229,232.46338 h 1.34401"
@@ -23368,14 +23501,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="75.104797"
-       y="233.9805"
+       x="75.885063"
+       y="234.38889"
        id="text30567-9-93"><tspan
          sodipodi:role="line"
          id="tspan30565-3-9"
-         x="75.104797"
-         y="233.9805"
-         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE ts</tspan></text>
+         x="75.885063"
+         y="234.38889"
+         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9003">S</tspan></tspan></text>
     <g
        id="g21791-7-4"
        transform="matrix(0.15460111,0,0,-0.13963121,-39.484824,308.43052)">
@@ -24325,18 +24460,23 @@
          id="tspan23005-6-9"
          x="69.141136"
          y="239.77824"
-         style="stroke-width:0.0409048">ACTUATOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8991">1</tspan></tspan></text>
     <text
        id="text23011-8-3"
-       y="253.9843"
+       y="249.99483"
        x="68.689461"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
-         y="253.9843"
+         y="249.99483"
          x="68.689461"
          id="tspan23009-7-3"
-         sodipodi:role="line">ACTUATOR ta,ata</tspan></text>
+         sodipodi:role="line">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9025">T<tspan
+   id="tspan9027">A</tspan></tspan></tspan></text>
     <g
        id="g22249-3-4-7"
        transform="matrix(0.15460111,0,0,-0.13963121,-39.484194,314.20971)">
@@ -24623,14 +24763,16 @@
     <text
        id="text23011-9-9-4"
        y="245.54465"
-       x="68.899086"
+       x="69.151474"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="245.54465"
-         x="68.899086"
+         x="69.151474"
          id="tspan23009-0-9-3"
-         sodipodi:role="line">ACTUATOR 1,a1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9017">1</tspan></tspan></text>
     <path
        inkscape:original-d="m 67.333659,246.50971 c 0.70237,-0.003 1.40469,-0.005 2.10699,-0.007"
        inkscape:path-effect="#path-effect85488"
@@ -24987,15 +25129,19 @@
     </g>
     <text
        id="text23011-9-4-1-8"
-       y="250.18407"
-       x="68.945763"
-       style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
+       y="254.20412"
+       x="68.975182"
+       style="font-size:0.501087px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
-         y="250.18407"
-         x="68.945763"
+         y="254.20412"
+         x="68.975182"
          id="tspan23009-0-6-7-4"
-         sodipodi:role="line">ACTUATOR ta,1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:0.325707px;baseline-shift:sub;stroke-width:0.0409048"
+   id="tspan9019">T<tspan
+   id="tspan9021"
+   style="stroke-width:0.0409048">A</tspan></tspan></tspan></text>
     <path
        inkscape:original-d="m 67.335619,251.1713 c 0.70237,-0.003 1.40469,-0.005 2.10699,-0.007"
        inkscape:path-effect="#path-effect85458"
@@ -25071,14 +25217,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="75.104813"
+       x="75.572006"
        y="252.72119"
        id="text30567-9-9-6"><tspan
          sodipodi:role="line"
          id="tspan30565-3-0-0"
-         x="75.104813"
+         x="75.572006"
          y="252.72119"
-         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE ta</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan9023">A</tspan></tspan></text>
     <path
        inkscape:original-d="m 67.285299,240.76432 c 0.70237,-0.003 1.40469,-0.005 2.10699,-0.007"
        inkscape:path-effect="#path-effect85434"
@@ -25903,7 +26051,7 @@
          id="tspan22757-5"
          x="43.535465"
          y="265.17493"
-         style="stroke-width:0.0409048">LOCAL LAN N IN</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN 1 IN</tspan></text>
     <path
        inkscape:original-d="m 50.153242,268.40895 c 0,-0.1112 0,-0.22239 0,-0.33357"
        inkscape:path-effect="#path-effect30341"
@@ -25968,18 +26116,23 @@
          id="tspan23005-8"
          x="52.605373"
          y="265.29941"
-         style="stroke-width:0.0409048">SENSOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8809">1</tspan></tspan></text>
     <text
        id="text23011-0"
        y="279.88965"
-       x="51.966793"
+       x="52.560497"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="279.88965"
-         x="51.966793"
+         x="52.560497"
          id="tspan23009-4"
-         sodipodi:role="line">SENSOR ts,sts</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8819">T<tspan
+   id="tspan8821">S</tspan></tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
@@ -26307,7 +26460,7 @@
          id="tspan22757-3-3"
          x="43.444111"
          y="260.34219"
-         style="stroke-width:0.0409048">LOCAL LAN N OUT</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN 1 OUT</tspan></text>
     <path
        inkscape:original-d="m 52.761941,261.36336 c -0.0812,4e-5 -0.162359,4e-5 -0.243538,0"
        inkscape:path-effect="#path-effect30311"
@@ -26338,7 +26491,9 @@
          y="270.93723"
          x="52.605999"
          id="tspan23009-0-2"
-         sodipodi:role="line">SENSOR 1,s1</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8811">1</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19024-2)"
        d="M 55.333101,271.96609 H 56.67711"
@@ -26422,7 +26577,10 @@
          y="275.59882"
          x="52.607967"
          id="tspan23009-0-6-4"
-         sodipodi:role="line">SENSOR ts,1</tspan></text>
+         sodipodi:role="line">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8813">T<tspan
+   id="tspan8815">S</tspan></tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19034-9)"
        d="m 55.335062,276.62768 h 1.344009"
@@ -26492,14 +26650,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="57.949627"
+       x="58.520119"
        y="278.14481"
        id="text30567-9-4"><tspan
          sodipodi:role="line"
          id="tspan30565-3-92"
-         x="57.949627"
+         x="58.520119"
          y="278.14481"
-         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE ts</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8817">S</tspan></tspan></text>
     <g
        id="g21791-7-5"
        transform="matrix(0.15460111,0,0,-0.13963121,-56.639985,352.59482)">
@@ -27449,18 +27609,23 @@
          id="tspan23005-6-8"
          x="51.985973"
          y="283.94254"
-         style="stroke-width:0.0409048">ACTUATOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8823">1</tspan></tspan></text>
     <text
        id="text23011-8-5"
-       y="298.14859"
-       x="51.534298"
+       y="298.21207"
+       x="51.821869"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
-         y="298.14859"
-         x="51.534298"
+         y="298.21207"
+         x="51.821869"
          id="tspan23009-7-1"
-         sodipodi:role="line">ACTUATOR ta,ata</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8833">T<tspan
+   id="tspan8835">A</tspan></tspan></tspan></text>
     <g
        id="g22249-3-4-0"
        transform="matrix(0.15460111,0,0,-0.13963121,-56.639355,358.37401)">
@@ -27754,7 +27919,9 @@
          y="289.70895"
          x="51.743923"
          id="tspan23009-0-9-2"
-         sodipodi:role="line">ACTUATOR 1,a1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8825">1</tspan></tspan></text>
     <path
        inkscape:original-d="m 50.178491,290.67401 c 0.702371,-0.003 1.404692,-0.005 2.106991,-0.007"
        inkscape:path-effect="#path-effect30197"
@@ -27770,13 +27937,13 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="58.534664"
-       y="287.41205"
+       x="58.435394"
+       y="287.60474"
        id="text30567-8-1"><tspan
          sodipodi:role="line"
          id="tspan30565-1-8"
-         x="58.534664"
-         y="287.41205"
+         x="58.435394"
+         y="287.60474"
          style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE 1</tspan></text>
     <path
        inkscape:original-d="m 50.155221,291.81122 c 0,-0.1112 0,-0.22239 0,-0.33357"
@@ -28119,7 +28286,10 @@
          y="294.34836"
          x="51.7906"
          id="tspan23009-0-6-7-7"
-         sodipodi:role="line">ACTUATOR ta,1</tspan></text>
+         sodipodi:role="line">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8827">T<tspan
+   id="tspan8829">A</tspan></tspan></tspan></text>
     <path
        inkscape:original-d="m 50.180452,295.3356 c 0.702371,-0.003 1.404689,-0.005 2.106991,-0.007"
        inkscape:path-effect="#path-effect30167"
@@ -28195,14 +28365,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="57.949642"
+       x="58.543606"
        y="296.8855"
        id="text30567-9-9-9"><tspan
          sodipodi:role="line"
          id="tspan30565-3-0-7"
-         x="57.949642"
+         x="58.543606"
          y="296.8855"
-         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE ta</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8831">A</tspan></tspan></text>
     <path
        inkscape:original-d="m 50.130131,284.92862 c 0.702371,-0.003 1.404691,-0.005 2.106991,-0.007"
        inkscape:path-effect="#path-effect30143"
@@ -28651,7 +28823,7 @@
          id="tspan22757-6-7"
          x="43.555172"
          y="306.26355"
-         style="stroke-width:0.0409048">LOCAL LAN N IN</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN L IN</tspan></text>
     <path
        inkscape:original-d="m 50.172946,309.49758 c 0,-0.1112 0,-0.22239 0,-0.33357"
        inkscape:path-effect="#path-effect30093"
@@ -28716,18 +28888,23 @@
          id="tspan23005-1-4"
          x="52.625072"
          y="306.38803"
-         style="stroke-width:0.0409048">SENSOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8837">1</tspan></tspan></text>
     <text
        id="text23011-3-1"
-       y="320.97827"
-       x="51.986492"
+       y="320.99979"
+       x="52.720409"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
-         y="320.97827"
-         x="51.986492"
+         y="320.99979"
+         x="52.720409"
          id="tspan23009-02-2"
-         sodipodi:role="line">SENSOR ts,sts</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8849">T<tspan
+   id="tspan8851">S</tspan></tspan></tspan></text>
     <path
        id="path30409-9-2"
        d="m 42.038633,303.00063 v 4.28566"
@@ -29014,7 +29191,7 @@
          id="tspan22757-3-6-2"
          x="43.555195"
          y="301.45078"
-         style="stroke-width:0.0409048">LOCAL LAN N OUT</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN L OUT</tspan></text>
     <path
        inkscape:original-d="m 52.781647,302.45199 c -0.0812,4e-5 -0.162361,4e-5 -0.243541,0"
        inkscape:path-effect="#path-effect30073"
@@ -29045,7 +29222,9 @@
          y="312.02585"
          x="52.625698"
          id="tspan23009-0-3-9"
-         sodipodi:role="line">SENSOR 1,s1</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8839">1</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19024-3-2)"
        d="m 55.352807,313.05472 h 1.34401"
@@ -29129,7 +29308,10 @@
          y="316.68744"
          x="52.627666"
          id="tspan23009-0-6-3-3"
-         sodipodi:role="line">SENSOR ts,1</tspan></text>
+         sodipodi:role="line">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8841">T<tspan
+   id="tspan8843">S</tspan></tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19034-1-6)"
        d="m 55.354765,317.71631 h 1.344012"
@@ -29199,14 +29381,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="57.969334"
+       x="58.450764"
        y="319.23343"
        id="text30567-9-93-1"><tspan
          sodipodi:role="line"
          id="tspan30565-3-9-1"
-         x="57.969334"
+         x="58.450764"
          y="319.23343"
-         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE ts</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8845">S</tspan></tspan></text>
     <g
        id="g21791-7-4-0"
        transform="matrix(0.15460111,0,0,-0.13963121,-56.620285,393.68345)">
@@ -30156,7 +30340,9 @@
          id="tspan23005-6-9-6"
          x="52.005672"
          y="325.03116"
-         style="stroke-width:0.0409048">ACTUATOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8847">1</tspan></tspan></text>
     <text
        id="text23011-8-3-8"
        y="339.23721"
@@ -30167,7 +30353,10 @@
          y="339.23721"
          x="51.553997"
          id="tspan23009-7-3-9"
-         sodipodi:role="line">ACTUATOR ta,ata</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8861">T<tspan
+   id="tspan8863">A</tspan></tspan></tspan></text>
     <g
        id="g22249-3-4-7-5"
        transform="matrix(0.15460111,0,0,-0.13963121,-56.619655,399.46264)">
@@ -30454,14 +30643,16 @@
     <text
        id="text23011-9-9-4-3"
        y="330.79758"
-       x="51.763622"
+       x="52.097862"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="330.79758"
-         x="51.763622"
+         x="52.097862"
          id="tspan23009-0-9-3-1"
-         sodipodi:role="line">ACTUATOR 1,a1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8853">1</tspan></tspan></text>
     <path
        inkscape:original-d="m 50.198197,331.76264 c 0.702369,-0.003 1.404689,-0.005 2.106989,-0.007"
        inkscape:path-effect="#path-effect29958"
@@ -30477,12 +30668,12 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="58.554371"
+       x="58.21817"
        y="328.50067"
        id="text30567-8-7-6"><tspan
          sodipodi:role="line"
          id="tspan30565-1-0-9"
-         x="58.554371"
+         x="58.21817"
          y="328.50067"
          style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE 1</tspan></text>
     <path
@@ -30826,7 +31017,10 @@
          y="335.43698"
          x="51.810299"
          id="tspan23009-0-6-7-4-0"
-         sodipodi:role="line">ACTUATOR ta,1</tspan></text>
+         sodipodi:role="line">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8855">T<tspan
+   id="tspan8857">A</tspan></tspan></tspan></text>
     <path
        id="path22109-5-9-9-2-0"
        d="m 50.200155,336.42423 2.106991,-0.007"
@@ -30902,14 +31096,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="57.969349"
+       x="58.157459"
        y="337.97412"
        id="text30567-9-9-6-6"><tspan
          sodipodi:role="line"
          id="tspan30565-3-0-0-8"
-         x="57.969349"
+         x="58.157459"
          y="337.97412"
-         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE ta</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8859">A</tspan></tspan></text>
     <path
        inkscape:original-d="m 50.149837,326.01725 c 0.702371,-0.003 1.404689,-0.005 2.106991,-0.007"
        inkscape:path-effect="#path-effect29904"
@@ -31849,14 +32045,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
-       x="-107.25716"
+       x="-107.91187"
        y="180.04839"
        id="text23007-5"><tspan
          sodipodi:role="line"
          id="tspan23005-0"
-         x="-107.25716"
+         x="-107.91187"
          y="180.04839"
-         style="stroke-width:0.0409048">SENSOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8865">1</tspan></tspan></text>
     <text
        id="text23011-6"
        y="194.63861"
@@ -31867,7 +32065,10 @@
          y="194.63861"
          x="-107.89575"
          id="tspan23009-9"
-         sodipodi:role="line">SENSOR ts,sts</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8875">T<tspan
+   id="tspan8877">S</tspan></tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
@@ -32245,7 +32446,7 @@
          y="180.0468"
          x="-39.580231"
          id="tspan76179-1"
-         sodipodi:role="line">REGIONAL NODE N</tspan></text>
+         sodipodi:role="line">REGIONAL NODE R</tspan></text>
     <path
        inkscape:original-d="m -39.688382,185.03717 c 0,-1.39237 0,-2.78461 0,-4.17674"
        inkscape:path-effect="#path-effect91178"
@@ -32318,7 +32519,7 @@
          y="180.1801"
          x="-66.406693"
          id="tspan107755-7-7-9"
-         sodipodi:role="line">WAN LOCAL N</tspan></text>
+         sodipodi:role="line">WAN LOCAL R</tspan></text>
     <path
        id="path44719-8-8-1"
        d="m -52.635153,176.49032 -0.0063,3.79893"
@@ -32665,14 +32866,16 @@
     <text
        id="text23011-9-08"
        y="185.68619"
-       x="-107.25654"
+       x="-107.91125"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="185.68619"
-         x="-107.25654"
+         x="-107.91125"
          id="tspan23009-0-67"
-         sodipodi:role="line">SENSOR 1,s1</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8867">1</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19024-4)"
        d="m -108.71014,186.71506 h -1.34401"
@@ -32749,14 +32952,17 @@
     <text
        id="text23011-9-4-74"
        y="190.34778"
-       x="-107.25457"
+       x="-107.90928"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="190.34778"
-         x="-107.25457"
+         x="-107.90928"
          id="tspan23009-0-6-30"
-         sodipodi:role="line">SENSOR ts,1</tspan></text>
+         sodipodi:role="line">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8869">T<tspan
+   id="tspan8871">S</tspan></tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19034-5)"
        d="m -108.7121,191.37665 h -1.34401"
@@ -32826,14 +33032,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="-101.9129"
+       x="-101.2742"
        y="192.89377"
        id="text30567-9-40"><tspan
          sodipodi:role="line"
          id="tspan30565-3-1"
-         x="-101.9129"
+         x="-101.2742"
          y="192.89377"
-         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE ts</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8873">S</tspan></tspan></text>
     <g
        id="g21791-7-7"
        transform="matrix(-0.15460111,0,0,-0.13963121,3.2629576,267.34379)">
@@ -33783,18 +33991,23 @@
          id="tspan23005-6-92"
          x="-107.87656"
          y="198.69151"
-         style="stroke-width:0.0409048">ACTUATOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8879">1</tspan></tspan></text>
     <text
        id="text23011-8-8"
-       y="212.89757"
+       y="209.17136"
        x="-108.32823"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
-         y="212.89757"
+         y="209.17136"
          x="-108.32823"
          id="tspan23009-7-6"
-         sodipodi:role="line">ACTUATOR ta,ata</tspan></text>
+         sodipodi:role="line">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8889">T<tspan
+   id="tspan8891">A</tspan></tspan></tspan></text>
     <g
        id="g22249-3-4-73"
        transform="matrix(-0.15460111,0,0,-0.13963121,3.2623276,273.12298)">
@@ -34088,7 +34301,9 @@
          y="204.45792"
          x="-108.11861"
          id="tspan23009-0-9-5"
-         sodipodi:role="line">ACTUATOR 1,a1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8881">1</tspan></tspan></text>
     <path
        inkscape:original-d="m -103.55553,205.42298 c -0.70237,-0.003 -1.40469,-0.005 -2.10699,-0.007"
        inkscape:path-effect="#path-effect91038"
@@ -34104,12 +34319,12 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="-101.32786"
+       x="-101.79765"
        y="202.16101"
        id="text30567-8-3"><tspan
          sodipodi:role="line"
          id="tspan30565-1-7"
-         x="-101.32786"
+         x="-101.79765"
          y="202.16101"
          style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE 1</tspan></text>
     <path
@@ -34445,15 +34660,18 @@
     </g>
     <text
        id="text23011-9-4-1-9"
-       y="209.09734"
-       x="-108.07194"
+       y="213.16222"
+       x="-108.31911"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
-         y="209.09734"
-         x="-108.07194"
+         y="213.16222"
+         x="-108.31911"
          id="tspan23009-0-6-7-75"
-         sodipodi:role="line">ACTUATOR ta,1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8883">T<tspan
+   id="tspan8885">A</tspan></tspan></tspan></text>
     <path
        inkscape:original-d="m -103.55749,210.08457 c -0.70237,-0.003 -1.40469,-0.005 -2.10699,-0.007"
        inkscape:path-effect="#path-effect91008"
@@ -34536,7 +34754,9 @@
          id="tspan30565-3-0-3"
          x="-101.91289"
          y="211.63446"
-         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE ta</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8887">A</tspan></tspan></text>
     <path
        inkscape:original-d="m -103.50717,199.67759 c -0.70237,-0.003 -1.40469,-0.005 -2.10699,-0.007"
        inkscape:path-effect="#path-effect90984"
@@ -34997,7 +35217,7 @@
          id="tspan22757-6-74"
          x="-101.46178"
          y="221.01253"
-         style="stroke-width:0.0409048">LOCAL LAN N IN</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN L IN</tspan></text>
     <path
        inkscape:original-d="m -103.54998,224.24655 c 0,-0.1112 0,-0.22239 0,-0.33357"
        inkscape:path-effect="#path-effect90930"
@@ -35055,14 +35275,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
-       x="-107.23746"
+       x="-107.55148"
        y="221.13701"
        id="text23007-4-8"><tspan
          sodipodi:role="line"
          id="tspan23005-1-5"
-         x="-107.23746"
+         x="-107.55148"
          y="221.13701"
-         style="stroke-width:0.0409048">SENSOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8893">1</tspan></tspan></text>
     <text
        id="text23011-3-4"
        y="235.72723"
@@ -35073,7 +35295,10 @@
          y="235.72723"
          x="-107.87604"
          id="tspan23009-02-3"
-         sodipodi:role="line">SENSOR ts,sts</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8903">T<tspan
+   id="tspan8905">S</tspan></tspan></tspan></text>
     <path
        id="path30409-9-9"
        d="m -95.415669,217.7496 v 4.28566"
@@ -35360,7 +35585,7 @@
          id="tspan22757-3-6-28"
          x="-102.24586"
          y="216.19975"
-         style="stroke-width:0.0409048">LOCAL LAN N OUT</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN L OUT</tspan></text>
     <path
        inkscape:original-d="m -106.15868,217.20096 c 0.0812,4e-5 0.16236,4e-5 0.24354,0"
        inkscape:path-effect="#path-effect90910"
@@ -35384,14 +35609,16 @@
     <text
        id="text23011-9-0-2"
        y="226.77481"
-       x="-107.23684"
+       x="-107.7678"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="226.77481"
-         x="-107.23684"
+         x="-107.7678"
          id="tspan23009-0-3-7"
-         sodipodi:role="line">SENSOR 1,s1</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8895">1</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19024-3-4)"
        d="m -108.72984,227.80369 h -1.34401"
@@ -35468,14 +35695,17 @@
     <text
        id="text23011-9-4-7-9"
        y="231.4364"
-       x="-107.23486"
+       x="-107.93665"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
        xml:space="preserve"><tspan
          style="stroke-width:0.0409048"
          y="231.4364"
-         x="-107.23486"
+         x="-107.93665"
          id="tspan23009-0-6-3-0"
-         sodipodi:role="line">SENSOR ts,1</tspan></text>
+         sodipodi:role="line">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8897">T<tspan
+   id="tspan8899">S</tspan></tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19034-1-9)"
        d="m -108.7318,232.46528 h -1.34401"
@@ -35545,14 +35775,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="-101.8932"
+       x="-101.47286"
        y="233.98239"
        id="text30567-9-93-3"><tspan
          sodipodi:role="line"
          id="tspan30565-3-9-3"
-         x="-101.8932"
+         x="-101.47286"
          y="233.98239"
-         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE ts</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8901">S</tspan></tspan></text>
     <g
        id="g21791-7-4-2"
        transform="matrix(-0.15460111,0,0,-0.13963121,3.2432576,308.43242)">
@@ -36502,7 +36734,9 @@
          id="tspan23005-6-9-2"
          x="-107.85686"
          y="239.78014"
-         style="stroke-width:0.0409048">ACTUATOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8909">1</tspan></tspan></text>
     <text
        id="text23011-8-3-7"
        y="253.98619"
@@ -36513,7 +36747,10 @@
          y="253.98619"
          x="-108.30853"
          id="tspan23009-7-3-0"
-         sodipodi:role="line">ACTUATOR ta,ata</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8917">T<tspan
+   id="tspan8919">A</tspan></tspan></tspan></text>
     <g
        id="g22249-3-4-7-6"
        transform="matrix(-0.15460111,0,0,-0.13963121,3.2426176,314.21161)">
@@ -36807,7 +37044,9 @@
          y="245.54654"
          x="-108.09892"
          id="tspan23009-0-9-3-9"
-         sodipodi:role="line">ACTUATOR 1,a1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8911">1</tspan></tspan></text>
     <path
        inkscape:original-d="m -103.57523,246.51161 c -0.70237,-0.003 -1.40469,-0.005 -2.10699,-0.007"
        inkscape:path-effect="#path-effect90796"
@@ -36823,12 +37062,12 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="-101.30816"
+       x="-101.71266"
        y="243.24963"
        id="text30567-8-7-7"><tspan
          sodipodi:role="line"
          id="tspan30565-1-0-1"
-         x="-101.30816"
+         x="-101.71266"
          y="243.24963"
          style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE 1</tspan></text>
     <path
@@ -37172,7 +37411,10 @@
          y="250.18596"
          x="-108.05223"
          id="tspan23009-0-6-7-4-5"
-         sodipodi:role="line">ACTUATOR ta,1</tspan></text>
+         sodipodi:role="line">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8913">T<tspan
+   id="tspan8915">A</tspan></tspan></tspan></text>
     <path
        inkscape:original-d="m -103.57719,251.1732 c -0.70237,-0.003 -1.40469,-0.005 -2.10699,-0.007"
        inkscape:path-effect="#path-effect90766"
@@ -37255,7 +37497,9 @@
          id="tspan30565-3-0-0-2"
          x="-101.89319"
          y="252.72308"
-         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE ta</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8921">A</tspan></tspan></text>
     <path
        inkscape:original-d="m -103.52687,240.76622 c -0.70237,-0.003 -1.40469,-0.005 -2.10699,-0.007"
        inkscape:path-effect="#path-effect90742"
@@ -38080,7 +38324,7 @@
          id="tspan22757-5-6"
          x="-83.706314"
          y="265.17682"
-         style="stroke-width:0.0409048">LOCAL LAN N IN</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN 1 IN</tspan></text>
     <path
        inkscape:original-d="m -86.394807,268.41085 c 0,-0.1112 0,-0.22239 0,-0.33357"
        inkscape:path-effect="#path-effect90664"
@@ -38145,7 +38389,9 @@
          id="tspan23005-8-6"
          x="-91.798584"
          y="265.3013"
-         style="stroke-width:0.0409048">SENSOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8923">1</tspan></tspan></text>
     <text
        id="text23011-0-2"
        y="279.89154"
@@ -38156,7 +38402,10 @@
          y="279.89154"
          x="-91.708862"
          id="tspan23009-4-0"
-         sodipodi:role="line">SENSOR ts,sts</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8931">T<tspan
+   id="tspan8933">S</tspan></tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;stroke-width:0.0409048"
@@ -38484,7 +38733,7 @@
          id="tspan22757-3-3-5"
          x="-84.198097"
          y="260.34409"
-         style="stroke-width:0.0409048">LOCAL LAN N OUT</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN 1 OUT</tspan></text>
     <path
        inkscape:original-d="m -89.003509,261.36526 c 0.0812,4e-5 0.16236,4e-5 0.24354,0"
        inkscape:path-effect="#path-effect90634"
@@ -38515,7 +38764,9 @@
          y="270.93912"
          x="-92.054939"
          id="tspan23009-0-2-2"
-         sodipodi:role="line">SENSOR 1,s1</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8925">1</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19024-2-3)"
        d="m -91.574669,271.96799 h -1.34401"
@@ -38599,7 +38850,10 @@
          y="275.60071"
          x="-91.937073"
          id="tspan23009-0-6-4-0"
-         sodipodi:role="line">SENSOR ts,1</tspan></text>
+         sodipodi:role="line">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8927">T<tspan
+   id="tspan8929">S</tspan></tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19034-9-7)"
        d="m -91.576629,276.62958 h -1.34401"
@@ -38669,14 +38923,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="-98.193581"
+       x="-98.884941"
        y="278.1467"
        id="text30567-9-4-8"><tspan
          sodipodi:role="line"
          id="tspan30565-3-92-5"
-         x="-98.193581"
+         x="-98.884941"
          y="278.1467"
-         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE ts</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8947">S</tspan></tspan></text>
     <g
        id="g21791-7-5-4"
        transform="matrix(-0.15460111,0,0,-0.13963121,20.398418,352.59672)">
@@ -39626,7 +39882,9 @@
          id="tspan23005-6-8-4"
          x="-91.776695"
          y="283.94443"
-         style="stroke-width:0.0409048">ACTUATOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8935">1</tspan></tspan></text>
     <text
        id="text23011-8-5-9"
        y="298.15051"
@@ -39637,7 +39895,10 @@
          y="298.15051"
          x="-91.988457"
          id="tspan23009-7-1-0"
-         sodipodi:role="line">ACTUATOR ta,ata</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8943">T<tspan
+   id="tspan8945">A</tspan></tspan></tspan></text>
     <g
        id="g22249-3-4-0-4"
        transform="matrix(-0.15460111,0,0,-0.13963121,20.397788,358.37591)">
@@ -39931,7 +40192,9 @@
          y="289.71088"
          x="-91.835442"
          id="tspan23009-0-9-2-8"
-         sodipodi:role="line">ACTUATOR 1,a1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8937">1</tspan></tspan></text>
     <path
        inkscape:original-d="m -86.420056,290.67591 c -0.702371,-0.003 -1.404694,-0.005 -2.106993,-0.007"
        inkscape:path-effect="#path-effect90520"
@@ -40296,7 +40559,10 @@
          y="294.35028"
          x="-91.762276"
          id="tspan23009-0-6-7-7-0"
-         sodipodi:role="line">ACTUATOR ta,1</tspan></text>
+         sodipodi:role="line">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8939">T<tspan
+   id="tspan8941">A</tspan></tspan></tspan></text>
     <path
        inkscape:original-d="m -86.422019,295.3375 c -0.702371,-0.003 -1.404689,-0.005 -2.10699,-0.007"
        inkscape:path-effect="#path-effect90490"
@@ -40372,14 +40638,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="-98.815552"
+       x="-99.400673"
        y="296.88742"
        id="text30567-9-9-9-8"><tspan
          sodipodi:role="line"
          id="tspan30565-3-0-7-4"
-         x="-98.815552"
+         x="-99.400673"
          y="296.88742"
-         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE ta</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8949">A</tspan></tspan></text>
     <path
        inkscape:original-d="m -86.371698,284.93052 c -0.702371,-0.003 -1.404689,-0.005 -2.106991,-0.007"
        inkscape:path-effect="#path-effect90466"
@@ -40828,7 +41096,7 @@
          id="tspan22757-6-7-8"
          x="-83.726021"
          y="306.26547"
-         style="stroke-width:0.0409048">LOCAL LAN N IN</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN L IN</tspan></text>
     <path
        inkscape:original-d="m -86.414513,309.49948 c 0,-0.1112 0,-0.22239 0,-0.33357"
        inkscape:path-effect="#path-effect90416"
@@ -40893,7 +41161,9 @@
          id="tspan23005-1-4-2"
          x="-91.818283"
          y="306.38995"
-         style="stroke-width:0.0409048">SENSOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8977">1</tspan></tspan></text>
     <text
        id="text23011-3-1-8"
        y="320.98019"
@@ -40904,7 +41174,10 @@
          y="320.98019"
          x="-91.728569"
          id="tspan23009-02-2-4"
-         sodipodi:role="line">SENSOR ts,sts</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8967">T<tspan
+   id="tspan8969">S</tspan></tspan></tspan></text>
     <path
        id="path30409-9-2-9"
        d="m -78.2802,303.00253 v 4.28566"
@@ -41191,7 +41464,7 @@
          id="tspan22757-3-6-2-9"
          x="-84.309181"
          y="301.4527"
-         style="stroke-width:0.0409048">LOCAL LAN N OUT</tspan></text>
+         style="stroke-width:0.0409048">LOCAL LAN L OUT</tspan></text>
     <path
        inkscape:original-d="m -89.023219,302.45389 c 0.0812,4e-5 0.16236,4e-5 0.24355,0"
        inkscape:path-effect="#path-effect90396"
@@ -41222,7 +41495,9 @@
          y="312.02777"
          x="-92.074638"
          id="tspan23009-0-3-9-8"
-         sodipodi:role="line">SENSOR 1,s1</tspan></text>
+         sodipodi:role="line">SENSOR s<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8975">1</tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19024-3-2-0)"
        d="m -91.594379,313.05662 h -1.34401"
@@ -41306,7 +41581,10 @@
          y="316.68936"
          x="-91.956787"
          id="tspan23009-0-6-3-3-2"
-         sodipodi:role="line">SENSOR ts,1</tspan></text>
+         sodipodi:role="line">SENSOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8971">T<tspan
+   id="tspan8973">S</tspan></tspan></tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker19034-1-6-0)"
        d="m -91.596329,317.71821 h -1.34402"
@@ -41376,14 +41654,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="-98.213295"
+       x="-98.830963"
        y="319.23535"
        id="text30567-9-93-1-2"><tspan
          sodipodi:role="line"
          id="tspan30565-3-9-1-5"
-         x="-98.213295"
+         x="-98.830963"
          y="319.23535"
-         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE ts</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">SENSOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8951">S</tspan></tspan></text>
     <g
        id="g21791-7-4-0-3"
        transform="matrix(-0.15460111,0,0,-0.13963121,20.378718,393.68535)">
@@ -42333,7 +42613,9 @@
          id="tspan23005-6-9-6-8"
          x="-91.796402"
          y="325.03308"
-         style="stroke-width:0.0409048">ACTUATOR 1,1</tspan></text>
+         style="stroke-width:0.0409048">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8965">1</tspan></tspan></text>
     <text
        id="text23011-8-3-8-4"
        y="339.23914"
@@ -42344,7 +42626,10 @@
          y="339.23914"
          x="-92.008148"
          id="tspan23009-7-3-9-7"
-         sodipodi:role="line">ACTUATOR ta,ata</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8955">T<tspan
+   id="tspan8957">A</tspan></tspan></tspan></text>
     <g
        id="g22249-3-4-7-5-3"
        transform="matrix(-0.15460111,0,0,-0.13963121,20.378088,399.46454)">
@@ -42638,7 +42923,9 @@
          y="330.7995"
          x="-91.855148"
          id="tspan23009-0-9-3-1-0"
-         sodipodi:role="line">ACTUATOR 1,a1</tspan></text>
+         sodipodi:role="line">ACTUATOR a<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8963">1</tspan></tspan></text>
     <path
        inkscape:original-d="m -86.439762,331.76454 c -0.702371,-0.003 -1.404689,-0.005 -2.106997,-0.007"
        inkscape:path-effect="#path-effect90282"
@@ -43003,7 +43290,10 @@
          y="335.4389"
          x="-91.781982"
          id="tspan23009-0-6-7-4-0-6"
-         sodipodi:role="line">ACTUATOR ta,1</tspan></text>
+         sodipodi:role="line">ACTUATOR 1<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8959">T<tspan
+   id="tspan8961">A</tspan></tspan></tspan></text>
     <path
        id="path22109-5-9-9-2-0-6"
        d="m -86.44172,336.42613 -2.106989,-0.007"
@@ -43079,14 +43369,16 @@
     <text
        xml:space="preserve"
        style="font-size:0.49086px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="-98.835266"
+       x="-99.55201"
        y="337.97604"
        id="text30567-9-9-6-6-4"><tspan
          sodipodi:role="line"
          id="tspan30565-3-0-0-8-7"
-         x="-98.835266"
+         x="-99.55201"
          y="337.97604"
-         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE ta</tspan></text>
+         style="font-size:0.49086px;stroke-width:0.264583">ACTUATOR TYPE T<tspan
+   style="font-size:65%;baseline-shift:sub"
+   id="tspan8953">A</tspan></tspan></text>
     <path
        inkscape:original-d="m -86.391404,326.01915 c -0.702371,-0.003 -1.404689,-0.005 -2.106995,-0.007"
        inkscape:path-effect="#path-effect90227"
@@ -43286,5 +43578,46 @@
        id="path24095-5-9-9-1-1-1-4-5-1"
        d="m -62.476931,182.5655 -0.003,-0.24352"
        style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker26673-7-9-27-28-2-3-4-5-7)" />
+    <text
+       xml:space="preserve"
+       style="font-size:0.319058px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
+       x="72.515274"
+       y="235.6738"
+       id="text8932"><tspan
+         sodipodi:role="line"
+         id="tspan8930"
+         x="72.515274"
+         y="235.6738"
+         style="stroke-width:0.264583" /></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker88357-7-36)"
+       d="m 8.7656938,180.88789 h 0.14768"
+       id="path88351-7-5"
+       inkscape:path-effect="#path-effect8915"
+       inkscape:original-d="m 8.7656938,180.88789 c 0.0492,-4e-5 0.0984,-4e-5 0.14768,0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker88357-7-35)"
+       d="m 13.116154,166.62377 h 0.14768"
+       id="path88351-7-2"
+       inkscape:path-effect="#path-effect8928"
+       inkscape:original-d="m 13.116154,166.62377 c 0.0492,-4e-5 0.0984,-4e-5 0.14768,0" />
+    <path
+       inkscape:original-d="m -40.729653,182.98569 c 0.0022,-0.0811 0.0039,-0.16231 0.0062,-0.24346"
+       inkscape:path-effect="#path-effect8953"
+       id="path86025-2"
+       d="m -40.729653,182.98569 0.0062,-0.24346"
+       style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker86031-9)" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker73919-2-3)"
+       d="m -41.318759,180.89028 h -0.24354"
+       id="path73913-5-7"
+       inkscape:original-d="m -41.318759,180.89028 c -0.0812,4e-5 -0.16236,4e-5 -0.24354,0"
+       inkscape:path-effect="#path-effect8927" />
+    <path
+       inkscape:original-d="m -39.691427,182.88488 c -9e-4,0.0812 -0.002,0.16235 -0.003,0.24352"
+       inkscape:path-effect="#path-effect8952"
+       id="path24095-5-9-9-7-0-6-5"
+       d="m -39.691427,182.88488 -0.003,0.24352"
+       style="fill:none;stroke:#000000;stroke-width:0.0463801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker26673-7-9-27-9-2-4-5)" />
   </g>
 </svg>
