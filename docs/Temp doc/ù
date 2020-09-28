@@ -28,8 +28,8 @@ This section will deal with the assumptions we have made so far and why we've ma
 \section{System functioning and message flow}
 The system is composed by:
 \begin{itemize}
-    \item Central Node: in our model we have one central. It manages all the regional nodes. The central aggregates the telemetry messages received by the regionals before saving them in the disk and also save all the transitions messages that it receives. All transition-command couples (i.e. what we called the batch data as we'll show in the next sections, that are basically a log of the command sent by central, regional and local nodes to the actuators) arrive here to be logged in the disk.
-\item Regional Node: Each regional node manages a subset of all local nodes, disjoint from any other regional node domain. Telemetries will flow through here to be aggregated and sent to the central node. Transitions that need a regional level command will reach this and all transitions-command couples fixed in local level will be forwarded here to be sent in batch to the central node.  
+\item Central Node: core of the operations, all transition-command couples will arrive to it to be logged, all telemetries must arrive to him then be aggregated, analyzed and stored on its disk. It manages all regional nodes. When a transition message reaches the central node it will need to generate a command in response.
+\item Regional Node: transitions that need a regional level command will reach this and all transitions-command couples fixed in local level will be forwarded here to be sent in batch to the central node. Telemetries will flow through here to be aggregated and sent to the central node. A regional node manages a subset of all local nodes, disjoint from any other regional node domain.
 \item Local Node: all transitions needing a local fix will go through them and be forwarded as a transition-command couple to the regional node. Also all transitions needing a regional or central level fix will be forwarded from here. A local node manages a subset of all actuators and sensors, disjoint from any other local node.
 \item Actuator: commands will reach the actuators for a state change in the system, they can also send transitions to the higher levels when their state is changed without receiving a command message .
 \item Sensor: periodically will generate telemetry messages and send them to the local level to be forwarded up to the central node, also will generate and send transition messages when their state is changed. They only send, never receive.
@@ -407,7 +407,7 @@ Central node command rate is oblivious to the regional node command events, thus
         \lambda_{cn, t} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
         \lambda_{cn, e} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{m,n}),n \in L^m, m \in R}{| A^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
 		\lambda_{cn, c} = p_{cmd,cn} * \lambda_{cn, e} \\
-		\lambda_{cn, b} = \sum\limits_{m \in R}{\lambda_{rn(m), b}} + p_{cmd,cn} * \lambda_{cn, e}
+		\lambda_{cn, b} = p_{cmd,cn} * \lambda_{cn, e}
 	\end{array}
 \end{equation}
 Obviously the ratio is not present in this case since it would be 1.\\
@@ -437,7 +437,6 @@ Since the central node will do some aggregation and computations on the telemetr
 		V_{cns, e} = 1 \\
 		\lambda_{cns, t} = \frac{\lambda_{cn,t}}{aggr_{cn}} \\
 		\lambda_{cns, e} = \lambda_{cn,e} \\
-		\lambda_{cns, b} = \lambda_{cn,b} \\
 	\end{array}
 \end{equation}
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
@@ -445,14 +444,11 @@ From the previous formulas and the open queue model we can compute the Service D
 	\begin{array}{l}
 		D_{cns, t} = V_{cns, t} * S_{cns, t} \\
 		D_{cns, e} = V_{cns, e} * S_{cns, e} \\
-		D_{cns, b} = V_{cns, b} * S_{cns, b} \\
 		U_{cns, t} = \lambda_{cns, t} * D_{cns, t} \\
 		U_{csn, e} = \lambda_{cns, e} * D_{cns, e} \\
-		U_{csn, b} = \lambda_{cns, b} * D_{cns, b} \\
-        U_{cns} = U_{cns, t} + U_{cns, e} + U_{cns, b}\\
+		U_{cns} = U_{cns, t} + U_{cns, e} \\
 		R_{cns, t} = \frac{D_{cns, t}}{1 - U_{cns}} \\
 		R_{cns, e} = \frac{D_{cns, e}}{1 - U_{cns}} \\
-		R_{cns, b} = \frac{D_{cns, b}}{1 - U_{cns}} \\
 	\end{array}
 \end{equation}
 
