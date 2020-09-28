@@ -304,10 +304,11 @@ And for LAN OUT:
 \end{figure}
 
 %T'''
-Taken a local node j, and its upper level regional node i, remembering the definition of $T'$,$T''$ and $T'''$ from the previous section and modifying the definition of $T$ by amplifying the branch to include all LANs managed by this local node i we will define the new formulas.\\
+Taken a local node j, and its upper level regional node i, remembering the definition of $T'$,$T''$ and $T'''$ from the previous section and modifying the definition of $T$ by amplifying the branch to include all LANs managed by this local node i we will define the new formulas. Note that at this point $T = T'''$, because our branch now is a local node. \\
+
+So, denoting $p_{cmd,ln}$ as the probability (or percentage) that a transition, arriving in the local node, generates a command and $\lambda^{\{s\}}_{lo, t}$ as the rate of the telemetry messages by the LAN $s$, we can write:
 
 %da modificare
-The main difference here is that we don't have a fixed LAN so we need k to span across all LANs of the local node.
 \begin{equation}
     \begin{array}{l}
         V_{ln, t} = 1 \\
@@ -325,6 +326,8 @@ The main difference here is that we don't have a fixed LAN so we need k to span 
 
     \end{array}
 \end{equation}
+The main difference here is that we don't have a fixed LAN so we need to span across all LANs of the local node, so, for the case of transitions and telemetry, we sum all the rates of each LAN that are in the branch of the local node $j$. \\
+
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
     \begin{array}{l}
