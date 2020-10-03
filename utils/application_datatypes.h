@@ -95,6 +95,8 @@ typedef struct _topArray
 {
 int numberOfReceivers;
 int * receiver;
+int numberOfSenders;
+int * sender;
 void * info;
 } topArray;
 

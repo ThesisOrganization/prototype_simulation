@@ -4,8 +4,10 @@
 
 topology * getTopology(char * path);
 int getNumberReceiv(topology * top, int index);
+int getNumberSender(topology * top, int index);
 
 int * getNext(topology * top, int next);
+int * getPrevious(topology * top, int prev);
 void * getInfo(topology * top, int index);
 
 #endif /* HEADER_H */

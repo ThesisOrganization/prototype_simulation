@@ -27,6 +27,16 @@ int main()
       j+=1;
     }
 
+    solution = getPrevious(genTop, i);
+    int numSend = getNumberSender(genTop, i);
+
+    j = 0;
+    while(j < numSend){
+      //printf("j = %d, receivers = %d",j,numSend);
+      printf("Node %d receives from node %d.\n",i,solution[j]);
+      j+=1;
+    }
+
     if(infos->lp_type == 0){//node
       printf("Node %d has this response_time: %f.\n",i,infos->response_time);
       printf("Node %d has this scheduler: %d.\n",i,infos->scheduler);

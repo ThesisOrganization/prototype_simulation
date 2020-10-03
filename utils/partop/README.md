@@ -11,7 +11,7 @@ Being a work in progress project, this is subject to frequent changes and won't 
 
 First line: number of nodes
 Second line: number of sensor nodes
-Sender node, #receiver nodes,{receiver nodes},#informations,{informations}
+Sender node, #receiver nodes,{receiver nodes},#sender nodes,{sender nodes},#informations,{informations}
 
 {informations} is different based on the type of node:
 Sensor: type of job, Sensor type, measure done

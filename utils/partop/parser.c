@@ -6,7 +6,6 @@
 #include "../application_datatypes.h"
 
 void * parse_strings(char ** strings){
-
     lp_infos * infos = malloc(sizeof(lp_infos));
     char * ptr;
     int flag = 0;
@@ -93,10 +92,12 @@ void * parse_strings(char ** strings){
       else
         exit(EXIT_FAILURE);
     }
+
     return infos;
 }
 
 topology * getTopology(char * path){
+
 
   FILE * fp;
   char * line = NULL;
@@ -123,6 +124,7 @@ topology * getTopology(char * path){
   topArray ** returnArray = malloc(sizeof(topArray *) * (ns + nn));
   //iterate through the remaining lines, having the following syntax:
   //receiver;#senders;senders;#info;info
+
   while ((read = getline(&line, &len, fp)) != -1) {
     topArray * tp = malloc(sizeof(topArray));
 
@@ -134,10 +136,12 @@ topology * getTopology(char * path){
 
     int numberOfReceivers = 0;
     int numberOfInfos = 0;
+    int numberOfSenders = 0;
     int index = 0;//keep track of how many ";" token we iterated on so we know
     //which kind data we are analyzing
 
     int * receiversArray = NULL;
+    int * sendersArray = NULL;
     char ** infoArray = NULL;
 
     ptr = strtok_r(NULL, ";", &end_str);
@@ -156,12 +160,20 @@ topology * getTopology(char * path){
         else if(index == 1){//receivers
           receiversArray[counter] = atoi(ptr2);
         }
-        else if(index == 2){//#info
+        else if(index == 2){//#sender
+          numberOfSenders = atoi(ptr2);
+          //printf("Node %d has %d informations.\n",temp,numberOfInfos);
+          sendersArray = malloc(sizeof(char *)*numberOfSenders);
+        }
+        else if(index == 3){//senders
+          sendersArray[counter] = atoi(ptr2);
+        }
+        else if(index == 4){//#info
           numberOfInfos = atoi(ptr2);
           //printf("Node %d has %d informations.\n",temp,numberOfInfos);
           infoArray = malloc(sizeof(char *)*numberOfInfos);
         }
-        else{//infos
+        else{//#info
           char * tempString = strdup(ptr2);
           //remove endline char from the info
           if(counter == numberOfInfos - 1){
@@ -178,8 +190,10 @@ topology * getTopology(char * path){
     }
     tp->numberOfReceivers = numberOfReceivers;
     tp->receiver = receiversArray;
+    tp->numberOfSenders = numberOfSenders;
+    tp->sender = sendersArray;
     tp->info = parse_strings(infoArray);
-    //tp->info = infoArray;
+
 		for(i=0;i<counter;i++){
 				free(infoArray[i]);
 		}

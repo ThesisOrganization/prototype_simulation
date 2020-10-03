@@ -14,7 +14,18 @@ void * getInfo(topology * top, int index)
   return array[index]->info;
 }
 
-int getNumberReceiv(topology * top, int index){
+int * getPrevious(topology * top, int index)
+{
+  topArray ** array = top->topArr;
+  return array[index]->sender;
+}
+
+int getNumberReceiv(topology * top, int index)
+{
   topArray ** array = top->topArr;
   return array[index]->numberOfReceivers;
+}
+int getNumberSender(topology * top, int index){
+  topArray ** array = top->topArr;
+  return array[index]->numberOfSenders;
 }
