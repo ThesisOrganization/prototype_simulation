@@ -3,11 +3,12 @@
 #include "../application_datatypes.h"
 
 topology * getTopology(char * path);
-int getNumberReceiv(topology * top, int index);
-int getNumberSender(topology * top, int index);
+int getUpperNode(topology * top, int index);
+int getNumberLower(topology * top, int index);
+int * getLowers(topology * top, int next);
+int getNumberLANS(topology * top, int index);
+int * getLANS(topology * top, int index);
 
-int * getNext(topology * top, int next);
-int * getPrevious(topology * top, int prev);
 void * getInfo(topology * top, int index);
 
 #endif /* HEADER_H */

@@ -46,7 +46,9 @@ typedef struct queue_conf{
 typedef enum {
     NODE = 0,
     SENSOR,
-    ACTUATOR
+    ACTUATOR,
+    WAN,
+    LAN
 } state_type;
 
 typedef enum {
@@ -68,7 +70,7 @@ typedef enum {
 typedef enum {
     CENTRAL = 501,
     REGIONAL,
-    NETWORK
+    LOCAL
 } node_type;
 
 typedef enum {
@@ -77,6 +79,16 @@ typedef enum {
     MEASURE2
 } measure_type;
 
+typedef enum {
+    WAN_TYPE0 = 701,
+    WAN_TYPE1
+} wan_type;
+
+typedef enum {
+    LAN_TYPE0 = 801,
+    LAN_TYPE1,
+    LAN_TYPE2
+} lan_type;
 //temp struct, to make things uniform with application.c
 //and check integrity in this main file
 typedef struct _lp_infos
@@ -84,25 +96,36 @@ typedef struct _lp_infos
 int lp_type;
 int type_job;
 int scheduler;
-double response_time;
+float service_time;
+float delay;
 int node_type;
 int sensor_type;
 int actuator_type;
 int measure_type;
+int wan_type;
+int lan_type;
+int id_WAN_up;
+int id_WAN_down;
+int id_LAN_up;
+int aggregation_rate;
+float delay_upper_router;
+float delay_lower_router;
 } lp_infos;
 
 typedef struct _topArray
 {
-int numberOfReceivers;
-int * receiver;
-int numberOfSenders;
-int * sender;
+int upperNode;
+int numberOfLowerElements;
+int * lowerElements;
+int numberOfLANS;
+int * connectedLans;
 void * info;
 } topArray;
 
 typedef struct _topology{
   int total_nodes;
-  int sensor_nodes;
+  int edge_nodes;
+  int connection_elements;
   topArray ** topArr; //array of poiters to topArray
 } topology;
 

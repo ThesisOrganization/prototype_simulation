@@ -4,19 +4,22 @@ This folder will contain modules to parse input file and get informations in the
 Being a work in progress project, this is subject to frequent changes and won't be a final version:
 4
 2
+3
 0;2;2,3;4;NODE,SCHEDULER1,28.2, CENTRAL
 4;1;5;4;SENSOR,BATCH, SENSOR_TYPE1, MEASURE1
 4;1;5;2;ACTUATOR,BATCH, ACTUATOR_TYPE0, MEASURE2
 ...
 
 First line: number of nodes
-Second line: number of sensor nodes
-Sender node, #receiver nodes,{receiver nodes},#sender nodes,{sender nodes},#informations,{informations}
+Second line: number of sensors/actuators
+Third line: number of connection elements(WAN/LAN)
+id element, #lower nodes,{lower nodes},upper node,#LANs below, {LANs below},#informations,type of element,{informations}
 
 {informations} is different based on the type of node:
-Sensor: type of job, Sensor type, measure done
-Node: scheduler, response time, type of node
-Actuator: type of job, actuator type, measure done
+Node: scheduler, service time, type of node,id WAN up, id WAN below,  aggregation rate, delay upper router, delay lower router
+Sensor/Actuator: type of job, Sensor/Actuator type, measure done, id LAN up
+WAN:type of WAN[CENTRAL-REGIONAL/REGIONAL-LOCAL], delay
+LAN:type of LAN[MANET/WIRELESS/ETC], delay
 
 ## Data structure 1
 TopArray is composed by:
@@ -52,5 +55,3 @@ Then in topology.c all useful retrieval functions are written, for now need to p
 
 
 ##TODO
--Add LINES to txt file and parsing
--Use the (still to impelement) general file for DEFINE
