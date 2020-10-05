@@ -96,7 +96,8 @@ typedef struct _lp_infos
 int lp_type;
 int type_job;
 int scheduler;
-float service_time;
+double * service_time;
+int * actuatorsTypesBelow;
 float delay;
 int node_type;
 int sensor_type;
@@ -107,6 +108,7 @@ int lan_type;
 int id_WAN_up;
 int id_WAN_down;
 int id_LAN_up;
+int numberOfBelowSensors;
 int aggregation_rate;
 float delay_upper_router;
 float delay_lower_router;
@@ -124,8 +126,13 @@ void * info;
 
 typedef struct _topology{
   int total_nodes;
-  int edge_nodes;
+  int sensor_nodes;
+  int actuator_nodes;
   int connection_elements;
+  int numberOfActTypes;
+  int numberOfSensTypes;
+  double ** sensorRatesByType;
+  double * probOfActuators;
   topArray ** topArr; //array of poiters to topArray
 } topology;
 

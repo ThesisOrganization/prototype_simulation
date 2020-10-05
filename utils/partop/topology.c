@@ -7,6 +7,7 @@
 int getUpperNode(topology * top, int index)
 {
   topArray ** array = top->topArr;
+
   return array[index]->upperNode;
 }
 
@@ -36,4 +37,8 @@ void * getInfo(topology * top, int index)
 {
   topArray ** array = top->topArr;
   return array[index]->info;
+}
+double ** getSensorRatesByType(topology * top)
+{
+  return top->sensorRatesByType;
 }

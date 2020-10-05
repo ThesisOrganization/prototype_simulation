@@ -8,7 +8,7 @@ int getNumberLower(topology * top, int index);
 int * getLowers(topology * top, int next);
 int getNumberLANS(topology * top, int index);
 int * getLANS(topology * top, int index);
-
+double ** getSensorRatesByType(topology * top);
 void * getInfo(topology * top, int index);
 
 #endif /* HEADER_H */

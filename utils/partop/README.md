@@ -11,12 +11,17 @@ Being a work in progress project, this is subject to frequent changes and won't 
 ...
 
 First line: number of nodes
-Second line: number of sensors/actuators
-Third line: number of connection elements(WAN/LAN)
+Second line: number of sensors
+3rd: # actuators
+4 line: number of connection elements(WAN/LAN)
+5 line: # types actuators
+6 line: # types sensors
+7th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...
+8th line: probability receiving actuator type 0;pr type 1;...
 id element, #lower nodes,{lower nodes},upper node,#LANs below, {LANs below},#informations,type of element,{informations}
 
 {informations} is different based on the type of node:
-Node: scheduler, service time, type of node,id WAN up, id WAN below,  aggregation rate, delay upper router, delay lower router
+Node: scheduler, type of node,id WAN up, id WAN below,  aggregation rate, delay upper router, delay lower router,  {service time telemtry/service time transition/service time command/service time batch send}, {# actuators type 0/...}, #sensors
 Sensor/Actuator: type of job, Sensor/Actuator type, measure done, id LAN up
 WAN:type of WAN[CENTRAL-REGIONAL/REGIONAL-LOCAL], delay
 LAN:type of LAN[MANET/WIRELESS/ETC], delay

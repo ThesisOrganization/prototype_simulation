@@ -10,13 +10,28 @@ int main()
   printf("Main starting, retrieving array..\n");
   char * path = "test.txt";
   topology * genTop = getTopology(path);
-  printf("Contents of generalTopology, total nodes : %d, sensor/actuator nodes: %d, number of connection elements: %d. \n",genTop->total_nodes,genTop->edge_nodes, genTop->connection_elements);
+
+  printf("Contents of generalTopology, total nodes : %d, sensor/actuator nodes: %d/%d, number of connection elements: %d. \n",genTop->total_nodes,genTop->sensor_nodes,genTop->actuator_nodes, genTop->connection_elements);
+
+  double ** res = getSensorRatesByType(genTop);
+  int k = 0;
+  int l;
+  while(k < 2){ //# of possible message types
+    l = 0;
+    while(l < genTop->numberOfSensTypes){
+      printf("Sensor sending a message of type %d, being a type %d, has a rate of %f\n",k, l, res[k][l]);
+      l+=1;
+    }
+    k+=1;
+  }
 
   //topArray ** topArray = genTop->topArr;
   printf("Checking array integrity..\n");
-  for(int i = 0; i < genTop->total_nodes + genTop->edge_nodes + genTop->connection_elements; i++){
+
+  for(int i = 0; i < genTop->total_nodes + genTop->sensor_nodes + genTop->actuator_nodes + genTop->connection_elements; i++){
 
     int * solution = getLowers(genTop, i);
+
     int numLow = getNumberLower(genTop, i);
     int j = 0;
 
@@ -33,7 +48,7 @@ int main()
 
 
     if(infos->lp_type == 0){//node
-      printf("Node %d has this service_time: %f.\n",i,infos->service_time);
+      //printf("Node %d has this service_time: %f.\n",i,infos->service_time);
       printf("Node %d has this scheduler: %d.\n",i,infos->scheduler);
       printf("Node %d has this type: %d.\n",i,infos->node_type);
       printf("Node %d has upper WAN : %d.\n",i,infos->id_WAN_up);
@@ -71,5 +86,7 @@ int main()
       printf("LAN %d has this job type: %d.\n",i,infos->lan_type);
       printf("LAN %d has this delay: %f.\n",i,infos->delay);
     }
+
   }
+
 }
