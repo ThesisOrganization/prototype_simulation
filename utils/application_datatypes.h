@@ -18,12 +18,20 @@ typedef enum {
     NUM_OF_PRIO_TYPES ///< this must be at the end of the enum because denote the number of types
 } prio_type;
 
+typedef enum {
+    TELEMETRY = 0,
+    TRANSITION,
+    COMMAND,
+    BATCH_DATA
+} job_type;
+
 /// Metadata used to charhterize a job type and priority.
 typedef struct _job_info {
     prio_type type; ///< The type of job.
     double arrived_in_node_timestamp;
     double deadline; ///< The deadline at which the job must be completed.
 		void* payload; ///< The actual job data.
+    job_type job_type;
 } job_info;
 
 /** \brief How a queue must be handled by the scheduler.
@@ -141,9 +149,10 @@ typedef struct _topology{
 //APPLICATION DATA
 //#############################################
 
+
 #define TOTAL_NUMBER_OF_EVENTS 100
 #define DELAY_MEAN 1
-#define ARRIVE_RATE 30
+#define ARRIVE_RATE 50
 #define FINISH_RATE 5
 #define LEN_QUEUE 50
 
@@ -154,42 +163,61 @@ typedef struct _topology{
 typedef enum { //INIT should be 0
     ARRIVE = 1,
     FINISH,
-    GENERATE
+    GENERATE_TRANSITION,
+    GENERATE_TELEMETRY
 } events_type;
+
+
+typedef struct _queue_state {
+    simtime_t start_processing_timestamp;
+    job_info * current_job;
+    int num_jobs_in_queue;
+    int num_jobs_arrived;
+    //int num_lossy_jobs_rejected;
+    //int num_rt_jobs_rejected;
+    //int num_batch_jobs_rejected;
+    double last_arrived_in_node_timestamp;
+    double sum_all_service_time;
+    double sum_all_time_between_arrivals;
+    double sum_all_response_time;
+    void * queues;
+} queue_state;
 
 typedef struct _sensor_state {
     prio_type job_generated;
 } sensor_state;
 
 typedef struct _node_state {
-    int num_jobs_in_queue;
-    int num_jobs_arrived;
-    int num_lossy_jobs_rejected;
-    int num_rt_jobs_rejected;
-    int num_batch_jobs_rejected;
-    double last_arrived_in_node_timestamp;
-    double sum_all_service_time;
-    double sum_all_time_between_arrivals;
-    double sum_all_response_time;
-    void * queues;
+    queue_state * queue_state;
 } node_state;
+
+typedef struct _actuator_state {
+    queue_state * queue_state;
+} actuator_state;
+
+typedef struct _lan_state {
+    queue_state * queue_state;
+} lan_state;
 
 typedef union {
     sensor_state * sensor;
     node_state * node;
+    actuator_state * actuator;
+    lan_state * lan;
 } state_info;
 
 typedef struct _state {
     int num_jobs_processed;
-	simtime_t ts;
+	//simtime_t ts;
     state_type type;
     topology * topology;
     state_info info;
 } lp_state;
 
+/*
 typedef struct _processing_info {
     double start_processing_timestamp;
 } processing_info;
-
+*/
 
 #endif /* APPLICATION_DATATYPES_H */
