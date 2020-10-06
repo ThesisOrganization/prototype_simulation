@@ -16,7 +16,7 @@ int main()
   double ** res = getSensorRatesByType(genTop);
   int k = 0;
   int l;
-  
+
   printf("Rates for each sensor type and message type couple:\n");
   while(k < genTop->numberOfSensTypes){
     l = 0;

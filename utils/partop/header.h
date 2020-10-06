@@ -15,5 +15,7 @@ double * getServiceRates(topology * top, int index);
 void * getInfo(topology * top, int index);
 double ** getLANServiceTimesByType(topology * top);
 double * getLANServiceTimesForOneLANType(topology * top, int index);
-
+int getType(topology * top, int index);
+double ** getActuatorPaths(topology * top);
+double * getActuatorPathsIndex(topology * top, int index);
 #endif /* HEADER_H */

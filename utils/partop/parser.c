@@ -169,6 +169,26 @@ void * parse_strings(char ** strings, int types){
     return infos;
 
 }
+void getUpNode(topology * top, int index, int tot, int number, int ** array){
+  if(index != number){//not first run
+    number = getUpperNode(top, number);
+  }
+  else{
+    number = getUpperNode(top, index);
+    array[tot][index] = index;//initialized for those who have actuators directly below
+  }
+  //printf("index: %d number: %d  tot: %d\n",index,number, tot);
+  if(number < tot ){ //someone higher then me so I can't reach
+    array[tot][index] = -1;
+  }
+  else if(number == tot){//can't go higher than that, reached
+    return;
+  }
+  else{
+    array[tot][index] = number;
+    getUpNode(top,index,tot,number,array);
+  }
+}
 
 topology * getTopology(char * path){
 
@@ -283,7 +303,6 @@ topology * getTopology(char * path){
 
   topology * genTop = malloc(sizeof(topology));
   topArray ** returnArray = malloc(sizeof(topArray *) * (nn + ns + na + nw + nl));
-  printf("%d %d %d %d %d\n", nn , ns , na , nw , nl);
   //iterate through the remaining lines, having the following syntax:
 
   while ((read = getline(&line, &len, fp)) != -1) {
@@ -371,7 +390,6 @@ topology * getTopology(char * path){
   }
 
   fclose(fp);
-
   genTop->total_nodes = nn;
   genTop->sensor_nodes = ns;
   genTop->actuator_nodes = na;
@@ -385,5 +403,30 @@ topology * getTopology(char * path){
   genTop->probOfActuators = probArray;
   genTop->topArr = returnArray;
 
+  int ** arrayActuatorPaths = malloc(sizeof(int *) * (nn));
+  int tot = 0;
+  int ind;
+  while(tot < nn){
+    arrayActuatorPaths[tot] = malloc(sizeof(int)*(nn+ns+na));
+    for(ind = nn; ind < nn+ns+na; ind+=1){
+      int type =  getType(genTop, ind);
+      if(type == 2){//Is an actuator
+        getUpNode(genTop, ind, tot, ind, arrayActuatorPaths);
+      }
+      else{
+        arrayActuatorPaths[tot][ind] = -1;
+      }
+    }
+    tot+=1;
+  }
+  /*
+  tot = 0;
+  while(tot < nn){
+    for(ind = nn; ind < nn+ns+na; ind+=1){
+      printf("array[%d][%d] = %d\n",tot, ind,arrayActuatorPaths[tot][ind]);
+    }
+    tot+=1;
+  }*/
+  genTop->actuatorPaths = arrayActuatorPaths;
   return genTop;
 }
