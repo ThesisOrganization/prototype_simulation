@@ -18,4 +18,6 @@ double * getLANServiceTimesForOneLANType(topology * top, int index);
 int getType(topology * top, int index);
 double ** getActuatorPaths(topology * top);
 double * getActuatorPathsIndex(topology * top, int index);
+int * getActType(topology * top,int index);
+int getActuatorType(topology * top, int index);
 #endif /* HEADER_H */

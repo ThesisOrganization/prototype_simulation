@@ -43,6 +43,15 @@ int getType(topology * top,int index){
     lp_infos * infos = getInfo(top, index);
     return(infos->lp_type);
 }
+int * getActType(topology * top,int index){
+    lp_infos * infos = getInfo(top, index);
+    return(infos->actuatorsTypesBelow);
+}
+int getActuatorType(topology * top,int index){
+    lp_infos * infos = getInfo(top, index);
+    return(infos->actuator_type);
+}
+
 double * getServiceRates(topology * top, int index){
   lp_infos * info = getInfo(top,index);
   return info->service_time;

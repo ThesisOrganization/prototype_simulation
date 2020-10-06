@@ -148,6 +148,7 @@ typedef struct _topology{
   double ** sensorRatesByType;
   double ** LANServiceTimesByType;
   double * probOfActuators;
+  int *** uglyStructContainingMatrixNodesActuatorTypesAndWhichOneAreThem;
   topArray ** topArr; //array of poiters to topArray
 } topology;
 

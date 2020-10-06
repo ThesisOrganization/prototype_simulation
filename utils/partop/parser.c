@@ -169,15 +169,16 @@ void * parse_strings(char ** strings, int types){
     return infos;
 
 }
-void getUpNode(topology * top, int index, int tot, int number, int ** array){
+void getUpNode(topology * top, int index, int tot, int number, int ** array,int temp, int *** result, int original){
   if(index != number){//not first run
-    number = getUpperNode(top, number);
+    int temp2 = getUpperNode(top, number);
+    number = temp2;
   }
   else{
     number = getUpperNode(top, index);
     array[tot][index] = index;//initialized for those who have actuators directly below
   }
-  //printf("index: %d number: %d  tot: %d\n",index,number, tot);
+
   if(number < tot ){ //someone higher then me so I can't reach
     array[tot][index] = -1;
   }
@@ -186,7 +187,34 @@ void getUpNode(topology * top, int index, int tot, int number, int ** array){
   }
   else{
     array[tot][index] = number;
-    getUpNode(top,index,tot,number,array);
+    temp = number;
+    getUpNode(top,index,tot,number,array,temp, result, original);
+  }
+}
+
+void getUpNode2(topology * top, int up, int index, int *** result){
+  if(index != up){
+    up = getUpperNode(top, up);
+  }
+  else{
+    up = getUpperNode(top, index);
+  }
+  int at = getActuatorType(top,index) - 401;
+  int * te = getActType(top,up);
+  for(int js = 0; js < te[at]; js++){
+    if(result[up][at][js] == index){
+      js = te[at];
+    }
+    else if(result[up][at][js] == -1){
+      result[up][at][js] = index;
+      js = te[at];
+    }
+  }
+  if(up == 0 ){ //someone higher then me so I can't reach
+    return;
+  }
+  else{
+    getUpNode2(top,up,index,result);
   }
 }
 
@@ -403,6 +431,24 @@ topology * getTopology(char * path){
   genTop->probOfActuators = probArray;
   genTop->topArr = returnArray;
 
+
+  int *** result = malloc(sizeof(int**)*nn);
+  index = 0;
+  int index2 = 0;
+  while(index < nn){
+    result[index] = malloc(sizeof(int*)*nt);
+    int * te = getActType(genTop, index);
+    index2 = 0;
+    while(index2 < nt){
+      result[index][index2] = malloc(sizeof(int) * te[index2]);
+      for(int js = 0; js < te[index2];js+=1){
+        result[index][index2][js] = -1;
+      }
+      index2+=1;
+    }
+    index+=1;
+  }
+
   int ** arrayActuatorPaths = malloc(sizeof(int *) * (nn));
   int tot = 0;
   int ind;
@@ -411,7 +457,8 @@ topology * getTopology(char * path){
     for(ind = nn; ind < nn+ns+na; ind+=1){
       int type =  getType(genTop, ind);
       if(type == 2){//Is an actuator
-        getUpNode(genTop, ind, tot, ind, arrayActuatorPaths);
+        getUpNode(genTop, ind, tot, ind, arrayActuatorPaths,-1, result, ind);
+
       }
       else{
         arrayActuatorPaths[tot][ind] = -1;
@@ -419,6 +466,30 @@ topology * getTopology(char * path){
     }
     tot+=1;
   }
+
+
+    for(ind = nn; ind < nn+ns+na; ind+=1){
+      int type =  getType(genTop, ind);
+      if(type == 2){//Is an actuator
+        getUpNode2(genTop, ind, ind, result);
+        }
+      }
+      index = 0;
+      index2 = 0;
+      while(index < nn){
+        int * te = getActType(genTop, index);
+        index2 = 0;
+        while(index2 < nt){
+          for(int js = 0; js < te[index2];js+=1){
+            printf("%d %d %d %d\n", index, index2, js, result[index][index2][js]);
+          }
+          index2+=1;
+        }
+        index+=1;
+      }
+
+
+
   /*
   tot = 0;
   while(tot < nn){
@@ -428,5 +499,7 @@ topology * getTopology(char * path){
     tot+=1;
   }*/
   genTop->actuatorPaths = arrayActuatorPaths;
+  //genTop->uglyStructContainingMatrixNodesActuatorTypesAndWhichOneAreThem = result;
+
   return genTop;
 }
