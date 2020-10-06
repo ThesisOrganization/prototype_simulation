@@ -143,7 +143,9 @@ typedef struct _topology{
   int numberOfTotalWANs;
   int numberOfActTypes;
   int numberOfSensTypes;
+  int numberOfLANsTypes;
   double ** sensorRatesByType;
+  double ** LANServiceTimesByType;
   double * probOfActuators;
   topArray ** topArr; //array of poiters to topArray
 } topology;

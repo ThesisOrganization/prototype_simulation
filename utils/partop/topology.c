@@ -38,12 +38,25 @@ void * getInfo(topology * top, int index)
   topArray ** array = top->topArr;
   return array[index]->info;
 }
-double ** getSensorRatesByType(topology * top)
-{
-  return top->sensorRatesByType;
-}
 
 double * getServiceRates(topology * top, int index){
   lp_infos * info = getInfo(top,index);
   return info->service_time;
+}
+
+double ** getSensorRatesByType(topology * top)
+{
+  return top->sensorRatesByType;
+}
+double * getSensorRatesForOneSensorType(topology * top, int index)
+{
+  return top->sensorRatesByType[index];
+}
+
+double ** getLANServiceTimesByType(topology * top){
+  return(top->LANServiceTimesByType);
+}
+double * getLANServiceTimesForOneLANType(topology * top, int index)
+{
+  return top->LANServiceTimesByType[index];
 }

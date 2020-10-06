@@ -16,15 +16,54 @@ int main()
   double ** res = getSensorRatesByType(genTop);
   int k = 0;
   int l;
+  
   printf("Rates for each sensor type and message type couple:\n");
-  while(k < 2){ //# of possible message types
+  while(k < genTop->numberOfSensTypes){
     l = 0;
-    while(l < genTop->numberOfSensTypes){
-      printf("Sensor sending a message of type %d, being a type %d, has a rate of %f;\n",k, l, res[k][l]);
+    while(l < 2){//# of possible message types
+      printf("Type %d Sensor, sending a message of type %d has a rate of %f;\n",k, l, res[k][l]);
       l+=1;
     }
     k+=1;
   }
+/*
+  k = 0;
+  printf("Rates for each sensor type and message type couple:\n");
+  while(k < genTop->numberOfSensTypes){
+    l = 0;
+    double * temp1 = getSensorRatesForOneSensorType(genTop,k);
+    while(l < 2){//# of possible message types
+      printf("Type %d Sensor, sending a message of type %d has a rate of %f;\n",k, l, temp1[l]);
+      l+=1;
+    }
+    k+=1;
+  }*/
+  /*
+  double ** LSTBT = getLANServiceTimesByType(genTop);
+  k = 0;
+  printf("Service times for each LAN type and message type couple:\n");
+  while(k < genTop->numberOfLANsTypes){ //# of possible message types
+    l = 0;
+    while(l < 5){
+      printf("Type %d LAN serving a message of type %d has a service time of %f;\n",k, l, LSTBT[k][l]);
+      l+=1;
+    }
+    k+=1;
+  }
+  */
+  //alternatively
+  k = 0;
+  printf("Service times for each LAN type and message type couple:\n");
+  while(k < genTop->numberOfLANsTypes){ //# of possible message types
+    l = 0;
+    double * temp2 = getLANServiceTimesForOneLANType(genTop,k);
+    while(l < 5){
+      printf("Type %d LAN serving a message of type %d has a service time of %f;\n",k, l, temp2[l]);
+      l+=1;
+    }
+    k+=1;
+  }
+  //double * getSensorRatesForOneType(topology * top, int index);
   for(k = 0;k < genTop->numberOfActTypes;k++){
     printf("Probability of a sensor of type %d of receiving a command: %f. \n",k,genTop->probOfActuators[k]);
   }
@@ -58,7 +97,7 @@ int main()
 
     if(infos->lp_type == 0){//node
       double * serviceTimes = getServiceRates(genTop, i);
-      for(k = 0;k < 4;k++){
+      for(k = 0;k < 5;k++){
         printf("Node %d, when processing a message of type %d, has a service time %f.\n",i,k,serviceTimes[k]);
       }
       printf("Node %d has this scheduler: %d.\n",i,infos->scheduler);

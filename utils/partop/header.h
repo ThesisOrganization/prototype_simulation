@@ -9,7 +9,11 @@ int * getLowers(topology * top, int next);
 int getNumberLANS(topology * top, int index);
 int * getLANS(topology * top, int index);
 double ** getSensorRatesByType(topology * top);
+double * getSensorRatesForOneSensorType(topology * top, int index);
+
 double * getServiceRates(topology * top, int index);
 void * getInfo(topology * top, int index);
+double ** getLANServiceTimesByType(topology * top);
+double * getLANServiceTimesForOneLANType(topology * top, int index);
 
 #endif /* HEADER_H */

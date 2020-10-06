@@ -49,7 +49,7 @@ void * parse_strings(char ** strings, int types){
         char * end_str;
         char * end_ptr;
         char * ptr = strtok_r(strings[8], "/", &end_str);
-        double * serviceArray = malloc((sizeof(double)) * 4); //fixed, 4 type of data.
+        double * serviceArray = malloc((sizeof(double)) * 5); //fixed, 5 type of data.
         int counter = 0;
         while(ptr){
           serviceArray[counter] = strtod(ptr, &end_ptr);
@@ -206,19 +206,24 @@ topology * getTopology(char * path){
   read = getline(&temp, &len, fp);
   int nts = atoi(temp);
 
-  //5th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...
+  //8th line, number of types of LANs
+  read = getline(&temp, &len, fp);
+  int ntl = atoi(temp);
+
+  //9th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...
   read = getline(&temp, &len, fp);
 
   //loop through all the other tokens in the line
   char * end_ptr;
   char *end_str;
+  char * end_token;
+  char *ptr2;
   char * ptr = strtok_r(temp, ";", &end_str);
   double ** sensor_rates = malloc(sizeof(double*) * 2); //fixed, two types of messages
   int index = 0;
   int counter = 0;
   while(ptr){
-    char * end_token;
-    char *ptr2 = strtok_r(ptr,",",&end_token);
+    ptr2 = strtok_r(ptr,",",&end_token);
     //tokenize each ";" token through ",", iterate until end of the line
     counter = 0;//used to keep track of how many "," we iterated on
 
@@ -237,7 +242,32 @@ topology * getTopology(char * path){
     ptr=strtok_r(NULL, ";",&end_str);
   }
 
-  //8th line: probabilities command receiver
+  read = getline(&temp, &len, fp);
+  //10th line, LANs service times
+  index = 0;
+  ptr = strtok_r(temp, ";", &end_str);
+  double ** LANserviceTimes = malloc(sizeof(double*) * ntl);
+  while(ptr){
+    ptr2 = strtok_r(ptr,",",&end_token);
+    //tokenize each ";" token through ",", iterate until end of the line
+    counter = 0;//used to keep track of how many "," we iterated on
+
+    while(ptr2){
+      if(counter == 0){
+        LANserviceTimes[index] = malloc(sizeof(double) * 5);//fixed, 5 types messages
+        LANserviceTimes[index][counter] = strtod(ptr2, &end_ptr);
+      }
+      else{
+        LANserviceTimes[index][counter] = strtod(ptr2, &end_ptr);
+      }
+      counter+=1;
+      ptr2 = strtok_r(NULL,",",&end_token);
+    }
+    index+=1;
+    ptr=strtok_r(NULL, ";",&end_str);
+  }
+
+  //11th line: probabilities command receiver
   read = getline(&temp, &len, fp);
 
   ptr = strtok_r(temp, ";", &end_str);
@@ -253,6 +283,7 @@ topology * getTopology(char * path){
 
   topology * genTop = malloc(sizeof(topology));
   topArray ** returnArray = malloc(sizeof(topArray *) * (nn + ns + na + nw + nl));
+  printf("%d %d %d %d %d\n", nn , ns , na , nw , nl);
   //iterate through the remaining lines, having the following syntax:
 
   while ((read = getline(&line, &len, fp)) != -1) {
@@ -348,7 +379,9 @@ topology * getTopology(char * path){
   genTop->numberOfTotalWANs = nw;
   genTop->numberOfActTypes = nt;
   genTop->numberOfSensTypes = nts;
+  genTop->numberOfLANsTypes = ntl;
   genTop->sensorRatesByType = sensor_rates;
+  genTop->LANServiceTimesByType = LANserviceTimes;
   genTop->probOfActuators = probArray;
   genTop->topArr = returnArray;
 
