@@ -11,24 +11,27 @@ int main()
   char * path = "test.txt";
   topology * genTop = getTopology(path);
 
-  printf("Contents of generalTopology, total nodes : %d, sensor/actuator nodes: %d/%d, number of connection elements: %d. \n",genTop->total_nodes,genTop->sensor_nodes,genTop->actuator_nodes, genTop->connection_elements);
+  printf("Contents of generalTopology:\ntotal nodes : %d;\nsensors/actuators: %d/%d;\nWANs/LANs %d/%d;\n",genTop->total_nodes,genTop->sensor_nodes,genTop->actuator_nodes, genTop->numberOfTotalWANs,  genTop->numberOfTotalLANs);
 
   double ** res = getSensorRatesByType(genTop);
   int k = 0;
   int l;
+  printf("Rates for each sensor type and message type couple:\n");
   while(k < 2){ //# of possible message types
     l = 0;
     while(l < genTop->numberOfSensTypes){
-      printf("Sensor sending a message of type %d, being a type %d, has a rate of %f\n",k, l, res[k][l]);
+      printf("Sensor sending a message of type %d, being a type %d, has a rate of %f;\n",k, l, res[k][l]);
       l+=1;
     }
     k+=1;
   }
-
+  for(k = 0;k < genTop->numberOfActTypes;k++){
+    printf("Probability of a sensor of type %d of receiving a command: %f. \n",k,genTop->probOfActuators[k]);
+  }
   //topArray ** topArray = genTop->topArr;
-  printf("Checking array integrity..\n");
+  printf("\nChecking informations integrity..\n");
 
-  for(int i = 0; i < genTop->total_nodes + genTop->sensor_nodes + genTop->actuator_nodes + genTop->connection_elements; i++){
+  for(int i = 0; i < genTop->total_nodes + genTop->sensor_nodes + genTop->actuator_nodes + genTop->numberOfTotalWANs + genTop->numberOfTotalLANs; i++){
 
     int * solution = getLowers(genTop, i);
 
@@ -37,20 +40,39 @@ int main()
 
     lp_infos * infos = getInfo(genTop, i);
 
-    while(j < numLow){
-      printf("Node %d has lower node %d.\n",i,solution[j]);
-      j+=1;
+    int upp = getUpperNode(genTop, i);
+    if(upp != -1) printf("Element %d has upper node %d.\n",i,upp);
+
+    if(solution[0] != -1){//-1 is a temporal solution when nodes have no lower level
+      while(j < numLow){
+        if(j == 0){
+          printf("Element %d has lower node(s): %d",i,solution[j]);
+        }
+        else{
+          printf(",%d",solution[j]);
+        }
+        j+=1;
+      }
+      printf(".\n");
     }
 
-    int upp = getUpperNode(genTop, i);
-
-    printf("Node %d has upper node %d.\n",i,upp);
-
-
     if(infos->lp_type == 0){//node
-      //printf("Node %d has this service_time: %f.\n",i,infos->service_time);
+      double * serviceTimes = getServiceRates(genTop, i);
+      for(k = 0;k < 4;k++){
+        printf("Node %d, when processing a message of type %d, has a service time %f.\n",i,k,serviceTimes[k]);
+      }
       printf("Node %d has this scheduler: %d.\n",i,infos->scheduler);
       printf("Node %d has this type: %d.\n",i,infos->node_type);
+      printf("Node %d has %d total sensors below.\n", i, infos->numberOfBelowSensors);
+      for(k = 0;k < genTop->numberOfActTypes;k++){
+        if(k == 0){
+          printf("Node %d has %d actuators of type %d",i,infos->actuatorsTypesBelow[k],k);
+        }
+        else{
+          printf(", %d of type %d",infos->actuatorsTypesBelow[k],k);
+        }
+      }
+      printf(".\n");
       printf("Node %d has upper WAN : %d.\n",i,infos->id_WAN_up);
       printf("Node %d has lower WAN: %d.\n",i,infos->id_WAN_down);
       printf("Node %d has this aggregation rate: %d.\n",i,infos->aggregation_rate);
@@ -62,12 +84,16 @@ int main()
       int * LANS = getLANS(genTop, i);
       int c = 0;
       if(LANS[0] != -1){
+        printf("Node %d manages %d LAN(s): %d", i,numLANS, LANS[0]);
+        c+=1;
         while(c < numLANS){
-          printf("Node %d manages this LAN: %d.\n",i,LANS[c]);
+          printf(", %d",LANS[c]);
           c+=1;
         }
+      printf(".\n");
       }
     }
+
     else if(infos->lp_type ==1){//SENSOR
       printf("Sensor %d has this job type: %d.\n",i,infos->type_job);
       printf("Sensor %d is of this type: %d.\n",i,infos->sensor_type);
@@ -88,5 +114,4 @@ int main()
     }
 
   }
-
 }

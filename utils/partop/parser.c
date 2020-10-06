@@ -59,7 +59,7 @@ void * parse_strings(char ** strings, int types){
         infos->service_time = serviceArray;
 
         ptr = strtok_r(strings[9], "/", &end_str);
-        int * typesArray = malloc((sizeof(int)) * types); //fixed, 4 type of data.
+        int * typesArray = malloc((sizeof(int)) * types);
         counter = 0;
         while(ptr){
           typesArray[counter] = atoi(ptr);
@@ -193,13 +193,16 @@ topology * getTopology(char * path){
   //same for 2nd line, number of actuators
   read = getline(&temp, &len, fp);
   int na = atoi(temp);
-  //4rd line, number of WANs+LANs
+  //4th line, number of WANs
   read = getline(&temp, &len, fp);
-  int nc = atoi(temp);
-  //5th line, number of types of actuators
+  int nw = atoi(temp);
+  //5th line, number of LANs
+  read = getline(&temp, &len, fp);
+  int nl = atoi(temp);
+  //6th line, number of types of actuators
   read = getline(&temp, &len, fp);
   int nt = atoi(temp);
-  //5th line, number of types of sensors
+  //7th line, number of types of sensors
   read = getline(&temp, &len, fp);
   int nts = atoi(temp);
 
@@ -234,7 +237,7 @@ topology * getTopology(char * path){
     ptr=strtok_r(NULL, ";",&end_str);
   }
 
-  //6th line: probabilities command receiver
+  //8th line: probabilities command receiver
   read = getline(&temp, &len, fp);
 
   ptr = strtok_r(temp, ";", &end_str);
@@ -249,7 +252,7 @@ topology * getTopology(char * path){
   //printf("There are %d sensor/actuator nodes.\n",ns);
 
   topology * genTop = malloc(sizeof(topology));
-  topArray ** returnArray = malloc(sizeof(topArray *) * (ns + nn + nc + na));
+  topArray ** returnArray = malloc(sizeof(topArray *) * (nn + ns + na + nw + nl));
   //iterate through the remaining lines, having the following syntax:
 
   while ((read = getline(&line, &len, fp)) != -1) {
@@ -340,8 +343,9 @@ topology * getTopology(char * path){
 
   genTop->total_nodes = nn;
   genTop->sensor_nodes = ns;
-  genTop->actuator_nodes = ns;
-  genTop->connection_elements = nc;
+  genTop->actuator_nodes = na;
+  genTop->numberOfTotalLANs = nl;
+  genTop->numberOfTotalWANs = nw;
   genTop->numberOfActTypes = nt;
   genTop->numberOfSensTypes = nts;
   genTop->sensorRatesByType = sensor_rates;

@@ -42,3 +42,8 @@ double ** getSensorRatesByType(topology * top)
 {
   return top->sensorRatesByType;
 }
+
+double * getServiceRates(topology * top, int index){
+  lp_infos * info = getInfo(top,index);
+  return info->service_time;
+}

@@ -2,22 +2,32 @@
 This folder will contain modules to parse input file and get informations in the relative data structure
 ## Syntax of text file
 Being a work in progress project, this is subject to frequent changes and won't be a final version:
+7
+4
+4
+3
 4
 2
-3
-0;2;2,3;4;NODE,SCHEDULER1,28.2, CENTRAL
-4;1;5;4;SENSOR,BATCH, SENSOR_TYPE1, MEASURE1
-4;1;5;2;ACTUATOR,BATCH, ACTUATOR_TYPE0, MEASURE2
-...
+2
+0.33,0.10;0.24,0.12
+0.34;0.28
+0;2;1,2;-1;1;-1;11;NODE,SCHEDULER1,CENTRAL,-1,17,14,0.8,0.3,0.82/0.35/0.1/0.3,3/3,4
+7;1;-1;3;1;-1;5;SENSOR,BATCH,SENSOR_TYPE0,MEASURE0,20
+16;1;-1;5;1;-1;5;ACTUATOR,REAL_TIME,ACTUATOR_TYPE1,MEASURE1,23
+17;2;1,2;0;1;-1;3;WAN,WAN_TYPE0,0.82
+20;4;7,8,9,10;3;1;-1;3;LAN,LAN_TYPE0,0.42
+
 
 First line: number of nodes
 Second line: number of sensors
 3rd: # actuators
-4 line: number of connection elements(WAN/LAN)
-5 line: # types actuators
-6 line: # types sensors
-7th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...
-8th line: probability receiving actuator type 0;pr type 1;...
+4 line: number of WANs
+5 line: number of LANs
+6 line: # types actuators
+7 line: # types sensors
+8th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...
+9th line: probability receiving actuator type 0;pr type 1;...
+
 id element, #lower nodes,{lower nodes},upper node,#LANs below, {LANs below},#informations,type of element,{informations}
 
 {informations} is different based on the type of node:
