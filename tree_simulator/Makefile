@@ -11,10 +11,10 @@ DEPS= ../utils/priority_queue/priority_queue.h ../utils/priority_queue/heap/heap
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) -g
 
 %.o : %.c $(DEPS)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $< -g
 
 clean:
 	$(RM) *.o *.o.rs $(TARGET)

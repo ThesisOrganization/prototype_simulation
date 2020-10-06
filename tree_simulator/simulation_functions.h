@@ -16,4 +16,9 @@ void arrive_node(unsigned int me, simtime_t now, lp_state * state, job_info * in
 void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info * info);
 void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info * info);
 
+void finish_node(unsigned int me, simtime_t now, lp_state * state);
+void finish_actuator(unsigned int me, simtime_t now, lp_state * state);
+void finish_lan(unsigned int me, simtime_t now, lp_state * state);
+
+
 #endif /* SIMULATION_FUNCTIONS_H */

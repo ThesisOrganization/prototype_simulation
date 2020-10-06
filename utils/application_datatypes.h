@@ -22,7 +22,9 @@ typedef enum {
     TELEMETRY = 0,
     TRANSITION,
     COMMAND,
-    BATCH_DATA
+    BATCH_DATA,
+    REPLY,
+    NUM_OF_JOB_TYPE //IT'S NOT A TYPE, this must be at the end
 } job_type;
 
 /// Metadata used to charhterize a job type and priority.
@@ -31,7 +33,10 @@ typedef struct _job_info {
     double arrived_in_node_timestamp;
     double deadline; ///< The deadline at which the job must be completed.
 		void* payload; ///< The actual job data.
+    //the following may be included in the payload:
     job_type job_type;
+    int sender; //used for the reply
+    int destination; //used for command
 } job_info;
 
 /** \brief How a queue must be handled by the scheduler.
@@ -65,6 +70,8 @@ typedef enum {
     SCHEDULER3
 } scheduler_type;
 
+#define SENSOR_BASE 301
+
 typedef enum {
     SENSOR_TYPE0 = 301,
     SENSOR_TYPE1
@@ -91,6 +98,8 @@ typedef enum {
     WAN_TYPE0 = 701,
     WAN_TYPE1
 } wan_type;
+
+#define LAN_BASE 801
 
 typedef enum {
     LAN_TYPE0 = 801,
@@ -183,31 +192,47 @@ typedef struct _queue_state {
     simtime_t start_processing_timestamp;
     job_info * current_job;
     int num_jobs_in_queue;
-    int num_jobs_arrived;
+    //METRICS, from slide 4, single queue modeling, CP
+    int * A; //number of jobs arrived (arrivals)
+    int * C; //number of jobs completed (completions)
+    double * B; //busy time, time in which the queue is computing
+    double * W; //time spent in the system by all arrivals
+    /*
+    int * num_jobs_arrived;
     //int num_lossy_jobs_rejected;
     //int num_rt_jobs_rejected;
     //int num_batch_jobs_rejected;
-    double last_arrived_in_node_timestamp;
-    double sum_all_service_time;
-    double sum_all_time_between_arrivals;
-    double sum_all_response_time;
+    double * last_arrived_in_node_timestamp;
+    double * sum_all_service_time;
+    double * sum_all_time_between_arrivals;
+    double * sum_all_response_time;
+    */
     void * queues;
 } queue_state;
 
 typedef struct _sensor_state {
     prio_type job_generated;
+    double rate_telemetry;
+    double rate_transition;
 } sensor_state;
 
 typedef struct _node_state {
     queue_state * queue_state;
+    double * service_rates;
+    node_type type;
+    int aggregation;
+    int num_telemetry_aggregated;
 } node_state;
 
 typedef struct _actuator_state {
     queue_state * queue_state;
+    double rate_transition;
+    double service_rate_command;
 } actuator_state;
 
 typedef struct _lan_state {
     queue_state * queue_state;
+    double * service_rates;
 } lan_state;
 
 typedef union {
@@ -219,7 +244,8 @@ typedef union {
 
 typedef struct _state {
     int num_jobs_processed;
-	//simtime_t ts;
+	simtime_t start_timestamp; //usefull to compute T
+    simtime_t actual_timestamp;
     state_type type;
     topology * topology;
     state_info info;

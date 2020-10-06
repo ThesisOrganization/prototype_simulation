@@ -25,6 +25,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     job_info info_to_send;
     int up_node;
     job_info * info;
+    double rate_generate;
     
     simtime_t ts_generate;
     //simtime_t ts_arrive = now + Expent(ARRIVE_RATE);
@@ -37,25 +38,29 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             state = malloc(sizeof(lp_state));
             SetState(state);
 
+            state->start_timestamp = now;
+            state->actual_timestamp = now;
+            //printf("%f\n", now);
+            
             state->num_jobs_processed = 0;
             state->topology = getTopology(topology_path); //later we will use a static struct
-
 
             unsigned int num_nodes = state->topology->total_nodes;
             unsigned int num_sensors = state->topology->sensor_nodes;
             unsigned int num_actuators = state->topology->actuator_nodes;
-            unsigned int num_connections = state->topology->connection_elements;
+            unsigned int num_wans = state->topology->numberOfTotalWANs;
+            unsigned int num_lans = state->topology->numberOfTotalLANs;
 
             
             //if there are too few LPs, exit
-            if(num_nodes + num_sensors + num_actuators + num_connections > n_prc_tot){
+            if(num_nodes + num_sensors + num_actuators + num_lans + num_wans > n_prc_tot){
                 printf("Error: too few LPs, add more LPs\n");
                 exit(EXIT_FAILURE);
             }
 
             
             //if there are too may LPs, return it
-            if(me >= num_nodes + num_sensors + num_actuators + num_connections){
+            if(me >= num_nodes + num_sensors + num_actuators + num_lans + num_wans){
                 state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
                 break;
             }
@@ -101,6 +106,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
         case GENERATE_TRANSITION:
 
+            state->actual_timestamp = now;
             //check number of events is up to
             info_to_send.type = REAL_TIME;
             //info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
@@ -110,7 +116,25 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             up_node = getUpperNode(state->topology, me);
             ScheduleNewEvent(up_node, now, ARRIVE, &info_to_send, sizeof(job_info));
             
-            ts_generate = now + Expent(ARRIVE_RATE);
+            //ts_generate = now + Expent(ARRIVE_RATE);
+            if(state->type == SENSOR){
+                
+                rate_generate = state->info.sensor->rate_transition;
+
+            }
+            else if(state->type == ACTUATOR){
+
+                rate_generate = state->info.actuator->rate_transition;
+
+            }
+            else{
+
+                printf("Error: device type not found\n");
+                exit(EXIT_FAILURE);
+            }
+
+
+            ts_generate = now + Expent(rate_generate);
             ScheduleNewEvent(me, ts_generate, GENERATE_TRANSITION, NULL, 0);
 
             state->num_jobs_processed++;
@@ -119,6 +143,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
         
         case GENERATE_TELEMETRY:
 
+            state->actual_timestamp = now;
             //check number of events is up to
             info_to_send.type = REAL_TIME;
             //info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
@@ -128,13 +153,27 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             up_node = getUpperNode(state->topology, me);
             ScheduleNewEvent(up_node, now, ARRIVE, &info_to_send, sizeof(job_info));
 
-            ts_generate = now + Expent(ARRIVE_RATE);
+            //ts_generate = now + Expent(ARRIVE_RATE);
+            if(state->type == SENSOR){
+                
+                rate_generate = state->info.sensor->rate_telemetry;
+
+            }
+            else{
+
+                printf("Error: device type not found\n");
+                exit(EXIT_FAILURE);
+            }
+
+            ts_generate = now + Expent(rate_generate);
             ScheduleNewEvent(me, ts_generate, GENERATE_TELEMETRY, NULL, 0);
 
             state->num_jobs_processed++;
             break;
 
         case ARRIVE:
+
+            state->actual_timestamp = now;
 
             info = malloc(sizeof(job_info));
             memcpy(info, content, sizeof(job_info));
@@ -164,62 +203,26 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             break;
 
-        /*
+
         case FINISH:
-            //update timestamp in the node
-            state->ts=now;
+            
+            state->actual_timestamp = now;
 
-            //send arrive to next LP
-            info_arr = schedule_out(state->info.node->queues);
-            info=info_arr[0];
-
-            up_node = getNext(state->topology, me)[0];
-            //we send a new arrive event if we have a receiver and the job has not expired is is lossy.
-            if(up_node != -1 && (info->type==LOSSY && info->deadline>=now)){
-                ScheduleNewEvent(up_node, ts_delay, ARRIVE, info, sizeof(job_info));
-            }
-            //check if the lossy job has been rejected and remeber that
-            if(info->type==LOSSY && info->deadline<now){
-                state->info.node->num_lossy_jobs_rejected++;
-           }
-
-            double service_time = now - ( (processing_info*) content)->start_processing_timestamp;
-            double response_time = now - info->arrived_in_node_timestamp;
-
-            //change state
             state->num_jobs_processed++;
-            state->info.node->sum_all_service_time += service_time;
-            state->info.node->sum_all_response_time += response_time;
-
-            free(info_arr);
-            free(info);
-
-            state->info.node->num_jobs_in_queue--;
-
-            //schedule new event if other are presents (num clients)
-            if(state->info.node->num_jobs_in_queue > 0){
-                proc_info_to_send.start_processing_timestamp = now;
-                ScheduleNewEvent(me, ts_finish, FINISH, &proc_info_to_send, sizeof(processing_info));
-            }
-
-            break;
-            */
-
-        case FINISH:
 
             if(state->type == NODE){
                 
-                //arrive_node(me, now, state, info);
+                finish_node(me, now, state);
 
             }
             else if(state->type == ACTUATOR){
 
-                //arrive_actuator(me, now, state, info);
+                finish_actuator(me, now, state);
 
             }
             else if(state->type == LAN){
 
-                //arrive_lan(me, now, state, info);
+                finish_lan(me, now, state);
 
             }
             else{
@@ -233,11 +236,62 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     }
 }
 
+void print_metrics(int me, queue_state * queue_state, double T, simtime_t actual_timestamp){
+
+    printf("#################################################\n");
+    printf("Device number %d\n", me);
+
+    for(int i=0; i < NUM_OF_JOB_TYPE; i++){
+
+        if(queue_state->A[i] > 0){
+        
+            printf("......................\n");
+            printf("Class number %d, timestamp: %f\n", i, actual_timestamp);
+
+            //all data here are averages
+            double S = queue_state->B[i] / queue_state->C[i];
+            double R = queue_state->W[i] / queue_state->C[i];
+            double N = queue_state->W[i] / T;
+            double U = queue_state->B[i] / T;
+            double lambda = queue_state->A[i] / T;
+            double X = queue_state->C[i] / T;
+
+            printf("Average Service time: %f\n", S);
+            printf("Average Response time: %f\n", R);
+            printf("Average number of visits: %f\n", N);
+            printf("Utilization factor: %f\n", U);
+            printf("Arrival rate: %f\n", lambda);
+            printf("Throughput: %f\n", X);
+        }
+
+
+    }
+}
+
 bool OnGVT(int me, lp_state *snapshot)
 {
     if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS)
             return true;
-    
+	
+    double T = snapshot->actual_timestamp - snapshot->start_timestamp;
+   
+    if(snapshot->type == NODE){
+
+        print_metrics(me, snapshot->info.node->queue_state, T, snapshot->actual_timestamp);
+
+    }
+    else if(snapshot->type == ACTUATOR){
+
+        print_metrics(me, snapshot->info.actuator->queue_state, T, snapshot->actual_timestamp);
+
+    }
+    else if(snapshot->type == LAN){
+
+        print_metrics(me, snapshot->info.lan->queue_state, T, snapshot->actual_timestamp);
+
+    }
+
+
     //printf("%d\n", me);
     //return false; //se lo metti va infinito, altrimenti si ferma appena non ci sono eventi?
 
