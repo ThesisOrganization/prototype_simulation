@@ -38,6 +38,7 @@ id element, #lower nodes,{lower nodes},upper node,#LANs below, {LANs below},#inf
 {informations} is different based on the type of node:
 Node: scheduler, type of node,id WAN up, id WAN below,  aggregation rate, delay upper router, delay lower router,  {service time telemtry/service time transition/service time command/service time batch send}, {# actuators type 0/...}, #sensors\
 Sensor/Actuator: type of job, Sensor/Actuator type, measure done, id LAN up\
+Actuator: type of job, Actuator type, measure done, id LAN up,rate transition, service time command\
 WAN:type of WAN[CENTRAL-REGIONAL/REGIONAL-LOCAL], delay\
 LAN:type of LAN[MANET/WIRELESS/ETC], delay\
 

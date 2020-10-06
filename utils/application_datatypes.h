@@ -108,6 +108,9 @@ int actuator_type;
 int type_job;
 int measure_type;
 
+double rateTransition;
+double serviceTimeCommand;
+
 int wan_type;
 int lan_type;
 float delay;

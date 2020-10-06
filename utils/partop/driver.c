@@ -142,6 +142,8 @@ int main()
       printf("Actuator %d has this job type: %d.\n",i,infos->type_job);
       printf("Actuator %d is of this type: %d.\n",i,infos->actuator_type);
       printf("Actuator %d has this measure type: %d.\n",i,infos->measure_type);
+      printf("Actuator %d has this rate of transition type: %f.\n",i,infos->rateTransition);
+      printf("Actuator %d has this service time for commands: %f.\n",i,infos->serviceTimeCommand);
     }
     else if(infos->lp_type ==3){//WAN
       printf("WAN %d has this type: %d.\n",i,infos->wan_type);

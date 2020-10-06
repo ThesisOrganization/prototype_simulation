@@ -115,6 +115,12 @@ void * parse_strings(char ** strings, int types){
 
         flag = 1;
 
+        double rateTransition = strtod(strings[5], &ptr);
+        infos->rateTransition = rateTransition;
+
+        double serviceTimeCommand = strtod(strings[6], &ptr);
+        infos->serviceTimeCommand = serviceTimeCommand;
+
     }
     else if( !strcmp(strings[0], "WAN") ){
 
