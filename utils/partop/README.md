@@ -1,6 +1,6 @@
 # Utils/partop
 This folder will contain modules to parse input file and get informations in the relative data structure.\
-The module relies on application_datatypes.h for the definition of the data structures.\
+The module relies on application_datatypes.h for the definition of the data structures.
 ## Syntax of text file
 Being a work in progress project, this is subject to frequent changes and won't be a final version:\
 7\
@@ -40,7 +40,7 @@ Node: scheduler, type of node,id WAN up, id WAN below,  aggregation rate, delay 
 Sensor/Actuator: type of job, Sensor/Actuator type, measure done, id LAN up\
 WAN:type of WAN[CENTRAL-REGIONAL/REGIONAL-LOCAL], delay\
 LAN:type of LAN[MANET/WIRELESS/ETC], delay\
-\
+
 ## Data structure 1
 topology is composed by the general, useful informations:\
 First 8 info that shouldn't need explaining:\
@@ -55,7 +55,7 @@ int numberOfLANsTypes;\
 double ** sensorRatesByType: array of arrays containing the sensor rates of each type of sensor for each type of message(only telemetry and transition).\
 double ** LANServiceTimesByType: same as sensorRatesByType but in this case it is the service time of each type of lan for each type of message(all 5, even if batch send should not be here, but for future updates).\
 double * probOfActuators: probability of each type of actuator to receive a command message.
-topArray ** topArr: array of topArray structs, see below.\
+topArray ** topArr: array of topArray structs, see below.
 
 ## DS 2
 topArray is an additional data structure, used to give informations about one element without specifics about the node's nature, composed :\
@@ -64,7 +64,7 @@ int numberOfLowerElements: how many elements are directly below.\
 int * lowerElements: array of elements below(skipping WANs/LANs)\
 int numberOfLANS: how many LANs directly below.\
 int * connectedLans: array of LANs below.\
-void * info: see below.\
+void * info: see below.
 
 ## DS 3
 lp_infos contains all other useful informations.\
@@ -90,14 +90,14 @@ int id_LAN_up;\
 int numberOfBelowSensors: how many sensors below, even indirectly.\
 int aggregation_rate;\
 float delay_upper_router;\
-float delay_lower_router;\
+float delay_lower_router;
 
 
 ## Usage
 This module should be used at startup with the function in parser.c, where the txt file specified gets parsed and put into data structures.\
 driver.c is used to show corrected and mode of use.\
 getTopology(path) starts parser.c to do so.\
-Then in topology.c all useful retrieval functions are written, for now need to pass the topology structures, if needed will be modified to accept others structs.\
+Then in topology.c all useful retrieval functions are written, for now need to pass the topology structures, if needed will be modified to accept others structs.
 
 
 ##TODO
