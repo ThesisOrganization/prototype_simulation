@@ -129,7 +129,7 @@ void * parse_strings(char ** strings, int types){
         if( !strcmp(strings[1], "WAN_TYPE0") )
             infos->wan_type = WAN_TYPE0;
         else if( !strcmp(strings[1], "WAN_TYPE1") )
-            infos->wan_type = LAN_TYPE0;
+            infos->wan_type = WAN_TYPE1;
         else
             exit(EXIT_FAILURE);
 
@@ -138,6 +138,7 @@ void * parse_strings(char ** strings, int types){
 
     }
     else if( !strcmp(strings[0], "LAN") ){
+
 
         infos->lp_type = LAN;
 
@@ -152,6 +153,17 @@ void * parse_strings(char ** strings, int types){
 
         double delay = strtod(strings[2], &ptr);
         infos->delay = delay;
+
+        char * end_str;
+        ptr = strtok_r(strings[3], "/", &end_str);
+        int * typesArray = malloc((sizeof(int)) * types);
+        int counter = 0;
+        while(ptr){
+          typesArray[counter] = atoi(ptr);
+          ptr = strtok_r(NULL,"/",&end_str);
+          counter+=1;
+        }
+        infos->actuatorsTypesBelow = typesArray;
 
     }
     else{
@@ -199,21 +211,28 @@ void getUpNode(topology * top, int index, int tot, int number, int ** array,int 
 }
 
 void getUpNode2(topology * top, int up, int index, int *** result){
+  int flag = 0;
   if(index != up){
     up = getUpperNode(top, up);
   }
   else{
     up = getUpperNode(top, index);
   }
-  int at = getActuatorType(top,index);
-  int * te = getActType(top,up);
-  for(int js = 0; js < te[at]; js++){
-    if(result[up][at][js] == index){
-      js = te[at];
-    }
-    else if(result[up][at][js] == -1){
-      result[up][at][js] = index;
-      js = te[at];
+  int type =  getType(top, up);
+  if(type == 1 || type == 4){//node or lan
+    flag = 1;
+  }
+  if(flag){
+    int at = getActuatorType(top,index);
+    int * te = getActType(top,up);
+    for(int js = 0; js < te[at]; js++){
+      if(result[up][at][js] == index){
+        js = te[at];
+      }
+      else if(result[up][at][js] == -1){
+        result[up][at][js] = index;
+        js = te[at];
+      }
     }
   }
   if(up == 0 ){ //someone higher then me so I can't reach
@@ -370,7 +389,6 @@ topology * getTopology(char * path){
 
       while(ptr2){
         if(index == 0){//#receivers
-
           numberOfLowerElements = atoi(ptr2);
           lowerElementsArray = malloc(sizeof(int *)*numberOfLowerElements);
         }
@@ -414,7 +432,9 @@ topology * getTopology(char * path){
     tp->upperNode = upperNode;
     tp->numberOfLANS = numberOfLANS;
     tp->connectedLans = LANSarray;
+
     tp->info = parse_strings(infoArray, nt);
+
 
 		for(i=0;i<counter;i++){
 				free(infoArray[i]);
@@ -437,25 +457,31 @@ topology * getTopology(char * path){
   genTop->probOfActuators = probArray;
   genTop->topArr = returnArray;
 
+  int totalNumberOfElements =  nn+ns+na+nl+nw;
 
-  int *** result = malloc(sizeof(int**)*nn);
+  int *** result = malloc(sizeof(int**)*totalNumberOfElements);
   index = 0;
   int index2 = 0;
-  while(index < nn){
-    result[index] = malloc(sizeof(int*)*nt);
-    int * te = getActType(genTop, index);
-    index2 = 0;
-    while(index2 < nt){
-      result[index][index2] = malloc(sizeof(int) * te[index2]);
-      for(int js = 0; js < te[index2];js+=1){
-        result[index][index2][js] = -1;
+
+  while(index < totalNumberOfElements){
+    int type =  getType(genTop, index);
+    if(type == 0 || type == 4){//node or lan
+
+      result[index] = malloc(sizeof(int*)*nt);
+      int * te = getActType(genTop, index);
+      index2 = 0;
+      while(index2 < nt){
+        result[index][index2] = malloc(sizeof(int) * te[index2]);
+        for(int js = 0; js < te[index2];js+=1){
+          result[index][index2][js] = -1;
+        }
+        index2+=1;
       }
-      index2+=1;
     }
     index+=1;
   }
 
-  int totalNumberOfElements =  nn+ns+na+nl+nw;
+
   int ** arrayActuatorPaths = malloc(sizeof(int *) * (totalNumberOfElements));
   int tot = 0;
   int ind;
