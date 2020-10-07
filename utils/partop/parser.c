@@ -455,16 +455,16 @@ topology * getTopology(char * path){
     index+=1;
   }
 
-  int ** arrayActuatorPaths = malloc(sizeof(int *) * (nn));
+  int totalNumberOfElements =  nn+ns+na+nl+nw;
+  int ** arrayActuatorPaths = malloc(sizeof(int *) * (totalNumberOfElements));
   int tot = 0;
   int ind;
-  while(tot < nn){
-    arrayActuatorPaths[tot] = malloc(sizeof(int)*(nn+ns+na));
-    for(ind = nn; ind < nn+ns+na; ind+=1){
+  while(tot < totalNumberOfElements){
+    arrayActuatorPaths[tot] = malloc(sizeof(int)*(totalNumberOfElements));
+    for(ind = 0; ind < totalNumberOfElements; ind+=1){
       int type =  getType(genTop, ind);
       if(type == 2){//Is an actuator
         getUpNode(genTop, ind, tot, ind, arrayActuatorPaths,-1, result, ind);
-
       }
       else{
         arrayActuatorPaths[tot][ind] = -1;
@@ -474,7 +474,7 @@ topology * getTopology(char * path){
   }
 
 
-  for(ind = nn; ind < nn+ns+na; ind+=1){
+  for(ind = 0; ind < totalNumberOfElements; ind+=1){
     int type =  getType(genTop, ind);
     if(type == 2){//Is an actuator
       getUpNode2(genTop, ind, ind, result);
@@ -498,14 +498,16 @@ topology * getTopology(char * path){
 
 
 
-    /*
+
     tot = 0;
-    while(tot < nn){
-      for(ind = nn; ind < nn+ns+na; ind+=1){
-        printf("array[%d][%d] = %d\n",tot, ind,arrayActuatorPaths[tot][ind]);
+    while(tot < totalNumberOfElements){
+      for(ind = nn; ind < totalNumberOfElements; ind+=1){
+        if(arrayActuatorPaths[tot][ind] != -1){
+          printf("array[%d][%d] = %d\n",tot, ind,arrayActuatorPaths[tot][ind]);
+        }
       }
       tot+=1;
-    }*/
+    }
   genTop->actuatorPaths = arrayActuatorPaths;
   //genTop->uglyStructContainingMatrixNodesActuatorTypesAndWhichOneAreThem = result;
 
