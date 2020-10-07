@@ -74,10 +74,10 @@ double * getLANServiceTimesForOneLANType(topology * top, int index)
   return top->LANServiceTimesByType[index];
 }
 
-double ** getActuatorPaths(topology * top){
+int ** getActuatorPaths(topology * top){
   return(top->actuatorPaths);
 }
-double * getActuatorPathsIndex(topology * top, int index)
+int * getActuatorPathsIndex(topology * top, int index)
 {
   return top->actuatorPaths[index];
 }

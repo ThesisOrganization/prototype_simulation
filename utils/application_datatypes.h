@@ -65,44 +65,44 @@ typedef enum {
 } state_type;
 
 typedef enum {
-    SCHEDULER1 = 101,
+    SCHEDULER1 = 0,
     SCHEDULER2,
     SCHEDULER3
 } scheduler_type;
 
-#define SENSOR_BASE 301
+#define SENSOR_BASE 0
 
 typedef enum {
-    SENSOR_TYPE0 = 301,
+    SENSOR_TYPE0 = 0,
     SENSOR_TYPE1
 } sensor_type;
 
 typedef enum {
-    ACTUATOR_TYPE0 = 401,
+    ACTUATOR_TYPE0 = 0,
     ACTUATOR_TYPE1
 } actuator_type;
 
 typedef enum {
-    CENTRAL = 501,
+    CENTRAL = 0,
     REGIONAL,
     LOCAL
 } node_type;
 
 typedef enum {
-    MEASURE0 = 601,
+    MEASURE0 = 0,
     MEASURE1,
     MEASURE2
 } measure_type;
 
 typedef enum {
-    WAN_TYPE0 = 701,
+    WAN_TYPE0 = 0,
     WAN_TYPE1
 } wan_type;
 
-#define LAN_BASE 801
+#define LAN_BASE 0
 
 typedef enum {
-    LAN_TYPE0 = 801,
+    LAN_TYPE0 = 0,
     LAN_TYPE1,
     LAN_TYPE2
 } lan_type;
