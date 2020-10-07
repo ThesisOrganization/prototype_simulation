@@ -81,3 +81,7 @@ int * getActuatorPathsIndex(topology * top, int index)
 {
   return top->actuatorPaths[index];
 }
+int * getListActuatorsByType(topology * top, int nodeId, int actuatorType)
+{
+    return top->uglyStructContainingMatrixNodesActuatorTypesAndWhichOneAreThem[nodeId][actuatorType];
+}

@@ -1,5 +1,5 @@
 CC = rootsim-cc
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -g
 TARGET = queues
 
 SRCS = application.c simulation_functions.c ../utils/priority_queue/priority_queue.c ../utils/priority_queue/heap/heap.c ../utils/partop/parser.c ../utils/partop/topology.c ../utils/priority_scheduler/priority_scheduler.c ../utils/priority_scheduler/quick_sort.c
@@ -11,10 +11,10 @@ DEPS= ../utils/priority_queue/priority_queue.h ../utils/priority_queue/heap/heap
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) -g
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
 %.o : %.c $(DEPS)
-	$(CC) $(CFLAGS) -c -o $@ $< -g
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	$(RM) *.o *.o.rs $(TARGET)

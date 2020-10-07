@@ -68,7 +68,7 @@ void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * in
     printf("sensor\n");
     
     state->info.sensor = malloc(sizeof(sensor_state));
-    int sensor_type = infos->sensor_type - SENSOR_BASE;
+    int sensor_type = infos->sensor_type;
     //printf("%d\n", sensor_type);
     double * sensor_rate = getSensorRatesForOneSensorType(state->topology, sensor_type);
     double rate_transition = sensor_rate[0];
@@ -104,9 +104,9 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state, lp_infos * 
     int num_queues = 1;
     state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
     
-    state->info.actuator->service_rate_command = ARRIVE_RATE; 
+    state->info.actuator->service_rate_command = infos->serviceTimeCommand; 
 
-    double rate_transition = ARRIVE_RATE;
+    double rate_transition = infos->rateTransition;
     state->info.actuator->rate_transition = rate_transition;
     
     //schedule generate for all actuators
@@ -133,7 +133,7 @@ void init_lan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos
     state->info.lan->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
     
 
-    int lan_type = infos->lan_type - LAN_BASE;
+    int lan_type = infos->lan_type;
     state->info.lan->service_rates = getLANServiceTimesForOneLANType(state->topology, lan_type);
 
 }
@@ -292,6 +292,29 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         if(state->info.node->type != LOCAL)
             send_reply(me, now, state, info);
 
+        //GENERATE COMMAND
+        int * num_types = getActType(state->topology, me);
+        
+        int type = 0; //random
+        int * list_actuators_by_type = getListActuatorsByType(state->topology, me, type);
+
+        int selected_actuator = 0; //random
+        int id_next_hop = list_actuators_by_type[selected_actuator];
+
+        int * next_hop = getActuatorPathsIndex(state->topology, me);
+        printf("%d\n", id_next_hop);
+
+        int next_device = next_hop[id_next_hop];
+        
+        printf("GENERATING A COMMAND\n");
+        job_info info_to_send;
+        info_to_send.type = REAL_TIME;
+        info_to_send.payload = NULL;
+        info_to_send.job_type = COMMAND;
+
+        ScheduleNewEvent(next_device, now, ARRIVE, &info_to_send, sizeof(job_info));
+
+        //forward transition
         info->sender = me;
         up_node = getUpperNode(state->topology, me);
         if(up_node != -1)
@@ -413,8 +436,8 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state){
     }
     else if(info->job_type == COMMAND){
 
-        //int destination = info->destination;
-        //ScheduleNewEvent(destination, now, ARRIVE, info, sizeof(job_info));
+        int destination = info->destination; //you should use the function of the topology
+        ScheduleNewEvent(destination, now, ARRIVE, info, sizeof(job_info));
 
     }
     else if(info->job_type == BATCH_DATA){

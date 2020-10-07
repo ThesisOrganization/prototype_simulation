@@ -19,4 +19,5 @@ int ** getActuatorPaths(topology * top);
 int * getActuatorPathsIndex(topology * top, int index);
 int * getActType(topology * top,int index);
 int getActuatorType(topology * top, int index);
+int * getListActuatorsByType(topology * top, int nodeId, int actuatorType);
 #endif /* HEADER_H */

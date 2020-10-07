@@ -70,8 +70,6 @@ typedef enum {
     SCHEDULER3
 } scheduler_type;
 
-#define SENSOR_BASE 0
-
 typedef enum {
     SENSOR_TYPE0 = 0,
     SENSOR_TYPE1
@@ -98,8 +96,6 @@ typedef enum {
     WAN_TYPE0 = 0,
     WAN_TYPE1
 } wan_type;
-
-#define LAN_BASE 0
 
 typedef enum {
     LAN_TYPE0 = 0,
@@ -171,12 +167,13 @@ typedef struct _topology{
 
 
 #define TOTAL_NUMBER_OF_EVENTS 100
-#define DELAY_MEAN 1
-#define ARRIVE_RATE 50
-#define FINISH_RATE 5
-#define LEN_QUEUE 50
+#define PROB_CMD 0.4
+//#define DELAY_MEAN 1
+//#define ARRIVE_RATE 50
+//#define FINISH_RATE 5
+//#define LEN_QUEUE 50
 
-#define RANGE_TIMESTAMP 10
+//#define RANGE_TIMESTAMP 10
 
 //#define NUM_QUEUES 3
 

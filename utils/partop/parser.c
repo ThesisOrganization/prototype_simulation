@@ -529,13 +529,13 @@ topology * getTopology(char * path){
     while(tot < totalNumberOfElements){
       for(ind = nn; ind < totalNumberOfElements; ind+=1){
         if(arrayActuatorPaths[tot][ind] != -1){
-          printf("array[%d][%d] = %d\n",tot, ind,arrayActuatorPaths[tot][ind]);
+          //printf("array[%d][%d] = %d\n",tot, ind,arrayActuatorPaths[tot][ind]);
         }
       }
       tot+=1;
     }
   genTop->actuatorPaths = arrayActuatorPaths;
-  //genTop->uglyStructContainingMatrixNodesActuatorTypesAndWhichOneAreThem = result;
+  genTop->uglyStructContainingMatrixNodesActuatorTypesAndWhichOneAreThem = result;
 
   return genTop;
 }
