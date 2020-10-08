@@ -220,21 +220,21 @@ void getUpNode2(topology * top, int up, int index, int *** result){
   }
   int type =  getType(top, up);
   if(type == 0 || type == 4){//node or lan
-    printf("up : %d,type : %d\n",up, type);
+    //printf("up : %d,type : %d\n",up, type);
     int at = getActuatorType(top,index);
-    printf("index : %d , act type : %d\n", index, at);
+    //printf("index : %d , act type : %d\n", index, at);
     int * te = getActType(top,up);
     for(int js = 0; js < te[at]; js++){
-      printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
+      //printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
       if(result[up][at][js] == index){
-        printf("Hresult[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
+        //printf("Hresult[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
         //printf("QUA SOPRA\n");
         js = te[at];
       }
       else if(result[up][at][js] == -1){
         //printf("E NON LA SOTTO %d", index);
         result[up][at][js] = index;
-        printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
+        //printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
         js = te[at];
       }
       //printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
