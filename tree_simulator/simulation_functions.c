@@ -61,6 +61,9 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
     state->info.node->aggregation = infos->aggregation_rate;
     state->info.node->num_telemetry_aggregated = 0;
 
+    state->info.node->up_delay = infos->delay_upper_router;
+    state->info.node->down_delay = infos->delay_lower_router;
+
 }
 
 void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
@@ -259,7 +262,7 @@ static void get_random_actuator(int num_types, int * num_per_types, double * pro
 
 }
 
-static void send_reply(unsigned int me, simtime_t now, lp_state * state, job_info * info){
+static void send_reply(unsigned int me, simtime_t now, lp_state * state, job_info * info, double delay){
 
     job_info info_to_send;
     info_to_send.type = REAL_TIME;
@@ -270,8 +273,43 @@ static void send_reply(unsigned int me, simtime_t now, lp_state * state, job_inf
 
     //printf("%d\n", state->info.node->type);
 
-    ScheduleNewEvent(sender, now, ARRIVE, &info_to_send, sizeof(job_info));
+    ScheduleNewEvent(sender, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
 
+}
+
+static void send_command(unsigned int me, simtime_t now, lp_state * state, job_info * info, double delay){
+
+    int num_types = state->num_acts_types;
+    
+    int * num_per_types = getActType(state->topology, me);
+    //for(int i = 0; i < num_types; i++)
+    //    printf("%d: %d\n", me, num_per_types[i]);
+    
+    //type, selected_actuator = get_random_actuator(num_types, num_per_types);
+    int type, selected_actuator;
+    get_random_actuator(num_types, num_per_types, state->prob_actuators, &type, &selected_actuator);
+    
+    int * list_actuators_by_type = getListActuatorsByType(state->topology, me, type);
+    
+    //printf("%d\n", list_actuators_by_type[0]);
+    //printf("%d\n", list_actuators_by_type[1]);
+    
+    int id_selected_actuator = list_actuators_by_type[selected_actuator];
+    
+    int * next_hop_list = getActuatorPathsIndex(state->topology, me);
+    
+    int next_hop = next_hop_list[id_selected_actuator];
+    
+    //printf("%d, %d\n", me, next_hop);
+    
+    //printf("GENERATING A COMMAND\n");
+    job_info info_to_send;
+    info_to_send.type = REAL_TIME;
+    info_to_send.payload = NULL;
+    info_to_send.job_type = COMMAND;
+    info_to_send.destination = id_selected_actuator;
+    
+    ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
 }
 
 void finish_node(unsigned int me, simtime_t now, lp_state * state){
@@ -299,6 +337,9 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     //state->info.node->queue_state->sum_all_service_time += service_time;
     //state->info.node->queue_state->sum_all_response_time += response_time;
 
+    double delay_up = state->info.node->up_delay;
+    double delay_down = state->info.node->down_delay;
+
     int up_node;
 
     if(info->job_type == TELEMETRY){
@@ -312,7 +353,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
             //send aggregated data
             up_node = getUpperNode(state->topology, me);
             if(up_node != -1)
-                ScheduleNewEvent(up_node, now, ARRIVE, info, sizeof(job_info));
+                ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
             
             //restart buffer of telemetry
             state->info.node->num_telemetry_aggregated = 0;
@@ -324,57 +365,31 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         //###################################################
         //SEND REPLY
         if(state->info.node->type != LOCAL)
-            send_reply(me, now, state, info);
+            send_reply(me, now, state, info, delay_down);
 
         //###################################################
         //GENERATE COMMAND
-        int num_types = state->num_acts_types;
+        double random_prob = Random();
+        if (random_prob <= PROB_CMD){
+            send_command(me, now, state, info, delay_down);
 
-        int * num_per_types = getActType(state->topology, me);
-        //for(int i = 0; i < num_types; i++)
-        //    printf("%d: %d\n", me, num_per_types[i]);
+            //################################################### 
+            //SEND BATCH
+            up_node = getUpperNode(state->topology, me);
+            job_info info_to_send;
+            info_to_send.type = REAL_TIME;
+            info_to_send.payload = NULL;
+            info_to_send.job_type = BATCH_DATA;
 
-        //type, selected_actuator = get_random_actuator(num_types, num_per_types);
-        int type, selected_actuator;
-        get_random_actuator(num_types, num_per_types, state->prob_actuators, &type, &selected_actuator);
-        
-        int * list_actuators_by_type = getListActuatorsByType(state->topology, me, type);
-
-        //printf("%d\n", list_actuators_by_type[0]);
-        //printf("%d\n", list_actuators_by_type[1]);
-
-        int id_selected_actuator = list_actuators_by_type[selected_actuator];
-
-        int * next_hop_list = getActuatorPathsIndex(state->topology, me);
-
-        int next_hop = next_hop_list[id_selected_actuator];
-
-        //printf("%d, %d\n", me, next_hop);
-        
-        //printf("GENERATING A COMMAND\n");
-        job_info info_to_send;
-        info_to_send.type = REAL_TIME;
-        info_to_send.payload = NULL;
-        info_to_send.job_type = COMMAND;
-        info_to_send.destination = id_selected_actuator;
-
-        ScheduleNewEvent(next_hop, now, ARRIVE, &info_to_send, sizeof(job_info));
-
-        //################################################### 
-        //SEND BATCH
-        up_node = getUpperNode(state->topology, me);
-        info_to_send.type = REAL_TIME;
-        info_to_send.payload = NULL;
-        info_to_send.job_type = BATCH_DATA;
-
-        ScheduleNewEvent(up_node, now, ARRIVE, &info_to_send, sizeof(job_info));
+            ScheduleNewEvent(up_node, now + delay_up, ARRIVE, &info_to_send, sizeof(job_info));
+        }
 
         //###################################################
         //FORWARD TRANSITION
         info->sender = me;
         up_node = getUpperNode(state->topology, me);
         if(up_node != -1)
-            ScheduleNewEvent(up_node, now, ARRIVE, info, sizeof(job_info));
+            ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
         
 
     }
@@ -383,14 +398,14 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         int * next_hop_list = getActuatorPathsIndex(state->topology, me);
         int next_hop = next_hop_list[info->destination];
 
-        ScheduleNewEvent(next_hop, now, ARRIVE, info, sizeof(job_info));
+        ScheduleNewEvent(next_hop, now + delay_up, ARRIVE, info, sizeof(job_info));
 
     }
     else if(info->job_type == BATCH_DATA){
 
         up_node = getUpperNode(state->topology, me);
         if(up_node != -1)
-            ScheduleNewEvent(up_node, now, ARRIVE, info, sizeof(job_info));
+            ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
         //printf("%d: BATCH RECEIVED\n", me);
 
     }
