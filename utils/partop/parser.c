@@ -211,7 +211,7 @@ void getUpNode(topology * top, int index, int tot, int number, int ** array,int 
 }
 
 void getUpNode2(topology * top, int up, int index, int *** result){
-  int flag = 0;
+  //index : starting actuator
   if(index != up){
     up = getUpperNode(top, up);
   }
@@ -219,20 +219,25 @@ void getUpNode2(topology * top, int up, int index, int *** result){
     up = getUpperNode(top, index);
   }
   int type =  getType(top, up);
-  if(type == 1 || type == 4){//node or lan
-    flag = 1;
-  }
-  if(flag){
+  if(type == 0 || type == 4){//node or lan
+    printf("up : %d,type : %d\n",up, type);
     int at = getActuatorType(top,index);
+    printf("index : %d , act type : %d\n", index, at);
     int * te = getActType(top,up);
     for(int js = 0; js < te[at]; js++){
+      printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
       if(result[up][at][js] == index){
+        printf("Hresult[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
+        //printf("QUA SOPRA\n");
         js = te[at];
       }
       else if(result[up][at][js] == -1){
+        //printf("E NON LA SOTTO %d", index);
         result[up][at][js] = index;
+        printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
         js = te[at];
       }
+      //printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
     }
   }
   if(up == 0 ){ //someone higher then me so I can't reach
@@ -466,7 +471,6 @@ topology * getTopology(char * path){
   while(index < totalNumberOfElements){
     int type =  getType(genTop, index);
     if(type == 0 || type == 4){//node or lan
-
       result[index] = malloc(sizeof(int*)*nt);
       int * te = getActType(genTop, index);
       index2 = 0;
@@ -506,36 +510,38 @@ topology * getTopology(char * path){
       getUpNode2(genTop, ind, ind, result);
       }
     }
-    /*
+
+/*
     index = 0;
     index2 = 0;
-    while(index < nn){
+    while(index < totalNumberOfElements){
+      int type =  getType(genTop, index);
+      if(type == 0 || type == 4){//node or lan
       int * te = getActType(genTop, index);
       index2 = 0;
       while(index2 < nt){
         for(int js = 0; js < te[index2];js+=1){
-          printf("%d %d %d %d\n", index, index2, js, result[index][index2][js]);
+          printf("result[%d][%d][%d] = %d\n", index, index2, js, result[index][index2][js]);
         }
         index2+=1;
+        }
       }
       index+=1;
+
     }
-    */
-
-
-
 
     tot = 0;
     while(tot < totalNumberOfElements){
       for(ind = nn; ind < totalNumberOfElements; ind+=1){
         if(arrayActuatorPaths[tot][ind] != -1){
-          //printf("array[%d][%d] = %d\n",tot, ind,arrayActuatorPaths[tot][ind]);
+          printf("array[%d][%d] = %d\n",tot, ind,arrayActuatorPaths[tot][ind]);
         }
       }
       tot+=1;
     }
+  */
   genTop->actuatorPaths = arrayActuatorPaths;
-  genTop->uglyStructContainingMatrixNodesActuatorTypesAndWhichOneAreThem = result;
+  genTop->ListActuatorsByType = result;
 
   return genTop;
 }
