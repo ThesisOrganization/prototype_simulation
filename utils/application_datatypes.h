@@ -244,7 +244,11 @@ typedef struct _state {
 	simtime_t start_timestamp; //usefull to compute T
     simtime_t actual_timestamp;
     state_type type;
+    //general infos
     topology * topology;
+    int num_acts_types;
+    double * prob_actuators;
+    //specific infos
     state_info info;
 } lp_state;
 

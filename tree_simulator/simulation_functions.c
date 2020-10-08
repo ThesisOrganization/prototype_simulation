@@ -84,6 +84,7 @@ void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * in
     ScheduleNewEvent(me, ts_generate, GENERATE_TRANSITION, NULL, 0);
     ts_generate = now + Expent(rate_telemetry);
     ScheduleNewEvent(me, ts_generate, GENERATE_TELEMETRY, NULL, 0);
+
 }
 
 void init_actuator(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
@@ -226,6 +227,38 @@ void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info
 
 }
 
+static void get_random_actuator(int num_types, int * num_per_types, double * prob_actuators, int * pt_type, int * pt_actuator){
+
+    double sum_prob_numbers = 0;
+    int i;
+    for(i = 0; i < num_types; i++){
+        //printf("%d, %f\n", num_per_types[i], prob_actuators[i]);
+        sum_prob_numbers += num_per_types[i] * prob_actuators[i];
+    }
+
+    double random_value = Random();
+
+    double temp = random_value;
+    double prob_type_i;
+    for(i = 0; i < num_types; i++){
+        prob_type_i = num_per_types[i]*prob_actuators[i] / sum_prob_numbers;
+        if (temp - prob_type_i <= 0)
+            break;
+        temp = temp - prob_type_i;
+    }
+
+    int type = i;
+    double remain_random = temp;
+    //printf("%d, %f\n", i, temp);
+    double prob_single_act = prob_actuators[type] / sum_prob_numbers;
+    
+    int actuator = remain_random / prob_single_act;
+    //printf("Final: %d, %d\n", type, actuator);
+    *pt_type = type;
+    *pt_actuator = actuator;
+
+}
+
 static void send_reply(unsigned int me, simtime_t now, lp_state * state, job_info * info){
 
     job_info info_to_send;
@@ -288,33 +321,56 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     }
     else if(info->job_type == TRANSITION){
         //printf("TRANSITION\n");
-
+        //###################################################
+        //SEND REPLY
         if(state->info.node->type != LOCAL)
             send_reply(me, now, state, info);
 
+        //###################################################
         //GENERATE COMMAND
-        int * num_types = getActType(state->topology, me);
+        int num_types = state->num_acts_types;
+
+        int * num_per_types = getActType(state->topology, me);
+        //for(int i = 0; i < num_types; i++)
+        //    printf("%d: %d\n", me, num_per_types[i]);
+
+        //type, selected_actuator = get_random_actuator(num_types, num_per_types);
+        int type, selected_actuator;
+        get_random_actuator(num_types, num_per_types, state->prob_actuators, &type, &selected_actuator);
         
-        int type = 0; //random
         int * list_actuators_by_type = getListActuatorsByType(state->topology, me, type);
 
-        int selected_actuator = 0; //random
-        int id_next_hop = list_actuators_by_type[selected_actuator];
+        //printf("%d\n", list_actuators_by_type[0]);
+        //printf("%d\n", list_actuators_by_type[1]);
 
-        int * next_hop = getActuatorPathsIndex(state->topology, me);
-        printf("%d\n", id_next_hop);
+        int id_selected_actuator = list_actuators_by_type[selected_actuator];
 
-        int next_device = next_hop[id_next_hop];
+        int * next_hop_list = getActuatorPathsIndex(state->topology, me);
+
+        int next_hop = next_hop_list[id_selected_actuator];
+
+        //printf("%d, %d\n", me, next_hop);
         
-        printf("GENERATING A COMMAND\n");
+        //printf("GENERATING A COMMAND\n");
         job_info info_to_send;
         info_to_send.type = REAL_TIME;
         info_to_send.payload = NULL;
         info_to_send.job_type = COMMAND;
+        info_to_send.destination = id_selected_actuator;
 
-        ScheduleNewEvent(next_device, now, ARRIVE, &info_to_send, sizeof(job_info));
+        ScheduleNewEvent(next_hop, now, ARRIVE, &info_to_send, sizeof(job_info));
 
-        //forward transition
+        //################################################### 
+        //SEND BATCH
+        up_node = getUpperNode(state->topology, me);
+        info_to_send.type = REAL_TIME;
+        info_to_send.payload = NULL;
+        info_to_send.job_type = BATCH_DATA;
+
+        ScheduleNewEvent(up_node, now, ARRIVE, &info_to_send, sizeof(job_info));
+
+        //###################################################
+        //FORWARD TRANSITION
         info->sender = me;
         up_node = getUpperNode(state->topology, me);
         if(up_node != -1)
@@ -324,9 +380,18 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     }
     else if(info->job_type == COMMAND){
 
+        int * next_hop_list = getActuatorPathsIndex(state->topology, me);
+        int next_hop = next_hop_list[info->destination];
+
+        ScheduleNewEvent(next_hop, now, ARRIVE, info, sizeof(job_info));
+
     }
     else if(info->job_type == BATCH_DATA){
 
+        up_node = getUpperNode(state->topology, me);
+        if(up_node != -1)
+            ScheduleNewEvent(up_node, now, ARRIVE, info, sizeof(job_info));
+        //printf("%d: BATCH RECEIVED\n", me);
 
     }
     else if(info->job_type == REPLY){
@@ -378,7 +443,7 @@ void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
     }
     else if(info->job_type == COMMAND){
 
-        printf("COMMAND received!!!!\n");
+        //printf("COMMAND received!!!!\n");
 
     }
     else if(info->job_type == BATCH_DATA){

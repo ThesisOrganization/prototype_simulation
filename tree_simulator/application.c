@@ -51,6 +51,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             unsigned int num_wans = state->topology->numberOfTotalWANs;
             unsigned int num_lans = state->topology->numberOfTotalLANs;
 
+            state->num_acts_types = state->topology->numberOfActTypes;
+            state->prob_actuators = state->topology->probOfActuators;
             
             //if there are too few LPs, exit
             if(num_nodes + num_sensors + num_actuators + num_lans + num_wans > n_prc_tot){
@@ -274,7 +276,8 @@ bool OnGVT(int me, lp_state *snapshot)
             return true;
 	
     double T = snapshot->actual_timestamp - snapshot->start_timestamp;
-   
+
+    
     if(snapshot->type == NODE){
 
         print_metrics(me, snapshot->info.node->queue_state, T, snapshot->actual_timestamp);
