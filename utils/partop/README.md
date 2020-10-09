@@ -3,11 +3,7 @@ This folder will contain modules to parse input file and get informations in the
 The module relies on application_datatypes.h for the definition of the data structures.
 ## Syntax of text file
 Being a work in progress project, this is subject to frequent changes and won't be a final version:\
-7\
-4\
-6\
-3\
-4\
+24\
 2\
 2\
 3\
@@ -21,17 +17,13 @@ Being a work in progress project, this is subject to frequent changes and won't 
 20;4;7,8,9,10;3;1;-1;3;LAN,LAN_TYPE0,0.42\
 \
 \
-First line: number of nodes\
-Second line: number of sensors\
-3rd: # actuators\
-4 line: number of WANs\
-5 line: number of LANs\
-6 line: # types actuators\
-7 line: # types sensors\
-8th line # types of LANs\
-9th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...\
-10th line:lan type1 service time transition,telemetry, command\
-11th line: probability receiving actuator type 0;pr type 1;...\
+First line: # total elements\
+2nd line: # types actuators\
+3rd line: # types sensors\
+4th line # types of LANs\
+5th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...\
+6th line:lan type1 service time transition,telemetry, command\
+7th line: probability receiving actuator type 0;pr type 1;...\
 \
 id element, #lower nodes,{lower nodes},upper node,#LANs below, {LANs below},#informations,type of element,{informations}\
 \
