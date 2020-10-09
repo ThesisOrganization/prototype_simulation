@@ -139,7 +139,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             ts_generate = now + Expent(rate_generate);
             ScheduleNewEvent(me, ts_generate, GENERATE_TRANSITION, NULL, 0);
 
-            state->num_jobs_processed++;
+            //state->num_jobs_processed++;
             //printf("%d\n", state->num_jobs_processed);
             break;
         
@@ -170,7 +170,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             ts_generate = now + Expent(rate_generate);
             ScheduleNewEvent(me, ts_generate, GENERATE_TELEMETRY, NULL, 0);
 
-            state->num_jobs_processed++;
+            //state->num_jobs_processed++;
             break;
 
         case ARRIVE:
@@ -210,7 +210,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             
             state->actual_timestamp = now;
 
-            state->num_jobs_processed++;
+            //state->num_jobs_processed++;
 
             if(state->type == NODE){
                 
@@ -272,12 +272,12 @@ void print_metrics(int me, queue_state * queue_state, double T, simtime_t actual
 
 bool OnGVT(int me, lp_state *snapshot)
 {
-    if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS)
+    if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS) //now is used only by the LPs that are not used
             return true;
 	
     double T = snapshot->actual_timestamp - snapshot->start_timestamp;
 
-    
+
     if(snapshot->type == NODE){
 
         print_metrics(me, snapshot->info.node->queue_state, T, snapshot->actual_timestamp);
@@ -294,33 +294,6 @@ bool OnGVT(int me, lp_state *snapshot)
 
     }
 
-
-    //printf("%d\n", me);
-    //return false; //se lo metti va infinito, altrimenti si ferma appena non ci sono eventi?
-
-    /*
-        if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS)
-            return true;
-
-        if(snapshot->type == NODE){
-
-            printf("################################################\n");
-            printf("Node %d timestamp: %f\n",me,snapshot->ts);
-            printf("Number of jobs in the node %d: %d\n", me, snapshot->info.node->num_jobs_in_queue);
-            double average_processing = snapshot->info.node->sum_all_service_time / snapshot->num_jobs_processed;
-            double average_arrivial = snapshot->info.node->sum_all_time_between_arrivals / snapshot->info.node->num_jobs_arrived;
-            double average_response = snapshot->info.node->sum_all_response_time / snapshot->num_jobs_processed;
-
-            printf("Average response time: %lf\n", average_response);
-            printf("Average arrival rate: %lf\nAverage processing rate: %lf\n", 1/average_arrivial, 1/average_processing);
-
-            double ro = average_processing / average_arrivial;
-            printf("Utilization factor in the node %d: %lf\n", me, ro);
-            printf("Rejected lossy job in node %d: %d\n",me,snapshot->info.node->num_lossy_jobs_rejected);
-
-        }
-
     return false;
-    */
 
 }

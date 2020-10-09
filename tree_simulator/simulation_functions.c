@@ -374,14 +374,15 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
             send_command(me, now, state, info, delay_down);
 
             //################################################### 
-            //SEND BATCH
+            //SEND BATCH_DATA
             up_node = getUpperNode(state->topology, me);
             job_info info_to_send;
             info_to_send.type = REAL_TIME;
             info_to_send.payload = NULL;
             info_to_send.job_type = BATCH_DATA;
 
-            ScheduleNewEvent(up_node, now + delay_up, ARRIVE, &info_to_send, sizeof(job_info));
+            if(up_node != -1)
+                ScheduleNewEvent(up_node, now + delay_up, ARRIVE, &info_to_send, sizeof(job_info));
         }
 
         //###################################################
