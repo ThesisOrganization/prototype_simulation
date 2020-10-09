@@ -40,7 +40,7 @@ Node: scheduler, type of node,id WAN up, id WAN below,  aggregation rate, delay 
 Sensor/Actuator: type of job, Sensor/Actuator type, measure done, id LAN up\
 Actuator: type of job, Actuator type, measure done, id LAN up,rate transition, service time command\
 WAN:type of WAN[CENTRAL-REGIONAL/REGIONAL-LOCAL], delay\
-LAN:type of LAN[MANET/WIRELESS/ETC], delay\
+LAN:type of LAN[MANET/WIRELESS/ETC], delay, {# actuators type 0/...}\
 
 ## Data structure 1
 topology is composed by the general, useful informations:\
