@@ -5,7 +5,7 @@
 #include <string.h>
 #include "../application_datatypes.h"
 
-void * parse_strings(char ** strings, int types){
+void * parse_strings(char ** strings, int types, int upperNode){
     lp_infos * infos = malloc(sizeof(lp_infos));
     char * ptr;
     int flag = 0;
@@ -115,10 +115,10 @@ void * parse_strings(char ** strings, int types){
 
         flag = 1;
 
-        double rateTransition = strtod(strings[5], &ptr);
+        double rateTransition = strtod(strings[4], &ptr);
         infos->rateTransition = rateTransition;
 
-        double serviceTimeCommand = strtod(strings[6], &ptr);
+        double serviceTimeCommand = strtod(strings[5], &ptr);
         infos->serviceTimeCommand = serviceTimeCommand;
 
     }
@@ -180,8 +180,8 @@ void * parse_strings(char ** strings, int types){
       else
         exit(EXIT_FAILURE);
 
-      int id_LAN_up = atoi(strings[4]);
-      infos->id_LAN_up = id_LAN_up;
+      infos->id_LAN_up = upperNode;
+
     }
 
     return infos;
@@ -249,7 +249,6 @@ void getUpNode2(topology * top, int up, int index, int *** result){
 }
 
 topology * getTopology(char * path){
-
   FILE * fp;
   char * line = NULL;
   size_t len = 0;
@@ -264,22 +263,22 @@ topology * getTopology(char * path){
   char * temp = NULL;
   //read first line, assess number of nodes, save
   read = getline(&temp, &len, fp);
-  int nn = atoi(temp);
+  int totalNumberOfElements = atoi(temp);
+
+  int nn = 0;
   //same for 2nd line, number of sensors
-  read = getline(&temp, &len, fp);
-  int ns = atoi(temp);
+  int ns = 0;
   //same for 2nd line, number of actuators
-  read = getline(&temp, &len, fp);
-  int na = atoi(temp);
+  int na = 0;
   //4th line, number of WANs
-  read = getline(&temp, &len, fp);
-  int nw = atoi(temp);
+  int nw = 0;
   //5th line, number of LANs
-  read = getline(&temp, &len, fp);
-  int nl = atoi(temp);
+  int nl = 0;
+
   //6th line, number of types of actuators
   read = getline(&temp, &len, fp);
   int nt = atoi(temp);
+
   //7th line, number of types of sensors
   read = getline(&temp, &len, fp);
   int nts = atoi(temp);
@@ -360,7 +359,7 @@ topology * getTopology(char * path){
   //printf("There are %d sensor/actuator nodes.\n",ns);
 
   topology * genTop = malloc(sizeof(topology));
-  topArray ** returnArray = malloc(sizeof(topArray *) * (nn + ns + na + nw + nl));
+  topArray ** returnArray = malloc(sizeof(topArray *) * (totalNumberOfElements));
   //iterate through the remaining lines, having the following syntax:
 
   while ((read = getline(&line, &len, fp)) != -1) {
@@ -385,7 +384,6 @@ topology * getTopology(char * path){
 
     ptr = strtok_r(NULL, ";", &end_str);
     //loop through all the other tokens in the line
-
     while(ptr){
       char * end_token;
       char *ptr2 = strtok_r(ptr,",",&end_token);
@@ -407,7 +405,6 @@ topology * getTopology(char * path){
         else if(index == 3){//#lans
           numberOfLANS = atoi(ptr2);
           LANSarray = malloc(sizeof(int *)*numberOfLANS);
-
         }
         else if(index == 4){//LANS
           LANSarray[counter] = atoi(ptr2);
@@ -416,10 +413,27 @@ topology * getTopology(char * path){
           numberOfInfos = atoi(ptr2);
           infoArray = malloc(sizeof(char *)*numberOfInfos);
         }
-        else{//#info
+        else{//infos
           char * tempString = strdup(ptr2);
           //remove endline char from the info
-          if(counter == numberOfInfos - 1){
+          if(counter == 0){
+            if(!strcmp(tempString,"NODE")){
+              nn+=1;
+            }
+            else if (!strcmp(tempString,"SENSOR")){
+              ns+=1;
+            }
+            else if (!strcmp(tempString,"ACTUATOR")){
+              na+=1;
+            }
+            else if (!strcmp(tempString, "WAN")){
+              nw+=1;
+            }
+            else if (!strcmp(tempString, "LAN")){
+              nl+=1;
+            }
+          }
+          else if(counter == numberOfInfos - 1){
             tempString[strlen(tempString)-1] = 0;
           }
           infoArray[counter] = tempString;
@@ -438,14 +452,14 @@ topology * getTopology(char * path){
     tp->numberOfLANS = numberOfLANS;
     tp->connectedLans = LANSarray;
 
-    tp->info = parse_strings(infoArray, nt);
-
+    tp->info = parse_strings(infoArray, nt, upperNode);
 
 		for(i=0;i<counter;i++){
 				free(infoArray[i]);
 		}
 		free(infoArray);
     returnArray[temp] = tp;
+
   }
 
   fclose(fp);
@@ -461,8 +475,6 @@ topology * getTopology(char * path){
   genTop->LANServiceTimesByType = LANserviceTimes;
   genTop->probOfActuators = probArray;
   genTop->topArr = returnArray;
-
-  int totalNumberOfElements =  nn+ns+na+nl+nw;
 
   int *** result = malloc(sizeof(int**)*totalNumberOfElements);
   index = 0;
