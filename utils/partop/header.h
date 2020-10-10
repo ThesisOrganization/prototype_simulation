@@ -23,6 +23,7 @@ int * getActType(topology * top,int index);
 int getActuatorType(topology * top, int index);
 int * getListActuatorsByType(topology * top, int nodeId, int actuatorType);
 void setLowerElements(topology * top, int * lowerEle, int numberLower, int index);
-void setLANS(topology * top, int * arrayLANS, int numberLANS, int index);
-
+void setLANs(topology * top, int * arrayLANs, int numberLANs, int index);
+void setWANdown(topology * top, int idWAN, int index);
+void setWANup(topology * top, int index);
 #endif /* HEADER_H */

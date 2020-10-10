@@ -32,23 +32,17 @@ void * parse_strings(char ** strings, int types, int upperNode){
         else
             exit(EXIT_FAILURE);
 
-        int WAN_up = atoi(strings[3]);
-        infos->id_WAN_up = WAN_up;
-
-        int WAN_down = atoi(strings[4]);
-        infos->id_WAN_down = WAN_down;
-
-        int aggregation_rate = atoi(strings[5]);
+        int aggregation_rate = atoi(strings[3]);
         infos->aggregation_rate = aggregation_rate;
 
-        float delayUP = strtod(strings[6],&ptr);
+        float delayUP = strtod(strings[4],&ptr);
         infos->delay_upper_router = delayUP;
-        float delayDOWN = atof(strings[7]);
+        float delayDOWN = atof(strings[5]);
         infos->delay_lower_router = delayDOWN;
 
         char * end_str;
         char * end_ptr;
-        char * ptr = strtok_r(strings[8], "/", &end_str);
+        char * ptr = strtok_r(strings[6], "/", &end_str);
         double * serviceArray = malloc((sizeof(double)) * 5); //fixed, 5 type of data.
         int counter = 0;
         while(ptr){
@@ -58,7 +52,7 @@ void * parse_strings(char ** strings, int types, int upperNode){
         }
         infos->service_time = serviceArray;
 
-        ptr = strtok_r(strings[9], "/", &end_str);
+        ptr = strtok_r(strings[7], "/", &end_str);
         int * typesArray = malloc((sizeof(int)) * types);
         counter = 0;
         while(ptr){
@@ -68,7 +62,7 @@ void * parse_strings(char ** strings, int types, int upperNode){
         }
         infos->actuatorsTypesBelow = typesArray;
 
-        int sensors = atoi(strings[10]);
+        int sensors = atoi(strings[8]);
         infos->numberOfBelowSensors = sensors;
     }
     else if( !strcmp(strings[0], "SENSOR") ){
@@ -136,6 +130,18 @@ void * parse_strings(char ** strings, int types, int upperNode){
         double delay = strtod(strings[2], &ptr);
         infos->delay = delay;
 
+        char * end_str;
+        ptr = strtok_r(strings[3], "/", &end_str);
+        int * typesArray = malloc((sizeof(int)) * types);
+        int counter = 0;
+        while(ptr){
+          typesArray[counter] = atoi(ptr);
+          ptr = strtok_r(NULL,"/",&end_str);
+          counter+=1;
+        }
+        infos->actuatorsTypesBelow = typesArray;
+
+
     }
     else if( !strcmp(strings[0], "LAN") ){
 
@@ -197,7 +203,7 @@ void getUpNode(topology * top, int index, int tot, int number, int ** array,int 
     array[tot][index] = index;//initialized for those who have actuators directly below
   }
 
-  if(number < tot ){ //someone higher then me so I can't reach
+  if(number == -1 ){ //someone higher then me so I can't reach
     array[tot][index] = -1;
   }
   else if(number == tot){//can't go higher than that, reached
@@ -497,7 +503,7 @@ topology * getTopology(char * path){
 
   while(index < totalNumberOfElements){
     int type =  getType(genTop, index);
-    if(type == 0 || type == 4){//node or lan
+    if(type == 0  || type == 3 || type == 4){//node or lan
       result[index] = malloc(sizeof(int*)*nt);
       int * te = getActType(genTop, index);
       index2 = 0;
@@ -566,6 +572,8 @@ topology * getTopology(char * path){
       }
       tot+=1;
     }
+    printf("array[%d][%d] = %d\n",17, 15,arrayActuatorPaths[17][15]);
+
 */
   int * numberofLANs = malloc(sizeof(int)*totalNumberOfElements);
   for(int c = 0; c < totalNumberOfElements; c+=1){
@@ -600,30 +608,38 @@ topology * getTopology(char * path){
       }
     }
   }
-  int ** NEWLANSArray = malloc(sizeof(int*) * totalNumberOfElements);
+  int ** LANSArray = malloc(sizeof(int*) * totalNumberOfElements);
   for(int c = 0; c < totalNumberOfElements; c+=1){
     if(numberofLANs[c] == 0){
-      NEWLANSArray[c] = malloc(sizeof(int));
-      NEWLANSArray[c][0] = -1;
+      LANSArray[c] = malloc(sizeof(int));
+      LANSArray[c][0] = -1;
     }
     else{
-      NEWLANSArray[c] = malloc(sizeof(int)*numberofLANs[c]);
+      LANSArray[c] = malloc(sizeof(int)*numberofLANs[c]);
       for(int c2 = 0; c2 < numberofLANs[c];c2+=1){
-        NEWLANSArray[c][c2] = -1;
+        LANSArray[c][c2] = -1;
       }
     }
+  }
+
+  int * WANsDownArray = malloc(sizeof(int) * totalNumberOfElements);
+  for(int c = 0; c < totalNumberOfElements; c+=1){
+    WANsDownArray[c] = -1;
   }
 
   for(int c = 0; c < totalNumberOfElements; c+=1){
     for(int c2 = 0; c2 < arrayNumberLowerElements[c];c2+=1){
       int low = lowerElementsArray[c][c2];
-      int typeC = getType(genTop,low);
-      if(typeC == 4){ //LAN
+      int typeLow= getType(genTop,low);
+      if(typeLow == 4){ //LAN
         for(int c3 = 0; c3 < numberofLANs[c];c3+=1){
-          if(NEWLANSArray[c][c3] == -1){
-            NEWLANSArray[c][c3] = low;
+          if(LANSArray[c][c3] == -1){
+            LANSArray[c][c3] = low;
          }
        }
+      }
+      if(typeLow == 3){ //LAN
+          WANsDownArray[c] = low;
       }
     }
   }
@@ -631,12 +647,9 @@ topology * getTopology(char * path){
 
   for(int c = 0; c < totalNumberOfElements; c+=1){
     setLowerElements(genTop, lowerElementsArray[c],arrayNumberLowerElements[c],c);
-    setLANS(genTop, NEWLANSArray[c],numberofLANs[c],c);
-    /*
-    int * lo = getLowers(genTop,c);
-    for(int c2 = 0; c2 < arrayNumberLowerElements[c];c2+=1){
-      printf("Node %d has %d-th lower element = %d.\n",c,c2,lo[c2]);
-    }*/
+    setLANs(genTop, LANSArray[c],numberofLANs[c],c);
+    setWANdown(genTop, WANsDownArray[c],c);
+    setWANup(genTop,c);
   }
 
   genTop->actuatorPaths = arrayActuatorPaths;

@@ -97,8 +97,25 @@ void setLowerElements(topology * top, int * lowerEle, int numberLower, int index
   array[index]->numberOfLowerElements = numberLower;
   array[index]->lowerElements = lowerEle;
 }
-void setLANS(topology * top, int * arrayLANS, int numberLANS, int index){
+void setLANs(topology * top, int * arrayLANs, int numberLANs, int index){
   topArray ** array = top->topArr;
-  array[index]->numberOfLANS = numberLANS;
-  array[index]->connectedLans = arrayLANS;
+  array[index]->numberOfLANS = numberLANs;
+  array[index]->connectedLans = arrayLANs;
+}
+void setWANdown(topology * top, int idWAN, int index){
+  lp_infos * infos = getInfo(top, index);
+  infos->id_WAN_down = idWAN;
+}
+void setWANup(topology * top, int index){
+  lp_infos * infos = getInfo(top, index);
+  int upp = getUpperNode(top, index);
+  if(upp == -1){
+    infos->id_WAN_up = -1;
+  }
+  else{
+    int uppType =getType(top, upp);
+    if(uppType == 3){
+      infos->id_WAN_up = upp;
+    }
+  }
 }
