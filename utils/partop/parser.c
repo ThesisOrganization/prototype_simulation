@@ -139,7 +139,6 @@ void * parse_strings(char ** strings, int types, int upperNode){
     }
     else if( !strcmp(strings[0], "LAN") ){
 
-
         infos->lp_type = LAN;
 
         if( !strcmp(strings[1], "LAN_TYPE0") )
@@ -171,8 +170,9 @@ void * parse_strings(char ** strings, int types, int upperNode){
     }
 
     if(flag){//Either sensor or actuator
-      if( !strcmp(strings[3], "MEASURE0") )
-          infos->measure_type = MEASURE0;
+      if( !strcmp(strings[3], "MEASURE0") ){
+        infos->measure_type = MEASURE0;
+      }
       else if( !strcmp(strings[3], "MEASURE1") )
           infos->measure_type = MEASURE1;
       else if( !strcmp(strings[3], "MEASURE2") )
@@ -266,7 +266,6 @@ topology * getTopology(char * path){
   int nw = 0;
   //number of LANs
   int nl = 0;
-
   //2n line, number of types of actuators
   read = getline(&temp, &len, fp);
   int nt = atoi(temp);

@@ -11,11 +11,11 @@ Being a work in progress project, this is subject to frequent changes and won't 
 0.42,0.25,0.11;0.182,0.14,0.23;0.535,0.71,0.53;\
 0.34;0.28\
 0.12;0.44;0.2\
-0;2;1,2;-1;1;-1;11;NODE,SCHEDULER1,CENTRAL,-1,17,14,0.8,0.3,0.82/0.35/0.1/0.3,3/3,4\
-7;1;-1;3;1;-1;5;SENSOR,BATCH,SENSOR_TYPE0,MEASURE0,20\
-16;1;-1;5;1;-1;5;ACTUATOR,REAL_TIME,ACTUATOR_TYPE1,MEASURE1,23\
-17;2;1,2;0;1;-1;3;WAN,WAN_TYPE0,0.82\
-20;4;7,8,9,10;3;1;-1;3;LAN,LAN_TYPE0,0.42\
+0;2;1,2;-1;1;-1;11;NODE,SCHEDULER1,CENTRAL,-1,17,14,0.8,0.3,0.82/0.35/0.1/0.3/0.52,3/3,4\
+8;1;-1;20;1;-1;5;SENSOR,LOSSY,SENSOR_TYPE0,MEASURE1\
+9;1;-1;20;1;-1;7;ACTUATOR,LOSSY,ACTUATOR_TYPE0,MEASURE1,0.14,0.32\
+19;2;5,6;2;1;-1;3;WAN,WAN_TYPE1,0.1\
+20;4;7,8,9,10;3;1;-1;4;LAN,LAN_TYPE0,0.42,1/1\
 \
 \
 First line: # total elements\
@@ -31,8 +31,8 @@ id element, #lower nodes,{lower nodes},upper node,#LANs below, {LANs below},#inf
 \
 {informations} is different based on the type of node:
 Node: scheduler, type of node,id WAN up, id WAN below,  aggregation rate, delay upper router, delay lower router,  {service time telemtry/service time transition/service time command/service time batch send}, {# actuators type 0/...}, #sensors\
-Sensor/Actuator: type of job, Sensor/Actuator type, measure done, id LAN up\
-Actuator: type of job, Actuator type, measure done, id LAN up,rate transition, service time command\
+Sensor/Actuator: type of job, Sensor/Actuator type, measure done\
+Actuator: type of job, Actuator type, measure done,rate transition, service time command\
 WAN:type of WAN[CENTRAL-REGIONAL/REGIONAL-LOCAL], delay\
 LAN:type of LAN[MANET/WIRELESS/ETC], delay, {# actuators type 0/...}\
 
