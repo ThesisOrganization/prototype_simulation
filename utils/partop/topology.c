@@ -47,9 +47,19 @@ int * getActType(topology * top,int index){
     lp_infos * infos = getInfo(top, index);
     return(infos->actuatorsTypesBelow);
 }
+int * getSensType(topology * top,int index){
+  lp_infos * infos = getInfo(top, index);
+  return(infos->sensorsTypesBelow);
+}
+
 int getActuatorType(topology * top,int index){
     lp_infos * infos = getInfo(top, index);
     return(infos->actuator_type);
+}
+
+int getSensorType(topology * top,int index){
+    lp_infos * infos = getInfo(top, index);
+    return(infos->sensor_type);
 }
 
 double * getServiceRates(topology * top, int index){
@@ -89,6 +99,10 @@ int * getActuatorPathsIndex(topology * top, int index)
 int * getListActuatorsByType(topology * top, int nodeId, int actuatorType)
 {
     return top->ListActuatorsByType[nodeId][actuatorType];
+}
+int * getListSensorsByType(topology * top, int nodeId, int sensorType)
+{
+    return top->ListSensorsByType[nodeId][sensorType];
 }
 
 void setLowerElements(topology * top, int * lowerEle, int numberLower, int index)

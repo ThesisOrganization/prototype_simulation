@@ -112,6 +112,7 @@ int sensor_type;
 int actuator_type;
 int type_job;
 int measure_type;
+int id_LAN_up;
 
 double rateTransition;
 double serviceTimeCommand;
@@ -126,8 +127,8 @@ int scheduler;
 int * actuatorsTypesBelow;
 int id_WAN_up;
 int id_WAN_down;
-int id_LAN_up;
 int numberOfBelowSensors;
+int * sensorsTypesBelow;
 int aggregation_rate;
 float delay_upper_router;
 float delay_lower_router;
@@ -158,6 +159,7 @@ typedef struct _topology{
   double ** LANsOUTserviceTimes;
   double * probOfActuators;
   double * probNodeCommandArray;
+  int *** ListSensorsByType;
   int *** ListActuatorsByType;
   topArray ** topArr; //array of poiters to topArray
 } topology;
