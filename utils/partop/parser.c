@@ -317,10 +317,10 @@ topology * getTopology(char * path){
   }
 
   read = getline(&temp, &len, fp);
-  //6th line, LANs service times
+  //6th line, LANs IN service times
   index = 0;
   ptr = strtok_r(temp, ";", &end_str);
-  double ** LANserviceTimes = malloc(sizeof(double*) * ntl);
+  double ** LANsINserviceTimes = malloc(sizeof(double*) * ntl);
   while(ptr){
     ptr2 = strtok_r(ptr,",",&end_token);
     //tokenize each ";" token through ",", iterate until end of the line
@@ -328,11 +328,11 @@ topology * getTopology(char * path){
 
     while(ptr2){
       if(counter == 0){
-        LANserviceTimes[index] = malloc(sizeof(double) * 5);//fixed, 5 types messages
-        LANserviceTimes[index][counter] = strtod(ptr2, &end_ptr);
+        LANsINserviceTimes[index] = malloc(sizeof(double) * 5);//fixed, 5 types messages
+        LANsINserviceTimes[index][counter] = strtod(ptr2, &end_ptr);
       }
       else{
-        LANserviceTimes[index][counter] = strtod(ptr2, &end_ptr);
+        LANsINserviceTimes[index][counter] = strtod(ptr2, &end_ptr);
       }
       counter+=1;
       ptr2 = strtok_r(NULL,",",&end_token);
@@ -340,8 +340,31 @@ topology * getTopology(char * path){
     index+=1;
     ptr=strtok_r(NULL, ";",&end_str);
   }
+  read = getline(&temp, &len, fp);
+  //7th line, LANs OUT service times
+  index = 0;
+  ptr = strtok_r(temp, ";", &end_str);
+  double ** LANsOUTserviceTimes = malloc(sizeof(double*) * ntl);
+  while(ptr){
+    ptr2 = strtok_r(ptr,",",&end_token);
+    //tokenize each ";" token through ",", iterate until end of the line
+    counter = 0;//used to keep track of how many "," we iterated on
 
-  //7th line: probabilities command receiver
+    while(ptr2){
+      if(counter == 0){
+        LANsOUTserviceTimes[index] = malloc(sizeof(double) * 5);//fixed, 5 types messages
+        LANsOUTserviceTimes[index][counter] = strtod(ptr2, &end_ptr);
+      }
+      else{
+        LANsOUTserviceTimes[index][counter] = strtod(ptr2, &end_ptr);
+      }
+      counter+=1;
+      ptr2 = strtok_r(NULL,",",&end_token);
+    }
+    index+=1;
+    ptr=strtok_r(NULL, ";",&end_str);
+  }
+  //8th line: probabilities command receiver
   read = getline(&temp, &len, fp);
 
   ptr = strtok_r(temp, ";", &end_str);
@@ -352,7 +375,7 @@ topology * getTopology(char * path){
     ptr = strtok_r(NULL,"/",&end_str);
     counter+=1;
   }
-  //8th line: probabilities command receiver
+  //9th line: probabilities command receiver
   read = getline(&temp, &len, fp);
 
   ptr = strtok_r(temp, ";", &end_str);
@@ -462,7 +485,8 @@ topology * getTopology(char * path){
   genTop->numberOfSensTypes = nts;
   genTop->numberOfLANsTypes = ntl;
   genTop->sensorRatesByType = sensor_rates;
-  genTop->LANServiceTimesByType = LANserviceTimes;
+  genTop->LANsINserviceTimes = LANsINserviceTimes;
+  genTop->LANsOUTserviceTimes = LANsOUTserviceTimes;
   genTop->probOfActuators = probArray;
   genTop->probNodeCommandArray = probCommandSendArray;
   genTop->topArr = returnArray;
@@ -588,7 +612,6 @@ topology * getTopology(char * path){
         NEWLANSArray[c][c2] = -1;
       }
     }
-
   }
 
   for(int c = 0; c < totalNumberOfElements; c+=1){
@@ -599,12 +622,11 @@ topology * getTopology(char * path){
         for(int c3 = 0; c3 < numberofLANs[c];c3+=1){
           if(NEWLANSArray[c][c3] == -1){
             NEWLANSArray[c][c3] = low;
-            printf("NEWLANSArray[%d][%d] = [%d]\n",c,c3,low);
          }
+       }
       }
     }
   }
-}
 
 
   for(int c = 0; c < totalNumberOfElements; c+=1){

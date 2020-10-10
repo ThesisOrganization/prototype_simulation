@@ -154,7 +154,8 @@ typedef struct _topology{
   int numberOfLANsTypes;
   int ** actuatorPaths;
   double ** sensorRatesByType;
-  double ** LANServiceTimesByType;
+  double ** LANsINserviceTimes;
+  double ** LANsOUTserviceTimes;
   double * probOfActuators;
   double * probNodeCommandArray;
   int *** ListActuatorsByType;

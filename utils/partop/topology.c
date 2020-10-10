@@ -66,12 +66,17 @@ double * getSensorRatesForOneSensorType(topology * top, int index)
   return top->sensorRatesByType[index];
 }
 
-double ** getLANServiceTimesByType(topology * top){
-  return(top->LANServiceTimesByType);
+double ** getLANsINserviceTimesByType(topology * top){
+  return(top->LANsINserviceTimes);
 }
-double * getLANServiceTimesForOneLANType(topology * top, int index)
-{
-  return top->LANServiceTimesByType[index];
+double ** getLANsOUTserviceTimesByType(topology * top){
+  return(top->LANsOUTserviceTimes);
+}
+double * getLANsINserviceTimesForOneLANType(topology * top, int index){
+  return(top->LANsINserviceTimes[index]);
+}
+double * getLANsOUTserviceTimesForOneLANType(topology * top, int index){
+  return(top->LANsOUTserviceTimes[index]);
 }
 
 int ** getActuatorPaths(topology * top){

@@ -53,12 +53,23 @@ int main()
   */
   //alternatively
   k = 0;
-  printf("Service times for each LAN type and message type couple:\n");
+  printf("Service times for each LAN IN type and message type couple:\n");
   while(k < genTop->numberOfLANsTypes){ //# of possible message types
     l = 0;
-    double * temp2 = getLANServiceTimesForOneLANType(genTop,k);
+    double * temp2 = getLANsINserviceTimesForOneLANType(genTop,k);
     while(l < 5){
-      printf("Type %d LAN serving a message of type %d has a service time of %f;\n",k, l, temp2[l]);
+      printf("Type %d LAN IN serving a message of type %d has a service time of %f;\n",k, l, temp2[l]);
+      l+=1;
+    }
+    k+=1;
+  }
+  k = 0;
+  printf("Service times for each LAN OUT type and message type couple:\n");
+  while(k < genTop->numberOfLANsTypes){ //# of possible message types
+    l = 0;
+    double * temp2 = getLANsOUTserviceTimesForOneLANType(genTop,k);
+    while(l < 5){
+      printf("Type %d LAN OUT serving a message of type %d has a service time of %f;\n",k, l, temp2[l]);
       l+=1;
     }
     k+=1;

@@ -23,9 +23,10 @@ First line: # total elements\
 3rd line: # types sensors\
 4th line # types of LANs\
 5th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...\
-6th line:lan type1 service time transition,telemetry, command\
-7th line: probability receiving actuator type 0;pr type 1;...\
-8th line: probability Central sending command in response to a transition message;pr Regional;pr Local\
+6th line:lan IN type1 service time transition,telemetry, command\
+7th line:lan OUT type1 service time transition,telemetry, command\
+8th line: probability receiving actuator type 0;pr type 1;...\
+9th line: probability Central sending command in response to a transition message;pr Regional;pr Local\
 \
 id element, upper node,#informations,type of element,{informations}\
 \
