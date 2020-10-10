@@ -234,15 +234,22 @@ typedef struct _actuator_state {
 } actuator_state;
 
 typedef struct _lan_state {
-    queue_state * queue_state;
-    double * service_rates;
+    queue_state * queue_state_in;
+    queue_state * queue_state_out;
+    double * service_rates_in;
+    double * service_rates_out;
 } lan_state;
+
+typedef struct _wan_state {
+    double delay;
+} wan_state;
 
 typedef union {
     sensor_state * sensor;
     node_state * node;
     actuator_state * actuator;
     lan_state * lan;
+    wan_state * wan;
 } state_info;
 
 typedef struct _state {

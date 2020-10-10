@@ -94,7 +94,7 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state, lp_infos * 
 
     printf("actuator\n");
 
-    state->info.actuator = malloc(sizeof(node_state));
+    state->info.actuator = malloc(sizeof(actuator_state));
     state->info.actuator->queue_state = malloc(sizeof(queue_state));
     state->info.actuator->queue_state->current_job = NULL;
     state->info.actuator->queue_state->num_jobs_in_queue = 0;
@@ -122,7 +122,7 @@ void init_lan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos
 
     printf("lan\n");
 
-    state->info.lan = malloc(sizeof(node_state));
+    state->info.lan = malloc(sizeof(lan_state));
     state->info.lan->queue_state = malloc(sizeof(queue_state));
     state->info.lan->queue_state->current_job = NULL;
     state->info.lan->queue_state->num_jobs_in_queue = 0;
@@ -134,19 +134,25 @@ void init_lan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos
     //state->info.lan->queue_state->sum_all_time_between_arrivals = 0.0;
     //state->info.lan->queue_state->sum_all_response_time = 0.0;
     int num_queues = 1;
-    state->info.lan->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
+    state->info.lan->queue_state_in->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
+    state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
     
 
     int lan_type = infos->lan_type;
-    state->info.lan->service_rates = getLANServiceTimesForOneLANType(state->topology, lan_type);
+    //state->info.lan->service_rates = getLANServiceTimesForOneLANType(state->topology, lan_type);
+    state->info.lan->service_rates_in = getLANsINserviceTimesForOneLANType(state->topology, lan_type);
+    state->info.lan->service_rates_out = getLANsOUTserviceTimesForOneLANType(state->topology, lan_type);
 
 }
 
 void init_wan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
 
     printf("wan\n");
+    state->info.wan = malloc(sizeof(wan_state));
 
-    state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
+    state->info.wan->delay = infos->delay;
+
+    //state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
 }
 
 
@@ -171,12 +177,13 @@ static void start_actuator(unsigned int me, simtime_t now, lp_state * state, job
     ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
 }
 
-static void start_lan(unsigned int me, simtime_t now, lp_state * state, job_info * info){
+static void start_lan(unsigned int me, simtime_t now, queue_state * queue_state, double * service_rates, job_info * info){
 
-    state->info.lan->queue_state->current_job = info;
-    state->info.lan->queue_state->start_processing_timestamp = now;
+    queue_state->current_job = info;
+    queue_state->start_processing_timestamp = now;
 
-    double rate = state->info.lan->service_rates[info->job_type];
+    double rate = service_rates[info->job_type];
+
     simtime_t ts_finish = now + Expent(rate);
     ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
 
@@ -216,17 +223,52 @@ void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info 
 
 void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info){
 
-    state->info.lan->queue_state->num_jobs_in_queue++;
+    queue_state * queue_state;
+    double * service_rates;
+
+    if(info->job_type == TELEMETRY){
+
+        queue_state = state->info.lan->queue_state_out;
+        service_rates = state->info.lan->service_rate_out;
+
+    }
+    else if(info->job_type == TRANSITION){
+
+        queue_state = state->info.lan->queue_state_out;
+        service_rates = state->info.lan->service_rate_out;
+
+    }
+    else if(info->job_type == COMMAND){
+
+        queue_state = state->info.lan->queue_state_in;
+        service_rates = state->info.lan->service_rate_in;
+
+    }
+    else{
+
+        printf("ERROR: lan received a data not permitted\n");
+        exit(EXIT_FAILURE);
+
+    }
+
+    queue_state->num_jobs_in_queue++;
     
-    state->info.lan->queue_state->A[info->job_type]++;
+    queue_state->A[info->job_type]++;
     //state->info.lan->queue_state->num_jobs_arrived++;
     //state->info.lan->queue_state->sum_all_time_between_arrivals += now - state->info.lan->queue_state->last_arrived_in_node_timestamp;
     //state->info.lan->queue_state->last_arrived_in_node_timestamp = now;
 
-    if(state->info.lan->queue_state->current_job == NULL)
-        start_lan(me, now, state, info);
+    if(queue_state->current_job == NULL)
+        start_lan(me, now, queue_state, service_rates, info);
     else
-        schedule_in(state->info.lan->queue_state->queues, info);
+        schedule_in(queue_state->queues, info);
+
+}
+
+void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info* info){
+
+    printf("WAN: Message received");
+
 
 }
 
@@ -478,23 +520,51 @@ void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
 
 void finish_lan(unsigned int me, simtime_t now, lp_state * state){
 
-    job_info * info = state->info.lan->queue_state->current_job;
+    queue_state * queue_state;
+    double * service_rates;
 
-    job_info ** info_arr = schedule_out(state->info.lan->queue_state->queues);
-    state->info.lan->queue_state->current_job = info_arr[0];
+    if(info->job_type == TELEMETRY){
+
+        queue_state = state->info.lan->queue_state_out;
+        service_rates = state->info.lan->service_rate_out;
+
+    }
+    else if(info->job_type == TRANSITION){
+
+        queue_state = state->info.lan->queue_state_out;
+        service_rates = state->info.lan->service_rate_out;
+
+    }
+    else if(info->job_type == COMMAND){
+
+        queue_state = state->info.lan->queue_state_in;
+        service_rates = state->info.lan->service_rate_in;
+
+    }
+    else{
+
+        printf("ERROR: lan received a data not permitted\n");
+        exit(EXIT_FAILURE);
+
+    }
+
+    job_info * info = queue_state->current_job;
+
+    job_info ** info_arr = schedule_out(queue_state->queues);
+    queue_state->current_job = info_arr[0];
     
-    double rate = state->info.lan->service_rates[info->job_type];
+    double rate = service_rates[info->job_type];
     simtime_t ts_finish = now + Expent(rate);
-    if(state->info.lan->queue_state->current_job != NULL){
-        state->info.lan->queue_state->start_processing_timestamp = now;
+    if(queue_state->current_job != NULL){
+        queue_state->start_processing_timestamp = now;
         ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
     }
     
-    state->info.lan->queue_state->num_jobs_in_queue--;
+    queue_state->num_jobs_in_queue--;
     
-    state->info.lan->queue_state->C[info->job_type]++;
-    state->info.lan->queue_state->B[info->job_type] += now - state->info.lan->queue_state->start_processing_timestamp;
-    state->info.lan->queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
+    queue_state->C[info->job_type]++;
+    queue_state->B[info->job_type] += now - queue_state->start_processing_timestamp;
+    queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
     //double service_time = now - (state->info.lan->queue_state->start_processing_timestamp);
     //double response_time = now - info->arrived_in_node_timestamp;
 
