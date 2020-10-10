@@ -65,14 +65,16 @@ void * parse_strings(char ** strings, int types, int upperNode){
         ptr = strtok_r(strings[8], "/", &end_str);
         int * typesSensArray = malloc((sizeof(int)) * types);
         counter = 0;
+        int total = 0;
         while(ptr){
           typesSensArray[counter] = atoi(ptr);
+          total+=atoi(ptr);
           ptr = strtok_r(NULL,"/",&end_str);
           counter+=1;
         }
 
         infos->sensorsTypesBelow = typesSensArray;
-        infos->numberOfBelowSensors = counter+1;
+        infos->numberOfBelowSensors = total;
     }
     else if( !strcmp(strings[0], "SENSOR") ){
 
@@ -153,6 +155,7 @@ void * parse_strings(char ** strings, int types, int upperNode){
         ptr = strtok_r(strings[4], "/", &end_str);
         int * typesSensArray = malloc((sizeof(int)) * types);
         counter = 0;
+        int total = 0;
         while(ptr){
           typesSensArray[counter] = atoi(ptr);
           ptr = strtok_r(NULL,"/",&end_str);
@@ -160,7 +163,7 @@ void * parse_strings(char ** strings, int types, int upperNode){
         }
 
         infos->sensorsTypesBelow = typesSensArray;
-
+        infos->numberOfBelowSensors = total;
     }
     else if( !strcmp(strings[0], "LAN") ){
 
@@ -192,14 +195,16 @@ void * parse_strings(char ** strings, int types, int upperNode){
         ptr = strtok_r(strings[4], "/", &end_str);
         int * typesSensArray = malloc((sizeof(int)) * types);
         counter = 0;
+        int total = 0;
         while(ptr){
           typesSensArray[counter] = atoi(ptr);
+          total+=atoi(ptr);
           ptr = strtok_r(NULL,"/",&end_str);
           counter+=1;
         }
 
         infos->sensorsTypesBelow = typesSensArray;
-
+        infos->numberOfBelowSensors = total;
     }
     else{
         exit(EXIT_FAILURE);
