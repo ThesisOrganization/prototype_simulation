@@ -1,4 +1,6 @@
-/** \file quick_sort.h
+#ifndef QUEUE_QUICK_SORT_H
+#define QUEUE_QUICK_SORT_H
+/** \file queue_quick_sort.h
  * \brief Quick sort algorithm to order the inpu and output queues according to their type.
  */
 
@@ -8,3 +10,4 @@
  * \param[in] num The number of elements in the array.
  */
 void quicksort(queue_conf** arr,int num);
+#endif

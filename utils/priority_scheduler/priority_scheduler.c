@@ -3,7 +3,7 @@
  */
 
 #include "priority_scheduler.h"
-#include "quick_sort.h"
+#include "queue_quick_sort.h"
 #include <stdlib.h>
 #include <string.h>
 
