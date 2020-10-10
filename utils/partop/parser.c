@@ -220,24 +220,16 @@ void getUpNode2(topology * top, int up, int index, int *** result){
   }
   int type =  getType(top, up);
   if(type == 0 || type == 4){//node or lan
-    //printf("up : %d,type : %d\n",up, type);
     int at = getActuatorType(top,index);
-    //printf("index : %d , act type : %d\n", index, at);
     int * te = getActType(top,up);
     for(int js = 0; js < te[at]; js++){
-      //printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
       if(result[up][at][js] == index){
-        //printf("Hresult[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
-        //printf("QUA SOPRA\n");
         js = te[at];
       }
       else if(result[up][at][js] == -1){
-        //printf("E NON LA SOTTO %d", index);
         result[up][at][js] = index;
-        //printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
         js = te[at];
       }
-      //printf("result[%d][%d][%d] = %d\n", up, at, js, result[up][at][js]);
     }
   }
   if(up == 0 ){ //someone higher then me so I can't reach
@@ -261,33 +253,33 @@ topology * getTopology(char * path){
       exit(EXIT_FAILURE);
 
   char * temp = NULL;
-  //read first line, assess number of nodes, save
+  //read first line, total number of elements
   read = getline(&temp, &len, fp);
   int totalNumberOfElements = atoi(temp);
 
   int nn = 0;
-  //same for 2nd line, number of sensors
+  //number of sensors
   int ns = 0;
-  //same for 2nd line, number of actuators
+  //number of actuators
   int na = 0;
-  //4th line, number of WANs
+  //number of WANs
   int nw = 0;
-  //5th line, number of LANs
+  //number of LANs
   int nl = 0;
 
-  //6th line, number of types of actuators
+  //2n line, number of types of actuators
   read = getline(&temp, &len, fp);
   int nt = atoi(temp);
 
-  //7th line, number of types of sensors
+  //3rd line, number of types of sensors
   read = getline(&temp, &len, fp);
   int nts = atoi(temp);
 
-  //8th line, number of types of LANs
+  //4th line, number of types of LANs
   read = getline(&temp, &len, fp);
   int ntl = atoi(temp);
 
-  //9th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...
+  //5th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...
   read = getline(&temp, &len, fp);
 
   //loop through all the other tokens in the line
@@ -320,7 +312,7 @@ topology * getTopology(char * path){
   }
 
   read = getline(&temp, &len, fp);
-  //10th line, LANs service times
+  //6th line, LANs service times
   index = 0;
   ptr = strtok_r(temp, ";", &end_str);
   double ** LANserviceTimes = malloc(sizeof(double*) * ntl);
@@ -344,7 +336,7 @@ topology * getTopology(char * path){
     ptr=strtok_r(NULL, ";",&end_str);
   }
 
-  //11th line: probabilities command receiver
+  //7th line: probabilities command receiver
   read = getline(&temp, &len, fp);
 
   ptr = strtok_r(temp, ";", &end_str);
@@ -355,13 +347,21 @@ topology * getTopology(char * path){
     ptr = strtok_r(NULL,"/",&end_str);
     counter+=1;
   }
-  //printf("There are %d nodes.\n",nn);
-  //printf("There are %d sensor/actuator nodes.\n",ns);
+  //8th line: probabilities command receiver
+  read = getline(&temp, &len, fp);
+
+  ptr = strtok_r(temp, ";", &end_str);
+  double * probCommandSendArray = malloc((sizeof(double)) * 3); //fixed, 3 types of nodes
+  counter = 0;
+  while(ptr){
+    probCommandSendArray[counter] = strtod(ptr, &end_ptr);
+    ptr = strtok_r(NULL,"/",&end_str);
+    counter+=1;
+  }
 
   topology * genTop = malloc(sizeof(topology));
   topArray ** returnArray = malloc(sizeof(topArray *) * (totalNumberOfElements));
-  //iterate through the remaining lines, having the following syntax:
-
+  //9th and onward
   while ((read = getline(&line, &len, fp)) != -1) {
     topArray * tp = malloc(sizeof(topArray));
 
@@ -474,6 +474,7 @@ topology * getTopology(char * path){
   genTop->sensorRatesByType = sensor_rates;
   genTop->LANServiceTimesByType = LANserviceTimes;
   genTop->probOfActuators = probArray;
+  genTop->probNodeCommandArray = probCommandSendArray;
   genTop->topArr = returnArray;
 
   int *** result = malloc(sizeof(int**)*totalNumberOfElements);

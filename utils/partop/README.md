@@ -10,6 +10,7 @@ Being a work in progress project, this is subject to frequent changes and won't 
 0.33,0.10;0.24,0.12\
 0.42,0.25,0.11;0.182,0.14,0.23;0.535,0.71,0.53;\
 0.34;0.28\
+0.12;0.44;0.2\
 0;2;1,2;-1;1;-1;11;NODE,SCHEDULER1,CENTRAL,-1,17,14,0.8,0.3,0.82/0.35/0.1/0.3,3/3,4\
 7;1;-1;3;1;-1;5;SENSOR,BATCH,SENSOR_TYPE0,MEASURE0,20\
 16;1;-1;5;1;-1;5;ACTUATOR,REAL_TIME,ACTUATOR_TYPE1,MEASURE1,23\
@@ -24,6 +25,7 @@ First line: # total elements\
 5th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...\
 6th line:lan type1 service time transition,telemetry, command\
 7th line: probability receiving actuator type 0;pr type 1;...\
+8th line: probability Central sending command in response to a transition message;pr Regional;pr Local\
 \
 id element, #lower nodes,{lower nodes},upper node,#LANs below, {LANs below},#informations,type of element,{informations}\
 \
