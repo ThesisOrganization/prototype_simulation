@@ -115,6 +115,7 @@ int main()
           printf(", %d of type %d",infos->actuatorsTypesBelow[k],k);
         }
       }
+
       printf(".\n");
       printf("Node %d has upper WAN : %d.\n",i,infos->id_WAN_up);
       printf("Node %d has lower WAN: %d.\n",i,infos->id_WAN_down);

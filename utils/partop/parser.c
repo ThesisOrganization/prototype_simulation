@@ -257,6 +257,12 @@ topology * getTopology(char * path){
   read = getline(&temp, &len, fp);
   int totalNumberOfElements = atoi(temp);
 
+  int * arrayNumberLowerElements = malloc(sizeof(int) * totalNumberOfElements);
+  for(int arrCount = 0; arrCount < totalNumberOfElements; arrCount+=1){
+    arrayNumberLowerElements[arrCount] = 0;
+  }
+
+
   int nn = 0;
   //number of sensors
   int ns = 0;
@@ -370,16 +376,12 @@ topology * getTopology(char * path){
     //first element is the sender
     int temp = atoi(ptr);
 
-    int numberOfLowerElements = 0;
-    int numberOfLANS = 0;
     int numberOfInfos = 0;
     index = 0;//keep track of how many ";" token we iterated on so we know
     //which kind data we are analyzing
 
-    int * lowerElementsArray = NULL;
     int upperNode = 0;
     char ** infoArray = NULL;
-    int * LANSarray = NULL;
 
     ptr = strtok_r(NULL, ";", &end_str);
     //loop through all the other tokens in the line
@@ -390,25 +392,14 @@ topology * getTopology(char * path){
       counter = 0;//used to keep track of how many "," we iterated on
 
       while(ptr2){
-        if(index == 0){//#receivers
-          numberOfLowerElements = atoi(ptr2);
-          lowerElementsArray = malloc(sizeof(int *)*numberOfLowerElements);
-        }
-        else if(index == 1){//receivers
-          lowerElementsArray[counter] = atoi(ptr2);
-        }
-        else if(index == 2){//sender
+        if(index == 0){//sender
           upperNode = atoi(ptr2);
+          if(upperNode != -1){
+            arrayNumberLowerElements[upperNode]+=1;
+          }
           //printf("Node %d has %d informations.\n",temp,numberOfInfos);
         }
-        else if(index == 3){//#lans
-          numberOfLANS = atoi(ptr2);
-          LANSarray = malloc(sizeof(int *)*numberOfLANS);
-        }
-        else if(index == 4){//LANS
-          LANSarray[counter] = atoi(ptr2);
-        }
-        else if(index == 5){//#info
+        else if(index == 1){//#info
           numberOfInfos = atoi(ptr2);
           infoArray = malloc(sizeof(char *)*numberOfInfos);
         }
@@ -445,11 +436,11 @@ topology * getTopology(char * path){
       ptr=strtok_r(NULL, ";",&end_str);
     }
 
-    tp->numberOfLowerElements = numberOfLowerElements;
-    tp->lowerElements = lowerElementsArray;
+    //tp->numberOfLowerElements = numberOfLowerElements;
+    //tp->lowerElements = lowerElementsArray;
     tp->upperNode = upperNode;
-    tp->numberOfLANS = numberOfLANS;
-    tp->connectedLans = LANSarray;
+    //tp->numberOfLANS = numberOfLANS;
+    //tp->connectedLans = LANSarray;
 
     tp->info = parse_strings(infoArray, nt, upperNode);
 
@@ -551,7 +542,81 @@ topology * getTopology(char * path){
       }
       tot+=1;
     }
-  */
+*/
+  int * numberofLANs = malloc(sizeof(int)*totalNumberOfElements);
+  for(int c = 0; c < totalNumberOfElements; c+=1){
+    numberofLANs[c] = 0;
+  }
+
+  int ** lowerElementsArray = malloc(sizeof(int*)*totalNumberOfElements);
+  for(int c = 0; c < totalNumberOfElements; c+=1){
+    if(arrayNumberLowerElements[c] != 0){
+      lowerElementsArray[c] = malloc(sizeof(int)*arrayNumberLowerElements[c]);
+      for(int c2 = 0; c2 < arrayNumberLowerElements[c];c2+=1){
+        lowerElementsArray[c][c2] = -1;
+      }
+    }
+    else{
+      lowerElementsArray[c] = malloc(sizeof(int));
+      lowerElementsArray[c][0] = -1;
+    }
+  }
+
+  for(int c = 0; c < totalNumberOfElements; c+=1){
+    int uppNode = getUpperNode(genTop,c);
+    for(int c2 = 0; c2 < arrayNumberLowerElements[uppNode];c2+=1){
+      if(lowerElementsArray[uppNode][c2] == -1){
+        lowerElementsArray[uppNode][c2] = c;
+        //printf("array[%d][%d] = %d.\n",uppNode,c2,lowerElementsArray[uppNode][c2]);
+        c2 = arrayNumberLowerElements[uppNode];
+        int typeC = getType(genTop,c);
+        if(typeC == 4){ //LAN
+          numberofLANs[uppNode]+=1;
+        }
+      }
+    }
+  }
+  int ** NEWLANSArray = malloc(sizeof(int*) * totalNumberOfElements);
+  for(int c = 0; c < totalNumberOfElements; c+=1){
+    if(numberofLANs[c] == 0){
+      NEWLANSArray[c] = malloc(sizeof(int));
+      NEWLANSArray[c][0] = -1;
+    }
+    else{
+      NEWLANSArray[c] = malloc(sizeof(int)*numberofLANs[c]);
+      for(int c2 = 0; c2 < numberofLANs[c];c2+=1){
+        NEWLANSArray[c][c2] = -1;
+      }
+    }
+
+  }
+
+  for(int c = 0; c < totalNumberOfElements; c+=1){
+    for(int c2 = 0; c2 < arrayNumberLowerElements[c];c2+=1){
+      int low = lowerElementsArray[c][c2];
+      int typeC = getType(genTop,low);
+      if(typeC == 4){ //LAN
+        for(int c3 = 0; c3 < numberofLANs[c];c3+=1){
+          if(NEWLANSArray[c][c3] == -1){
+            NEWLANSArray[c][c3] = low;
+            printf("NEWLANSArray[%d][%d] = [%d]\n",c,c3,low);
+         }
+      }
+    }
+  }
+}
+
+
+  for(int c = 0; c < totalNumberOfElements; c+=1){
+    setLowerElements(genTop, lowerElementsArray[c],arrayNumberLowerElements[c],c);
+    setLANS(genTop, NEWLANSArray[c],numberofLANs[c],c);
+    /*
+    int * lo = getLowers(genTop,c);
+    for(int c2 = 0; c2 < arrayNumberLowerElements[c];c2+=1){
+      printf("Node %d has %d-th lower element = %d.\n",c,c2,lo[c2]);
+    }*/
+  }
+
   genTop->actuatorPaths = arrayActuatorPaths;
   genTop->ListActuatorsByType = result;
 

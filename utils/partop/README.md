@@ -11,11 +11,11 @@ Being a work in progress project, this is subject to frequent changes and won't 
 0.42,0.25,0.11;0.182,0.14,0.23;0.535,0.71,0.53;\
 0.34;0.28\
 0.12;0.44;0.2\
-0;2;1,2;-1;1;-1;11;NODE,SCHEDULER1,CENTRAL,-1,17,14,0.8,0.3,0.82/0.35/0.1/0.3/0.52,3/3,4\
-8;1;-1;20;1;-1;5;SENSOR,LOSSY,SENSOR_TYPE0,MEASURE1\
-9;1;-1;20;1;-1;7;ACTUATOR,LOSSY,ACTUATOR_TYPE0,MEASURE1,0.14,0.32\
-19;2;5,6;2;1;-1;3;WAN,WAN_TYPE1,0.1\
-20;4;7,8,9,10;3;1;-1;4;LAN,LAN_TYPE0,0.42,1/1\
+0;-1;1;-1;11;NODE,SCHEDULER1,CENTRAL,-1,17,14,0.8,0.3,0.82/0.35/0.1/0.3/0.52,3/3,4\
+8;20;1;-1;5;SENSOR,LOSSY,SENSOR_TYPE0,MEASURE1\
+9;20;1;-1;7;ACTUATOR,LOSSY,ACTUATOR_TYPE0,MEASURE1,0.14,0.32\
+19;2;1;-1;3;WAN,WAN_TYPE1,0.1\
+20;3;1;-1;4;LAN,LAN_TYPE0,0.42,1/1\
 \
 \
 First line: # total elements\
@@ -27,7 +27,7 @@ First line: # total elements\
 7th line: probability receiving actuator type 0;pr type 1;...\
 8th line: probability Central sending command in response to a transition message;pr Regional;pr Local\
 \
-id element, #lower nodes,{lower nodes},upper node,#LANs below, {LANs below},#informations,type of element,{informations}\
+id element, upper node,#informations,type of element,{informations}\
 \
 {informations} is different based on the type of node:
 Node: scheduler, type of node,id WAN up, id WAN below,  aggregation rate, delay upper router, delay lower router,  {service time telemtry/service time transition/service time command/service time batch send}, {# actuators type 0/...}, #sensors\

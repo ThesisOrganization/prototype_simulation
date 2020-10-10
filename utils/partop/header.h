@@ -20,4 +20,7 @@ int * getActuatorPathsIndex(topology * top, int index);
 int * getActType(topology * top,int index);
 int getActuatorType(topology * top, int index);
 int * getListActuatorsByType(topology * top, int nodeId, int actuatorType);
+void setLowerElements(topology * top, int * lowerEle, int numberLower, int index);
+void setLANS(topology * top, int * arrayLANS, int numberLANS, int index);
+
 #endif /* HEADER_H */

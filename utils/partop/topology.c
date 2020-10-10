@@ -85,3 +85,15 @@ int * getListActuatorsByType(topology * top, int nodeId, int actuatorType)
 {
     return top->ListActuatorsByType[nodeId][actuatorType];
 }
+
+void setLowerElements(topology * top, int * lowerEle, int numberLower, int index)
+{
+  topArray ** array = top->topArr;
+  array[index]->numberOfLowerElements = numberLower;
+  array[index]->lowerElements = lowerEle;
+}
+void setLANS(topology * top, int * arrayLANS, int numberLANS, int index){
+  topArray ** array = top->topArr;
+  array[index]->numberOfLANS = numberLANS;
+  array[index]->connectedLans = arrayLANS;
+}
