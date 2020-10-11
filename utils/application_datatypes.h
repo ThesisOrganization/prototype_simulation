@@ -6,8 +6,8 @@
 //SCHEDULER DATA
 //#############################################
 
-/** \file priority_dataypes.h
- * Some datatpyes that are useful when handling events and queues with priority.
+/** \file application_datatypes.h
+ * Some datatpyes that are neded when handling models, using the contantes of the utils folder.
  */
 
 /// Type of priority (Lower -> higher priority)
