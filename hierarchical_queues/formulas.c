@@ -1,6 +1,7 @@
 /** \file formulas.c
  * \brief A "simple" program to compute the queuing model parameters, given a topology file.
- * The program will write the computed parameters on a LaTeX file called results.tex, which can be directlry included in repots if necessary.
+ * The program will write the computed parameters on a LaTeX file called results.tex, which is a complete LaTeX document.
+ * required LaTeX packages: `booktabs`, `float`
  */
 
 #include<stdio.h>
@@ -64,7 +65,7 @@ typedef struct node_data{
  */
 void print_table_header(int cols,char* table_header,FILE* out){
 	int i;
-	fprintf(out,"\\begin{table}\n\\centering\n\\begin{tabular}{@{}");
+	fprintf(out,"\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}");
 	for(i=0;i<cols;i++){
 		fprintf(out,"c");
 	}
@@ -88,12 +89,12 @@ void print_results_in_table(char* elem,int node_id,char* table_type,char* table_
 	//we print the table header
 	print_table_header(num_results,table_header,out);
 	//we print the row of the table (see https://en.wikipedia.org/wiki/Printf_format_string for info on the format)
-	fprintf(out,"%'#.3g",results[0]);
+	fprintf(out,"$%.3g$",results[0]);
 	for(i=1;i<num_results-1;i++){
-		fprintf(out,"& %'#.3g",results[1]);
+		fprintf(out,"& $%.3g$",results[1]);
 	}
-	fprintf(out,"& %'#.3g \\\\\n",results[num_results-1]);
-	fprintf(out,"\\bottomrule\n\\end{tabular}\n\\caption{%s}\n\\label{tab:%s-%d}\n\\end{table}\n\n",table_type,elem,node_id);
+	fprintf(out,"& $%.3g$ \\\\\n",results[num_results-1]);
+	fprintf(out,"\\bottomrule\n\\end{tabular}\n\\caption{%s %d %s}\n\\label{tab:%s-%d}\n\\end{table}\n\n",elem,node_id,table_type,elem,node_id);
 }
 
 /** \brief Prints the parameters of the specified node in several tables.
@@ -103,9 +104,9 @@ void print_results_in_table(char* elem,int node_id,char* table_type,char* table_
 void print_results(node_data* node,FILE* out){
 	char* table_header=malloc(sizeof(char)*512);
 	char* table_type=malloc(sizeof(char)*128);
-	fprintf(out,"\\paragraph{%s %d}\n",node->name,node->node_id);
+	fprintf(out,"\\subsection{%s %d}\n",node->name,node->node_id);
 	if(node->type!=NULL){
-		fprintf(out,"Type:%s\\\\\n",node->type);
+		fprintf(out,"Type: %s\\\\\n",node->type);
 	}
 	if(getType(node->top,node->node_id)!=WAN && (getType(node->top,node->node_id)!=LAN && node->node_split_status==NODE_NOT_SPLIT)){
 		//we print the rates table
@@ -129,7 +130,7 @@ void print_results(node_data* node,FILE* out){
 		print_results_in_table(node->name,node->node_id,table_type,table_header,node->response_times,node->classes,out);
 	} else{
 		if(getType(node->top,node->node_id)==WAN ){
-			fprintf(out,"Delay: %'#.3g",((lp_infos*)getInfo(node->top,node->node_id))->delay);
+			fprintf(out,"Delay: $%.3g$",((lp_infos*)getInfo(node->top,node->node_id))->delay);
 		} else {
 			snprintf(table_type,sizeof(char)*128,"Lan in rates");
 			snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
@@ -146,10 +147,10 @@ void print_results(node_data* node,FILE* out){
 			snprintf(table_type,sizeof(char)*128,"Lan in utilization factors");
 			snprintf(table_header,sizeof(char)*512,"$U_t$ & $U_e$ & $U_c$ & $U_b$\\\\\n\\midrule\n");
 			print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_utilization_factors,node->classes,out);
-			fprintf(out,"Lan in Total utilization factor: %'#.3g\\\\\n",node->input_total_utilization_factor);
+			fprintf(out,"Lan in Total utilization factor: $%.3g$\\\\\n",node->input_total_utilization_factor);
 			snprintf(table_type,sizeof(char)*128,"Lan out utilization factors");
 			print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_utilization_factors,node->classes,out);
-			fprintf(out,"Lan out Total utilization factor: %'#.3g\\\\\n",node->output_total_utilization_factor);
+			fprintf(out,"Lan out Total utilization factor: $%.3g$\\\\\n",node->output_total_utilization_factor);
 			//we print the response times
 			snprintf(table_type,sizeof(char)*128,"Lan in response times");
 			snprintf(table_header,sizeof(char)*512,"$R_t$ & $R_e$ & $R_c$ & $R_b$\\\\\n\\midrule\n");
@@ -158,6 +159,7 @@ void print_results(node_data* node,FILE* out){
 			print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_response_times,node->classes,out);
 		}
 	}
+	fflush(out);
 	free(table_header);
 	free(table_type);
 }
@@ -441,12 +443,12 @@ void init_node_data(node_data *data,int node_id,node_data* father,topology* top)
 		case SENSOR:
 			snprintf(data->name,sizeof(char)*128,"Sensor");
 			data->type=malloc(sizeof(char)*128);
-			snprintf(data->type,sizeof(char)*128,"Type: %d",((lp_infos*)getInfo(top,node_id))->sensor_type);
+			snprintf(data->type,sizeof(char)*128,"%d",((lp_infos*)getInfo(top,node_id))->sensor_type);
 			break;
 		case ACTUATOR:
 			snprintf(data->name,sizeof(char)*128,"Actuator");
 			data->type=malloc(sizeof(char)*128);
-			snprintf(data->type,sizeof(char)*128,"Type: %d",((lp_infos*)getInfo(top,node_id))->actuator_type);
+			snprintf(data->type,sizeof(char)*128,"%d",((lp_infos*)getInfo(top,node_id))->actuator_type);
 			break;
 		case LAN:
 			snprintf(data->name,sizeof(char)*128,"Lan");
@@ -574,6 +576,7 @@ int main(int argc, char** argv){
 	char* topology_path=argv[1];
 	FILE *out=fopen("results.tex","w");
 	int central_id;
+	fprintf(out,"\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\begin{document}\n");
 	fprintf(out,"\\section{Computed Formulas Example}\n The following data is computed from the topology stored in file %s.\\\\\n",topology_path);
 	printf("topology file:%s\n",argv[1]);
 	topology * genTop = getTopology(topology_path);
@@ -587,5 +590,7 @@ int main(int argc, char** argv){
 	//3rd visit, to print results
 	graph_visit(central,GRAPH_PRINT_DATA,out);
 	free(central);
+	fprintf(out,"\\end{document}");
+	fflush(out);
 	return 0;
 }
