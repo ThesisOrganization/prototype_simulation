@@ -261,7 +261,8 @@ typedef union {
 } state_info;
 
 typedef struct _state {
-    int num_jobs_processed;
+    //int num_jobs_processed;
+    int lp_enabled; //1 lp enabled, 0 lp disabled
 	simtime_t start_timestamp; //usefull to compute T
     simtime_t actual_timestamp;
     state_type type;

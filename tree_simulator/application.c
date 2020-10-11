@@ -42,7 +42,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             state->actual_timestamp = now;
             //printf("%f\n", now);
             
-            state->num_jobs_processed = 0;
+            //state->num_jobs_processed = 0;
             state->topology = getTopology(topology_path); //later we will use a static struct
 
             unsigned int num_nodes = state->topology->total_nodes;
@@ -63,9 +63,12 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             
             //if there are too may LPs, return it
             if(me >= num_nodes + num_sensors + num_actuators + num_lans + num_wans){
-                state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
+                //state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
+                state->lp_enabled = 0;
                 break;
             }
+            else
+                state->lp_enabled = 1;
             
 
             state->type = getType(state->topology, me);
@@ -282,8 +285,11 @@ void print_pre(int me){
 
 bool OnGVT(int me, lp_state *snapshot)
 {
-    if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS) //now is used only by the LPs that are not used
-            return true;
+    //if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS) //now is used only by the LPs that are not used
+    //        return true;
+
+    if(!snapshot->lp_enabled)
+        return true;
 	
     double T = snapshot->actual_timestamp - snapshot->start_timestamp;
 
