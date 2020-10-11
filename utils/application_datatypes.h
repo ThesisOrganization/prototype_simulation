@@ -233,6 +233,12 @@ typedef struct _actuator_state {
     double service_rate_command;
 } actuator_state;
 
+
+typedef enum { //INIT should be 0
+    LAN_IN = 0,
+    LAN_OUT
+} lan_direction;
+
 typedef struct _lan_state {
     queue_state * queue_state_in;
     queue_state * queue_state_out;
