@@ -66,6 +66,9 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
 
     state->info.node->id_wan_down = infos->id_WAN_down;
 
+    int node_type = state->info.node->type;
+    state->info.node->prob_cmd = state->topology->probNodeCommandArray[node_type];
+
 }
 
 void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
@@ -465,7 +468,8 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         //###################################################
         //GENERATE COMMAND
         double random_prob = Random();
-        if (random_prob <= PROB_CMD){
+        double prob_cmd = state->info.node->prob_cmd;
+        if (random_prob <= prob_cmd){
             send_command(me, now, state, info, delay_down);
 
             //################################################### 
@@ -494,7 +498,10 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         int * next_hop_list = getActuatorPathsIndex(state->topology, me);
         int next_hop = next_hop_list[info->destination];
 
-        ScheduleNewEvent(next_hop, now + delay_up, ARRIVE, info, sizeof(job_info));
+        if(state->info.node->type != LOCAL)
+            ScheduleNewEvent(next_hop, now + delay_down, ARRIVE, info, sizeof(job_info));
+        else    
+            ScheduleNewEvent(next_hop, now, ARRIVE, info, sizeof(job_info));
 
     }
     else if(info->job_type == BATCH_DATA){

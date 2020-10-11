@@ -245,8 +245,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 void print_metrics(int me, queue_state * queue_state, double T, simtime_t actual_timestamp){
 
-    printf("#################################################\n");
-    printf("Device number %d\n", me);
 
     for(int i=0; i < NUM_OF_JOB_TYPE; i++){
 
@@ -275,6 +273,13 @@ void print_metrics(int me, queue_state * queue_state, double T, simtime_t actual
     }
 }
 
+void print_pre(int me){
+
+    printf("#################################################\n");
+    printf("Device number: %d\n", me);
+
+}
+
 bool OnGVT(int me, lp_state *snapshot)
 {
     if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS) //now is used only by the LPs that are not used
@@ -282,22 +287,29 @@ bool OnGVT(int me, lp_state *snapshot)
 	
     double T = snapshot->actual_timestamp - snapshot->start_timestamp;
 
+
     //printf("%d\n", me);
     if(snapshot->type == NODE){
-
+        
+        print_pre(me);
         print_metrics(me, snapshot->info.node->queue_state, T, snapshot->actual_timestamp);
 
     }
     else if(snapshot->type == ACTUATOR){
 
+        print_pre(me);
         print_metrics(me, snapshot->info.actuator->queue_state, T, snapshot->actual_timestamp);
 
     }
     else if(snapshot->type == LAN){
+        
+        print_pre(me);
 
-        printf("Lan IN\n");
+        printf("<<<<<<<<<<<<<<<<<<<<\n");
+        printf("Lan IN:\n");
         print_metrics(me, snapshot->info.lan->queue_state_in, T, snapshot->actual_timestamp);
-        printf("Lan OUT\n");
+        printf("<<<<<<<<<<<<<<<<<<<<\n");
+        printf("Lan OUT:\n");
         print_metrics(me, snapshot->info.lan->queue_state_out, T, snapshot->actual_timestamp);
 
     }
