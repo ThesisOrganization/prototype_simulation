@@ -225,6 +225,8 @@ typedef struct _node_state {
     int num_telemetry_aggregated;
     double up_delay;
     double down_delay;
+    int id_wan_down;
+    double prob_cmd;
 } node_state;
 
 typedef struct _actuator_state {
@@ -259,7 +261,8 @@ typedef union {
 } state_info;
 
 typedef struct _state {
-    int num_jobs_processed;
+    //int num_jobs_processed;
+    int lp_enabled; //1 lp enabled, 0 lp disabled
 	simtime_t start_timestamp; //usefull to compute T
     simtime_t actual_timestamp;
     state_type type;
