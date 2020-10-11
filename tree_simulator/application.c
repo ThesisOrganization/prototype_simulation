@@ -69,7 +69,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             
 
             state->type = getType(state->topology, me);
-
+            //printf("%d\n", state->type);
+            lp_infos* infos = getInfo(state->topology, me);
 
             //initializza strutture 
             if(state->type == NODE){
@@ -228,7 +229,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             }
             else if(state->type == LAN){
 
-                finish_lan(me, now, state);
+                finish_lan(me, now, state, *( (lan_direction *) content));
 
             }
             else{
@@ -276,12 +277,12 @@ void print_metrics(int me, queue_state * queue_state, double T, simtime_t actual
 
 bool OnGVT(int me, lp_state *snapshot)
 {
-    //if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS) //now is used only by the LPs that are not used
-    //        return true;
+    if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS) //now is used only by the LPs that are not used
+            return true;
 	
     double T = snapshot->actual_timestamp - snapshot->start_timestamp;
 
-
+    //printf("%d\n", me);
     if(snapshot->type == NODE){
 
         print_metrics(me, snapshot->info.node->queue_state, T, snapshot->actual_timestamp);
@@ -294,7 +295,10 @@ bool OnGVT(int me, lp_state *snapshot)
     }
     else if(snapshot->type == LAN){
 
-        print_metrics(me, snapshot->info.lan->queue_state, T, snapshot->actual_timestamp);
+        printf("Lan IN\n");
+        print_metrics(me, snapshot->info.lan->queue_state_in, T, snapshot->actual_timestamp);
+        printf("Lan OUT\n");
+        print_metrics(me, snapshot->info.lan->queue_state_out, T, snapshot->actual_timestamp);
 
     }
 
