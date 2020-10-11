@@ -225,6 +225,7 @@ typedef struct _node_state {
     int num_telemetry_aggregated;
     double up_delay;
     double down_delay;
+    int id_wan_down;
 } node_state;
 
 typedef struct _actuator_state {

@@ -64,6 +64,8 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
     state->info.node->up_delay = infos->delay_upper_router;
     state->info.node->down_delay = infos->delay_lower_router;
 
+    state->info.node->id_wan_down = infos->id_WAN_down;
+
 }
 
 void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
@@ -277,7 +279,44 @@ void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info
 
 void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info* info){
 
-    printf("WAN: Message received");
+    //printf("WAN: Message received\n");
+    
+    int up_node;
+    double delay = state->info.wan->delay;
+
+    if(info->job_type == TELEMETRY){
+        //printf("TELEMETRY\n");
+        up_node = getUpperNode(state->topology, me);
+        ScheduleNewEvent(up_node, now + delay, ARRIVE, info, sizeof(job_info));
+
+    }
+    else if(info->job_type == TRANSITION){
+        //printf("TRANSITION\n");
+        up_node = getUpperNode(state->topology, me);
+        ScheduleNewEvent(up_node, now + delay, ARRIVE, info, sizeof(job_info));
+
+    }
+    else if(info->job_type == COMMAND){
+
+        //printf("COMMAND received!!!!\n");
+        int * next_hop_list = getActuatorPathsIndex(state->topology, me);
+        int next_hop = next_hop_list[info->destination];
+
+        ScheduleNewEvent(next_hop, now + delay, ARRIVE, info, sizeof(job_info));
+
+    }
+    else if(info->job_type == BATCH_DATA){
+
+        up_node = getUpperNode(state->topology, me);
+        ScheduleNewEvent(up_node, now + delay, ARRIVE, info, sizeof(job_info));
+
+    }
+    else if(info->job_type == REPLY){
+
+        int next = info->sender;
+        ScheduleNewEvent(next, now + delay, ARRIVE, info, sizeof(job_info));
+
+    }
 
 
 }
@@ -314,18 +353,19 @@ static void get_random_actuator(int num_types, int * num_per_types, double * pro
 
 }
 
-static void send_reply(unsigned int me, simtime_t now, lp_state * state, job_info * info, double delay){
+static void send_reply(unsigned int me, simtime_t now, lp_state * state, int sender, double delay){
 
     job_info info_to_send;
     info_to_send.type = REAL_TIME;
     info_to_send.payload = NULL;
     info_to_send.job_type = REPLY;
-    info_to_send.sender = me; //not necessarly
-    int sender = info->sender;
+    info_to_send.sender = sender; //sender for a reply is the guy who previusly sent the transition
+
+    int destination = state->info.node->id_wan_down;
 
     //printf("%d\n", state->info.node->type);
 
-    ScheduleNewEvent(sender, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
+    ScheduleNewEvent(destination, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
 
 }
 
@@ -367,7 +407,15 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, job_i
 void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
     job_info * info = state->info.node->queue_state->current_job;
+    
+    //Update metrics
+    state->info.node->queue_state->num_jobs_in_queue--;
+    
+    state->info.node->queue_state->C[info->job_type]++;
+    state->info.node->queue_state->B[info->job_type] += now - state->info.node->queue_state->start_processing_timestamp;
+    state->info.node->queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
 
+    //Schedule the next job if present
     job_info ** info_arr = schedule_out(state->info.node->queue_state->queues);
     state->info.node->queue_state->current_job = info_arr[0];
     
@@ -378,11 +426,6 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
     }
     
-    state->info.node->queue_state->num_jobs_in_queue--;
-    
-    state->info.node->queue_state->C[info->job_type]++;
-    state->info.node->queue_state->B[info->job_type] += now - state->info.node->queue_state->start_processing_timestamp;
-    state->info.node->queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
     //double service_time = now - (state->info.node->queue_state->start_processing_timestamp);
     //double response_time = now - info->arrived_in_node_timestamp;
 
@@ -417,7 +460,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         //###################################################
         //SEND REPLY
         if(state->info.node->type != LOCAL)
-            send_reply(me, now, state, info, delay_down);
+            send_reply(me, now, state, info->sender, delay_down);
 
         //###################################################
         //GENERATE COMMAND
@@ -476,6 +519,14 @@ void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
 
     job_info * info = state->info.actuator->queue_state->current_job;
 
+    //Update metrics
+    state->info.actuator->queue_state->num_jobs_in_queue--;
+    
+    state->info.actuator->queue_state->C[info->job_type]++;
+    state->info.actuator->queue_state->B[info->job_type] += now - state->info.actuator->queue_state->start_processing_timestamp;
+    state->info.actuator->queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
+
+    //Schedule the next job if present
     job_info ** info_arr = schedule_out(state->info.actuator->queue_state->queues);
     state->info.actuator->queue_state->current_job = info_arr[0];
     
@@ -486,11 +537,6 @@ void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
         ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
     }
     
-    state->info.actuator->queue_state->num_jobs_in_queue--;
-    
-    state->info.actuator->queue_state->C[info->job_type]++;
-    state->info.actuator->queue_state->B[info->job_type] += now - state->info.actuator->queue_state->start_processing_timestamp;
-    state->info.actuator->queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
     //double service_time = now - (state->info.actuator->queue_state->start_processing_timestamp);
     //double response_time = now - info->arrived_in_node_timestamp;
 
@@ -579,6 +625,14 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
 */
     job_info * info = queue_state->current_job;
 
+    //Update metrics
+    queue_state->num_jobs_in_queue--;
+    
+    queue_state->C[info->job_type]++;
+    queue_state->B[info->job_type] += now - queue_state->start_processing_timestamp;
+    queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
+
+    //Schedule the next job if present
     job_info ** info_arr = schedule_out(queue_state->queues);
     queue_state->current_job = info_arr[0];
     
@@ -589,11 +643,6 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
         ScheduleNewEvent(me, ts_finish, FINISH, &direction, sizeof(lan_direction));
     }
     
-    queue_state->num_jobs_in_queue--;
-    
-    queue_state->C[info->job_type]++;
-    queue_state->B[info->job_type] += now - queue_state->start_processing_timestamp;
-    queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
     //double service_time = now - (state->info.lan->queue_state->start_processing_timestamp);
     //double response_time = now - info->arrived_in_node_timestamp;
 
