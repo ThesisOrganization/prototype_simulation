@@ -13,3 +13,4 @@ docs/latex/*
 docs/html/*
 *.aux
 *.log
+output.txt
