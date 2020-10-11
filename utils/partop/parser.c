@@ -678,17 +678,19 @@ topology * getTopology(char * path){
 
   for(int c = 0; c < totalNumberOfElements; c+=1){
     int uppNode = getUpperNode(genTop,c);
-    for(int c2 = 0; c2 < arrayNumberLowerElements[uppNode];c2+=1){
-      if(lowerElementsArray[uppNode][c2] == -1){
-        lowerElementsArray[uppNode][c2] = c;
-        //printf("array[%d][%d] = %d.\n",uppNode,c2,lowerElementsArray[uppNode][c2]);
-        c2 = arrayNumberLowerElements[uppNode];
-        int typeC = getType(genTop,c);
-        if(typeC == 4){ //LAN
-          numberofLANs[uppNode]+=1;
-        }
-      }
-    }
+		if(uppNode!=-1){
+			for(int c2 = 0; c2 < arrayNumberLowerElements[uppNode];c2+=1){
+				if(lowerElementsArray[uppNode][c2] == -1){
+					lowerElementsArray[uppNode][c2] = c;
+					//printf("array[%d][%d] = %d.\n",uppNode,c2,lowerElementsArray[uppNode][c2]);
+					c2 = arrayNumberLowerElements[uppNode];
+					int typeC = getType(genTop,c);
+					if(typeC == 4){ //LAN
+						numberofLANs[uppNode]+=1;
+					}
+				}
+			}
+		}
   }
   int ** LANSArray = malloc(sizeof(int*) * totalNumberOfElements);
   for(int c = 0; c < totalNumberOfElements; c+=1){
