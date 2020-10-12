@@ -124,6 +124,7 @@ float delay;
 int node_type;
 double * service_time;
 int scheduler;
+int numberOfBelowActuators;
 int * actuatorsTypesBelow;
 int id_WAN_up;
 int id_WAN_down;

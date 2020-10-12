@@ -52,29 +52,6 @@ void * parse_strings(char ** strings, int types, int upperNode){
         }
         infos->service_time = serviceArray;
 
-        ptr = strtok_r(strings[7], "/", &end_str);
-        int * typesArray = malloc((sizeof(int)) * types);
-        counter = 0;
-        while(ptr){
-          typesArray[counter] = atoi(ptr);
-          ptr = strtok_r(NULL,"/",&end_str);
-          counter+=1;
-        }
-        infos->actuatorsTypesBelow = typesArray;
-
-        ptr = strtok_r(strings[8], "/", &end_str);
-        int * typesSensArray = malloc((sizeof(int)) * types);
-        counter = 0;
-        int total = 0;
-        while(ptr){
-          typesSensArray[counter] = atoi(ptr);
-          total+=atoi(ptr);
-          ptr = strtok_r(NULL,"/",&end_str);
-          counter+=1;
-        }
-
-        infos->sensorsTypesBelow = typesSensArray;
-        infos->numberOfBelowSensors = total;
     }
     else if( !strcmp(strings[0], "SENSOR") ){
 
@@ -141,29 +118,6 @@ void * parse_strings(char ** strings, int types, int upperNode){
         double delay = strtod(strings[2], &ptr);
         infos->delay = delay;
 
-        char * end_str;
-        ptr = strtok_r(strings[3], "/", &end_str);
-        int * typesArray = malloc((sizeof(int)) * types);
-        int counter = 0;
-        while(ptr){
-          typesArray[counter] = atoi(ptr);
-          ptr = strtok_r(NULL,"/",&end_str);
-          counter+=1;
-        }
-        infos->actuatorsTypesBelow = typesArray;
-
-        ptr = strtok_r(strings[4], "/", &end_str);
-        int * typesSensArray = malloc((sizeof(int)) * types);
-        counter = 0;
-        int total = 0;
-        while(ptr){
-          typesSensArray[counter] = atoi(ptr);
-          ptr = strtok_r(NULL,"/",&end_str);
-          counter+=1;
-        }
-
-        infos->sensorsTypesBelow = typesSensArray;
-        infos->numberOfBelowSensors = total;
     }
     else if( !strcmp(strings[0], "LAN") ){
 
@@ -181,30 +135,6 @@ void * parse_strings(char ** strings, int types, int upperNode){
         double delay = strtod(strings[2], &ptr);
         infos->delay = delay;
 
-        char * end_str;
-        ptr = strtok_r(strings[3], "/", &end_str);
-        int * typesArray = malloc((sizeof(int)) * types);
-        int counter = 0;
-        while(ptr){
-          typesArray[counter] = atoi(ptr);
-          ptr = strtok_r(NULL,"/",&end_str);
-          counter+=1;
-        }
-        infos->actuatorsTypesBelow = typesArray;
-
-        ptr = strtok_r(strings[4], "/", &end_str);
-        int * typesSensArray = malloc((sizeof(int)) * types);
-        counter = 0;
-        int total = 0;
-        while(ptr){
-          typesSensArray[counter] = atoi(ptr);
-          total+=atoi(ptr);
-          ptr = strtok_r(NULL,"/",&end_str);
-          counter+=1;
-        }
-
-        infos->sensorsTypesBelow = typesSensArray;
-        infos->numberOfBelowSensors = total;
     }
     else{
         exit(EXIT_FAILURE);
@@ -278,15 +208,13 @@ void getUpNode2(topology * top, int up, int index, int *** result){
       te = getActType(top,up);
     }
     for(int js = 0; js < te[at]; js++){
-      if(typeSenAct == 1 && up == 4){
-      }
+
       if(result[up][at][js] == index){
         js = te[at];
       }
       else if(result[up][at][js] == -1){
         result[up][at][js] = index;
-        if(typeSenAct == 1 && up == 4){
-        }
+
         js = te[at];
       }
     }
@@ -294,6 +222,28 @@ void getUpNode2(topology * top, int up, int index, int *** result){
 
   getUpNode2(top,up,index,result);
 
+}
+
+void getUpNode3(topology * top, int up, int index, int ** array){
+  if(index != up){
+    up = getUpperNode(top, up);
+  }
+  else{
+    up = getUpperNode(top, index);
+  }
+  if(up == -1){ //Can't go higher
+    return;
+  }
+  int typeSenAct = getType(top, index);
+  int at;
+  if(typeSenAct == 1){//sensor
+    at = getSensorType(top,index);
+  }
+  else{
+    at = getActuatorType(top,index);
+  }
+  array[up][at] +=1 ;
+  getUpNode3(top,up,index,array);
 }
 
 topology * getTopology(char * path){
@@ -547,10 +497,72 @@ topology * getTopology(char * path){
   genTop->probNodeCommandArray = probCommandSendArray;
   genTop->topArr = returnArray;
 
+
+
+  int ** typesSensArray = malloc(sizeof(int*) * totalNumberOfElements);
+  int ** typesActArray = malloc(sizeof(int*) * totalNumberOfElements);
+  index = 0;
+  int index2 = 0;
+  int index3 = 0;
+  int type = 0;
+  while(index < totalNumberOfElements){
+    typesSensArray[index] = malloc(sizeof(int) * nts);
+    typesActArray[index] = malloc(sizeof(int) * nt);
+    while(index2 < nts){
+      typesSensArray[index][index2] = 0;
+      index2+=1;
+    }
+    index2 = 0;
+    while(index3 < nt){
+      typesActArray[index][index3] = 0;
+      index3+=1;
+    }
+    index3 = 0;
+    index+=1;
+  }
+  index = 0;
+  while(index < totalNumberOfElements){
+    type = getType(genTop,index);
+    if(type == 1){
+      getUpNode3(genTop,index,index,typesSensArray);
+    }
+    else if (type == 2){
+      getUpNode3(genTop,index,index,typesActArray);
+    }
+    index+=1;
+  }
+
+  index = 0;
+  while(index < totalNumberOfElements){
+    setSensorTypes(genTop,typesSensArray[index],index, nts);
+    setActuatorTypes(genTop,typesActArray[index],index, nt);
+    index+=1;
+  }
+
+  /*
+  index = 0;
+  while(index < totalNumberOfElements){
+    int * actTy = getActType(genTop, index);
+    int * senTy = getSensType(genTop, index);
+    index2 = 0;
+    index3 = 0;
+    printf("\n Node %d has ACTUATORS:",index);
+    while(index2 < nt){
+      printf("%d/",actTy[index2]);
+      index2+=1;
+    }
+    printf(" SENSORS:");
+    while(index3 < nts){
+      printf("%d/",senTy[index3]);
+      index3+=1;
+    }
+    index+=1;
+  }
+*/
   int *** resultAct = malloc(sizeof(int**)*totalNumberOfElements);
   int *** resultSens = malloc(sizeof(int**)*totalNumberOfElements);
   index = 0;
-  int index2 = 0;
+  index2 = 0;
 
   while(index < totalNumberOfElements){
     int type =  getType(genTop, index);
