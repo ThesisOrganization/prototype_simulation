@@ -251,7 +251,7 @@ void print_metrics(int me, queue_state * queue_state, double T, simtime_t actual
 
     for(int i=0; i < NUM_OF_JOB_TYPE; i++){
 
-        if(queue_state->A[i] > 0){
+        //if(queue_state->A[i] > 0){
         
             printf("......................\n");
             printf("Class number %d, timestamp: %f\n", i, actual_timestamp);
@@ -270,7 +270,7 @@ void print_metrics(int me, queue_state * queue_state, double T, simtime_t actual
             printf("Utilization factor: %f\n", U);
             printf("Arrival rate: %f\n", lambda);
             printf("Throughput: %f\n", X);
-        }
+        //}
 
 
     }
