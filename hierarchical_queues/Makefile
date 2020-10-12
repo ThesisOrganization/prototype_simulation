@@ -12,7 +12,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) -fsanitize=address
 
 %.o : %.c $(DEPS)
-	$(CC) $(CFLAGS) -c -o $@ $< -fsanitize=address
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	$(RM) *.o *.o.rs $(TARGET)

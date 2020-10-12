@@ -29,7 +29,8 @@ typedef enum{
 
 /// The number of visits that a message class can perform on a queue.
 typedef enum{
-	NODE_SINGLE_VISIT=1,
+	NODE_NO_VISIT=0,
+	NODE_SINGLE_VISIT,
 	NODE_DOUBLE_VISIT
 } node_visits_per_message;
 
@@ -42,7 +43,7 @@ typedef enum {
 /// Struct used to hold the parameters computed for each element of the topology.
 typedef struct node_data{
 	//we use the input_rates array for the lan in and the output_rates array for the lan out when the node is a lan
-	double *input_rates,*service_demands,*utilization_factors,*response_times,*output_rates, total_utilization_factor; ///< Parameters to be computed
+	double *input_rates,*service_demands,*utilization_factors,*response_times,*output_rates, total_utilization_factor,*service_times; ///< Parameters to be computed
 	topology* top; ///< The ::topology*.
 	data_classes classes; ///< The number of classes of messages (usually this is equal to ::NUM_CLASSES).
 	int* node_visits_per_class; ///< The visits that each messages does on the current node, ordered by ::data_classes
@@ -54,8 +55,9 @@ typedef struct node_data{
 	struct node_data* father; ///< The above connected node.
 	//the parameters below make sense only for lans
 	node_splitting_classes node_split_status; ///this parameter makes sense only for lan/split elements, if its value is not ::NODE_NOT_SPLIT then we need to use the below double* arrays instead of the ones above, rates excluded.
-	double *input_service_demands,*input_utilization_factors,*input_response_times, input_total_utilization_factor; ///< Input parameters.
-	double output_total_utilization_factor,*output_service_demands,*output_utilization_factors,*output_response_times; ///< output parameters.
+	double *input_service_times,*input_service_demands,*input_utilization_factors,*input_response_times, input_total_utilization_factor; ///< Input parameters.
+	double output_total_utilization_factor,*output_service_times,*output_service_demands,*output_utilization_factors,*output_response_times; ///< output parameters.
+	int *input_node_visits_per_class,*output_node_visits_per_class; ///< node visits are also split.
 } node_data;
 
 /** \brief Print a LaTeX table header in booktabs format.
@@ -97,6 +99,19 @@ void print_results_in_table(char* elem,int node_id,char* table_type,char* table_
 	fprintf(out,"\\bottomrule\n\\end{tabular}\n\\caption{%s %d %s}\n\\label{tab:%s-%d}\n\\end{table}\n\n",elem,node_id,table_type,elem,node_id);
 }
 
+void print_results_in_table_int(char* elem,int node_id,char* table_type,char* table_header,int* results,int num_results,FILE* out){
+	int i;
+	//we print the table header
+	print_table_header(num_results,table_header,out);
+	//we print the row of the table (see https://en.wikipedia.org/wiki/Printf_format_string for info on the format)
+	fprintf(out,"$%d$",results[0]);
+	for(i=1;i<num_results-1;i++){
+		fprintf(out,"& $%d$",results[i]);
+	}
+	fprintf(out,"& $%d$ \\\\\n",results[num_results-1]);
+	fprintf(out,"\\bottomrule\n\\end{tabular}\n\\caption{%s %d %s}\n\\label{tab:%s-%d}\n\\end{table}\n\n",elem,node_id,table_type,elem,node_id);
+}
+
 /** \brief Prints the parameters of the specified node in several tables.
  * \param[in] node The node of which we want to print the parameters.
  * \param[in] out The file wher we want to print.
@@ -115,6 +130,14 @@ void print_results(node_data* node,FILE* out){
 		print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_rates,node->classes,out);
 		snprintf(table_type,sizeof(char)*128,"output rates");
 		print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_rates,node->classes,out);
+		//we print the visits for the node classes
+		snprintf(table_type,sizeof(char)*128,"visits per message class");
+		snprintf(table_header,sizeof(char)*512,"$V_t$ & $V_e$ & $V_c$ & $V_b$\\\\\n\\midrule\n");
+		print_results_in_table_int(node->name,node->node_id,table_type,table_header,node->node_visits_per_class,node->classes,out);
+		//we print the service times
+		snprintf(table_type,sizeof(char)*128,"service times");
+		snprintf(table_header,sizeof(char)*512,"$S_t$ & $S_e$ & $S_c$ & $S_b$\\\\\n\\midrule\n");
+		print_results_in_table(node->name,node->node_id,table_type,table_header,node->service_times,node->classes,out);
 		//we print the service demand table
 		snprintf(table_type,sizeof(char)*128,"service demands");
 		snprintf(table_header,sizeof(char)*512,"$D_t$ & $D_e$ & $D_c$ & $D_b$\\\\\n\\midrule\n");
@@ -140,27 +163,48 @@ void print_results(node_data* node,FILE* out){
 				snprintf(table_type,sizeof(char)*128,"Lan in rates");
 				snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_rates,node->classes,out);
-				snprintf(table_type,sizeof(char)*128,"Lan out rates");
-				print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_rates,node->classes,out);
+				//we print the visits for the node classes
+				snprintf(table_type,sizeof(char)*128,"Lan in visits per message class");
+				snprintf(table_header,sizeof(char)*512,"$V_t$ & $V_e$ & $V_c$ & $V_b$\\\\\n\\midrule\n");
+				print_results_in_table_int(node->name,node->node_id,table_type,table_header,node->input_node_visits_per_class,node->classes,out);
+				//we print the service times
+				snprintf(table_type,sizeof(char)*128,"LAN in service times");
+				snprintf(table_header,sizeof(char)*512,"$S_t$ & $S_e$ & $S_c$ & $S_b$\\\\\n\\midrule\n");
+				print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_service_times,node->classes,out);
 				//we print the service demand tables
 				snprintf(table_type,sizeof(char)*128,"Lan in service demands");
 				snprintf(table_header,sizeof(char)*512,"$D_t$ & $D_e$ & $D_c$ & $D_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_service_demands,node->classes,out);
-				snprintf(table_type,sizeof(char)*128,"Lan out service demands");
-				print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_service_demands,node->classes,out);
+
 				//we print the utilization factors
 				snprintf(table_type,sizeof(char)*128,"Lan in utilization factors");
 				snprintf(table_header,sizeof(char)*512,"$U_t$ & $U_e$ & $U_c$ & $U_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_utilization_factors,node->classes,out);
 				fprintf(out,"Lan in Total utilization factor: $%.3g$\\\\\n",node->input_total_utilization_factor);
-				snprintf(table_type,sizeof(char)*128,"Lan out utilization factors");
-				print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_utilization_factors,node->classes,out);
-				fprintf(out,"Lan out Total utilization factor: $%.3g$\\\\\n",node->output_total_utilization_factor);
 				//we print the response times
 				snprintf(table_type,sizeof(char)*128,"Lan in response times");
 				snprintf(table_header,sizeof(char)*512,"$R_t$ & $R_e$ & $R_c$ & $R_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_response_times,node->classes,out);
+				//LAN out
+				snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
+				snprintf(table_type,sizeof(char)*128,"Lan out rates");
+				print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_rates,node->classes,out);
+				snprintf(table_type,sizeof(char)*128,"LAN out visits per message class");
+				snprintf(table_header,sizeof(char)*512,"$V_t$ & $V_e$ & $V_c$ & $V_b$\\\\\n\\midrule\n");
+				print_results_in_table_int(node->name,node->node_id,table_type,table_header,node->output_node_visits_per_class,node->classes,out);
+				//we print the service times
+				snprintf(table_type,sizeof(char)*128,"Lan out service times");
+				snprintf(table_header,sizeof(char)*512,"$S_t$ & $S_e$ & $S_c$ & $S_b$\\\\\n\\midrule\n");
+				print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_service_times,node->classes,out);
+				snprintf(table_header,sizeof(char)*512,"$D_t$ & $D_e$ & $D_c$ & $D_b$\\\\\n\\midrule\n");
+				snprintf(table_type,sizeof(char)*128,"Lan out service demands");
+				print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_service_demands,node->classes,out);
+				snprintf(table_header,sizeof(char)*512,"$U_t$ & $U_e$ & $U_c$ & $U_b$\\\\\n\\midrule\n");
+				snprintf(table_type,sizeof(char)*128,"Lan out utilization factors");
+				print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_utilization_factors,node->classes,out);
+				fprintf(out,"Lan out Total utilization factor: $%.3g$\\\\\n",node->output_total_utilization_factor);
 				snprintf(table_type,sizeof(char)*128,"Lan out response times");
+				snprintf(table_header,sizeof(char)*512,"$R_t$ & $R_e$ & $R_c$ & $R_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_response_times,node->classes,out);
 			}
 		}
@@ -243,7 +287,7 @@ int* find_nodes_to_visit(topology* top,int node_id,int* num_lowers){
  * \param[in] visit_type The type of graph visit we are performing.
  */
 void compute_data(node_data* node,graph_visit_type visit_type){
-	double total_command_dest_weight_num=0,branch_command_dest_weight_num=0,*childrens_total_rate=NULL,service_time=0,rate_transition_sensors_below=0,rate_telemetry_sensors_below=0,rate_transition_actuators_below=0,*rates=NULL;
+	double total_command_dest_weight_num=0,branch_command_dest_weight_num=0,*childrens_total_rate=NULL,rate_transition_sensors_below=0,rate_telemetry_sensors_below=0,rate_transition_actuators_below=0,*rates;
 	node_data* father_node=NULL;
 	int i,j,father_type;
 	data_classes start_class,end_class,class;
@@ -280,7 +324,7 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 			}
 		}
 		// if the node is a split lan and we are an acutator, we need to get the rates from the lan in.
-		if(getType(father_node->top,father_node->node_id)==LAN && father_node->node_split_status==NODE_NOT_SPLIT && our_info->node_type==ACTUATOR){
+		if(getType(father_node->top,father_node->node_id)==LAN && father_node->node_split_status==NODE_SPLIT_IN_OUT && our_info->node_type==ACTUATOR){
 			rates=father_node->input_rates;
 		} else {
 			rates=father_node->output_rates;
@@ -289,7 +333,6 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 	// we have different rates formula for each element type
 	switch(getType(node->top,node->node_id)){
 		case SENSOR:
-			printf("Sensor %d\n",node->node_id);
 			if(visit_type==GRAPH_COMPUTE_RATES){
 				//sensors can send only telemetry and transition messages
 				node->output_rates[CLASS_TELEMETRY]=node->top->sensorRatesByType[our_info->sensor_type][TELEMETRY];
@@ -297,7 +340,6 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 			}
 			break;
 		case ACTUATOR:
-			printf("Actuator %d\n",node->node_id);
 			//actuators send transitions and receive commands
 			if(visit_type==GRAPH_COMPUTE_RATES){
 				node->output_rates[CLASS_TRANSITION]=our_info->rateTransition;
@@ -305,9 +347,9 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 			if(visit_type==GRAPH_COMPUTE_COMMANDS){
 				node->input_rates[CLASS_COMMAND]= rates[CLASS_COMMAND] * ( node->top->probOfActuators[our_info->actuator_type] / total_command_dest_weight_num);
 			}
+				node->service_times[CLASS_COMMAND]=our_info->serviceTimeCommand;
 			break;
 		case LAN:
-			printf("LAN %d\n",node->node_id);
 			//Lan rely messages from local nodes to sensors /actuators and vice versa, but are split in two queues
 			if(visit_type==GRAPH_COMPUTE_RATES){
 				for(i=0;i<node->top->numberOfSensTypes;i++){
@@ -325,14 +367,18 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 			if(visit_type==GRAPH_COMPUTE_COMMANDS){
 				node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num;
 			}
+			if(node->node_split_status==NODE_SPLIT_IN_OUT){
+				node->input_service_times[CLASS_COMMAND]=node->top->LANsINserviceTimes[our_info->lan_type][CLASS_COMMAND];
+				node->output_service_times[CLASS_TELEMETRY]=node->top->LANsOUTserviceTimes[our_info->lan_type][CLASS_TELEMETRY];
+				node->output_service_times[CLASS_TRANSITION]=node->top->LANsOUTserviceTimes[our_info->lan_type][CLASS_TRANSITION];
+			}
 			break;
 		case NODE:
-			printf("Node %d\n",node->node_id);
 			//node rely telemetry and trasition message to their upper node and commands to their below node
 			if(visit_type==GRAPH_COMPUTE_RATES){
 				childrens_total_rate=calloc(NUM_CLASSES,sizeof(double));
 				//we need to sum the output rates of all our childrens
-				for(j=CLASS_TELEMETRY;j<CLASS_COMMAND;j++){
+				for(j=CLASS_TELEMETRY;j<NUM_CLASSES;j++){
 					for(i=0;i<node->num_childrens;i++){
 						childrens_total_rate[j]+=node->childrens[i]->output_rates[j];
 					}
@@ -342,8 +388,6 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 				node->input_rates[CLASS_TRANSITION]=childrens_total_rate[CLASS_TRANSITION];
 				node->output_rates[CLASS_TRANSITION]=node->input_rates[CLASS_TRANSITION];
 				node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH];
-				//TODO probNodeCommandArray is not indexed correctly
-				printf("prob node command: %g\n",node->top->probNodeCommandArray[our_info->node_type]);
 				node->output_rates[CLASS_BATCH]=node->input_rates[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
 				free(childrens_total_rate);
 			}
@@ -355,6 +399,10 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 					node->output_rates[CLASS_COMMAND]=node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
 				}
 			}
+			node->service_times[CLASS_TELEMETRY]=our_info->service_time[TELEMETRY];
+			node->service_times[CLASS_TRANSITION]=our_info->service_time[TRANSITION];
+			node->service_times[CLASS_COMMAND]=our_info->service_time[COMMAND];
+			node->service_times[CLASS_BATCH]=our_info->service_time[BATCH];
 			break;
 			//the default case handles all the node which are modeled as delays
 			///For nodes modeled as delays and split queues we suppose that the output rates a directed towards the upper nodes, and the input rates are directed towards the lower nodes (as with the splitted lan case)
@@ -377,7 +425,6 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 	if(visit_type==GRAPH_COMPUTE_RATES){
 		start_class=CLASS_TELEMETRY;
 		end_class=CLASS_COMMAND;
-		rates=node->input_rates;
 	}
 	if(visit_type==GRAPH_COMPUTE_COMMANDS){
 		start_class=CLASS_COMMAND;
@@ -387,63 +434,30 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 		} else {
 			end_class=NUM_CLASSES;
 		}
-		//when computing commands utilization factor we cannot consider only the element input rate, but we must also consider the commands generated by the element, so we use the element output rates.
-		if(elem_type!=ACTUATOR && node->node_split_status==NODE_NOT_SPLIT){
-			rates=node->output_rates;
-		} else {
-			//different is the case with split nodes, where we use the ouput rates for the lower nodes and for the actuators, which are destination of the commands
-			rates=node->input_rates;
-		}
 	}
 
 	for(class=start_class;class<end_class;class++){
-		printf("class %d\n input:%g, output: %g\n",class,node->input_rates[class],node->output_rates[class]);
 		//we skip classes for which we have no input/output data
 		if(node->input_rates[class]!=0 || node->output_rates[class]!=0){
-			// we need to convert the data_classes to job_type to use the service_time array.
-			//careful, we need to keep in mind that only nodes have these service times!
-			if(our_info->lp_type==NODE){
-				switch(i){
-					case CLASS_TELEMETRY:
-						service_time=our_info->service_time[TELEMETRY];
-						break;
-					case CLASS_TRANSITION:
-						service_time=our_info->service_time[TRANSITION];
-						break;
-					case CLASS_COMMAND:
-						service_time=our_info->service_time[COMMAND];
-						break;
-					case CLASS_BATCH:
-						service_time=our_info->service_time[BATCH];
-				}
-			}
-			if(our_info->lp_type==ACTUATOR && visit_type==GRAPH_COMPUTE_COMMANDS){
-				service_time=our_info->serviceTimeCommand;
-			}
 			//LAN are split in two queues, so we use different array to compute the queue parameters
 			if(node->node_split_status==NODE_SPLIT_IN_OUT){
 				//lan in
-				node->input_service_demands[class]= node->node_visits_per_class[class] * node->top->LANsINserviceTimes[our_info->lan_type][class];
+				node->input_service_demands[class]= node->input_node_visits_per_class[class] * node->input_service_times[class];
 				node->input_utilization_factors[class]= node->input_rates[class] * node->input_service_demands[class];
 				node->input_response_times[class]= node->input_service_demands[class] / (1- node->input_utilization_factors[class]);
 				node->input_total_utilization_factor+=node->input_utilization_factors[class];
 				//lan out
-				node->output_service_demands[class]= node->node_visits_per_class[class] * node->top->LANsOUTserviceTimes[our_info->lan_type][class];
+				node->output_service_demands[class]= node->output_node_visits_per_class[class] * node->output_service_times[class];
 				node->output_utilization_factors[class]= node->output_rates[class] * node->output_service_demands[class];
 				node->output_response_times[class]= node->output_service_demands[class] / (1- node->output_utilization_factors[class]);
 				node->output_total_utilization_factor+=node->output_utilization_factors[class];
-				printf("input utilization factor: %.3g input service demand: %.3g input response_time: %.3g\n",node->input_utilization_factors[class],node->input_service_demands[class],node->input_response_times[class]);
-				printf("output utilization factor: %.3g output service demand: %.3g output response_time: %.3g\n",node->output_utilization_factors[class],node->output_service_demands[class],node->output_response_times[class]);
 			} else {
 				//all the other elements use only one queue, so their parameters can be generalized
-				node->service_demands[class]= node->node_visits_per_class[class] * service_time;
-				node->utilization_factors[class]= rates[class] * node->service_demands[class];
+				node->service_demands[class]= node->node_visits_per_class[class] * node->service_times[class];
+				node->utilization_factors[class]= node->input_rates[class] * node->service_demands[class];
 				node->response_times[class]= node->service_demands[class] / (1- node->utilization_factors[class]);
 				node->total_utilization_factor+=node->utilization_factors[class];
-				printf("utilization factor: %.3g service demand: %.3g response_time: %.3g\n",node->utilization_factors[class],node->service_demands[class],node->response_times[class]);
 			}
-		} else {
-			printf("class %d skipped\n",class);
 		}
 	}
 }
@@ -463,50 +477,72 @@ void init_node_data(node_data *data,int node_id,node_data* father,topology* top)
 	data->classes=NUM_CLASSES;
 	data->input_rates=calloc(NUM_CLASSES,sizeof(double));
 	data->output_rates=calloc(NUM_CLASSES,sizeof(double));
-	data->node_visits_per_class=calloc(NUM_CLASSES,sizeof(int));
 	//transitio messages have two visits only between nodes
-	if(getType(top,node_id)!=NODE){
-		data->node_visits_per_class[CLASS_TRANSITION]=NODE_SINGLE_VISIT;
-	} else {
-		data->node_visits_per_class[CLASS_TRANSITION]=NODE_DOUBLE_VISIT;
-	}
+	//we model a lan as a split queue
 	if(getType(top,node_id)==LAN){
 		data->node_split_status=NODE_SPLIT_IN_OUT;
+		data->input_service_times=calloc(NUM_CLASSES,sizeof(double));
+		data->output_service_times=calloc(NUM_CLASSES,sizeof(double));
 		data->input_service_demands=calloc(NUM_CLASSES,sizeof(double));
 		data->output_service_demands=calloc(NUM_CLASSES,sizeof(double));
 		data->input_utilization_factors=calloc(NUM_CLASSES,sizeof(double));
 		data->output_utilization_factors=calloc(NUM_CLASSES,sizeof(double));
 		data->input_response_times=calloc(NUM_CLASSES,sizeof(double));
 		data->output_response_times=calloc(NUM_CLASSES,sizeof(double));
+		data->input_node_visits_per_class=calloc(NUM_CLASSES,sizeof(int));
+		data->output_node_visits_per_class=calloc(NUM_CLASSES,sizeof(int));
 	}else{
+		data->service_times=calloc(NUM_CLASSES,sizeof(double));
 		data->node_split_status=NODE_NOT_SPLIT;
+		data->node_visits_per_class=calloc(NUM_CLASSES,sizeof(int));
 		data->service_demands=calloc(NUM_CLASSES,sizeof(double));
 		data->utilization_factors=calloc(NUM_CLASSES,sizeof(double));
 		data->response_times=calloc(NUM_CLASSES,sizeof(double));
 	}
-	data->node_visits_per_class[CLASS_TELEMETRY]=NODE_SINGLE_VISIT;
-	data->node_visits_per_class[CLASS_COMMAND]=NODE_SINGLE_VISIT;
-	data->node_visits_per_class[CLASS_BATCH]=NODE_SINGLE_VISIT;
-	//setup of name and type variables
+	//setup of variables according to the eleemnt type
 	data->name=malloc(sizeof(char)*128);
 	switch(getType(top,node_id)){
 		case SENSOR:
+			data->node_visits_per_class[CLASS_TRANSITION]=NODE_NO_VISIT;
+			data->node_visits_per_class[CLASS_TELEMETRY]=NODE_NO_VISIT;
+			data->node_visits_per_class[CLASS_COMMAND]=NODE_NO_VISIT;
+			data->node_visits_per_class[CLASS_BATCH]=NODE_NO_VISIT;
 			snprintf(data->name,sizeof(char)*128,"Sensor");
 			data->type=malloc(sizeof(char)*128);
 			snprintf(data->type,sizeof(char)*128,"%d",((lp_infos*)getInfo(top,node_id))->sensor_type);
 			break;
 		case ACTUATOR:
+			data->node_visits_per_class[CLASS_TRANSITION]=NODE_NO_VISIT;
+			data->node_visits_per_class[CLASS_TELEMETRY]=NODE_NO_VISIT;
+			data->node_visits_per_class[CLASS_COMMAND]=NODE_SINGLE_VISIT;
+			data->node_visits_per_class[CLASS_BATCH]=NODE_NO_VISIT;
 			snprintf(data->name,sizeof(char)*128,"Actuator");
 			data->type=malloc(sizeof(char)*128);
 			snprintf(data->type,sizeof(char)*128,"%d",((lp_infos*)getInfo(top,node_id))->actuator_type);
 			break;
 		case LAN:
+			data->input_node_visits_per_class[CLASS_TRANSITION]=NODE_NO_VISIT;
+			data->input_node_visits_per_class[CLASS_TELEMETRY]=NODE_NO_VISIT;
+			data->input_node_visits_per_class[CLASS_COMMAND]=NODE_SINGLE_VISIT;
+			data->input_node_visits_per_class[CLASS_BATCH]=NODE_NO_VISIT;
+			data->output_node_visits_per_class[CLASS_TRANSITION]=NODE_SINGLE_VISIT;
+			data->output_node_visits_per_class[CLASS_TELEMETRY]=NODE_SINGLE_VISIT;
+			data->output_node_visits_per_class[CLASS_COMMAND]=NODE_NO_VISIT;
+			data->output_node_visits_per_class[CLASS_BATCH]=NODE_NO_VISIT;
 			snprintf(data->name,sizeof(char)*128,"Lan");
 			break;
 		case WAN:
+			data->node_visits_per_class[CLASS_TRANSITION]=NODE_NO_VISIT;
+			data->node_visits_per_class[CLASS_TELEMETRY]=NODE_NO_VISIT;
+			data->node_visits_per_class[CLASS_COMMAND]=NODE_NO_VISIT;
+			data->node_visits_per_class[CLASS_BATCH]=NODE_NO_VISIT;
 			snprintf(data->name,sizeof(char)*128,"Wan");
 			break;
 		case NODE:
+			data->node_visits_per_class[CLASS_TRANSITION]=NODE_DOUBLE_VISIT;
+			data->node_visits_per_class[CLASS_TELEMETRY]=NODE_SINGLE_VISIT;
+			data->node_visits_per_class[CLASS_COMMAND]=NODE_SINGLE_VISIT;
+			data->node_visits_per_class[CLASS_BATCH]=NODE_SINGLE_VISIT;
 			switch(((lp_infos*)getInfo(top,node_id))->node_type){
 				case CENTRAL:
 					snprintf(data->name,sizeof(char)*128,"Central node");
@@ -564,12 +600,31 @@ void free_node_data(node_data* data){
 	if(data->node_visits_per_class!=NULL){
 		free(data->node_visits_per_class);
 	}
+	if(data->input_node_visits_per_class!=NULL){
+		free(data->input_node_visits_per_class);
+	}
+	if(data->output_node_visits_per_class!=NULL){
+		free(data->output_node_visits_per_class);
+	}
 	if(data->name!=NULL){
 		free(data->name);
 	}
 	if(data->type!=NULL){
 		free(data->type);
 	}
+
+	if(data->service_times!=NULL){
+		free(data->service_times);
+	}
+
+	if(data->input_service_times!=NULL){
+		free(data->input_service_times);
+	}
+
+	if(data->output_service_times!=NULL){
+		free(data->output_service_times);
+	}
+
 	if(data->childrens!=NULL){
 		for(i=0;i<data->num_childrens;i++){
 			if(data->childrens[i]!=NULL){
