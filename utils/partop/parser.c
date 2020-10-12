@@ -428,10 +428,10 @@ topology * getTopology(char * path){
   counter = 0;
   while(ptr){
     probArray[counter] = strtod(ptr, &end_ptr);
-    ptr = strtok_r(NULL,"/",&end_str);
+    ptr = strtok_r(NULL,";",&end_str);
     counter+=1;
   }
-  //9th line: probabilities command receiver
+  //9th line: probabilities generating command
   read = getline(&temp, &len, fp);
 
   ptr = strtok_r(temp, ";", &end_str);
@@ -439,8 +439,8 @@ topology * getTopology(char * path){
   counter = 0;
   while(ptr){
     probCommandSendArray[counter] = strtod(ptr, &end_ptr);
-    ptr = strtok_r(NULL,"/",&end_str);
     counter+=1;
+    ptr = strtok_r(NULL,";",&end_str);
   }
 
   topology * genTop = malloc(sizeof(topology));
