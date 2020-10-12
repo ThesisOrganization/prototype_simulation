@@ -31,11 +31,11 @@ First line: # total elements\
 id element, upper node,#informations,type of element,{informations}\
 \
 {informations} is different based on the type of node:
-Node: scheduler, type of node, aggregation rate, delay upper router, delay lower router,  {service time telemtry/service time transition/service time command/service time batch send}, {# actuators type 0/...},{# sensors type 0/...}
+Node: scheduler, type of node, aggregation rate, delay upper router, delay lower router,  {service time telemtry/service time transition/service time command/service time batch send}
 Sensor: type of job, Sensor/Actuator type, measure done\
 Actuator: type of job, Actuator type, measure done,rate transition, service time command\
 WAN:type of WAN[CENTRAL-REGIONAL/REGIONAL-LOCAL], delay\
-LAN:type of LAN[MANET/WIRELESS/ETC], delay, {# actuators type 0/...}\
+LAN:type of LAN[MANET/WIRELESS/ETC], delay\
 
 ## Data structure 1
 topology is composed by the general, useful informations:\

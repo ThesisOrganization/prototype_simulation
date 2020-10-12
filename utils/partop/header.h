@@ -29,4 +29,7 @@ void setLowerElements(topology * top, int * lowerEle, int numberLower, int index
 void setLANs(topology * top, int * arrayLANs, int numberLANs, int index);
 void setWANdown(topology * top, int idWAN, int index);
 void setWANup(topology * top, int index);
+void setSensorTypes(topology * top, int * array, int index, int nts);
+void setActuatorTypes(topology * top, int * array, int index, int nt);
+
 #endif /* HEADER_H */

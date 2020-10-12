@@ -133,3 +133,21 @@ void setWANup(topology * top, int index){
     }
   }
 }
+void setSensorTypes(topology * top, int * array, int index, int nts){
+  lp_infos * infos = getInfo(top, index);
+  int total = 0;
+  for(int count = 0; count < nts; count++){
+    total+=array[count];
+  }
+  infos->sensorsTypesBelow = array;
+  infos->numberOfBelowSensors = total;
+}
+void setActuatorTypes(topology * top, int * array, int index, int nt){
+  lp_infos * infos = getInfo(top, index);
+  int total = 0;
+  for(int count = 0; count < nt; count++){
+    total+=array[count];
+  }
+  infos->actuatorsTypesBelow = array;
+  infos->numberOfBelowActuators = total;
+}
