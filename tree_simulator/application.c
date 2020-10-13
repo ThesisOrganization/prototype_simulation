@@ -246,15 +246,15 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     }
 }
 
-void print_metrics(int me, queue_state * queue_state, double T, simtime_t actual_timestamp){
+void print_metrics(int me, queue_state * queue_state, double T){
 
 
     for(int i=0; i < NUM_OF_JOB_TYPE; i++){
 
-        if(queue_state->A[i] > 0){
+        //if(queue_state->A[i] > 0){
         
             printf("......................\n");
-            printf("Class number %d, timestamp: %f\n", i, actual_timestamp);
+            printf("Class number %d\n", i);
 
             //all data here are averages
             double S = queue_state->B[i] / queue_state->C[i];
@@ -270,16 +270,16 @@ void print_metrics(int me, queue_state * queue_state, double T, simtime_t actual
             printf("Utilization factor: %f\n", U);
             printf("Arrival rate: %f\n", lambda);
             printf("Throughput: %f\n", X);
-        }
+        //}
 
 
     }
 }
 
-void print_pre(int me){
+void print_pre(int me, simtime_t actual_timestamp){
 
     printf("#################################################\n");
-    printf("Device number: %d\n", me);
+    printf("Device number: %d, timestamp: %f\n", me, actual_timestamp);
 
 }
 
@@ -297,26 +297,26 @@ bool OnGVT(int me, lp_state *snapshot)
     //printf("%d\n", me);
     if(snapshot->type == NODE){
         
-        print_pre(me);
-        print_metrics(me, snapshot->info.node->queue_state, T, snapshot->actual_timestamp);
+        print_pre(me, snapshot->actual_timestamp);
+        print_metrics(me, snapshot->info.node->queue_state, T);
 
     }
     else if(snapshot->type == ACTUATOR){
 
-        print_pre(me);
-        print_metrics(me, snapshot->info.actuator->queue_state, T, snapshot->actual_timestamp);
+        print_pre(me, snapshot->actual_timestamp);
+        print_metrics(me, snapshot->info.actuator->queue_state, T);
 
     }
     else if(snapshot->type == LAN){
         
-        print_pre(me);
+        print_pre(me, snapshot->actual_timestamp);
 
         printf("<<<<<<<<<<<<<<<<<<<<\n");
         printf("Lan IN:\n");
-        print_metrics(me, snapshot->info.lan->queue_state_in, T, snapshot->actual_timestamp);
+        print_metrics(me, snapshot->info.lan->queue_state_in, T);
         printf("<<<<<<<<<<<<<<<<<<<<\n");
         printf("Lan OUT:\n");
-        print_metrics(me, snapshot->info.lan->queue_state_out, T, snapshot->actual_timestamp);
+        print_metrics(me, snapshot->info.lan->queue_state_out, T);
 
     }
 

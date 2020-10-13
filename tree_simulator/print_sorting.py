@@ -20,7 +20,7 @@ for elem in list_devices:
     list_informations = elem.split("\n")
     device_string = list_informations[0]
     #print(device_string.split(":"))
-    device_number = int(device_string.split(":")[1].strip())
+    device_number = int(device_string.split(",")[0].split(":")[1].strip())
     #print(device_number)
     dict_devices[device_number] = elem
 
@@ -28,7 +28,7 @@ for elem in list_devices:
 final_list = list(dict_devices.values())
 
 for text in final_list:
-    print("############################################ NEW DEVICE ###########################################à")
+    print("############################################ NEW DEVICE ###########################################")
     print(text)
 '''
 list_ids = list(dict_devices.keys())
@@ -36,7 +36,7 @@ list_ids.sort()
 
 
 for id_device in list_ids:
-    print("############################################ NEW DEVICE ###########################################à")
+    print("############################################ NEW DEVICE ###########################################")
     print(dict_devices[id_device])
 
 
