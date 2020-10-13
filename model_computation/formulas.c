@@ -119,9 +119,11 @@ void print_results_in_table_int(char* elem,int node_id,char* table_type,char* ta
 void print_results(node_data* node,FILE* out){
 	char* table_header=malloc(sizeof(char)*512);
 	char* table_type=malloc(sizeof(char)*128);
+	if(getType(node->top,node->node_id)!=WAN && getType(node->top,node->node_id)!=SENSOR){
 	fprintf(out,"\\subsection{%s %d}\n",node->name,node->node_id);
 	if(node->type!=NULL){
 		fprintf(out,"Type: %s\\\\\n",node->type);
+	}
 	}
 	if(getType(node->top,node->node_id)!=WAN && (getType(node->top,node->node_id)!=LAN && node->node_split_status==NODE_NOT_SPLIT) && getType(node->top,node->node_id)!=SENSOR){
 		//we print the rates table
@@ -129,8 +131,8 @@ void print_results(node_data* node,FILE* out){
 		//snprintf(table_type,sizeof(char)*128,"input rates");
 		snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
 		print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_rates,node->classes,out);
-		snprintf(table_type,sizeof(char)*128,"output rates");
-		print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_rates,node->classes,out);
+	//	snprintf(table_type,sizeof(char)*128,"output rates");
+	//	print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_rates,node->classes,out);
 		//we print the visits for the node classes
 		snprintf(table_type,sizeof(char)*128,"visits per message class");
 		snprintf(table_header,sizeof(char)*512,"$V_t$ & $V_e$ & $V_c$ & $V_b$\\\\\n\\midrule\n");
@@ -153,13 +155,14 @@ void print_results(node_data* node,FILE* out){
 		snprintf(table_header,sizeof(char)*512,"$R_t$ & $R_e$ & $R_c$ & $R_b$\\\\\n\\midrule\n");
 		print_results_in_table(node->name,node->node_id,table_type,table_header,node->response_times,node->classes,out);
 	} else{
+
 		if(getType(node->top,node->node_id)==WAN ){
-			fprintf(out,"Delay: $%.3g$",((lp_infos*)getInfo(node->top,node->node_id))->delay);
+		//	fprintf(out,"Delay: $%.3g$",((lp_infos*)getInfo(node->top,node->node_id))->delay);
 		} else{
 			if(getType(node->top,node->node_id)==SENSOR){
-				snprintf(table_type,sizeof(char)*128,"output rates");
-				snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
-				print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_rates,node->classes,out);
+			//	snprintf(table_type,sizeof(char)*128,"output rates");
+			//	snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
+			//	print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_rates,node->classes,out);
 			} else {
 				if(getType(node->top,node->node_id)){
 					fprintf(out,"\\subsubsection{LAN in}");
@@ -394,22 +397,22 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 				node->output_rates[CLASS_TELEMETRY]=childrens_total_rate[CLASS_TELEMETRY]/our_info->aggregation_rate;
 				node->input_rates[CLASS_TRANSITION]=childrens_total_rate[CLASS_TRANSITION];
 				node->output_rates[CLASS_TRANSITION]=node->input_rates[CLASS_TRANSITION];
-				//generated messages are not countedin teh queue
-				//node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH]; case where generated messages are not considered in the queue
-				//node->output_rates[CLASS_BATCH]=node->input_rates[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
+				//generated messages are not counted in the queue
+				node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH];
+				node->output_rates[CLASS_BATCH]=node->input_rates[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
 				//generated messages counted in the queue
-				node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION]; //generated messages are counted in the queue
-				node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_BATCH];
+				//node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION]; //generated messages are counted in the queue
+				//node->output_rates[CLASS_BATCH]=node->input_rates[CLASS_BATCH];
 				free(childrens_total_rate);
 			}
 			if(visit_type==GRAPH_COMPUTE_COMMANDS){
 				if(our_info->node_type!=CENTRAL){
 					//generated messages are not considered in the queue
-					//node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num; generated messages not counted in the queue
-					//node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
+					node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num; // generated messages not counted in the queue
+					node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
 					//generated messages are considered in the queue
-					node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
-					node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND];
+					//node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
+					//node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND];
 				} else{
 					node->output_rates[CLASS_COMMAND]=node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
 					node->input_rates[CLASS_COMMAND]=node->output_rates[CLASS_COMMAND];
@@ -661,7 +664,7 @@ void free_node_data(node_data* data){
  * \param[in] visit_type The type of visit to perform.
  * \param[in] out The output file (needed for ::GRAPH_PRINT_DATA visit type).
  */
-void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out){
+void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out,FILE* order){
 	assert(data!=NULL && visit_type<NUM_GRAPH_VISITS);
 	int *lowers=NULL,num_lowers=0,i;
 	//this is the first visit of the tree, so we need to allocate a node_data struct for each children
@@ -688,7 +691,7 @@ void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out){
 	}
 	//to begin computation and to print results we need to reach a node with no lower nodes
 	for(i=0;i<data->num_childrens && data->childrens!=NULL;i++){
-		graph_visit(data->childrens[i],visit_type,out);
+		graph_visit(data->childrens[i],visit_type,out,order);
 	}
 	//during the first visit we need to compute rate for most of the message types starting for the leaves of the tree
 	if(visit_type==GRAPH_COMPUTE_RATES){
@@ -696,7 +699,10 @@ void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out){
 	}
 	// in the third visit we print the data and free the occupied memory
 	if(visit_type==GRAPH_PRINT_DATA){
-		print_results(data,out);
+		if(getType(data->top,data->node_id)!=WAN && getType(data->top,data->node_id)!=SENSOR){
+			fprintf(order,"%d,",data->node_id);
+			print_results(data,out);
+		}
 		free_node_data(data);
 	}
 }
@@ -706,10 +712,10 @@ int main(int argc, char** argv){
 	assert(argc==2);
 	//get topology from file
 	char* topology_path=argv[1];
-	FILE *out=fopen("results.tex","w");
+	FILE *out=fopen("results.tex","w"), *order=fopen("order.txt","w");
 	int central_id;
 	fprintf(out,"\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\begin{document}\n");
-	fprintf(out,"\\section{Computed Formulas Example}\n The following data is computed from the topology stored in file %s.\\\\\n",topology_path);
+	fprintf(out,"\\section{Computed Formulas Example}\n");
 	printf("topology file:%s\n",argv[1]);
 	topology * genTop = getTopology(topology_path);
 	node_data* central=malloc(sizeof(node_data));
@@ -717,15 +723,16 @@ int main(int argc, char** argv){
 	init_node_data(central,central_id,NULL,genTop);
 	//1st visit, to compute rates
 	printf("\n\n\t\t1st visit\n\n");
-	graph_visit(central,GRAPH_COMPUTE_RATES,out);
+	graph_visit(central,GRAPH_COMPUTE_RATES,out,order);
 	//2nd visit, to compute commands
 	printf("\n\n\t\t2nd visit\n\n");
-	graph_visit(central,GRAPH_COMPUTE_COMMANDS,out);
+	graph_visit(central,GRAPH_COMPUTE_COMMANDS,out,order);
 	//3rd visit, to print results
 	printf("\n\n \t\t3rd visit\n\n");
-	graph_visit(central,GRAPH_PRINT_DATA,out);
+	graph_visit(central,GRAPH_PRINT_DATA,out,order);
 	free(central);
 	fprintf(out,"\\end{document}");
 	fflush(out);
+	fflush(order);
 	return 0;
 }

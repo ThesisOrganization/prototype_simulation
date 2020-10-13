@@ -74,13 +74,13 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
 void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
 
     //printf("sensor\n");
-    
+
     state->info.sensor = malloc(sizeof(sensor_state));
     int sensor_type = infos->sensor_type;
     //printf("%d\n", sensor_type);
     double * sensor_rate = getSensorRatesForOneSensorType(state->topology, sensor_type);
-    double rate_transition = sensor_rate[0];
-    double rate_telemetry = sensor_rate[1];
+    double rate_transition = sensor_rate[TRANSITION];
+    double rate_telemetry = sensor_rate[TELEMETRY];
     //double ** rates = getSensorRatesByType(state->topology);
     //double rate_transition = rates[sensor_type][0];
     //double rate_telemetry = rates[sensor_type][1];
@@ -106,7 +106,7 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state, lp_infos * 
     state->info.actuator->queue_state = malloc(sizeof(queue_state));
     state->info.actuator->queue_state->current_job = NULL;
     state->info.actuator->queue_state->num_jobs_in_queue = 0;
-    
+
     init_metrics(state->info.actuator->queue_state);
     //state->info.actuator->queue_state->num_jobs_arrived = 0;
     //state->info.actuator->queue_state->last_arrived_in_node_timestamp = 0.0;
@@ -115,12 +115,12 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state, lp_infos * 
     //state->info.actuator->queue_state->sum_all_response_time = 0.0;
     int num_queues = 1;
     state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
-    
-    state->info.actuator->service_rate_command = infos->serviceTimeCommand; 
+
+    state->info.actuator->service_rate_command = infos->serviceTimeCommand;
 
     double rate_transition = infos->rateTransition;
     state->info.actuator->rate_transition = rate_transition;
-    
+
     //schedule generate for all actuators
     double time_between_arrivals = 1/rate_transition;
     simtime_t ts_generate = now + Expent(time_between_arrivals);
@@ -134,13 +134,13 @@ void init_lan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos
     state->info.lan = malloc(sizeof(lan_state));
     state->info.lan->queue_state_in = malloc(sizeof(queue_state));
     state->info.lan->queue_state_out = malloc(sizeof(queue_state));
-    
+
     state->info.lan->queue_state_in->current_job = NULL;
     state->info.lan->queue_state_out->current_job = NULL;
-    
+
     state->info.lan->queue_state_in->num_jobs_in_queue = 0;
     state->info.lan->queue_state_out->num_jobs_in_queue = 0;
-    
+
     init_metrics(state->info.lan->queue_state_in);
     init_metrics(state->info.lan->queue_state_out);
     //state->info.lan->queue_state->num_jobs_arrived = 0;
@@ -151,7 +151,7 @@ void init_lan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos
     int num_queues = 1;
     state->info.lan->queue_state_in->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
     state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
-    
+
 
     int lan_type = infos->lan_type;
     //state->info.lan->service_rates = getLANServiceTimesForOneLANType(state->topology, lan_type);
@@ -175,7 +175,7 @@ static void start_node(unsigned int me, simtime_t now, lp_state * state, job_inf
 
     state->info.node->queue_state->current_job = info;
     state->info.node->queue_state->start_processing_timestamp = now;
-    
+
     double rate = state->info.node->service_rates[info->job_type];
     simtime_t ts_finish = now + Expent(rate);
     ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
@@ -186,7 +186,7 @@ static void start_actuator(unsigned int me, simtime_t now, lp_state * state, job
 
     state->info.actuator->queue_state->current_job = info;
     state->info.actuator->queue_state->start_processing_timestamp = now;
-    
+
     double rate = state->info.actuator->service_rate_command;
     simtime_t ts_finish = now + Expent(rate);
     ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
@@ -224,7 +224,7 @@ void arrive_node(unsigned int me, simtime_t now, lp_state * state, job_info * in
 void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info * info){
 
     state->info.actuator->queue_state->num_jobs_in_queue++;
-    
+
     state->info.actuator->queue_state->A[info->job_type]++;
     //state->info.actuator->queue_state->num_jobs_arrived++;
     //state->info.actuator->queue_state->sum_all_time_between_arrivals += now - state->info.lan->queue_state->last_arrived_in_node_timestamp;
@@ -271,7 +271,7 @@ void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info
     }
 
     queue_state->num_jobs_in_queue++;
-    
+
     queue_state->A[info->job_type]++;
     //state->info.lan->queue_state->num_jobs_arrived++;
     //state->info.lan->queue_state->sum_all_time_between_arrivals += now - state->info.lan->queue_state->last_arrived_in_node_timestamp;
@@ -287,7 +287,7 @@ void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info
 void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info* info){
 
     //printf("WAN: Message received\n");
-    
+
     int up_node;
     double delay = state->info.wan->delay;
 
@@ -352,7 +352,7 @@ static void get_random_actuator(int num_types, int * num_per_types, double * pro
     double remain_random = temp;
     //printf("%d, %f\n", i, temp);
     double prob_single_act = prob_actuators[type] / sum_prob_numbers;
-    
+
     int actuator = remain_random / prob_single_act;
     //printf("Final: %d, %d\n", type, actuator);
     *pt_type = type;
@@ -379,45 +379,45 @@ static void send_reply(unsigned int me, simtime_t now, lp_state * state, int sen
 static void send_command(unsigned int me, simtime_t now, lp_state * state, job_info * info, double delay){
 
     int num_types = state->num_acts_types;
-    
+
     int * num_per_types = getActType(state->topology, me);
     //for(int i = 0; i < num_types; i++)
     //    printf("%d: %d\n", me, num_per_types[i]);
-    
+
     //type, selected_actuator = get_random_actuator(num_types, num_per_types);
     int type, selected_actuator;
     get_random_actuator(num_types, num_per_types, state->prob_actuators, &type, &selected_actuator);
-    
+
     int * list_actuators_by_type = getListActuatorsByType(state->topology, me, type);
-    
+
     //printf("%d\n", list_actuators_by_type[0]);
     //printf("%d\n", list_actuators_by_type[1]);
-    
+
     int id_selected_actuator = list_actuators_by_type[selected_actuator];
-    
+
     int * next_hop_list = getActuatorPathsIndex(state->topology, me);
-    
+
     int next_hop = next_hop_list[id_selected_actuator];
-    
+
     //printf("%d, %d\n", me, next_hop);
-    
+
     //printf("GENERATING A COMMAND\n");
     job_info info_to_send;
     info_to_send.type = REAL_TIME;
     info_to_send.payload = NULL;
     info_to_send.job_type = COMMAND;
     info_to_send.destination = id_selected_actuator;
-    
+
     ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
 }
 
 void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
     job_info * info = state->info.node->queue_state->current_job;
-    
+
     //Update metrics
     state->info.node->queue_state->num_jobs_in_queue--;
-    
+
     state->info.node->queue_state->C[info->job_type]++;
     state->info.node->queue_state->B[info->job_type] += now - state->info.node->queue_state->start_processing_timestamp;
     state->info.node->queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
@@ -425,14 +425,14 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     //Schedule the next job if present
     job_info ** info_arr = schedule_out(state->info.node->queue_state->queues);
     state->info.node->queue_state->current_job = info_arr[0];
-    
+
     double rate = state->info.node->service_rates[info->job_type];
     simtime_t ts_finish = now + Expent(rate);
     if(state->info.node->queue_state->current_job != NULL){
         state->info.node->queue_state->start_processing_timestamp = now;
         ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
     }
-    
+
     //double service_time = now - (state->info.node->queue_state->start_processing_timestamp);
     //double response_time = now - info->arrived_in_node_timestamp;
 
@@ -446,17 +446,17 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
     if(info->job_type == TELEMETRY){
         //printf("TELEMETRY\n");
-        
+
         int actual_aggr = state->info.node->num_telemetry_aggregated++;
         //printf("%d, %d\n", me, actual_aggr);
 
         if(actual_aggr >= state->info.node->aggregation){
-            
+
             //send aggregated data
             up_node = getUpperNode(state->topology, me);
             if(up_node != -1)
                 ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
-            
+
             //restart buffer of telemetry
             state->info.node->num_telemetry_aggregated = 0;
         }
@@ -476,7 +476,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         if (random_prob <= prob_cmd){
             send_command(me, now, state, info, delay_down);
 
-            //################################################### 
+            //###################################################
             //SEND BATCH_DATA
             up_node = getUpperNode(state->topology, me);
             job_info info_to_send;
@@ -494,7 +494,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         up_node = getUpperNode(state->topology, me);
         if(up_node != -1)
             ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
-        
+
 
     }
     else if(info->job_type == COMMAND){
@@ -504,7 +504,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
         if(state->info.node->type != LOCAL)
             ScheduleNewEvent(next_hop, now + delay_down, ARRIVE, info, sizeof(job_info));
-        else    
+        else
             ScheduleNewEvent(next_hop, now, ARRIVE, info, sizeof(job_info));
 
     }
@@ -532,7 +532,7 @@ void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
 
     //Update metrics
     state->info.actuator->queue_state->num_jobs_in_queue--;
-    
+
     state->info.actuator->queue_state->C[info->job_type]++;
     state->info.actuator->queue_state->B[info->job_type] += now - state->info.actuator->queue_state->start_processing_timestamp;
     state->info.actuator->queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
@@ -540,14 +540,14 @@ void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
     //Schedule the next job if present
     job_info ** info_arr = schedule_out(state->info.actuator->queue_state->queues);
     state->info.actuator->queue_state->current_job = info_arr[0];
-    
+
     double rate = state->info.actuator->service_rate_command;
     simtime_t ts_finish = now + Expent(rate);
     if(state->info.actuator->queue_state->current_job != NULL){
         state->info.actuator->queue_state->start_processing_timestamp = now;
         ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
     }
-    
+
     //double service_time = now - (state->info.actuator->queue_state->start_processing_timestamp);
     //double response_time = now - info->arrived_in_node_timestamp;
 
@@ -638,7 +638,7 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
 
     //Update metrics
     queue_state->num_jobs_in_queue--;
-    
+
     queue_state->C[info->job_type]++;
     queue_state->B[info->job_type] += now - queue_state->start_processing_timestamp;
     queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
@@ -646,14 +646,14 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
     //Schedule the next job if present
     job_info ** info_arr = schedule_out(queue_state->queues);
     queue_state->current_job = info_arr[0];
-    
+
     double rate = service_rates[info->job_type];
     simtime_t ts_finish = now + Expent(rate);
     if(queue_state->current_job != NULL){
         queue_state->start_processing_timestamp = now;
         ScheduleNewEvent(me, ts_finish, FINISH, &direction, sizeof(lan_direction));
     }
-    
+
     //double service_time = now - (state->info.lan->queue_state->start_processing_timestamp);
     //double response_time = now - info->arrived_in_node_timestamp;
 
