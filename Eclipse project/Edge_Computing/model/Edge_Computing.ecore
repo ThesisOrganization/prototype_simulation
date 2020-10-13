@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="Edge_Computing" nsURI="http://www.example.org/edge_Computing"
+    nsPrefix="Edge_Computing">
+  <eClassifiers xsi:type="ecore:EClass" name="Node" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="lan" lowerBound="1" upperBound="-1"
+        eType="#//LAN" eOpposite="#//LAN/node"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" ordered="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" iD="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Central_Node" eSuperTypes="#//Node">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="regional_node" lowerBound="1"
+        upperBound="-1" eType="#//Regional_Node" eOpposite="#//Regional_Node/central_node"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="service_time" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Regional_Node" eSuperTypes="#//Node">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="local_node" lowerBound="1"
+        upperBound="-1" eType="#//Local_Node" eOpposite="#//Local_Node/regional_node"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="central_node" lowerBound="1"
+        eType="#//Central_Node" eOpposite="#//Central_Node/regional_node"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="service_time" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Local_Node" eSuperTypes="#//Node">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="regional_node" lowerBound="1"
+        eType="#//Regional_Node" eOpposite="#//Regional_Node/local_node"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="device" lowerBound="1"
+        upperBound="-1" eType="#//Device" eOpposite="#//Device/local_node"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="location" upperBound="-1"
+        eType="#//Location" eOpposite="#//Location/local_node"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="service_time" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Sensor" eSuperTypes="#//Device">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="telemetry_rate" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="transition_rate" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Actuator" eSuperTypes="#//Device">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="transition_rate" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="service_time" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="prob_receive_command" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Network" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="router" upperBound="-1"
+        eType="#//Router" eOpposite="#//Router/network"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        iD="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="LAN" eSuperTypes="#//Network">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="node" lowerBound="1" upperBound="-1"
+        eType="#//Node" eOpposite="#//Node/lan"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="network_type" lowerBound="1"
+        eType="#//Network_Type"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="service_time" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="WAN" eSuperTypes="#//Network">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="wired" lowerBound="1" eType="#//Wired"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="delay" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Router">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="network" lowerBound="2"
+        upperBound="-1" eType="#//Network" eOpposite="#//Network/router"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="delay" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        iD="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Device" abstract="true" eSuperTypes="#//Node">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="local_node" lowerBound="1"
+        eType="#//Local_Node" eOpposite="#//Local_Node/device"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="location" lowerBound="1"
+        eType="#//Location" eOpposite="#//Location/device"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Location" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="device" upperBound="-1"
+        eType="#//Device" eOpposite="#//Device/location"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="local_node" upperBound="-1"
+        eType="#//Local_Node" eOpposite="#//Local_Node/location"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Grid_Node" eSuperTypes="#//Location">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="line" lowerBound="1" upperBound="-1"
+        eType="#//Line" eOpposite="#//Line/grid_node"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Section_Component" eSuperTypes="#//Location">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="section" lowerBound="1"
+        eType="#//Section" eOpposite="#//Section/section_component"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Section">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="section_component" lowerBound="1"
+        upperBound="-1" eType="#//Section_Component" eOpposite="#//Section_Component/section"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="line" lowerBound="1" eType="#//Line"
+        eOpposite="#//Line/section"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Line">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="section" lowerBound="1"
+        upperBound="-1" eType="#//Section" eOpposite="#//Section/line"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="grid_node" lowerBound="2"
+        upperBound="2" eType="#//Grid_Node" eOpposite="#//Grid_Node/line"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Network_Type" abstract="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Wired" eSuperTypes="#//Network_Type"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Wireless" eSuperTypes="#//Network_Type"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Manet" eSuperTypes="#//Network_Type"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Root">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="router" upperBound="-1"
+        eType="#//Router" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="network" upperBound="-1"
+        eType="#//Network" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="node" upperBound="-1" eType="#//Node"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="network_type" upperBound="-1"
+        eType="#//Network_Type" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="location" upperBound="-1"
+        eType="#//Location" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="line" upperBound="-1" eType="#//Line"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="section" upperBound="-1"
+        eType="#//Section" containment="true"/>
+  </eClassifiers>
+</ecore:EPackage>
