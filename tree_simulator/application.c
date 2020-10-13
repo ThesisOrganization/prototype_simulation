@@ -278,10 +278,10 @@ void print_metrics(int me, queue_state * queue_state, double T){
     }
 }
 
-void print_pre(int me, simtime_t actual_timestamp){
+void print_pre(int me, simtime_t actual_timestamp, int device_type){
 
     printf("#################################################\n");
-    printf("Device number: %d, timestamp: %f\n", me, actual_timestamp);
+    printf("Device number: %d, Type: %d, timestamp: %f\n", me, device_type, actual_timestamp);
 
 }
 
@@ -299,19 +299,19 @@ bool OnGVT(int me, lp_state *snapshot)
     //printf("%d\n", me);
     if(snapshot->type == NODE){
 
-        print_pre(me, snapshot->actual_timestamp);
+        print_pre(me, snapshot->actual_timestamp, snapshot->type);
         print_metrics(me, snapshot->info.node->queue_state, T);
 
     }
     else if(snapshot->type == ACTUATOR){
 
-        print_pre(me, snapshot->actual_timestamp);
+        print_pre(me, snapshot->actual_timestamp, snapshot->type);
         print_metrics(me, snapshot->info.actuator->queue_state, T);
 
     }
     else if(snapshot->type == LAN){
 
-        print_pre(me, snapshot->actual_timestamp);
+        print_pre(me, snapshot->actual_timestamp, snapshot->type);
 
         printf("<<<<<<<<<<<<<<<<<<<<\n");
         printf("Lan IN:\n");

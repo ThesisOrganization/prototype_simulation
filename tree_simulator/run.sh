@@ -4,6 +4,7 @@
 simulation_time=5000
 number_lp=30
 file_output="output.txt"
+file_latex="report.tex"
 
 
 if [ -n "$2" ]; then
@@ -17,9 +18,12 @@ fi
 if [ "$1" == "valgrind" ]; then
     valgrind --leak-check=full ./queues --sequential --lp $number_lp --simulation-time $simulation_time
 elif [ "$1" == "gdb" ]; then
-    gdb --args ./queues --sequantial --lp $number_lp --simulation-time $simulation_time
+    gdb --args ./queues --sequential --lp $number_lp --simulation-time $simulation_time
 elif [ "$1" == "print" ]; then
     ./queues --sequential --lp $number_lp --simulation-time $simulation_time
+elif [ "$1" == "pdf" ]; then
+    python3 generate_pdf.py $file_output $file_latex
+    pdflatex $file_latex
 else
     ./queues --sequential --lp $number_lp --simulation-time $simulation_time > $file_output
     python3 print_sorting.py $file_output
