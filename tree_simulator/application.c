@@ -26,6 +26,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     int up_node;
     job_info * info;
     double rate_generate;
+    double time_between_arrivals;
     
     simtime_t ts_generate;
     //simtime_t ts_arrive = now + Expent(ARRIVE_RATE);
@@ -138,8 +139,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 exit(EXIT_FAILURE);
             }
 
-
-            ts_generate = now + Expent(rate_generate);
+            time_between_arrivals = 1/rate_generate;
+            ts_generate = now + Expent(time_between_arrivals);
             ScheduleNewEvent(me, ts_generate, GENERATE_TRANSITION, NULL, 0);
 
             //state->num_jobs_processed++;
@@ -170,7 +171,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 exit(EXIT_FAILURE);
             }
 
-            ts_generate = now + Expent(rate_generate);
+            time_between_arrivals = 1/rate_generate;
+            ts_generate = now + Expent(time_between_arrivals);
             ScheduleNewEvent(me, ts_generate, GENERATE_TELEMETRY, NULL, 0);
 
             //state->num_jobs_processed++;

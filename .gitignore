@@ -13,4 +13,5 @@ docs/latex/*
 docs/html/*
 *.aux
 *.log
-output.txt
+tree_simulator/output.txt
+tree_simulator/report.tex

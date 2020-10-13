@@ -88,9 +88,12 @@ void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * in
     state->info.sensor->rate_telemetry = rate_telemetry;
 
     //schedule generate for all sensors
-    simtime_t ts_generate = now + Expent(rate_transition);
+    double time_between_arrivals = 1/rate_transition;
+    simtime_t ts_generate = now + Expent(time_between_arrivals);
     ScheduleNewEvent(me, ts_generate, GENERATE_TRANSITION, NULL, 0);
-    ts_generate = now + Expent(rate_telemetry);
+
+    time_between_arrivals = 1/rate_telemetry;
+    ts_generate = now + Expent(time_between_arrivals);
     ScheduleNewEvent(me, ts_generate, GENERATE_TELEMETRY, NULL, 0);
 
 }
@@ -119,7 +122,8 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state, lp_infos * 
     state->info.actuator->rate_transition = rate_transition;
     
     //schedule generate for all actuators
-    simtime_t ts_generate = now + Expent(rate_transition);
+    double time_between_arrivals = 1/rate_transition;
+    simtime_t ts_generate = now + Expent(time_between_arrivals);
     ScheduleNewEvent(me, ts_generate, GENERATE_TRANSITION, NULL, 0);
 }
 

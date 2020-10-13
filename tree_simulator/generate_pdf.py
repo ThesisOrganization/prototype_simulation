@@ -1,6 +1,27 @@
 import sys
 
 
+def ret_string_table_row(items):
+    return_string = "$" + items[0] "$"
+    for i in range(1, 4):
+        return_string += " & $"
+        return_string += items[i]
+        return_string += "$"
+    return_string += "\\\n"
+
+
+
+
+def ret_string_table(items):
+    header = "begin{table}[H]\ncentering\nbegin{tabular}{@{}cccc@{}}\ntoprule\n"
+    header += ret_string_table_row(["D_c", "D_c", "D_c", "D_c"])
+    header += "\midrule\n"
+    header += ret_string_table_row(items)
+    header += "bottomrule\n\end{tabular}\n\caption{"
+    header += "ROBE"
+    header += "}\n\end{table}\n"
+
+
 def get_dict(text):
     list_devices = text.split("#################################################\n")
     list_devices = list_devices[1:]
@@ -23,6 +44,12 @@ def print_classes(all_classes):
     classes_list = all_classes.strip().split("......................\n")
     return_id_string = classes_list[0]
     classes_list = classes_list[1:]
+    S = []
+    R = []
+    N = []
+    U = []
+    A = []
+    X = []
     for class_string in classes_list:
         class_list = class_string.strip().split("\n")
         class_number_string = class_list[0]
@@ -37,6 +64,9 @@ def print_classes(all_classes):
                 else:
                     value = float(value)
                 print(value_list[0])
+                if value_list[0] == "Average Service time":
+                    S.append()
+                if value_list[0] == "Average time":
                 print(value)
 
     return return_id_string
