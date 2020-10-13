@@ -34,7 +34,7 @@ typedef enum{
 	NODE_DOUBLE_VISIT
 } node_visits_per_message;
 
-///Paramters used to indicate that the curernt node is a LAN which has been split in an input queue and an output queue.
+///Paramters used to indicate that the current node is a LAN which has been split in an input queue and an output queue.
 typedef enum {
 	NODE_NOT_SPLIT=-1, ///< Not split, treat it as a single queue.
 	NODE_SPLIT_IN_OUT, ///< Node split in two queues.
@@ -125,7 +125,8 @@ void print_results(node_data* node,FILE* out){
 	}
 	if(getType(node->top,node->node_id)!=WAN && (getType(node->top,node->node_id)!=LAN && node->node_split_status==NODE_NOT_SPLIT) && getType(node->top,node->node_id)!=SENSOR){
 		//we print the rates table
-		snprintf(table_type,sizeof(char)*128,"input rates");
+		snprintf(table_type,sizeof(char)*128,"rates");
+		//snprintf(table_type,sizeof(char)*128,"input rates");
 		snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
 		print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_rates,node->classes,out);
 		snprintf(table_type,sizeof(char)*128,"output rates");
@@ -160,6 +161,9 @@ void print_results(node_data* node,FILE* out){
 				snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_rates,node->classes,out);
 			} else {
+				if(getType(node->top,node->node_id)){
+					fprintf(out,"\\subsubsection{LAN in}");
+				}
 				snprintf(table_type,sizeof(char)*128,"Lan in rates");
 				snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_rates,node->classes,out);
@@ -185,6 +189,9 @@ void print_results(node_data* node,FILE* out){
 				snprintf(table_type,sizeof(char)*128,"Lan in response times");
 				snprintf(table_header,sizeof(char)*512,"$R_t$ & $R_e$ & $R_c$ & $R_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->name,node->node_id,table_type,table_header,node->input_response_times,node->classes,out);
+				if(getType(node->top,node->node_id)){
+					fprintf(out,"\\subsubsection{LAN out}");
+				}
 				//LAN out
 				snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
 				snprintf(table_type,sizeof(char)*128,"Lan out rates");
@@ -387,16 +394,25 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 				node->output_rates[CLASS_TELEMETRY]=childrens_total_rate[CLASS_TELEMETRY]/our_info->aggregation_rate;
 				node->input_rates[CLASS_TRANSITION]=childrens_total_rate[CLASS_TRANSITION];
 				node->output_rates[CLASS_TRANSITION]=node->input_rates[CLASS_TRANSITION];
-				node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH];
-				node->output_rates[CLASS_BATCH]=node->input_rates[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
+				//generated messages are not countedin teh queue
+				//node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH]; case where generated messages are not considered in the queue
+				//node->output_rates[CLASS_BATCH]=node->input_rates[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
+				//generated messages counted in the queue
+				node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION]; //generated messages are counted in the queue
+				node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_BATCH];
 				free(childrens_total_rate);
 			}
 			if(visit_type==GRAPH_COMPUTE_COMMANDS){
 				if(our_info->node_type!=CENTRAL){
-					node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num;
-					node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
+					//generated messages are not considered in the queue
+					//node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num; generated messages not counted in the queue
+					//node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
+					//generated messages are considered in the queue
+					node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
+					node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND];
 				} else{
 					node->output_rates[CLASS_COMMAND]=node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
+					node->input_rates[CLASS_COMMAND]=node->output_rates[CLASS_COMMAND];
 				}
 			}
 			node->service_times[CLASS_TELEMETRY]=our_info->service_time[TELEMETRY];
@@ -539,7 +555,12 @@ void init_node_data(node_data *data,int node_id,node_data* father,topology* top)
 			snprintf(data->name,sizeof(char)*128,"Wan");
 			break;
 		case NODE:
-			data->node_visits_per_class[CLASS_TRANSITION]=NODE_DOUBLE_VISIT;
+			//central node do not receive replies
+			if(((lp_infos*)getInfo(data->top,data->node_id))->node_type==CENTRAL){
+				data->node_visits_per_class[CLASS_TRANSITION]=NODE_SINGLE_VISIT;
+			}else {
+				data->node_visits_per_class[CLASS_TRANSITION]=NODE_DOUBLE_VISIT;
+			}
 			data->node_visits_per_class[CLASS_TELEMETRY]=NODE_SINGLE_VISIT;
 			data->node_visits_per_class[CLASS_COMMAND]=NODE_SINGLE_VISIT;
 			data->node_visits_per_class[CLASS_BATCH]=NODE_SINGLE_VISIT;
@@ -649,12 +670,18 @@ void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out){
 		lowers=find_nodes_to_visit(data->top,data->node_id,&num_lowers);
 		data->childrens=calloc(num_lowers,sizeof(node_data*));
 		data->num_childrens=num_lowers;
-		for(i=0;i<num_lowers;i++){
+		for(i=0;i<data->num_childrens;i++){
 			data->childrens[i]=malloc(sizeof(node_data));
 			init_node_data(data->childrens[i],lowers[i],data,data->top);
 		}
 		free(lowers);
 	}
+	/*
+	if(visit_type==GRAPH_PRINT_DATA){
+		for(i=0;i<data->num_childrens;i++){
+			print_results(data->childrens[i],out);
+		}
+	}*/
 	//in the second visit we need to compute the rates for command messages before reaching the leaves
 	if(visit_type==GRAPH_COMPUTE_COMMANDS){
 		compute_data(data,visit_type);
