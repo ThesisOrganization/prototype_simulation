@@ -1,3 +1,5 @@
 formulas
 *.tex
 *.pdf
+!test.txt
+*.txt

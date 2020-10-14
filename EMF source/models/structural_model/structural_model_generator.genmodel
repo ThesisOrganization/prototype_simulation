@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/Edge_Computing/src" modelPluginID="Edge_Computing"
+    modelName="Edge_Computing" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.emf.importer.ecore" copyrightFields="false" importOrganizing="true">
+  <foreignModel>structural_model_metamodel.ecore</foreignModel>
+  <genPackages prefix="StructuralModel" disposableProviderFactory="true" ecorePackage="structural_model_metamodel.ecore#/">
+    <genClasses image="false" ecoreClass="structural_model_metamodel.ecore#//Node">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Node/lan"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Node/name"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Central_Node">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Central_Node/service_time"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Central_Node/regional_node"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Regional_Node">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Regional_Node/service_time"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Regional_Node/local_node"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Local_Node">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Local_Node/location"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Local_Node/service_time"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Local_Node/device"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Sensor">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Sensor/telemetry_rate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Sensor/transition_rate"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Actuator">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Actuator/transition_rate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Actuator/service_time"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Actuator/prob_receive_command"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="structural_model_metamodel.ecore#//Network">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Network/router"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Network/name"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//LAN">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//LAN/node"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//LAN/network_type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//LAN/service_time"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//WAN">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//WAN/wired"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//WAN/delay"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Router">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Router/network"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Router/delay"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute structural_model_metamodel.ecore#//Router/name"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="structural_model_metamodel.ecore#//Device">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Device/location"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="structural_model_metamodel.ecore#//Location">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Location/device"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Location/local_node"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Grid_Node">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Grid_Node/line"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Section_Component">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Section_Component/section"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Section">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Section/section_component"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Section/line"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Line">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Line/section"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Line/grid_node"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="structural_model_metamodel.ecore#//Network_Type"/>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Wired"/>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Wireless"/>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Manet"/>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//Root">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Root/router"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Root/network"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Root/node"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Root/network_type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Root/location"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Root/line"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//Root/section"/>
+    </genClasses>
+    <genClasses ecoreClass="structural_model_metamodel.ecore#//ModelRoot">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//ModelRoot/router"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//ModelRoot/network"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//ModelRoot/device"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference structural_model_metamodel.ecore#//ModelRoot/node"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
