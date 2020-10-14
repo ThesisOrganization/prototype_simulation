@@ -474,8 +474,8 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 				//all the other elements use only one queue, so their parameters can be generalized
 				node->service_demands[class]= node->node_visits_per_class[class] * node->service_times[class];
 				node->utilization_factors[class]= node->input_rates[class] * node->service_demands[class];
-				node->response_times[class]= node->service_demands[class] / (1- node->utilization_factors[class]);
 				node->total_utilization_factor+=node->utilization_factors[class];
+				node->response_times[class]= node->service_demands[class] / (1- node->total_utilization_factor);
 			}
 		}
 	}
