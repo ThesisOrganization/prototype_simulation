@@ -382,7 +382,7 @@ From the previous formulas and the open queue model we can compute the Service D
 		U_{rn, e} = \lambda_{rn, e} * D_{rn, e} \\
 		U_{rn, c} = \lambda_{rn, c} * D_{rn, c} \\
 		U_{rn, b} = \lambda_{rn, b} * D_{rn, b} \\
-        U_{rn} = U_{rn, t} + U_{rn, e} + U_{rn, c} + U_{rn, b} \\
+		U_{rn} = U_{rn, t} + U_{rn, e} + U_{rn, c} + U_{rn, b} \\
 		R_{rn, t} = \frac{D_{rn, t}}{1 - U_{rn}} \\
 		R_{rn, e} = \frac{D_{rn, e}}{1 - U_{rn}} \\
 		R_{rn, c} = \frac{D_{rn, c}}{1 - U_{rn}} \\
@@ -409,7 +409,7 @@ Central node command rate is oblivious to the regional node command events, thus
         \lambda_{cn, t} = \sum\limits_{m \in R}{ \frac{\lambda^{\{m\}}_{rn, t}}{aggr^{\{ m \}}_{rn}}}  \\
         %\lambda_{cn, e} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{m,n}),n \in L^m, m \in R}{| A^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
         \lambda_{cn, e} = \sum\limits_{m \in R}{\lambda^{\{m\}}_{rn, e}} \\
-		\lambda_{cn, c} = p_{cmd,cn} * \lambda_{cn, e} \\
+		%\lambda_{cn, c} = p_{cmd,cn} * \lambda_{cn, e} \\
         \lambda_{cn, b} = \sum\limits_{m \in R}{\lambda^{\{ m \}}_{rn, b}} + p_{cmd,cn} * \lambda_{cn, e}
 	\end{array}
 \end{equation}
@@ -426,7 +426,7 @@ From the previous formulas and the open queue model we can compute the Service D
 		U_{cn, e} = \lambda_{cn, e} * D_{cn, e} \\
 		U_{cn, c} = \lambda_{cn, c} * D_{cn, c} \\
 		U_{cn, b} = \lambda_{cn, b} * D_{cn, b} \\
-        U_{cn} = U_{cn, t} + U_{cn, e} + U_{cn, c} + U_{cn, b} \\
+		U_{cn} = U_{cn, t} + U_{cn, e} + U_{cn, c} + U_{cn, b} \\
 		R_{cn, t} = \frac{D_{cn, t}}{1 - U_{cn}} \\
 		R_{cn, e} = \frac{D_{cn, e}}{1 - U_{cn}} \\
 		R_{cn, c} = \frac{D_{cn, c}}{1 - U_{cn}} \\
@@ -456,11 +456,35 @@ From the previous formulas and the open queue model we can compute the Service D
 		U_{cns, t} = \lambda_{cns, t} * D_{cns, t} \\
 		U_{csn, e} = \lambda_{cns, e} * D_{cns, e} \\
 		U_{csn, b} = \lambda_{cns, b} * D_{cns, b} \\
-        U_{cns} = U_{cns, t} + U_{cns, e} + U_{cns, b}\\
+		U_{cns} = U_{cns, t} + U_{cns, e} + U_{cns, b}\\
 		R_{cns, t} = \frac{D_{cns, t}}{1 - U_{cns}} \\
 		R_{cns, e} = \frac{D_{cns, e}}{1 - U_{cns}} \\
 		R_{cns, b} = \frac{D_{cns, b}}{1 - U_{cns}} \\
 	\end{array}
 \end{equation}
+NEW FORMULAS
+COMMANDS
+\begin{equation}
+	\begin{array}{l}
+		\lambda_{rn,c}= (p_{cmd,cn} * \lambda_{cn, e})* \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} \\\
+
+		\lambda_{ln,c}= (\lambda_{rn, c} + p_{cmd,rn} * \lambda_{rn, e}) *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a''_{t} * p_{t}}} \\\
+
+		\lambda_{a,c}= (\lambda_{ln, c}+p_{cmd,ln} * \lambda_{ln, e}) * \frac{p_{w}}{\sum\limits_{t \in T'''}{a'''_{t} * p_{t}}}   \\\
+\end{array}
+\end{equation}
+BATCH
+
+
+\begin{equation}
+	\begin{array}{l}
+		\lambda_{ln,b}=0 \\
+		\lambda_{rn,b}=\sum\limits_{n \in L^{\{n\}}}\frac{\lambda_{ln,e}^{\{n\}}*p_{cmd,ln}}{aggr_{ln,b}}\\
+		\lambda_{cn,b}=\sum\limits_{n \in R^{\{m\}}}\frac{\lambda_{rn,b}^{\{m\}}+\lambda_{rn,e}^{\{m\}}*p_{cmd,rn}}{aggr_{rn,b}}\\
+		\\
+		\lambda_{cns, b} = \frac{\lambda_{cn,b}+\lambda_{bn,e}*p_{cmd,cn}}{aggr_{cn,b}} \\
+	\end{array}
+\end{equation}
+
 
 \end{document}
