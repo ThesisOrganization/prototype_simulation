@@ -300,7 +300,7 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 	double total_command_dest_weight_num=0,branch_command_dest_weight_num=0,*childrens_total_rate=NULL,rate_transition_sensors_below=0,rate_telemetry_sensors_below=0,rate_transition_actuators_below=0,*rates;
 	node_data* father_node=NULL;
 	int i,j,father_type;
-	data_classes start_class,end_class,class;
+	data_classes class;
 	assert(visit_type==GRAPH_COMPUTE_COMMANDS || visit_type==GRAPH_COMPUTE_RATES);
 	int elem_type=getType(node->top,node->node_id);
 	//we get the node information struct
@@ -327,13 +327,13 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 		for(i=0;i<node->top->numberOfActTypes;i++){
 			total_command_dest_weight_num+=((lp_infos*)getInfo(father_node->top,father_node->node_id))->actuatorsTypesBelow[i]*father_node->top->probOfActuators[i];
 		}
-		//if we are not an actautor we need to compute the weighted number of actuators below us
+		//if we are not an actuator we need to compute the weighted number of actuators below us
 		if(elem_type!=ACTUATOR){
 			for(i=0;i<node->top->numberOfActTypes;i++){
 				branch_command_dest_weight_num+=((lp_infos*)getInfo(node->top,node->node_id))->actuatorsTypesBelow[i]*node->top->probOfActuators[i];
 			}
 		}
-		// if the node is a split lan and we are an acutator, we need to get the rates from the lan in.
+		// if the node is a split lan and we are an actuator, we need to get the rates from the lan in.
 		if(getType(father_node->top,father_node->node_id)==LAN && father_node->node_split_status==NODE_SPLIT_IN_OUT && our_info->node_type==ACTUATOR){
 			rates=father_node->input_rates;
 		} else {
@@ -439,21 +439,7 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 			}
 			free(childrens_total_rate);
 	}
-	//computing service time, utilization factor and response time for each message class
-
-	if(visit_type==GRAPH_COMPUTE_RATES){
-		start_class=CLASS_TELEMETRY;
-		end_class=CLASS_COMMAND;
-	}
-	if(visit_type==GRAPH_COMPUTE_COMMANDS){
-		start_class=CLASS_COMMAND;
-		//only nodes need computation for batch data
-		if(elem_type!=NODE){
-			end_class=CLASS_BATCH;
-		} else {
-			end_class=NUM_CLASSES;
-		}
-	}
+	//computing service time, utilization factor for each message class
 
 	for(class=CLASS_TELEMETRY;class<NUM_CLASSES && visit_type==GRAPH_COMPUTE_COMMANDS;class++){
 		if(node->input_rates[class]!=0 || node->output_rates[class]!=0){
@@ -478,6 +464,7 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 			}
 		}
 	}
+	// now we compute the response time, since we need the total utilization factor
 	for(class=CLASS_TELEMETRY;class<NUM_CLASSES && visit_type==GRAPH_COMPUTE_COMMANDS;class++){
 		if(node->node_split_status==NODE_SPLIT_IN_OUT){
 			if(node->input_rates[class]!=0 && node->output_rates[class]!=0){
@@ -487,7 +474,6 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 		} else {
 			if(node->input_rates[class]!=0){
 			node->response_times[class]= node->service_demands[class] / (1 - node->total_utilization_factor);
-				printf("node id: %d, class:%d, demands: %.3g, total utilization:%.3g, response: %.3g\n",node->node_id,class,node->service_demands[class],node->utilization_factors[class],node->response_times[class]);
 			}
 		}
 	}
