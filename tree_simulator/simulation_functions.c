@@ -56,6 +56,8 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
 
     state->info.node->service_rates = getServiceRates(state->topology, me);
 
+    state->info.node->service_rates[TRANSITION] *= 2; //to delete
+
     state->info.node->type = infos->node_type;
 
     state->info.node->aggregation = infos->aggregation_rate;
@@ -466,8 +468,8 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         //printf("TRANSITION\n");
         //###################################################
         //SEND REPLY
-        if(state->info.node->type != LOCAL)
-            send_reply(me, now, state, info->sender, delay_down);
+        //if(state->info.node->type != LOCAL)
+        //    send_reply(me, now, state, info->sender, delay_down);
 
         //###################################################
         //GENERATE COMMAND

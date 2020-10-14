@@ -85,7 +85,7 @@ def print_classes(all_classes):
     #ret_string_table(N, ["N_t", "N_e", "N_c", "N_b"])
     #all_data_string = ret_string_table(S, ["S_t", "S_e", "S_c", "S_b"]) + ret_string_table(R, ["R_t", "R_e", "R_c", "R_b"]) + ret_string_table(U, ["U_t", "U_e", "U_c", "U_b"]) + ret_string_table(A, ["S_t", "S_e", "S_c", "S_b"]) + ret_string_table(X, ["S_t", "S_e", "S_c", "S_b"])
     
-    all_data_string = ret_string_table(A, ["\\lambda_t", "\\lambda_e", "\\lambda_c", "\\lambda_b"], "Arrival rates") + ret_string_table(S, ["S_t", "S_e", "S_c", "S_b"], "Service times") + ret_string_table(U, ["U_t", "U_e", "U_c", "U_b"], "Utilization factors") + ret_string_table(R, ["R_t", "R_e", "R_c", "R_b"], "Response times")
+    all_data_string = ret_string_table(A, ["\\lambda_t", "\\lambda_e", "\\lambda_c", "\\lambda_b"], "Arrival rates") + ret_string_table(S, ["D_t", "D_e", "D_c", "D_b"], "Service demands") + ret_string_table(U, ["U_t", "U_e", "U_c", "U_b"], "Utilization factors") + ret_string_table(R, ["R_t", "R_e", "R_c", "R_b"], "Response times")
 
 
     return return_id_string, all_data_string
