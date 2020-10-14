@@ -22,7 +22,7 @@ First line: # total elements\
 2nd line: # types actuators\
 3rd line: # types sensors\
 4th line # types of LANs\
-5th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...\
+5th line: sensor type 0 telemetry rate,sensor type 0 transition rate;sensor type 1 tel. rate, ...\
 6th line:lan IN type1 service time transition,telemetry, command\
 7th line:lan OUT type1 service time transition,telemetry, command\
 8th line: probability receiving actuator type 0;pr type 1;...\
