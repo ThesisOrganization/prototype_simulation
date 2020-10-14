@@ -15,3 +15,4 @@ docs/html/*
 *.log
 tree_simulator/output.txt
 tree_simulator/report.tex
+!analytical_model

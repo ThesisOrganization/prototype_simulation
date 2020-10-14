@@ -1,1 +1,4 @@
 report.pdf
+report.tex
+*.txt
+!topology.txt
