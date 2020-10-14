@@ -455,27 +455,39 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 		}
 	}
 
-	for(class=start_class;class<end_class;class++){
-		//we skip classes for which we have no input/output data
+	for(class=CLASS_TELEMETRY;class<NUM_CLASSES && visit_type==GRAPH_COMPUTE_COMMANDS;class++){
 		if(node->input_rates[class]!=0 || node->output_rates[class]!=0){
 			//LAN are split in two queues, so we use different array to compute the queue parameters
 			if(node->node_split_status==NODE_SPLIT_IN_OUT){
 				//lan in
 				node->input_service_demands[class]= node->input_node_visits_per_class[class] * node->input_service_times[class];
 				node->input_utilization_factors[class]= node->input_rates[class] * node->input_service_demands[class];
-				node->input_response_times[class]= node->input_service_demands[class] / (1- node->input_utilization_factors[class]);
 				node->input_total_utilization_factor+=node->input_utilization_factors[class];
+
 				//lan out
 				node->output_service_demands[class]= node->output_node_visits_per_class[class] * node->output_service_times[class];
 				node->output_utilization_factors[class]= node->output_rates[class] * node->output_service_demands[class];
-				node->output_response_times[class]= node->output_service_demands[class] / (1- node->output_utilization_factors[class]);
 				node->output_total_utilization_factor+=node->output_utilization_factors[class];
+
 			} else {
 				//all the other elements use only one queue, so their parameters can be generalized
 				node->service_demands[class]= node->node_visits_per_class[class] * node->service_times[class];
 				node->utilization_factors[class]= node->input_rates[class] * node->service_demands[class];
 				node->total_utilization_factor+=node->utilization_factors[class];
-				node->response_times[class]= node->service_demands[class] / (1- node->total_utilization_factor);
+
+			}
+		}
+	}
+	for(class=CLASS_TELEMETRY;class<NUM_CLASSES && visit_type==GRAPH_COMPUTE_COMMANDS;class++){
+		if(node->node_split_status==NODE_SPLIT_IN_OUT){
+			if(node->input_rates[class]!=0 && node->output_rates[class]!=0){
+			node->input_response_times[class]= node->input_service_demands[class] / (1- node->input_total_utilization_factor);
+			node->output_response_times[class]= node->output_service_demands[class] / (1- node->output_total_utilization_factor);
+			}
+		} else {
+			if(node->input_rates[class]!=0){
+			node->response_times[class]= node->service_demands[class] / (1 - node->total_utilization_factor);
+				printf("node id: %d, class:%d, demands: %.3g, total utilization:%.3g, response: %.3g\n",node->node_id,class,node->service_demands[class],node->utilization_factors[class],node->response_times[class]);
 			}
 		}
 	}
