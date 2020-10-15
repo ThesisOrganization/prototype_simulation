@@ -102,6 +102,12 @@ typedef enum {
     LAN_TYPE1,
     LAN_TYPE2
 } lan_type;
+
+typedef enum {
+    RAID1 = 0,
+    RAID2,
+    RAID3
+} disk_type;
 //temp struct, to make things uniform with application.c
 //and check integrity in this main file
 typedef struct _lp_infos
@@ -130,9 +136,11 @@ int id_WAN_up;
 int id_WAN_down;
 int numberOfBelowSensors;
 int * sensorsTypesBelow;
-int aggregation_rate;
+int * aggregation_rate;
 float delay_upper_router;
 float delay_lower_router;
+int disk_type;
+double * diskServices;
 } lp_infos;
 
 typedef struct _topArray

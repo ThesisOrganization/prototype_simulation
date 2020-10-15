@@ -76,7 +76,7 @@ int main()
   }
   //double * getSensorRatesForOneType(topology * top, int index);
   for(k = 0;k < genTop->numberOfActTypes;k++){
-    printf("Probability of a sensor of type %d of receiving a command: %f. \n",k,genTop->probOfActuators[k]);
+    printf("Probability of an actuator of type %d of receiving a command: %f. \n",k,genTop->probOfActuators[k]);
   }
   for(k = 0;k < 3;k++){
     printf("Probability of a node of type %d of reacting to a transition with a command: %f. \n",k,genTop->probNodeCommandArray[k]);

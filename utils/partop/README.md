@@ -25,7 +25,7 @@ First line: # total elements\
 5th line: sensor type 0 telemetry rate,sensor type 0 transition rate;sensor type 1 tel. rate, ...\
 6th line:lan IN type1 service time telemetry,trans, command\
 7th line:lan OUT type1 service time telemetry,trans, command\
-8th line: probability receiving actuator type 0;pr type 1;...\
+8th line: weight actuator type 0 for commands;weight act type 1;...\
 9th line: probability Central sending command in response to a transition message;pr Regional;pr Local\
 \
 id element, upper node,#informations,type of element,{informations}\
@@ -57,6 +57,7 @@ double ** LANsOUTserviceTimes:specular.\
 double * probOfActuators: probability of each type of actuator to receive a command message.\
 double * probNodeCommandArray:probability of each node to react to a transition with a command\
 int *** ListActuatorsByType: matrix where an element [x][y][z] is the z-th actuator of type y in the sub-tree of the node x.\
+int *** ListSensorsByType;\
 topArray ** topArr: array of topArray structs, see below.
 
 ## DS 2

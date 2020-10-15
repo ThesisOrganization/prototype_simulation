@@ -189,73 +189,8 @@ void * parse_strings(char ** strings, int types, int upperNode){
     return infos;
 
 }
-void getUpNode(topology * top, int index, int tot, int number, int ** array,int temp, int original){
-  if(index != number){//not first run
-    int temp2 = getUpperNode(top, number);
-    number = temp2;
-  }
-  else{
-    number = getUpperNode(top, index);
-    array[tot][index] = index;//initialized for those who have actuators directly below
-  }
 
-  if(number == -1 ){ //someone higher then me so I can't reach
-    array[tot][index] = -1;
-  }
-  else if(number == tot){//can't go higher than that, reached
-    return;
-  }
-  else{
-    array[tot][index] = number;
-    temp = number;
-    getUpNode(top,index,tot,number,array,temp, original);
-  }
-}
-
-void getUpNode2(topology * top, int up, int index, int *** result){
-  //index : starting actuator
-  if(index != up){
-    up = getUpperNode(top, up);
-  }
-  else{
-    up = getUpperNode(top, index);
-  }
-  if(up == -1){ //someone higher then me so I can't reach
-    return;
-  }
-
-  int type = getType(top, up);
-  if(type == 0 || type == 3 || type == 4){//node or lan
-
-    int typeSenAct = getType(top, index);
-    int at;
-    int * te;
-    if(typeSenAct == 1){//sensor
-      at = getSensorType(top,index);
-      te = getSensType(top,up);
-    }
-    else{
-      at = getActuatorType(top,index);
-      te = getActType(top,up);
-    }
-    for(int js = 0; js < te[at]; js++){
-
-      if(result[up][at][js] == index){
-        js = te[at];
-      }
-      else if(result[up][at][js] == -1){
-        result[up][at][js] = index;
-
-        js = te[at];
-      }
-    }
-  }
-
-  getUpNode2(top,up,index,result);
-
-}
-
-void getUpNode3(topology * top, int up, int index, int ** array){
+void upwardSearchActSensType(topology * top, int up, int index, int ** array){
   if(index != up){
     up = getUpperNode(top, up);
   }
@@ -274,22 +209,96 @@ void getUpNode3(topology * top, int up, int index, int ** array){
     at = getActuatorType(top,index);
   }
   array[up][at] +=1 ;
-  getUpNode3(top,up,index,array);
+  upwardSearchActSensType(top,up,index,array);
+}
+
+//recursive call where we travel upward until the central node
+void upwardSearchSubtreeFilling(topology * top, int up, int index, int *** result){
+  //index : starting actuator
+  if(index != up){
+    up = getUpperNode(top, up);
+  }
+  else{
+    up = getUpperNode(top, index);
+  }
+
+  if(up == -1){ //central node reached, processed in the last recursive call. Return.
+    return;
+  }
+  //check upper node type
+  int type = getType(top, up);
+  if(type == 0 || type == 3 || type == 4){//node,lan, wan
+    //check if index refers to a sensor or actuator
+    int typeSenAct = getType(top, index);
+    int at;
+    int * te;
+    //based on typeSenAct, initialize values, could also be done at first call
+    if(typeSenAct == 1){//sensor
+      at = getSensorType(top,index);
+      te = getSensType(top,up);
+    }
+    else{//actuator
+      at = getActuatorType(top,index);
+      te = getActType(top,up);
+    }
+    //te[at] gives us how many actuators of type at the node up has, we cycle them
+    for(int js = 0; js < te[at]; js++){
+      //So there are three cases, we meet ourself, thus we need to skip
+      //We meet another node, simply we go on with the cycle
+      //We meet an empty space(-1) and fill it with ourself.
+      if(result[up][at][js] == index){//already inserted, skip
+        js = te[at];
+      }
+      else if(result[up][at][js] == -1){//empty space, fill it and skip the rest of the cycle
+        result[up][at][js] = index;
+        js = te[at];
+      }
+    }
+  }
+
+  upwardSearchSubtreeFilling(top,up,index,result);
+}
+
+//search the graph upward, trying to reach the destination node from the index node
+void upwardSearchActuatorPaths(topology * top, int index, int destination, int number, int ** array){
+  if(index != number){//not first run
+    number = getUpperNode(top, number);
+  }
+  else{
+    number = getUpperNode(top, index);
+    array[destination][index] = index;//initialized for those who have actuators directly below
+  }
+
+  if(number == -1 ){ //reached central node, processed it and didn't find a match, can't reach destination from index!
+    array[destination][index] = -1;
+  }
+  else if(number == destination){//Reached the destination, last step of previous iteration contains the correct next step
+    return;
+  }
+  else{
+    array[destination][index] = number;
+    upwardSearchActuatorPaths(top,index,destination,number,array);
+  }
 }
 
 topology * getTopology(char * path){
   FILE * fp;
   char * line = NULL;
+  char * temp = NULL;
   size_t len = 0;
   ssize_t read;
+  char * end_ptr;
+  char *end_str;
+  char * end_token;
+  char *ptr2;
   int i=0;
 
+  //open topology txt
   fp = fopen(path, "r");
 
   if (fp == NULL)
       exit(EXIT_FAILURE);
 
-  char * temp = NULL;
   //read first line, total number of elements
   read = getline(&temp, &len, fp);
   int totalNumberOfElements = atoi(temp);
@@ -298,8 +307,8 @@ topology * getTopology(char * path){
   for(int arrCount = 0; arrCount < totalNumberOfElements; arrCount+=1){
     arrayNumberLowerElements[arrCount] = 0;
   }
-
-
+  //initialization, will be dinamically computed
+  //number of nodes
   int nn = 0;
   //number of sensors
   int ns = 0;
@@ -309,6 +318,7 @@ topology * getTopology(char * path){
   int nw = 0;
   //number of LANs
   int nl = 0;
+
   //2n line, number of types of actuators
   read = getline(&temp, &len, fp);
   int nt = atoi(temp);
@@ -321,14 +331,11 @@ topology * getTopology(char * path){
   read = getline(&temp, &len, fp);
   int ntl = atoi(temp);
 
-  //5th line: sensor type 0 transition rate,sensor type 0 telemetry rate;sensor type 1 tr. rate, ...
+  //5th line: sensor type 0 telemetry rate,sensor type 0 transition rate;sensor type 1 tel. rate, ...
   read = getline(&temp, &len, fp);
 
   //loop through all the other tokens in the line
-  char * end_ptr;
-  char *end_str;
-  char * end_token;
-  char *ptr2;
+
   char * ptr = strtok_r(temp, ";", &end_str);
   double ** sensor_rates = malloc(sizeof(double*) * 2); //fixed, two types of messages
   int index = 0;
@@ -362,7 +369,6 @@ topology * getTopology(char * path){
     ptr2 = strtok_r(ptr,",",&end_token);
     //tokenize each ";" token through ",", iterate until end of the line
     counter = 0;//used to keep track of how many "," we iterated on
-
     while(ptr2){
       if(counter == 0){
         LANsINserviceTimes[index] = malloc(sizeof(double) * 5);//fixed, 5 types messages
@@ -377,7 +383,9 @@ topology * getTopology(char * path){
     index+=1;
     ptr=strtok_r(NULL, ";",&end_str);
   }
+
   read = getline(&temp, &len, fp);
+
   //7th line, LANs OUT service times
   index = 0;
   ptr = strtok_r(temp, ";", &end_str);
@@ -386,7 +394,6 @@ topology * getTopology(char * path){
     ptr2 = strtok_r(ptr,",",&end_token);
     //tokenize each ";" token through ",", iterate until end of the line
     counter = 0;//used to keep track of how many "," we iterated on
-
     while(ptr2){
       if(counter == 0){
         LANsOUTserviceTimes[index] = malloc(sizeof(double) * 5);//fixed, 5 types messages
@@ -401,20 +408,28 @@ topology * getTopology(char * path){
     index+=1;
     ptr=strtok_r(NULL, ";",&end_str);
   }
-  //8th line: probabilities command receiver
-  read = getline(&temp, &len, fp);
 
+  //8th line: weight actuator types
+  //cycle, keep the sum to find the probability
+  read = getline(&temp, &len, fp);
   ptr = strtok_r(temp, ";", &end_str);
-  double * probArray = malloc((sizeof(double)) * nt); //fixed, 4 type of data.
+  double * weight = malloc((sizeof(double)) * nt); //fixed, 4 type of data.
+  double sum = 0.0;
   counter = 0;
   while(ptr){
-    probArray[counter] = strtod(ptr, &end_ptr);
+    weight[counter] = strtod(ptr, &end_ptr);
+    sum+=weight[counter];
     ptr = strtok_r(NULL,";",&end_str);
     counter+=1;
   }
+  double * probArray = malloc((sizeof(double)*nt));
+  for(int i = 0; i < nt; i++){
+    probArray[i] = weight[i]/sum;
+  }
+  free(weight);
+
   //9th line: probabilities generating command
   read = getline(&temp, &len, fp);
-
   ptr = strtok_r(temp, ";", &end_str);
   double * probCommandSendArray = malloc((sizeof(double)) * 3); //fixed, 3 types of nodes
   counter = 0;
@@ -426,23 +441,21 @@ topology * getTopology(char * path){
 
   topology * genTop = malloc(sizeof(topology));
   topArray ** returnArray = malloc(sizeof(topArray *) * (totalNumberOfElements));
+
   //9th and onward
   while ((read = getline(&line, &len, fp)) != -1) {
     topArray * tp = malloc(sizeof(topArray));
-
     //tokenize the line using ";" as a separator
     char *end_str;
     ptr = strtok_r(line, ";", &end_str);
-    //first element is the sender
+    //first element is the node we are analyzing
     int temp = atoi(ptr);
-
     int numberOfInfos = 0;
     index = 0;//keep track of how many ";" token we iterated on so we know
     //which kind data we are analyzing
 
     int upperNode = 0;
     char ** infoArray = NULL;
-
     ptr = strtok_r(NULL, ";", &end_str);
     //loop through all the other tokens in the line
     while(ptr){
@@ -452,12 +465,11 @@ topology * getTopology(char * path){
       counter = 0;//used to keep track of how many "," we iterated on
 
       while(ptr2){
-        if(index == 0){//sender
+        if(index == 0){//upper element
           upperNode = atoi(ptr2);
           if(upperNode != -1){
             arrayNumberLowerElements[upperNode]+=1;
           }
-          //printf("Node %d has %d informations.\n",temp,numberOfInfos);
         }
         else if(index == 1){//#info
           numberOfInfos = atoi(ptr2);
@@ -465,8 +477,8 @@ topology * getTopology(char * path){
         }
         else{//infos
           char * tempString = strdup(ptr2);
-          //remove endline char from the info
           if(counter == 0){
+            //check which type of element, increase the counter for that type
             if(!strcmp(tempString,"NODE")){
               nn+=1;
             }
@@ -484,6 +496,7 @@ topology * getTopology(char * path){
             }
           }
           else if(counter == numberOfInfos - 1){
+            //remove endline char from the info
             tempString[strlen(tempString)-1] = 0;
           }
           infoArray[counter] = tempString;
@@ -496,12 +509,7 @@ topology * getTopology(char * path){
       ptr=strtok_r(NULL, ";",&end_str);
     }
 
-    //tp->numberOfLowerElements = numberOfLowerElements;
-    //tp->lowerElements = lowerElementsArray;
     tp->upperNode = upperNode;
-    //tp->numberOfLANS = numberOfLANS;
-    //tp->connectedLans = LANSarray;
-
     tp->info = parse_strings(infoArray, nt, upperNode);
 
 		for(i=0;i<counter;i++){
@@ -529,40 +537,47 @@ topology * getTopology(char * path){
   genTop->topArr = returnArray;
 
 
-
   int ** typesSensArray = malloc(sizeof(int*) * totalNumberOfElements);
   int ** typesActArray = malloc(sizeof(int*) * totalNumberOfElements);
   index = 0;
   int index2 = 0;
   int index3 = 0;
   int type = 0;
+
+  //initialization of array of sensor and actuator types
   while(index < totalNumberOfElements){
     typesSensArray[index] = malloc(sizeof(int) * nts);
     typesActArray[index] = malloc(sizeof(int) * nt);
+
     while(index2 < nts){
       typesSensArray[index][index2] = 0;
       index2+=1;
     }
     index2 = 0;
+
     while(index3 < nt){
       typesActArray[index][index3] = 0;
       index3+=1;
     }
     index3 = 0;
+
     index+=1;
   }
+
   index = 0;
   while(index < totalNumberOfElements){
     type = getType(genTop,index);
     if(type == 1){
-      getUpNode3(genTop,index,index,typesSensArray);
+      upwardSearchActSensType(genTop,index,index,typesSensArray);
     }
     else if (type == 2){
-      getUpNode3(genTop,index,index,typesActArray);
+      upwardSearchActSensType(genTop,index,index,typesActArray);
     }
     index+=1;
   }
 
+  //insert info from the search, this is done before the other at the end
+  //because these info are needed for the other two searches
   index = 0;
   while(index < totalNumberOfElements){
     setSensorTypes(genTop,typesSensArray[index],index, nts);
@@ -570,49 +585,39 @@ topology * getTopology(char * path){
     index+=1;
   }
 
-  /*
-  index = 0;
-  while(index < totalNumberOfElements){
-    int * actTy = getActType(genTop, index);
-    int * senTy = getSensType(genTop, index);
-    index2 = 0;
-    index3 = 0;
-    printf("\n Node %d has ACTUATORS:",index);
-    while(index2 < nt){
-      printf("%d/",actTy[index2]);
-      index2+=1;
-    }
-    printf(" SENSORS:");
-    while(index3 < nts){
-      printf("%d/",senTy[index3]);
-      index3+=1;
-    }
-    index+=1;
-  }
-*/
   int *** resultAct = malloc(sizeof(int**)*totalNumberOfElements);
   int *** resultSens = malloc(sizeof(int**)*totalNumberOfElements);
-  index = 0;
-  index2 = 0;
 
+  index = 0;
+  //initialization
+  //resultAct is a matrix where [x][y][z] is the z-th actuator of type y in the sub-tree of the node x.
+  //for each element in the system, we check its type. If it is a LAN, WAN or NODE
+  //we allocate an array.
   while(index < totalNumberOfElements){
     int type =  getType(genTop, index);
-    if(type == 0  || type == 3 || type == 4){//node or lan
+    if(type == 0  || type == 3 || type == 4){//node, lan or wan
       resultAct[index] = malloc(sizeof(int*)*nt);
       resultSens[index] = malloc(sizeof(int*)*nts);
+      //Retrieve array of actuators types below
+      //eg. teA[0] = 3 means that element index has 3 actuators of type 0 below.
       int * teA = getActType(genTop, index);
       index2 = 0;
+      //iterate through all actuator types
       while(index2 < nt){
-        if(teA[index2] == 0){
+        if(teA[index2] == 0){ //no actuator of that type below, initialize to -1
           resultAct[index][index2] = malloc(sizeof(int));
           resultAct[index][index2][0] = -1;
         }
-        resultAct[index][index2] = malloc(sizeof(int) * teA[index2]);
-        for(int js = 0; js < teA[index2];js+=1){
-          resultAct[index][index2][js] = -1;
+        else{
+          //else initialize the teA[index2] values in resultAct[element][type]
+          resultAct[index][index2] = malloc(sizeof(int) * teA[index2]);
+          for(int js = 0; js < teA[index2];js+=1){
+            resultAct[index][index2][js] = -1;
+          }
         }
         index2+=1;
       }
+      //repeat for sensors
       int * teS = getSensType(genTop, index);
       index2 = 0;
       while(index2 < nts){
@@ -632,16 +637,27 @@ topology * getTopology(char * path){
     index+=1;
   }
 
+  //iterate, each time you find an actuator or sensor do an upward search
+  for(int ind = 0; ind < totalNumberOfElements; ind+=1){
+    int type =  getType(genTop, ind);
+    if(type == 1){//Sensor
+      //the function below is explained in its definition
+      upwardSearchSubtreeFilling(genTop, ind, ind, resultSens);
+      }
+    else if(type == 2){//Actuator
+      upwardSearchSubtreeFilling(genTop, ind, ind, resultAct);
+      }
+    }
 
+  //initialize and fill actuator paths
   int ** arrayActuatorPaths = malloc(sizeof(int *) * (totalNumberOfElements));
   int tot = 0;
-  int ind;
   while(tot < totalNumberOfElements){
     arrayActuatorPaths[tot] = malloc(sizeof(int)*(totalNumberOfElements));
-    for(ind = 0; ind < totalNumberOfElements; ind+=1){
+    for(int ind = 0; ind < totalNumberOfElements; ind+=1){
       int type =  getType(genTop, ind);
       if(type == 2){//Is an actuator
-        getUpNode(genTop, ind, tot, ind, arrayActuatorPaths,-1, ind);
+        upwardSearchActuatorPaths(genTop, ind, tot, ind, arrayActuatorPaths);
       }
       else{
         arrayActuatorPaths[tot][ind] = -1;
@@ -649,62 +665,12 @@ topology * getTopology(char * path){
     }
     tot+=1;
   }
-
-
-  for(ind = 0; ind < totalNumberOfElements; ind+=1){
-    int type =  getType(genTop, ind);
-    if(type == 2){//Is an actuator
-      getUpNode2(genTop, ind, ind, resultAct);
-      }
-    else if(type == 1){
-      getUpNode2(genTop, ind, ind, resultSens);
-      }
-    }
-/*
-    index = 0;
-    index2 = 0;
-    while(index < totalNumberOfElements){
-      int type =  getType(genTop, index);
-      if(type == 0 || type == 3 || type == 4){//node or lan
-      int * te = getActType(genTop, index);
-      index2 = 0;
-      while(index2 < nt){
-        for(int js = 0; js < te[index2];js+=1){
-          printf("resultAct[%d][%d][%d] = %d\n", index, index2, js, resultAct[index][index2][js]);
-        }
-        index2+=1;
-      }
-      int * teS = getSensType(genTop, index);
-      index2 = 0;
-      while(index2 < nts){
-        for(int js = 0; js < teS[index2];js+=1){
-          printf("resultSens[%d][%d][%d] = %d\n", index, index2, js, resultSens[index][index2][js]);
-        }
-        index2+=1;
-        }
-      }
-      index+=1;
-
-    }
-
-
-    tot = 0;
-    while(tot < totalNumberOfElements){
-      for(ind = nn; ind < totalNumberOfElements; ind+=1){
-        if(arrayActuatorPaths[tot][ind] != -1){
-          printf("array[%d][%d] = %d\n",tot, ind,arrayActuatorPaths[tot][ind]);
-        }
-      }
-      tot+=1;
-    }
-    printf("array[%d][%d] = %d\n",17, 15,arrayActuatorPaths[17][15]);
-
-*/
+  //initilize array containing how many lans each node manages
   int * numberofLANs = malloc(sizeof(int)*totalNumberOfElements);
   for(int c = 0; c < totalNumberOfElements; c+=1){
     numberofLANs[c] = 0;
   }
-
+  //initialize array of directly below elements
   int ** lowerElementsArray = malloc(sizeof(int*)*totalNumberOfElements);
   for(int c = 0; c < totalNumberOfElements; c+=1){
     if(arrayNumberLowerElements[c] != 0){
@@ -719,22 +685,24 @@ topology * getTopology(char * path){
     }
   }
 
+  //iterate through the graph
   for(int c = 0; c < totalNumberOfElements; c+=1){
     int uppNode = getUpperNode(genTop,c);
 		if(uppNode!=-1){
+      //cycle through the number of lower elements of my upper node to find an empty spot
 			for(int c2 = 0; c2 < arrayNumberLowerElements[uppNode];c2+=1){
+        //in this case we only check for emptiness, impossible to try to put yourself in twice
 				if(lowerElementsArray[uppNode][c2] == -1){
 					lowerElementsArray[uppNode][c2] = c;
-					//printf("array[%d][%d] = %d.\n",uppNode,c2,lowerElementsArray[uppNode][c2]);
 					c2 = arrayNumberLowerElements[uppNode];
 					int typeC = getType(genTop,c);
-					if(typeC == 4){ //LAN
+					if(typeC == 4) //LAN, use the search to find how many LANs a node has directly below
 						numberofLANs[uppNode]+=1;
-					}
 				}
 			}
 		}
   }
+  //allocate and initialize LANs array
   int ** LANSArray = malloc(sizeof(int*) * totalNumberOfElements);
   for(int c = 0; c < totalNumberOfElements; c+=1){
     if(numberofLANs[c] == 0){
@@ -749,29 +717,35 @@ topology * getTopology(char * path){
     }
   }
 
+  //same for WANs down, even if for now only 1 WAN is below or upward each node.
   int * WANsDownArray = malloc(sizeof(int) * totalNumberOfElements);
   for(int c = 0; c < totalNumberOfElements; c+=1){
     WANsDownArray[c] = -1;
   }
 
+  //iterate through the graph and through the lower elements
+  //if the lower elements is a LAN, add it to LANSarray
+  //else if it is a WAN, add it to WANSdown array
   for(int c = 0; c < totalNumberOfElements; c+=1){
     for(int c2 = 0; c2 < arrayNumberLowerElements[c];c2+=1){
       int low = lowerElementsArray[c][c2];
       int typeLow= getType(genTop,low);
-      if(typeLow == 4){ //LAN
+      if(typeLow == 3){ //WAN
+          WANsDownArray[c] = low;
+      }
+
+      else if(typeLow == 4){ //LAN
         for(int c3 = 0; c3 < numberofLANs[c];c3+=1){
           if(LANSArray[c][c3] == -1){
             LANSArray[c][c3] = low;
          }
        }
       }
-      if(typeLow == 3){ //LAN
-          WANsDownArray[c] = low;
-      }
+
     }
   }
 
-
+  //setup some of the informations we computed
   for(int c = 0; c < totalNumberOfElements; c+=1){
     setLowerElements(genTop, lowerElementsArray[c],arrayNumberLowerElements[c],c);
     setLANs(genTop, LANSArray[c],numberofLANs[c],c);
