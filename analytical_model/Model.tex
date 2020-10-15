@@ -193,21 +193,33 @@ As before, note that in the next sections it's not necessary to specify how to c
 
 
 Finally we need to denote the probability of each type of actuator to receive a command. Indeed, the probability to receive a command it's not evenly distributed over the actuators' types, so there may be the case that a type of actuator receives more commands with respect to another type.
-For this reason we denote $p_t$ as the probability associated to the $t$ type of actuator.
-Since when a command is generated it must be delivered to at least an actuator, so we need to specify that the sum of all type's probabilities is 1:
+For this reason we denote $w_t$ as the weight associated to the $t$ type of actuator.
+From it, we can compute the probability of each type of actuator to receive a command with respect the other types ($p_t$), simply by a ratio between the weight we are considering and the sum of all the weights:
 \begin{equation}
-    \sum_{t \in T'}{p_t} = 1
+    p_t = \frac{w_t}{ \sum\limits_{v \in T'}{w_v} }
 \end{equation}
+
+%For this reason we denote $p_t$ as the probability associated to the $t$ type of actuator.
+Obviously, from the definition of probability that we gave the following property must hold:
+%Since when a command is generated it must be delivered to at least an actuator, so we need to specify that the sum of all type's probabilities is 1:
+\begin{equation}
+        \sum_{t \in T'}{p_t} = 1
+\end{equation}
+since when a command is generated it must be delivered to at least a type of actuator.
+%Since when a command is generated it must be delivered to at least an actuator, so we need to specify that the sum of all type's probabilities is 1:
+%\begin{equation}
+%    \sum_{t \in T'}{p_t} = 1
+%\end{equation}
 Now we are ready to do the real computation. Denoting $w \in T'$ as the type of the actuator that we are considering in our branch ($i$, $j$, $k$), we can write:
 
 \begin{equation}
 	\begin{array}{l}
 		V_{a,c} = 1 \\
-
-		\lambda_{a, c} = \lambda_{ln, c} * \frac{p_{w}}{\sum\limits_{t \in T'''}{a'''_{t} * p_{t}}}   \\
+		%\lambda_{a, c} = \lambda_{ln, c} * \frac{p_{w}}{\sum\limits_{t \in T'''}{a'''_{t} * p_{t}}}   \\
+        \lambda_{a, c}= (\lambda^{\{j\}}_{ln, c} + p_{cmd,ln} * \lambda^{\{j\}}_{ln, e}) * \frac{p_{w}}{\sum\limits_{t \in T'''}{a'''_{t} * p_{t}}}   \\\
 	\end{array}
 \end{equation}
-The command event formula will be throughly explained in the next section, as a brief explanation it is composed by the rate of command messages messages sent by the local node, multiplied the weighted ratio between the single actuator's probability of receiving and all actuators in the same LAN.\\
+The command event formula will be throughly explained in the next section, as a brief explanation it is composed by the rate of command messages messages sent by the local node $j$, both generated ($p_{cmd,ln} * \lambda^{\{j\}}_{ln, e}$) and forwarded by him ($\lambda^{\{j\}}_{ln, c}$), multiplied the weighted ratio between the single actuator's probability of receiving and all actuators in the same LAN.\\
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
 	\begin{array}{l}
@@ -240,7 +252,7 @@ Dividing the LAN in Lan In and Out as we modeled them, we see Lan In having:
 \begin{equation}
     \begin{array}{l}
         V_{li,c} = 1 \\
-		\lambda_{li, c} = \lambda_{ln, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'''}{a'''_{t} * p_{t}}}  \\\
+        \lambda_{li, c} = (\lambda^{\{j\}}_{ln, c} + p_{cmd,ln} * \lambda^{\{j\}}_{ln, e}) * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'''}{a'''_{t} * p_{t}}}  \\\
 
     \end{array}
 \end{equation}
@@ -261,20 +273,20 @@ Now Lan Out, which will send both transitions and telemetries:
 We will explain the lambda formulas since from now on we will see some iterations of them that are simpler so explaining these ones should suffice.\\
 The telemetries (in the LAN OUT) are straightforward, fixed our lan k, the local node j and the regional node i, the total rate over the network is given by the composition of all sensors sending data over this lan thus we multiply the number of each type of sensors with their rate.\\
 The transition events (only in LAN OUT) are given by the sum of two elements, the first one representing the rate of all sensors in this lan and the second the rate of all actuators.\\
-By the approach we are using on command events (in the LAN IN), the rate of command events over the lan is given by the probability of a command event being generated from the local node, i.e. the rate of generation of those events multiplied by the ratio of the number of actuators in this lan over all actuators connected to the local node, which are the ones that can be targeted with a command event.\\
+By the approach we are using on command events (in the LAN IN), the rate of command events over the lan is given by the probability of a command event being generated or forwarded from the local node, i.e. the rate of generation of those events multiplied by the ratio of the number of actuators in this lan over all actuators connected to the local node, which are the ones that can be targeted with a command event.\\
 The ratio is weighted by the type of actuator since each type has a different probability of receiving a command message.\\
 %END NEW PART
 
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time for the LAN IN:
 \begin{equation}
     \begin{array}{l}
-        D_{li, e} = V_{li, e} * S_{li, e} \\
+        %D_{li, e} = V_{li, e} * S_{li, e} \\
         D_{li, c} = V_{li, c} * S_{li, c} \\
-        U_{li, e} = \lambda_{li, e} * D_{li, e} \\
+        %U_{li, e} = \lambda_{li, e} * D_{li, e} \\
         U_{li, c} = \lambda_{li, c} * D_{li, c} \\
-        U_{li} = U_{li, e} + U_{li, c} \\
-        R_{li, e} = \frac{D_{li, e}}{1 - U_{li}} \\
-        R_{li, c} = \frac{D_{li, c}}{1 - U_{li}} \\
+        %U_{li} = U_{li, e} + U_{li, c} \\
+        %R_{li, e} = \frac{D_{li, e}}{1 - U_{li}} \\
+        R_{li, c} = \frac{D_{li, c}}{1 - U_{li, c}} \\
     \end{array}
 \end{equation}
 
@@ -283,12 +295,12 @@ And for LAN OUT:
 \begin{equation}
     \begin{array}{l}
         D_{lo, t} = V_{lo, t} * S_{lo, t} \\
-        D_{lo, c} = V_{lo, c} * S_{lo, c} \\
+        D_{lo, e} = V_{lo, e} * S_{lo, e} \\
         U_{lo, t} = \lambda_{lo, t} * D_{lo, t} \\
-        U_{lo, c} = \lambda_{lo, c} * D_{lo, c} \\
-        U_{lo} = U_{lo, t} + U_{lo, c} \\
+        U_{lo, e} = \lambda_{lo, e} * D_{lo, e} \\
+        U_{lo} = U_{lo, t} + U_{lo, e} \\
         R_{lo, t} = \frac{D_{lo, t}}{1 - U_{lo}} \\
-        R_{lo, c} = \frac{D_{lo, c}}{1 - U_{lo}} \\
+        R_{lo, e} = \frac{D_{lo, e}}{1 - U_{lo}} \\
     \end{array}
 \end{equation}
 
@@ -311,19 +323,21 @@ So, denoting $p_{cmd,ln}$ as the probability (or percentage) that a transition, 
         V_{ln, t} = 1 \\
         V_{ln, e} = 2 \\ %reply
         V_{ln, c} = 1 \\
-        V_{ln, b} = 1 \\
+        %V_{ln, b} = 1 \\
         %\lambda_{ln, t} = \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| S^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
         \lambda_{ln, t} = \sum\limits_{s \in LAN^{\{i,j\}}}{\lambda^{\{s\}}_{lo, t}}  \\
         %\lambda_{ln, e} = \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| S^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{i,j)}}{| A^{\{i,j,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
         \lambda_{ln, e} = \sum\limits_{s \in LAN^{\{i,j\}}}{\lambda^{\{s\}}_{lo, e}} \\
-		\lambda_{ln, c} = \lambda_{rn, c} *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a''_{t} * p_{t}}}  + p_{cmd,ln} * \lambda_{ln, e} \\\
+		\lambda_{ln, c}= (\lambda^{\{i\}}_{rn, c} + p_{cmd,rn} * \lambda^{\{i\}}_{rn, e}) *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a''_{t} * p_{t}}} \\\
+		%\lambda_{ln, c} = \lambda_{rn, c} *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a''_{t} * p_{t}}}  + p_{cmd,ln} * \lambda_{ln, e} \\\
 
 %* \frac{\sum\limits_{t \in T''}{a_{t} * p_{t}}}{\sum\limits_{t \in T'''}{a'_{t} * p_{t}}}
-        \lambda_{ln, b} = p_{cmd, ln} * \lambda_{ln,e}
+        %\lambda_{ln, b} = p_{cmd, ln} * \lambda_{ln,e}
 
     \end{array}
 \end{equation}
 The main difference here is that we don't have a fixed LAN so we need to span across all LANs of the local node, so, for the case of transitions and telemetry, we sum all the rates of each LAN that are in the branch of the local node $j$. \\
+Note also that the commands that the local handles are the ones forwarded and generated by the regional (and not generated by the local it self, since the computation to decide if generate a command or not and to which actuator is contained in the service time of transition messages). \\
 
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
@@ -331,16 +345,16 @@ From the previous formulas and the open queue model we can compute the Service D
         D_{ln, t} = V_{ln, t} * S_{ln, t} \\
         D_{ln, e} = V_{ln, e} * S_{ln, e} \\
         D_{ln, c} = V_{ln, c} * S_{ln, c} \\
-        D_{ln, b} = V_{ln, b} * S_{ln, b} \\
+        %D_{ln, b} = V_{ln, b} * S_{ln, b} \\
         U_{ln, t} = \lambda_{ln, t} * D_{ln, t} \\
         U_{ln, e} = \lambda_{ln, e} * D_{ln, e} \\
         U_{ln, c} = \lambda_{ln, c} * D_{ln, c} \\
-        U_{ln, b} = \lambda_{ln, b} * D_{ln, b} \\
-        U_{ln} = U_{ln, t} + U_{ln, e} + U_{ln, c} + U_{ln, b} \\
+        %U_{ln, b} = \lambda_{ln, b} * D_{ln, b} \\
+        U_{ln} = U_{ln, t} + U_{ln, e} + U_{ln, c} \\
         R_{ln, t} = \frac{D_{ln, t}}{1 - U_{ln}} \\
         R_{ln, e} = \frac{D_{ln, e}}{1 - U_{ln}} \\
         R_{ln, c} = \frac{D_{ln, c}}{1 - U_{ln}} \\
-        R_{ln, b} = \frac{D_{ln, b}}{1 - U_{ln}} \\
+        %R_{ln, b} = \frac{D_{ln, b}}{1 - U_{ln}} \\
     \end{array}
 \end{equation}
 \subsection{WAN}
@@ -362,15 +376,17 @@ The main difference in the command rate will be that we won't notice a local lev
 		V_{rn, c} = 1 \\
 		V_{rn, b} = 1 \\
         %\lambda_{rn, t} = \sum\limits_{w \in T,s \in LAN^{\{i,j)},n \in L^i}{| S^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
-        \lambda_{rn, t} = \sum\limits_{n \in L^{\{i\}}}{\frac{\lambda^{\{n\}}_{ln, t}}{aggr^{\{n\}}_{ln}}}  \\
+        \lambda_{rn, t} = \sum\limits_{n \in L^{\{i\}}}{\frac{\lambda^{\{n\}}_{ln, t}}{aggr^{\{n\}}_{ln, t}}}  \\
         %\lambda_{rn, e} = \sum\limits_{w \in T,s \in LAN^{\{i,j)},n \in L^i}{| S^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{i,j}),n \in L^i}{| A^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
         \lambda_{rn, e} = \sum\limits_{n \in L^{\{i\}}}{\lambda^{\{n\}}_{ln, e}} \\
-		\lambda_{rn, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + p_{cmd,rn} * \lambda_{rn, e} \\\
-        \lambda_{rn, b} = \sum\limits_{n \in L^{\{ i \}}}{\lambda^{\{ n \}}_{ln, b}} + p_{cmd, rn} * \lambda_{rn,e}
+		%\lambda_{rn, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + p_{cmd,rn} * \lambda_{rn, e} \\\
+		\lambda_{rn,c}= (p_{cmd,cn} * \lambda_{cn, e})* \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} \\\
+		\lambda_{rn,b}=\sum\limits_{n \in L^{\{i\}}}\frac{\lambda_{ln,e}^{\{n\}}*p_{cmd,ln}}{aggr_{ln,b}}\\
+        %\lambda_{rn, b} = \sum\limits_{n \in L^{\{ i \}}}{\lambda^{\{ n \}}_{ln, b}} + p_{cmd, rn} * \lambda_{rn,e}
 
 	\end{array}
 \end{equation}
-where $\lambda^{\{ n \}}_{ln, b}$ denotes the rate of $n$-th local node of the regional that we are considering, i.e. $i$-th regional. Also $aggr^{\{n\}}_{ln}$ denotes the aggregation done by the local node $n$ and $p_{cmd, rn}$ is the probability that a transition generates a command in the regional node. \\
+where $\lambda^{\{ n \}}_{ln, e}$ denotes the rate of $n$-th local node of the regional that we are considering, i.e. $i$-th regional. Also $aggr^{\{n\}}_{ln, t}$ denotes the aggregation for telemetry messages done by the local node $n$, while $aggr^{\{n\}}_{ln,b}$ denotes the aggregation for batch messages done by the local $n$ and $p_{cmd, cn}$ is the probability that a transition generates a command in the central node. \\
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
 	\begin{array}{l}
@@ -398,38 +414,39 @@ From the previous formulas and the open queue model we can compute the Service D
 	\caption{Focus on regional nodes and central node}
 \end{figure}
 In the highest level, we will need to work over all the regional nodes in $R$.\\
-Central node command rate is oblivious to the regional node command events, thus the arrival rate is composed of only one element.
+The central node command rate is 0, since it can only generate commands to the regionals, not receive them. Note that the computation effort done in order to decide if the node (not only for the central) need to send or not a command is contained in the service time of transitions messages. 
 \begin{equation}
 	\begin{array}{l}
 		V_{cn, t} = 1 \\
 		V_{cn, e} = 2 \\ %reply
-		V_{cn, c} = 1 \\
+		%V_{cn, c} = 1 \\
 		V_{cn, b} = 1 \\
         %\lambda_{cn, t} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
         \lambda_{cn, t} = \sum\limits_{m \in R}{ \frac{\lambda^{\{m\}}_{rn, t}}{aggr^{\{ m \}}_{rn}}}  \\
         %\lambda_{cn, e} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{m,n}),n \in L^m, m \in R}{| A^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
         \lambda_{cn, e} = \sum\limits_{m \in R}{\lambda^{\{m\}}_{rn, e}} \\
 		%\lambda_{cn, c} = p_{cmd,cn} * \lambda_{cn, e} \\
-        \lambda_{cn, b} = \sum\limits_{m \in R}{\lambda^{\{ m \}}_{rn, b}} + p_{cmd,cn} * \lambda_{cn, e}
+        %\lambda_{cn, b} = \sum\limits_{m \in R}{\lambda^{\{ m \}}_{rn, b}} + p_{cmd,cn} * \lambda_{cn, e}
+		\lambda_{cn,b}=\sum\limits_{m \in R}\frac{\lambda_{rn,b}^{\{m\}}+\lambda_{rn,e}^{\{m\}}*p_{cmd,rn}}{aggr^{\{ m \}}_{rn,b}}\\
 	\end{array}
 \end{equation}
-where $\lambda^{\{ m \}}_{rn, b}$ is the rate of the batch data coming from the $m$-th regional.
+where $\lambda^{\{ m \}}_{rn, b}$ is the rate of the batch data forwarded from the $m$-th regional.
 Obviously the ratio is not present in this case since it would be 1, since $T = T'$.\\
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
 	\begin{array}{l}
 		D_{cn, t} = V_{cn, t} * S_{cn, t} \\
 		D_{cn, e} = V_{cn, e} * S_{cn, e} \\
-		D_{cn, c} = V_{cn, c} * S_{cn, c} \\
+		%D_{cn, c} = V_{cn, c} * S_{cn, c} \\
 		D_{cn, b} = V_{cn, b} * S_{cn, b} \\
 		U_{cn, t} = \lambda_{cn, t} * D_{cn, t} \\
 		U_{cn, e} = \lambda_{cn, e} * D_{cn, e} \\
-		U_{cn, c} = \lambda_{cn, c} * D_{cn, c} \\
+		%U_{cn, c} = \lambda_{cn, c} * D_{cn, c} \\
 		U_{cn, b} = \lambda_{cn, b} * D_{cn, b} \\
-		U_{cn} = U_{cn, t} + U_{cn, e} + U_{cn, c} + U_{cn, b} \\
+		U_{cn} = U_{cn, t} + U_{cn, e} + U_{cn, b} \\
 		R_{cn, t} = \frac{D_{cn, t}}{1 - U_{cn}} \\
 		R_{cn, e} = \frac{D_{cn, e}}{1 - U_{cn}} \\
-		R_{cn, c} = \frac{D_{cn, c}}{1 - U_{cn}} \\
+		%R_{cn, c} = \frac{D_{cn, c}}{1 - U_{cn}} \\
 		R_{cn, b} = \frac{D_{cn, b}}{1 - U_{cn}} \\
 	\end{array}
 \end{equation}
@@ -442,9 +459,11 @@ Since the central node will do some aggregation and computations on the telemetr
 	\begin{array}{l}
 		V_{cns, t} = 1 \\
 		V_{cns, e} = 1 \\
+		V_{cns, b} = 1 \\
 		\lambda_{cns, t} = \frac{\lambda_{cn,t}}{aggr_{cn}} \\
 		\lambda_{cns, e} = \lambda_{cn,e} \\
-		\lambda_{cns, b} = \lambda_{cn,b} \\
+		%\lambda_{cns, b} = \lambda_{cn,b} \\
+		\lambda_{cns, b} = \frac{\lambda_{cn,b}+\lambda_{cn,e}*p_{cmd,cn}}{aggr_{cn,b}} \\
 	\end{array}
 \end{equation}
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
@@ -462,29 +481,30 @@ From the previous formulas and the open queue model we can compute the Service D
 		R_{cns, b} = \frac{D_{cns, b}}{1 - U_{cns}} \\
 	\end{array}
 \end{equation}
-NEW FORMULAS
-COMMANDS
-\begin{equation}
-	\begin{array}{l}
-		\lambda_{rn,c}= (p_{cmd,cn} * \lambda_{cn, e})* \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} \\\
 
-		\lambda_{ln,c}= (\lambda_{rn, c} + p_{cmd,rn} * \lambda_{rn, e}) *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a''_{t} * p_{t}}} \\\
-
-		\lambda_{a,c}= (\lambda_{ln, c}+p_{cmd,ln} * \lambda_{ln, e}) * \frac{p_{w}}{\sum\limits_{t \in T'''}{a'''_{t} * p_{t}}}   \\\
-\end{array}
-\end{equation}
-BATCH
-
-
-\begin{equation}
-	\begin{array}{l}
-		\lambda_{ln,b}=0 \\
-		\lambda_{rn,b}=\sum\limits_{n \in L^{\{n\}}}\frac{\lambda_{ln,e}^{\{n\}}*p_{cmd,ln}}{aggr_{ln,b}}\\
-		\lambda_{cn,b}=\sum\limits_{n \in R^{\{m\}}}\frac{\lambda_{rn,b}^{\{m\}}+\lambda_{rn,e}^{\{m\}}*p_{cmd,rn}}{aggr_{rn,b}}\\
-		\\
-		\lambda_{cns, b} = \frac{\lambda_{cn,b}+\lambda_{bn,e}*p_{cmd,cn}}{aggr_{cn,b}} \\
-	\end{array}
-\end{equation}
+%NEW FORMULAS
+%COMMANDS
+%\begin{equation}
+%	\begin{array}{l}
+%		\lambda_{rn,c}= (p_{cmd,cn} * \lambda_{cn, e})* \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} \\\
+%
+%		\lambda_{ln,c}= (\lambda_{rn, c} + p_{cmd,rn} * \lambda_{rn, e}) *\frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T''}{a''_{t} * p_{t}}} \\\
+%
+%		\lambda_{a,c}= (\lambda_{ln, c}+p_{cmd,ln} * \lambda_{ln, e}) * \frac{p_{w}}{\sum\limits_{t \in T'''}{a'''_{t} * p_{t}}}   \\\
+%\end{array}
+%\end{equation}
+%BATCH
+%
+%
+%\begin{equation}
+%	\begin{array}{l}
+%		\lambda_{ln,b}=0 \\
+%		\lambda_{rn,b}=\sum\limits_{n \in L^{\{n\}}}\frac{\lambda_{ln,e}^{\{n\}}*p_{cmd,ln}}{aggr_{ln,b}}\\
+%		\lambda_{cn,b}=\sum\limits_{n \in R^{\{m\}}}\frac{\lambda_{rn,b}^{\{m\}}+\lambda_{rn,e}^{\{m\}}*p_{cmd,rn}}{aggr_{rn,b}}\\
+%		\\
+%		\lambda_{cns, b} = \frac{\lambda_{cn,b}+\lambda_{bn,e}*p_{cmd,cn}}{aggr_{cn,b}} \\
+%	\end{array}
+%\end{equation}
 
 
 \end{document}
