@@ -378,9 +378,9 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 				node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num;
 			}
 			if(node->node_split_status==NODE_SPLIT_IN_OUT){
-				node->input_service_times[CLASS_COMMAND]=node->top->LANsINserviceTimes[our_info->lan_type][CLASS_COMMAND];
-				node->output_service_times[CLASS_TELEMETRY]=node->top->LANsOUTserviceTimes[our_info->lan_type][CLASS_TELEMETRY];
-				node->output_service_times[CLASS_TRANSITION]=node->top->LANsOUTserviceTimes[our_info->lan_type][CLASS_TRANSITION];
+				node->input_service_times[CLASS_COMMAND]=node->top->LANsINserviceTimes[our_info->lan_type][COMMAND];
+				node->output_service_times[CLASS_TELEMETRY]=node->top->LANsOUTserviceTimes[our_info->lan_type][TELEMETRY];
+				node->output_service_times[CLASS_TRANSITION]=node->top->LANsOUTserviceTimes[our_info->lan_type][TRANSITION];
 			}
 			break;
 		case NODE:
@@ -394,15 +394,12 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 					}
 				}
 				node->input_rates[CLASS_TELEMETRY]=childrens_total_rate[CLASS_TELEMETRY];
-				node->output_rates[CLASS_TELEMETRY]=childrens_total_rate[CLASS_TELEMETRY]/our_info->aggregation_rate;
+				node->output_rates[CLASS_TELEMETRY]=childrens_total_rate[CLASS_TELEMETRY]/our_info->aggregation_rate[TELEMETRY];
 				node->input_rates[CLASS_TRANSITION]=childrens_total_rate[CLASS_TRANSITION];
 				node->output_rates[CLASS_TRANSITION]=node->input_rates[CLASS_TRANSITION];
 				//generated messages are not counted in the queue
 				node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH];
-				node->output_rates[CLASS_BATCH]=node->input_rates[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
-				//generated messages counted in the queue
-				//node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION]; //generated messages are counted in the queue
-				//node->output_rates[CLASS_BATCH]=node->input_rates[CLASS_BATCH];
+				node->output_rates[CLASS_BATCH]=(node->input_rates[CLASS_BATCH]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION])/our_info->aggregation_rate[BATCH];
 				free(childrens_total_rate);
 			}
 			if(visit_type==GRAPH_COMPUTE_COMMANDS){
@@ -410,9 +407,6 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 					//generated messages are not considered in the queue
 					node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num; // generated messages not counted in the queue
 					node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND]+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
-					//generated messages are considered in the queue
-					//node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num+node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
-					//node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND];
 				} else{
 					node->output_rates[CLASS_COMMAND]=node->top->probNodeCommandArray[our_info->node_type]*node->input_rates[CLASS_TRANSITION];
 					node->input_rates[CLASS_COMMAND]=node->output_rates[CLASS_COMMAND];
@@ -439,7 +433,7 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 			}
 			free(childrens_total_rate);
 	}
-	//computing service time, utilization factor for each message class
+	//computing service time, utilization factor for each message class, doing so we consider only the input rates of each node since computation for the generation of the messages is included in the service time.
 
 	for(class=CLASS_TELEMETRY;class<NUM_CLASSES && visit_type==GRAPH_COMPUTE_COMMANDS;class++){
 		if(node->input_rates[class]!=0 || node->output_rates[class]!=0){
