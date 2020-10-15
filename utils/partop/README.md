@@ -23,19 +23,22 @@ First line: # total elements\
 3rd line: # types sensors\
 4th line # types of LANs\
 5th line: sensor type 0 telemetry rate,sensor type 0 transition rate;sensor type 1 tel. rate, ...\
-6th line:lan IN type1 service time transition,telemetry, command\
-7th line:lan OUT type1 service time transition,telemetry, command\
+6th line:lan IN type1 service time telemetry,trans, command\
+7th line:lan OUT type1 service time telemetry,trans, command\
 8th line: probability receiving actuator type 0;pr type 1;...\
 9th line: probability Central sending command in response to a transition message;pr Regional;pr Local\
 \
 id element, upper node,#informations,type of element,{informations}\
 \
 {informations} is different based on the type of node:
-Node: scheduler, type of node, aggregation rate, delay upper router, delay lower router,  {service time telemtry/service time transition/service time command/service time batch send}
-Sensor: type of job, Sensor/Actuator type, measure done\
+Node: scheduler, type of node, {aggregation rate telemetry/transition/command(0)/batch}, delay upper router, delay lower router,  {service time telemtry/service time transition/service time command/service time batch send}\
+Sensor: type of job, Sensor type, measure done\
 Actuator: type of job, Actuator type, measure done,rate transition, service time command\
 WAN:type of WAN[CENTRAL-REGIONAL/REGIONAL-LOCAL], delay\
 LAN:type of LAN[MANET/WIRELESS/ETC], delay\
+
+For the CENTRAL NODE only, it has two more fields:\
+type of connected Disk, {Disk service time telemetry, transition, command (0.00), batch}\
 
 ## Data structure 1
 topology is composed by the general, useful informations:\
@@ -82,14 +85,16 @@ float delay;\
 int node_type: CENTRAL, REGIONAL, LOCAL\
 double * service_time: array of service time for each type of message\
 int scheduler: which scheduler it is used\
-int * actuatorsTypesBelow: how many actuators the node has below(even indirectly)\
+int * actuatorsTypesBelow: how many actuators the node has below of each type(even indirectly)\
 int id_WAN_up;\
 int id_WAN_down;\
 int id_LAN_up;\
 int numberOfBelowSensors: how many sensors below, even indirectly.\
-int aggregation_rate;\
+int * aggregation_rate: set of aggregation rates for a node, for each type of message.\
 float delay_upper_router;\
-float delay_lower_router;
+float delay_lower_router;\
+int disk_type: at the moment represents either RAID1, RAID2 or RAID3.\
+double * diskServices : set containing the disk's service time for each type of message.\
 
 
 ## Usage

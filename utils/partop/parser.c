@@ -9,10 +9,13 @@ void * parse_strings(char ** strings, int types, int upperNode){
     lp_infos * infos = malloc(sizeof(lp_infos));
     char * ptr;
     int flag = 0;
+    int counter = 0;
 
     if( !strcmp(strings[0], "NODE") ){
 
         infos->lp_type = NODE;
+        char * end_str;
+        char * end_ptr;
 
         if( !strcmp(strings[1], "SCHEDULER1") )
             infos->scheduler = SCHEDULER1;
@@ -22,9 +25,29 @@ void * parse_strings(char ** strings, int types, int upperNode){
             infos->scheduler = SCHEDULER3;
         else
             exit(EXIT_FAILURE);
-
-        if( !strcmp(strings[2], "CENTRAL") )
+        if( !strcmp(strings[2], "CENTRAL") ){
             infos->node_type = CENTRAL;
+            if( !strcmp(strings[7], "RAID1") )
+                infos->disk_type = RAID1;
+            else if( !strcmp(strings[7], "RAID2") )
+                infos->disk_type = RAID2;
+            else if( !strcmp(strings[7], "RAID3") )
+                infos->disk_type = RAID3;
+            else
+                exit(EXIT_FAILURE);
+
+            char * ptr = strtok_r(strings[8], "/", &end_str);
+            double * diskServiceArray = malloc((sizeof(double)) * 4); //fixed, 4 type of data.
+            counter = 0;
+            while(ptr){
+              diskServiceArray[counter] = strtod(ptr, &end_ptr);
+              ptr = strtok_r(NULL,"/",&end_str);
+              counter+=1;
+            }
+            infos->diskServices = diskServiceArray;
+
+        }
+
         else if( !strcmp(strings[2], "REGIONAL") )
             infos->node_type = REGIONAL;
         else if( !strcmp(strings[2], "LOCAL") )
@@ -32,19 +55,27 @@ void * parse_strings(char ** strings, int types, int upperNode){
         else
             exit(EXIT_FAILURE);
 
-        int aggregation_rate = atoi(strings[3]);
-        infos->aggregation_rate = aggregation_rate;
+
+        ptr = strtok_r(strings[3], "/", &end_str);
+        int * aggregation_rates = malloc(sizeof(int) * 4);
+        counter = 0;
+        while(ptr){
+          aggregation_rates[counter] = strtod(ptr, &end_ptr);
+          ptr = strtok_r(NULL,"/",&end_str);
+          counter+=1;
+        }
+
+        infos->aggregation_rate = aggregation_rates;
 
         float delayUP = strtod(strings[4],&ptr);
         infos->delay_upper_router = delayUP;
         float delayDOWN = atof(strings[5]);
         infos->delay_lower_router = delayDOWN;
 
-        char * end_str;
-        char * end_ptr;
-        char * ptr = strtok_r(strings[6], "/", &end_str);
+
+        ptr = strtok_r(strings[6], "/", &end_str);
         double * serviceArray = malloc((sizeof(double)) * 5); //fixed, 5 type of data.
-        int counter = 0;
+        counter = 0;
         while(ptr){
           serviceArray[counter] = strtod(ptr, &end_ptr);
           ptr = strtok_r(NULL,"/",&end_str);

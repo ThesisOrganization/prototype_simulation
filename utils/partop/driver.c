@@ -126,11 +126,20 @@ int main()
           printf(", %d of type %d",infos->actuatorsTypesBelow[k],k);
         }
       }
-
       printf(".\n");
+
       printf("Node %d has upper WAN : %d.\n",i,infos->id_WAN_up);
       printf("Node %d has lower WAN: %d.\n",i,infos->id_WAN_down);
-      printf("Node %d has this aggregation rate: %d.\n",i,infos->aggregation_rate);
+      for(k = 0;k < 4;k++){
+        if(k == 0){
+          printf("Node %d has these aggregation rates %d",i,infos->aggregation_rate[k]);
+        }
+        else{
+          printf(", %d",infos->aggregation_rate[k]);
+        }
+      }
+      printf(".\n");
+
       printf("Node %d has this delay on upper router: %f.\n",i,infos->delay_upper_router);
       printf("Node %d has this delay on lower router: %f.\n",i,infos->delay_lower_router);
 
@@ -147,6 +156,19 @@ int main()
         }
       printf(".\n");
       }
+      if(infos->node_type == 0){
+        printf("Node %d has this type of DISK: %d.\n",i,infos->disk_type);
+        for(k = 0;k < 4;k++){
+          if(k == 0){
+            printf("Node %d has a disk with these service times: %f",i,infos->diskServices[k]);
+          }
+          else{
+            printf(", %f",infos->diskServices[k]);
+          }
+        }
+        printf(".\n");
+      }
+
     }
 
     else if(infos->lp_type ==1){//SENSOR
