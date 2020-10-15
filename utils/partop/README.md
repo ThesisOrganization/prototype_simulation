@@ -105,4 +105,10 @@ getTopology(path) starts parser.c to do so.\
 Then in topology.c all useful retrieval functions are written, for now need to pass the topology structures, if needed will be modified to accept others structs.
 
 
+## DONE LAST PUSHS
+15/10\
+-added disk fields to CENTRAL:type of connected Disk, {Disk service time telemetry, transition, command (0.00), batch}\
+-modified aggregation rates as a set instead of a single element(from transition only to all 4 types)
+
 ##TODO
+Modify probability of command generation from node type specific to node, put into info instead of general.
