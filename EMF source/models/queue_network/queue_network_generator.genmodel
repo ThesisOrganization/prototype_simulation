@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/Edge_Computing/src" modelPluginID="Edge_Computing"
+    modelName="Queue_network_generator" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="5.0" copyrightFields="false"
+    operationReflection="true" importOrganizing="true">
+  <foreignModel>queue_network_metamodel.ecore</foreignModel>
+  <genPackages prefix="QueueNetwork" disposableProviderFactory="true" ecorePackage="queue_network_metamodel.ecore#/">
+    <genClasses ecoreClass="queue_network_metamodel.ecore#//Queue">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute queue_network_metamodel.ecore#//Queue/number_of_visits_per_message_type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute queue_network_metamodel.ecore#//Queue/service_time_per_message_type"/>
+    </genClasses>
+    <genClasses ecoreClass="queue_network_metamodel.ecore#//Root">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference queue_network_metamodel.ecore#//Root/area"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference queue_network_metamodel.ecore#//Root/message"/>
+    </genClasses>
+    <genClasses ecoreClass="queue_network_metamodel.ecore#//Delay">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute queue_network_metamodel.ecore#//Delay/delay_value"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="queue_network_metamodel.ecore#//NetworkElement">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference queue_network_metamodel.ecore#//NetworkElement/sendTo"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference queue_network_metamodel.ecore#//NetworkElement/receiveFrom"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute queue_network_metamodel.ecore#//NetworkElement/name"/>
+    </genClasses>
+    <genClasses ecoreClass="queue_network_metamodel.ecore#//DataSource">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute queue_network_metamodel.ecore#//DataSource/rates_per_message_type"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="queue_network_metamodel.ecore#//Area">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference queue_network_metamodel.ecore#//Area/networkelement"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference queue_network_metamodel.ecore#//Area/lowerArea"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute queue_network_metamodel.ecore#//Area/name"/>
+    </genClasses>
+    <genClasses ecoreClass="queue_network_metamodel.ecore#//Message">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference queue_network_metamodel.ecore#//Message/elementsToTraverse"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute queue_network_metamodel.ecore#//Message/name"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
