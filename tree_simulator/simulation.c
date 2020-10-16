@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "./simulation_functions.h"
+#include "./simulation_functions/init_event/init_functions.h"
+#include "./simulation_functions/arrive_event/arrive_functions.h"
+#include "./simulation_functions/finish_event/finish_functions.h"
 
 char topology_path[] = "./topology.txt";
 
