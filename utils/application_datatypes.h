@@ -139,6 +139,7 @@ int * sensorsTypesBelow;
 int * aggregation_rate;
 float delay_upper_router;
 float delay_lower_router;
+float probCommandResponse;
 int disk_type;
 double * diskServices;
 } lp_infos;

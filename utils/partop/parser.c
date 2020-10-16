@@ -5,12 +5,11 @@
 #include <string.h>
 #include "../application_datatypes.h"
 
-void * parse_strings(char ** strings, int types, int upperNode){
+void * parse_strings(char ** strings, int upperNode){
     lp_infos * infos = malloc(sizeof(lp_infos));
     char * ptr;
     int flag = 0;
     int counter = 0;
-    printf("%s\n",strings[0]);
     if( !strcmp(strings[0], "NODE") ){
 
         infos->lp_type = NODE;
@@ -195,8 +194,7 @@ void * parse_strings(char ** strings, int types, int upperNode){
 }
 
 void upwardSearchActSensType(topology * top, int up, int index, int ** array){
-  printf("LOL?\n");
-  fflush(stdout);
+
   if(index != up){
     up = getUpperNode(top, up);
   }
@@ -445,7 +443,6 @@ topology * getTopology(char * path){
     ptr = strtok_r(line, ";", &end_str);
     //first element is the node we are analyzing
     int temp = atoi(ptr);
-    printf("NODE %d",temp);
     int numberOfInfos = 0;
     index = 0;//keep track of how many ";" token we iterated on so we know
     //which kind data we are analyzing
@@ -506,7 +503,7 @@ topology * getTopology(char * path){
     }
 
     tp->upperNode = upperNode;
-    tp->info = parse_strings(infoArray, nt, upperNode);
+    tp->info = parse_strings(infoArray, upperNode);
 
 		for(i=0;i<counter;i++){
 				free(infoArray[i]);
@@ -558,8 +555,7 @@ topology * getTopology(char * path){
 
     index+=1;
   }
-  printf("SAFE!\n");
-  fflush(stdout);
+
   index = 0;
   while(index < totalNumberOfElements){
     type = getType(genTop,index);
@@ -571,8 +567,7 @@ topology * getTopology(char * path){
     }
     index+=1;
   }
-  printf("NOT SAFE\n");
-  fflush(stdout);
+
   //insert info from the search, this is done before the other at the end
   //because these info are needed for the other two searches
   index = 0;
