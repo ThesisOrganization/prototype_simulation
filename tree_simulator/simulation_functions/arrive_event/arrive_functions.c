@@ -137,7 +137,7 @@ void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info* info
 
         //printf("COMMAND received!!!!\n");
         int * next_hop_list = getActuatorPathsIndex(state->topology, me);
-        int next_hop = next_hop_list[info->destination];
+        int next_hop = next_hop_list[info->lp_destination];
 
         ScheduleNewEvent(next_hop, now + delay, ARRIVE, info, sizeof(job_info));
 
@@ -150,7 +150,7 @@ void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info* info
     }
     else if(info->job_type == REPLY){
 
-        int next = info->sender;
+        int next = info->lp_sender;
         ScheduleNewEvent(next, now + delay, ARRIVE, info, sizeof(job_info));
 
     }

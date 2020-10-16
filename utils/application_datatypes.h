@@ -35,8 +35,8 @@ typedef struct _job_info {
 		void* payload; ///< The actual job data.
     //the following may be included in the payload:
     job_type job_type;
-    int sender; //used for the reply
-    int destination; //used for command
+    int lp_sender; //used for the reply
+    int lp_destination; //used for command
 } job_info;
 
 /** \brief How a queue must be handled by the scheduler.
@@ -239,6 +239,7 @@ typedef struct _node_state {
     double prob_cmd;
     int batch_aggregation;
     int num_batch_aggregated;
+    queue_state * disk_queue;
 } node_state;
 
 typedef struct _actuator_state {
