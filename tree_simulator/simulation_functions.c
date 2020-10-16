@@ -56,11 +56,11 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
 
     state->info.node->service_rates = getServiceRates(state->topology, me);
 
-    state->info.node->service_rates[TRANSITION] *= 2; //to delete
+    //state->info.node->service_rates[TRANSITION] *= 2; //to delete
 
     state->info.node->type = infos->node_type;
 
-    state->info.node->aggregation = infos->aggregation_rate;
+    state->info.node->telemetry_aggregation = infos->aggregation_rate[TELEMETRY];
     state->info.node->num_telemetry_aggregated = 0;
 
     state->info.node->up_delay = infos->delay_upper_router;
@@ -68,8 +68,12 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
 
     state->info.node->id_wan_down = infos->id_WAN_down;
 
-    int node_type = state->info.node->type;
-    state->info.node->prob_cmd = state->topology->probNodeCommandArray[node_type];
+    state->info.node->batch_aggregation = infos->aggregation_rate[BATCH];
+    state->info.node->num_batch_aggregated = 0;
+
+    //int node_type = state->info.node->type;
+    //state->info.node->prob_cmd = state->topology->probNodeCommandArray[node_type];
+    state->info.node->prob_cmd = getProbCommandResponse(state->topology, me);
 
 }
 
@@ -413,16 +417,29 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, job_i
     ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
 }
 
-void finish_node(unsigned int me, simtime_t now, lp_state * state){
+static void update_metrics(simtime_t now, lp_state * state, job_info * info){
 
-    job_info * info = state->info.node->queue_state->current_job;
-
-    //Update metrics
     state->info.node->queue_state->num_jobs_in_queue--;
 
     state->info.node->queue_state->C[info->job_type]++;
     state->info.node->queue_state->B[info->job_type] += now - state->info.node->queue_state->start_processing_timestamp;
     state->info.node->queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
+
+    if(info->job_type == REPLY){
+        
+        state->info.node->queue_state->B[TRANSITION] += now - state->info.node->queue_state->start_processing_timestamp;
+        state->info.node->queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
+
+    }
+
+}
+
+void finish_node(unsigned int me, simtime_t now, lp_state * state){
+
+    job_info * info = state->info.node->queue_state->current_job;
+
+    //Update metrics
+    update_metrics(now, state, info);
 
     //Schedule the next job if present
     job_info ** info_arr = schedule_out(state->info.node->queue_state->queues);
@@ -452,7 +469,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         int actual_aggr = state->info.node->num_telemetry_aggregated++;
         //printf("%d, %d\n", me, actual_aggr);
 
-        if(actual_aggr >= state->info.node->aggregation){
+        if(actual_aggr >= state->info.node->telemetry_aggregation){
 
             //send aggregated data
             up_node = getUpperNode(state->topology, me);
@@ -468,8 +485,8 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         //printf("TRANSITION\n");
         //###################################################
         //SEND REPLY
-        //if(state->info.node->type != LOCAL)
-        //    send_reply(me, now, state, info->sender, delay_down);
+        if(state->info.node->type != LOCAL)
+            send_reply(me, now, state, info->sender, delay_down);
 
         //###################################################
         //GENERATE COMMAND
@@ -512,10 +529,20 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     }
     else if(info->job_type == BATCH_DATA){
 
-        up_node = getUpperNode(state->topology, me);
-        if(up_node != -1)
-            ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
-        //printf("%d: BATCH RECEIVED\n", me);
+        int actual_aggr = state->info.node->num_batch_aggregated++;
+        //printf("%d, %d\n", me, actual_aggr);
+
+        if(actual_aggr >= state->info.node->batch_aggregation){
+
+            //send aggregated data
+            up_node = getUpperNode(state->topology, me);
+            if(up_node != -1)
+                ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
+            //printf("%d: BATCH RECEIVED\n", me);
+        
+            //restart buffer of batch
+            state->info.node->num_batch_aggregated = 0;
+        }
 
     }
     else if(info->job_type == REPLY){

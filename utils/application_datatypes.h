@@ -231,12 +231,14 @@ typedef struct _node_state {
     queue_state * queue_state;
     double * service_rates;
     node_type type;
-    int aggregation;
+    int telemetry_aggregation;
     int num_telemetry_aggregated;
     double up_delay;
     double down_delay;
     int id_wan_down;
     double prob_cmd;
+    int batch_aggregation;
+    int num_batch_aggregated;
 } node_state;
 
 typedef struct _actuator_state {
