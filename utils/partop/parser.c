@@ -10,7 +10,7 @@ void * parse_strings(char ** strings, int types, int upperNode){
     char * ptr;
     int flag = 0;
     int counter = 0;
-
+    printf("%s\n",strings[0]);
     if( !strcmp(strings[0], "NODE") ){
 
         infos->lp_type = NODE;
@@ -27,16 +27,16 @@ void * parse_strings(char ** strings, int types, int upperNode){
             exit(EXIT_FAILURE);
         if( !strcmp(strings[2], "CENTRAL") ){
             infos->node_type = CENTRAL;
-            if( !strcmp(strings[7], "RAID1") )
+            if( !strcmp(strings[9], "RAID1") )
                 infos->disk_type = RAID1;
-            else if( !strcmp(strings[7], "RAID2") )
+            else if( !strcmp(strings[8], "RAID2") )
                 infos->disk_type = RAID2;
-            else if( !strcmp(strings[7], "RAID3") )
+            else if( !strcmp(strings[8], "RAID3") )
                 infos->disk_type = RAID3;
             else
                 exit(EXIT_FAILURE);
 
-            char * ptr = strtok_r(strings[8], "/", &end_str);
+            char * ptr = strtok_r(strings[9], "/", &end_str);
             double * diskServiceArray = malloc((sizeof(double)) * 4); //fixed, 4 type of data.
             counter = 0;
             while(ptr){
@@ -82,6 +82,10 @@ void * parse_strings(char ** strings, int types, int upperNode){
           counter+=1;
         }
         infos->service_time = serviceArray;
+
+        float probCommand = strtod(strings[7],&ptr);
+        infos->probCommandResponse = probCommand;
+
 
     }
     else if( !strcmp(strings[0], "SENSOR") ){
@@ -191,6 +195,8 @@ void * parse_strings(char ** strings, int types, int upperNode){
 }
 
 void upwardSearchActSensType(topology * top, int up, int index, int ** array){
+  printf("LOL?\n");
+  fflush(stdout);
   if(index != up){
     up = getUpperNode(top, up);
   }
@@ -428,17 +434,6 @@ topology * getTopology(char * path){
   }
   free(weight);
 
-  //9th line: probabilities generating command
-  read = getline(&temp, &len, fp);
-  ptr = strtok_r(temp, ";", &end_str);
-  double * probCommandSendArray = malloc((sizeof(double)) * 3); //fixed, 3 types of nodes
-  counter = 0;
-  while(ptr){
-    probCommandSendArray[counter] = strtod(ptr, &end_ptr);
-    counter+=1;
-    ptr = strtok_r(NULL,";",&end_str);
-  }
-
   topology * genTop = malloc(sizeof(topology));
   topArray ** returnArray = malloc(sizeof(topArray *) * (totalNumberOfElements));
 
@@ -450,6 +445,7 @@ topology * getTopology(char * path){
     ptr = strtok_r(line, ";", &end_str);
     //first element is the node we are analyzing
     int temp = atoi(ptr);
+    printf("NODE %d",temp);
     int numberOfInfos = 0;
     index = 0;//keep track of how many ";" token we iterated on so we know
     //which kind data we are analyzing
@@ -533,7 +529,6 @@ topology * getTopology(char * path){
   genTop->LANsINserviceTimes = LANsINserviceTimes;
   genTop->LANsOUTserviceTimes = LANsOUTserviceTimes;
   genTop->probOfActuators = probArray;
-  genTop->probNodeCommandArray = probCommandSendArray;
   genTop->topArr = returnArray;
 
 
@@ -563,7 +558,8 @@ topology * getTopology(char * path){
 
     index+=1;
   }
-
+  printf("SAFE!\n");
+  fflush(stdout);
   index = 0;
   while(index < totalNumberOfElements){
     type = getType(genTop,index);
@@ -575,7 +571,8 @@ topology * getTopology(char * path){
     }
     index+=1;
   }
-
+  printf("NOT SAFE\n");
+  fflush(stdout);
   //insert info from the search, this is done before the other at the end
   //because these info are needed for the other two searches
   index = 0;

@@ -1,14 +1,26 @@
 #include <stdio.h>
 #include "header.h"
 
-//for now extremely simple function, just returning the node to send the data, will get messier.
+void * getInfo(topology * top, int index)
+{
+  topArray ** array = top->topArr;
+  return array[index]->info;
+}
 
+int getType(topology * top,int index){
+    lp_infos * infos = getInfo(top, index);
+    return(infos->lp_type);
+}
 
 int getUpperNode(topology * top, int index)
 {
   topArray ** array = top->topArr;
-
   return array[index]->upperNode;
+}
+
+double * getServiceRates(topology * top, int index){
+  lp_infos * info = getInfo(top,index);
+  return info->service_time;
 }
 
 int getNumberLower(topology * top, int index)
@@ -33,23 +45,10 @@ int * getLANS(topology * top, int index){
   return array[index]->connectedLans;
 }
 
-void * getInfo(topology * top, int index)
+float getProbCommandResponse(topology * top, int index)
 {
-  topArray ** array = top->topArr;
-  return array[index]->info;
-}
-
-int getType(topology * top,int index){
-    lp_infos * infos = getInfo(top, index);
-    return(infos->lp_type);
-}
-int * getActType(topology * top,int index){
-    lp_infos * infos = getInfo(top, index);
-    return(infos->actuatorsTypesBelow);
-}
-int * getSensType(topology * top,int index){
   lp_infos * infos = getInfo(top, index);
-  return(infos->sensorsTypesBelow);
+  return infos->probCommandResponse;
 }
 
 int getActuatorType(topology * top,int index){
@@ -62,9 +61,14 @@ int getSensorType(topology * top,int index){
     return(infos->sensor_type);
 }
 
-double * getServiceRates(topology * top, int index){
-  lp_infos * info = getInfo(top,index);
-  return info->service_time;
+int * getActType(topology * top,int index){
+    lp_infos * infos = getInfo(top, index);
+    return(infos->actuatorsTypesBelow);
+}
+
+int * getSensType(topology * top,int index){
+  lp_infos * infos = getInfo(top, index);
+  return(infos->sensorsTypesBelow);
 }
 
 double ** getSensorRatesByType(topology * top)
@@ -75,7 +79,6 @@ double * getSensorRatesForOneSensorType(topology * top, int index)
 {
   return top->sensorRatesByType[index];
 }
-
 double ** getLANsINserviceTimesByType(topology * top){
   return(top->LANsINserviceTimes);
 }
@@ -92,19 +95,23 @@ double * getLANsOUTserviceTimesForOneLANType(topology * top, int index){
 int ** getActuatorPaths(topology * top){
   return(top->actuatorPaths);
 }
+
 int * getActuatorPathsIndex(topology * top, int index)
 {
   return top->actuatorPaths[index];
 }
+
 int * getListActuatorsByType(topology * top, int nodeId, int actuatorType)
 {
     return top->ListActuatorsByType[nodeId][actuatorType];
 }
+
 int * getListSensorsByType(topology * top, int nodeId, int sensorType)
 {
     return top->ListSensorsByType[nodeId][sensorType];
 }
 
+//SETUP FUNCTIONS
 void setLowerElements(topology * top, int * lowerEle, int numberLower, int index)
 {
   topArray ** array = top->topArr;

@@ -8,7 +8,7 @@ int main()
   //We retrieve the topology, answer the question of who needs to receive for each sender node in the data
 
   printf("Main starting, retrieving array..\n");
-  char * path = "test.txt";
+  char * path = "topology.txt";
   topology * genTop = getTopology(path);
 
   printf("Contents of generalTopology:\ntotal nodes : %d;\nsensors/actuators: %d/%d;\nWANs/LANs %d/%d;\n",genTop->total_nodes,genTop->sensor_nodes,genTop->actuator_nodes, genTop->numberOfTotalWANs,  genTop->numberOfTotalLANs);
@@ -77,9 +77,6 @@ int main()
   //double * getSensorRatesForOneType(topology * top, int index);
   for(k = 0;k < genTop->numberOfActTypes;k++){
     printf("Probability of an actuator of type %d of receiving a command: %f. \n",k,genTop->probOfActuators[k]);
-  }
-  for(k = 0;k < 3;k++){
-    printf("Probability of a node of type %d of reacting to a transition with a command: %f. \n",k,genTop->probNodeCommandArray[k]);
   }
 
   //topArray ** topArray = genTop->topArr;
@@ -156,6 +153,9 @@ int main()
         }
       printf(".\n");
       }
+      float pr = getProbCommandResponse(genTop, i);
+      printf("Node %d has probability of %f of responding to a transition with a command.\n",i,pr);
+
       if(infos->node_type == 0){
         printf("Node %d has this type of DISK: %d.\n",i,infos->disk_type);
         for(k = 0;k < 4;k++){

@@ -1,6 +1,7 @@
 # Utils/partop
 This folder will contain modules to parse input file and get informations in the relative data structure.\
-The module relies on application_datatypes.h for the definition of the data structures.
+The module relies on application_datatypes.h for the definition of the data structures.\
+Important PSA: every array, matrix and so on that deals with the message types is ordered respecting the job_type ENUM in application_datatypes.h : TELEMETRY, TRANSITION, COMMAND, BATCH DATA.
 ## Syntax of text file
 Being a work in progress project, this is subject to frequent changes and won't be a final version:\
 24\
@@ -10,7 +11,6 @@ Being a work in progress project, this is subject to frequent changes and won't 
 0.33,0.10;0.24,0.12\
 0.42,0.25,0.11;0.182,0.14,0.23;0.535,0.71,0.53;\
 0.34;0.28\
-0.12;0.44;0.2\
 0;-1;9;NODE,SCHEDULER1,CENTRAL,14/12/0/2,0.8,0.3,0.82/0.35/0.1/0.3/0.52,RAID3,0.4/0.73/0.00/0.23\
 1;17;7;NODE,SCHEDULER2,REGIONAL,10/3/5/1,0.4,0.666,0.32/0.13/0.8/0.12/0.238;20;1;-1;5;SENSOR,LOSSY,SENSOR_TYPE0,MEASURE1\
 9;20;1;-1;7;ACTUATOR,LOSSY,ACTUATOR_TYPE0,MEASURE1,0.14,0.32\
@@ -26,7 +26,6 @@ First line: # total elements\
 6th line:lan IN type1 service time telemetry,trans, command\
 7th line:lan OUT type1 service time telemetry,trans, command\
 8th line: weight actuator type 0 for commands;weight act type 1;...\
-9th line: probability Central sending command in response to a transition message;pr Regional;pr Local\
 \
 id element, upper node,#informations,type of element,{informations}\
 \
@@ -107,8 +106,7 @@ Then in topology.c all useful retrieval functions are written, for now need to p
 
 ## DONE LAST PUSHS
 15/10\
--added disk fields to CENTRAL:type of connected Disk, {Disk service time telemetry, transition, command (0.00), batch}\
--modified aggregation rates as a set instead of a single element(from transition only to all 4 types)
-
-##TODO
-Modify probability of command generation from node type specific to node, put into info instead of general.
+-added disk fields to CENTRAL:type of connected Disk, {Disk service time telemetry, transition, command (0.00), batch}.\\
+-modified aggregation rates as a set instead of a single element(from transition only to all 4 types).\
+16/10\
+-Removed line 9 containing probabilities for node types, moved it to each node. Instead of topology->probNodeCommandArray[type], topology->topArray[id node]->probCommandResponse.\
