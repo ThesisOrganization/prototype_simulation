@@ -75,6 +75,17 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
     //state->info.node->prob_cmd = state->topology->probNodeCommandArray[node_type];
     state->info.node->prob_cmd = getProbCommandResponse(state->topology, me);
 
+    /*
+    ///init disk queue
+    state->info.node->disk_queue = malloc(sizeof(queue_state));
+    state->info.node->disk_queue->current_job = NULL;
+    state->info.node->disk_queue->num_jobs_in_queue = 0;
+
+    init_metrics(state->info.node->disk_queue);
+
+    num_queues = 1;
+    state->info.node->disk_queue->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
+*/
 }
 
 void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){

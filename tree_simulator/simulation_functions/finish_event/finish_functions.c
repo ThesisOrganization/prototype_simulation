@@ -40,7 +40,7 @@ static void send_reply(unsigned int me, simtime_t now, lp_state * state, int sen
     info_to_send.type = REAL_TIME;
     info_to_send.payload = NULL;
     info_to_send.job_type = REPLY;
-    info_to_send.sender = sender; //sender for a reply is the guy who previusly sent the transition
+    info_to_send.lp_sender = sender; //sender for a reply is the guy who previusly sent the transition
 
     int destination = state->info.node->id_wan_down;
 
@@ -80,7 +80,7 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, job_i
     info_to_send.type = REAL_TIME;
     info_to_send.payload = NULL;
     info_to_send.job_type = COMMAND;
-    info_to_send.destination = id_selected_actuator;
+    info_to_send.lp_destination = id_selected_actuator;
 
     ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
 }
@@ -154,7 +154,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         //###################################################
         //SEND REPLY
         if(state->info.node->type != LOCAL)
-            send_reply(me, now, state, info->sender, delay_down);
+            send_reply(me, now, state, info->lp_sender, delay_down);
 
         //###################################################
         //GENERATE COMMAND
@@ -165,19 +165,25 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
             //###################################################
             //SEND BATCH_DATA
-            up_node = getUpperNode(state->topology, me);
-            job_info info_to_send;
-            info_to_send.type = REAL_TIME;
-            info_to_send.payload = NULL;
-            info_to_send.job_type = BATCH_DATA;
+            int actual_aggr = state->info.node->num_batch_aggregated++;
+            
+            if(actual_aggr >= state->info.node->batch_aggregation){
+                up_node = getUpperNode(state->topology, me);
+                job_info info_to_send;
+                info_to_send.type = REAL_TIME;
+                info_to_send.payload = NULL;
+                info_to_send.job_type = BATCH_DATA;
 
-            if(up_node != -1)
-                ScheduleNewEvent(up_node, now + delay_up, ARRIVE, &info_to_send, sizeof(job_info));
+                if(up_node != -1)
+                    ScheduleNewEvent(up_node, now + delay_up, ARRIVE, &info_to_send, sizeof(job_info));
+
+                state->info.node->num_batch_aggregated = 0;
+            }
         }
 
         //###################################################
         //FORWARD TRANSITION
-        info->sender = me;
+        info->lp_sender = me;
         up_node = getUpperNode(state->topology, me);
         if(up_node != -1)
             ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
@@ -187,7 +193,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     else if(info->job_type == COMMAND){
 
         int * next_hop_list = getActuatorPathsIndex(state->topology, me);
-        int next_hop = next_hop_list[info->destination];
+        int next_hop = next_hop_list[info->lp_destination];
 
         if(state->info.node->type != LOCAL)
             ScheduleNewEvent(next_hop, now + delay_down, ARRIVE, info, sizeof(job_info));
@@ -216,7 +222,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     else if(info->job_type == REPLY){
 
         //printf("REPLY RECEIVED\n");
-        //printf("%f, %d, %d\n", now, me, info->sender);
+        //printf("%f, %d, %d\n", now, me, info->lp_sender);
 
     }
 
@@ -373,7 +379,7 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
     }
     else if(info->job_type == COMMAND){
 
-        int destination = info->destination; //you should use the function of the topology
+        int destination = info->lp_destination; //you should use the function of the topology
         ScheduleNewEvent(destination, now, ARRIVE, info, sizeof(job_info));
 
     }
