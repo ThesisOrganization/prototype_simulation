@@ -109,4 +109,4 @@ Then in topology.c all useful retrieval functions are written, for now need to p
 -added disk fields to CENTRAL:type of connected Disk, {Disk service time telemetry, transition, command (0.00), batch}.\\
 -modified aggregation rates as a set instead of a single element(from transition only to all 4 types).\
 16/10\
--Removed line 9 containing probabilities for node types, moved it to each node. Instead of topology->probNodeCommandArray[type], topology->topArray[id node]->probCommandResponse.\
+-Removed line 9 containing probabilities for node types, moved it to each node. Instead of topology->probNodeCommandArray[type], topology->topArray[id node]->info->probCommandResponse.\
