@@ -54,7 +54,6 @@ double ** sensorRatesByType: array of arrays containing the sensor rates of each
 double ** LANsINserviceTimes: same as sensorRatesByType but in this case it is the service time of each type of lan IN for each type of message(all 5, even if batch send should not be here, but for future updates).\
 double ** LANsOUTserviceTimes:specular.\
 double * probOfActuators: probability of each type of actuator to receive a command message.\
-double * probNodeCommandArray:probability of each node to react to a transition with a command\
 int *** ListActuatorsByType: matrix where an element [x][y][z] is the z-th actuator of type y in the sub-tree of the node x.\
 int *** ListSensorsByType;\
 topArray ** topArr: array of topArray structs, see below.
@@ -110,3 +109,5 @@ Then in topology.c all useful retrieval functions are written, for now need to p
 -modified aggregation rates as a set instead of a single element(from transition only to all 4 types).\
 16/10\
 -Removed line 9 containing probabilities for node types, moved it to each node. Instead of topology->probNodeCommandArray[type], topology->topArray[id node]->info->probCommandResponse.\
+17/10\
+-Added GETs for every information, some refactoring.

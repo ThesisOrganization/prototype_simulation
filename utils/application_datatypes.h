@@ -168,7 +168,6 @@ typedef struct _topology{
   double ** LANsINserviceTimes;
   double ** LANsOUTserviceTimes;
   double * probOfActuators;
-  double * probNodeCommandArray;
   int *** ListSensorsByType;
   int *** ListActuatorsByType;
   topArray ** topArr; //array of poiters to topArray
