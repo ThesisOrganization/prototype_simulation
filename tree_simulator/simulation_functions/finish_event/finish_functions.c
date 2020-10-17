@@ -49,12 +49,7 @@ static void send_reply(unsigned int me, simtime_t now, lp_state * state, int sen
 
     job_info info_to_send;
     fill_info_to_send(&info_to_send, REPLY, sender, -1);
-    /*
-    info_to_send.type = REAL_TIME;
-    info_to_send.payload = NULL;
-    info_to_send.job_type = REPLY;
-    info_to_send.lp_sender = sender; //sender for a reply is the guy who previusly sent the transition
-*/
+
     int destination = state->info.node->id_wan_down;
 
     //printf("%d\n", state->info.node->type);
@@ -92,12 +87,7 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, job_i
 
     job_info info_to_send;
     fill_info_to_send(&info_to_send, COMMAND, -1, id_selected_actuator);
-    /*
-    info_to_send.type = REAL_TIME;
-    info_to_send.payload = NULL;
-    info_to_send.job_type = COMMAND;
-    info_to_send.lp_destination = id_selected_actuator;
-*/
+
     ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
 }
 
@@ -170,11 +160,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
             //send aggregated data
             send_to_up_node(me, now, state, delay_up, info);
-            /*
-            up_node = getUpperNode(state->topology, me);
-            if(up_node != -1)
-                ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
-*/
+
             //restart buffer of telemetry
             state->info.node->num_telemetry_aggregated = 0;
         }
@@ -202,17 +188,9 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
                 job_info info_to_send;
                 fill_info_to_send(&info_to_send, BATCH_DATA, -1, -1);
-                /*
-                info_to_send.type = REAL_TIME;
-                info_to_send.payload = NULL;
-                info_to_send.job_type = BATCH_DATA;
-*/
+
                 send_to_up_node(me, now, state, delay_up, &info_to_send);
-                /*
-                up_node = getUpperNode(state->topology, me);
-                if(up_node != -1)
-                    ScheduleNewEvent(up_node, now + delay_up, ARRIVE, &info_to_send, sizeof(job_info));
-*/
+
                 state->info.node->num_batch_aggregated = 0;
             }
         }
@@ -222,11 +200,6 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         info->lp_sender = me;
 
         send_to_up_node(me, now, state, delay_up, info);
-        /*
-        up_node = getUpperNode(state->topology, me);
-        if(up_node != -1)
-            ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
-*/
 
     }
     else if(info->job_type == COMMAND){
@@ -250,12 +223,6 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
             //send aggregated data
             
             send_to_up_node(me, now, state, delay_up, info);
-            /*
-            up_node = getUpperNode(state->topology, me);
-            if(up_node != -1)
-                ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
-            */
-            //printf("%d: BATCH RECEIVED\n", me);
         
             //restart buffer of batch
             state->info.node->num_batch_aggregated = 0;
@@ -354,15 +321,11 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
     if(info->job_type == TELEMETRY){
         //printf("TELEMETRY\n");
         send_to_up_node(me, now, state, 0, info);
-        //up_node = getUpperNode(state->topology, me);
-        //ScheduleNewEvent(up_node, now, ARRIVE, info, sizeof(job_info));
 
     }
     else if(info->job_type == TRANSITION){
         //printf("TRANSITION\n");
         send_to_up_node(me, now, state, 0, info);
-        //up_node = getUpperNode(state->topology, me);
-        //ScheduleNewEvent(up_node, now, ARRIVE, info, sizeof(job_info));
 
     }
     else if(info->job_type == COMMAND){
