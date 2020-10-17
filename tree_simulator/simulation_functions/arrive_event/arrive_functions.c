@@ -1,38 +1,5 @@
 #include "arrive_functions.h"
 
-/*
-static void start_node(unsigned int me, simtime_t now, lp_state * state, job_info * info){
-
-    state->info.node->queue_state->current_job = info;
-    state->info.node->queue_state->start_processing_timestamp = now;
-
-    double rate = state->info.node->service_rates[info->job_type];
-    simtime_t ts_finish = now + Expent(rate);
-    ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
-
-}
-
-static void start_actuator(unsigned int me, simtime_t now, lp_state * state, job_info * info){
-
-    state->info.actuator->queue_state->current_job = info;
-    state->info.actuator->queue_state->start_processing_timestamp = now;
-
-    double rate = state->info.actuator->service_rate_command;
-    simtime_t ts_finish = now + Expent(rate);
-    ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
-}
-
-static void start_lan(unsigned int me, simtime_t now, queue_state * queue_state, double * service_rates, job_info * info, lan_direction direction){
-
-    queue_state->current_job = info;
-    queue_state->start_processing_timestamp = now;
-
-    double rate = service_rates[info->job_type];
-    simtime_t ts_finish = now + Expent(rate);
-    ScheduleNewEvent(me, ts_finish, FINISH, &direction, sizeof(lan_direction));
-
-}
-*/
 static void start_device(unsigned int me, simtime_t now, queue_state * queue_state, double * service_rates, job_info * info, lan_direction * direction, int size_lan_direction){
 
     if(queue_state->current_job == NULL){
@@ -63,12 +30,6 @@ void arrive_node(unsigned int me, simtime_t now, lp_state * state, job_info * in
     update_metrics(state->info.node->queue_state, info);
 
     start_device(me, now, state->info.node->queue_state, state->info.node->service_rates, info, NULL, 0);
-/*
-    if(state->info.node->queue_state->current_job == NULL)
-        start_node(me, now, state, info);
-    else
-        schedule_in(state->info.node->queue_state->queues, info);
-*/
 }
 
 void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info * info){
@@ -77,12 +38,6 @@ void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info 
     double service_rates[NUM_OF_JOB_TYPE]; //meh
     service_rates[COMMAND] = state->info.actuator->service_rate_command;
     start_device(me, now, state->info.actuator->queue_state, service_rates, info, NULL, 0);
-/*
-    if(state->info.actuator->queue_state->current_job == NULL)
-        start_actuator(me, now, state, info);
-    else
-        schedule_in(state->info.actuator->queue_state->queues, info);
-*/
 }
 
 void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info){
@@ -121,12 +76,6 @@ void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info
     update_metrics(queue_state, info);
 
     start_device(me, now, queue_state, service_rates, info, &direction, sizeof(lan_direction));
-/*
-    if(queue_state->current_job == NULL)
-        start_lan(me, now, queue_state, service_rates, info, direction);
-    else
-        schedule_in(queue_state->queues, info);
-*/
 }
 
 void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info* info){
