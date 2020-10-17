@@ -76,32 +76,32 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             state->type = getType(state->topology, me);
             //printf("%d\n", state->type);
-            lp_infos* infos = getInfo(state->topology, me);
+            //lp_infos* infos = getInfo(state->topology, me);
 
             //initializza strutture
             if(state->type == NODE){
 
-                init_node(me, now, state, infos);
+                init_node(me, state);
 
             }
             else if(state->type == SENSOR){
 
-                init_sensor(me, now, state, infos);
+                init_sensor(me, now, state);
 
             }
             else if(state->type == ACTUATOR){
 
-                init_actuator(me, now, state, infos);
+                init_actuator(me, now, state);
 
             }
             else if(state->type == LAN){
 
-                init_lan(me, now, state, infos);
+                init_lan(me, state);
 
             }
             else if(state->type == WAN){
 
-                init_wan(me, now, state, infos);
+                init_wan(me, state);
 
             }
             else{
@@ -250,7 +250,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     }
 }
 
-void print_metrics(int me, queue_state * queue_state, double T){
+void print_metrics(queue_state * queue_state, double T){
 
 
     for(int i=0; i < NUM_OF_JOB_TYPE; i++){
@@ -303,7 +303,7 @@ bool OnGVT(int me, lp_state *snapshot)
 
 #ifdef PRINT_RESULTS
         print_pre(me, snapshot->actual_timestamp, snapshot->type);
-        print_metrics(me, snapshot->info.node->queue_state, T);
+        print_metrics(snapshot->info.node->queue_state, T);
 #endif
 
     }
@@ -311,7 +311,7 @@ bool OnGVT(int me, lp_state *snapshot)
 
 #ifdef PRINT_RESULTS
         print_pre(me, snapshot->actual_timestamp, snapshot->type);
-        print_metrics(me, snapshot->info.actuator->queue_state, T);
+        print_metrics(snapshot->info.actuator->queue_state, T);
 #endif
 
     }
@@ -322,10 +322,10 @@ bool OnGVT(int me, lp_state *snapshot)
 
         printf("<<<<<<<<<<<<<<<<<<<<\n");
         printf("Lan IN:\n");
-        print_metrics(me, snapshot->info.lan->queue_state_in, T);
+        print_metrics(snapshot->info.lan->queue_state_in, T);
         printf("<<<<<<<<<<<<<<<<<<<<\n");
         printf("Lan OUT:\n");
-        print_metrics(me, snapshot->info.lan->queue_state_out, T);
+        print_metrics(snapshot->info.lan->queue_state_out, T);
 #endif
 
     }

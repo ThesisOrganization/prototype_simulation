@@ -37,7 +37,7 @@ static void init_metrics(queue_state * queue_state){
 
 }
 
-void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
+void init_node(unsigned int me, lp_state * state){
     //printf("node\n");
 
     state->info.node = malloc(sizeof(node_state));
@@ -84,7 +84,7 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
 */
 }
 
-void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
+void init_sensor(unsigned int me, simtime_t now, lp_state * state){
 
     //printf("sensor\n");
 
@@ -109,7 +109,7 @@ void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * in
 
 }
 
-void init_actuator(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
+void init_actuator(unsigned int me, simtime_t now, lp_state * state){
 
     //printf("actuator\n");
 
@@ -134,7 +134,7 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state, lp_infos * 
     ScheduleNewEvent(me, ts_generate, GENERATE_TRANSITION, NULL, 0);
 }
 
-void init_lan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
+void init_lan(unsigned int me, lp_state * state){
 
     //printf("lan\n");
 
@@ -162,7 +162,7 @@ void init_lan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos
 
 }
 
-void init_wan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos){
+void init_wan(unsigned int me, lp_state * state){
 
     //printf("wan\n");
     state->info.wan = malloc(sizeof(wan_state));

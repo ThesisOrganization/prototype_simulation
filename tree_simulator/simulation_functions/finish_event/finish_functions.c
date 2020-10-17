@@ -58,7 +58,7 @@ static void send_reply(unsigned int me, simtime_t now, lp_state * state, int sen
 
 }
 
-static void send_command(unsigned int me, simtime_t now, lp_state * state, job_info * info, double delay){
+static void send_command(unsigned int me, simtime_t now, lp_state * state, double delay){
 
     int num_types = state->num_acts_types;
 
@@ -184,7 +184,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         double random_prob = Random();
         double prob_cmd = state->info.node->prob_cmd;
         if (random_prob <= prob_cmd){
-            send_command(me, now, state, info, delay_down);
+            send_command(me, now, state, delay_down);
 
             //###################################################
             //SEND BATCH_DATA
@@ -237,8 +237,6 @@ void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
     double service_rates[NUM_OF_JOB_TYPE]; //meh
     service_rates[COMMAND] = state->info.actuator->service_rate_command;
     job_info ** info_arr = schedule_next_job(me, now, state->info.actuator->queue_state, service_rates, NULL, 0);
-
-    int up_node;
 
     if(info->job_type == TELEMETRY){
         //printf("TELEMETRY\n");
@@ -301,8 +299,6 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
     //Schedule the next job if present
     job_info ** info_arr = schedule_next_job(me, now, queue_state, service_rates, &direction, sizeof(lan_direction));
 
-
-    int up_node;
 
     if(info->job_type == TELEMETRY){
         //printf("TELEMETRY\n");
