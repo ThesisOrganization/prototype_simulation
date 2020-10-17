@@ -46,11 +46,7 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
     state->info.node->queue_state->num_jobs_in_queue = 0;
 
     init_metrics(state->info.node->queue_state);
-    //state->info.node->queue_state->num_jobs_arrived = 0;
-    //state->info.node->queue_state->last_arrived_in_node_timestamp = 0.0;
-    //state->info.node->queue_state->sum_all_service_time = 0.0;
-    //state->info.node->queue_state->sum_all_time_between_arrivals = 0.0;
-    //state->info.node->queue_state->sum_all_response_time = 0.0;
+
     int num_queues = 1;
     state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
@@ -98,9 +94,7 @@ void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * in
     double * sensor_rate = getSensorRatesForOneSensorType(state->topology, sensor_type);
     double rate_transition = sensor_rate[TRANSITION];
     double rate_telemetry = sensor_rate[TELEMETRY];
-    //double ** rates = getSensorRatesByType(state->topology);
-    //double rate_transition = rates[sensor_type][0];
-    //double rate_telemetry = rates[sensor_type][1];
+
     state->info.sensor->rate_transition = rate_transition;
     state->info.sensor->rate_telemetry = rate_telemetry;
 
@@ -125,11 +119,7 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state, lp_infos * 
     state->info.actuator->queue_state->num_jobs_in_queue = 0;
 
     init_metrics(state->info.actuator->queue_state);
-    //state->info.actuator->queue_state->num_jobs_arrived = 0;
-    //state->info.actuator->queue_state->last_arrived_in_node_timestamp = 0.0;
-    //state->info.actuator->queue_state->sum_all_service_time = 0.0;
-    //state->info.actuator->queue_state->sum_all_time_between_arrivals = 0.0;
-    //state->info.actuator->queue_state->sum_all_response_time = 0.0;
+
     int num_queues = 1;
     state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
@@ -160,18 +150,13 @@ void init_lan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos
 
     init_metrics(state->info.lan->queue_state_in);
     init_metrics(state->info.lan->queue_state_out);
-    //state->info.lan->queue_state->num_jobs_arrived = 0;
-    //state->info.lan->queue_state->last_arrived_in_node_timestamp = 0.0;
-    //state->info.lan->queue_state->sum_all_service_time = 0.0;
-    //state->info.lan->queue_state->sum_all_time_between_arrivals = 0.0;
-    //state->info.lan->queue_state->sum_all_response_time = 0.0;
+
     int num_queues = 1;
     state->info.lan->queue_state_in->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
     state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
 
     int lan_type = infos->lan_type;
-    //state->info.lan->service_rates = getLANServiceTimesForOneLANType(state->topology, lan_type);
     state->info.lan->service_rates_in = getLANsINserviceTimesForOneLANType(state->topology, lan_type);
     state->info.lan->service_rates_out = getLANsOUTserviceTimesForOneLANType(state->topology, lan_type);
 
@@ -184,5 +169,4 @@ void init_wan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos
 
     state->info.wan->delay = infos->delay;
 
-    //state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
 }

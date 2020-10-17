@@ -34,14 +34,27 @@ static void get_random_actuator(int num_types, int * num_per_types, double * pro
 
 }
 
+static void fill_info_to_send(job_info * info_to_send, job_type type, int sender, int destination){
+
+    info_to_send->type = REAL_TIME;
+    info_to_send->payload = NULL;
+    info_to_send->job_type = type;
+    info_to_send->lp_sender = sender; //-1 of not used
+    info_to_send->lp_destination = destination; //-1 of not used
+
+
+}
+
 static void send_reply(unsigned int me, simtime_t now, lp_state * state, int sender, double delay){
 
     job_info info_to_send;
+    fill_info_to_send(&info_to_send, REPLY, sender, -1);
+    /*
     info_to_send.type = REAL_TIME;
     info_to_send.payload = NULL;
     info_to_send.job_type = REPLY;
     info_to_send.lp_sender = sender; //sender for a reply is the guy who previusly sent the transition
-
+*/
     int destination = state->info.node->id_wan_down;
 
     //printf("%d\n", state->info.node->type);
@@ -76,12 +89,15 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, job_i
     //printf("%d, %d\n", me, next_hop);
 
     //printf("GENERATING A COMMAND\n");
+
     job_info info_to_send;
+    fill_info_to_send(&info_to_send, COMMAND, -1, id_selected_actuator);
+    /*
     info_to_send.type = REAL_TIME;
     info_to_send.payload = NULL;
     info_to_send.job_type = COMMAND;
     info_to_send.lp_destination = id_selected_actuator;
-
+*/
     ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
 }
 
@@ -105,19 +121,27 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 
 }
 
-static job_info ** schedule_next_job(unsigned int me, simtime_t now, queue_state * queue_state, double rate, lan_direction * direction, int size_lan_direction){
+static job_info ** schedule_next_job(unsigned int me, simtime_t now, queue_state * queue_state, double * service_rates, lan_direction * direction, int size_lan_direction){
 
     job_info ** info_arr = schedule_out(queue_state->queues);
     queue_state->current_job = info_arr[0];
 
-    //double rate = service_rates[info->job_type];
-    simtime_t ts_finish = now + Expent(rate);
     if(queue_state->current_job != NULL){
+        double rate = service_rates[queue_state->current_job->job_type];
+        simtime_t ts_finish = now + Expent(rate);
         queue_state->start_processing_timestamp = now;
         ScheduleNewEvent(me, ts_finish, FINISH, direction, size_lan_direction);
     }
 
     return info_arr;
+
+}
+
+static void send_to_up_node(unsigned int me, simtime_t now, lp_state * state, double delay, job_info * info){
+
+    int up_node = getUpperNode(state->topology, me);
+    if(up_node != -1)
+        ScheduleNewEvent(up_node, now + delay, ARRIVE, info, sizeof(job_info));
 
 }
 
@@ -129,28 +153,12 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     update_metrics(now, state->info.node->queue_state, info);
 
     //Schedule the next job if present
-    job_info ** info_arr = schedule_next_job(me, now, state->info.node->queue_state, state->info.node->service_rates[info->job_type], NULL, 0);
-   /* 
-    job_info ** info_arr = schedule_out(state->info.node->queue_state->queues);
-    state->info.node->queue_state->current_job = info_arr[0];
-
-    double rate = state->info.node->service_rates[info->job_type];
-    simtime_t ts_finish = now + Expent(rate);
-    if(state->info.node->queue_state->current_job != NULL){
-        state->info.node->queue_state->start_processing_timestamp = now;
-        ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
-    }
-*/
-    //double service_time = now - (state->info.node->queue_state->start_processing_timestamp);
-    //double response_time = now - info->arrived_in_node_timestamp;
-
-    //state->info.node->queue_state->sum_all_service_time += service_time;
-    //state->info.node->queue_state->sum_all_response_time += response_time;
+    job_info ** info_arr = schedule_next_job(me, now, state->info.node->queue_state, state->info.node->service_rates, NULL, 0);
 
     double delay_up = state->info.node->up_delay;
     double delay_down = state->info.node->down_delay;
 
-    int up_node;
+    //int up_node;
 
     if(info->job_type == TELEMETRY){
         //printf("TELEMETRY\n");
@@ -161,10 +169,12 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         if(actual_aggr >= state->info.node->telemetry_aggregation){
 
             //send aggregated data
+            send_to_up_node(me, now, state, delay_up, info);
+            /*
             up_node = getUpperNode(state->topology, me);
             if(up_node != -1)
                 ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
-
+*/
             //restart buffer of telemetry
             state->info.node->num_telemetry_aggregated = 0;
         }
@@ -189,15 +199,20 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
             int actual_aggr = state->info.node->num_batch_aggregated++;
             
             if(actual_aggr >= state->info.node->batch_aggregation){
-                up_node = getUpperNode(state->topology, me);
+
                 job_info info_to_send;
+                fill_info_to_send(&info_to_send, BATCH_DATA, -1, -1);
+                /*
                 info_to_send.type = REAL_TIME;
                 info_to_send.payload = NULL;
                 info_to_send.job_type = BATCH_DATA;
-
+*/
+                send_to_up_node(me, now, state, delay_up, &info_to_send);
+                /*
+                up_node = getUpperNode(state->topology, me);
                 if(up_node != -1)
                     ScheduleNewEvent(up_node, now + delay_up, ARRIVE, &info_to_send, sizeof(job_info));
-
+*/
                 state->info.node->num_batch_aggregated = 0;
             }
         }
@@ -205,10 +220,13 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         //###################################################
         //FORWARD TRANSITION
         info->lp_sender = me;
+
+        send_to_up_node(me, now, state, delay_up, info);
+        /*
         up_node = getUpperNode(state->topology, me);
         if(up_node != -1)
             ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
-
+*/
 
     }
     else if(info->job_type == COMMAND){
@@ -230,9 +248,13 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         if(actual_aggr >= state->info.node->batch_aggregation){
 
             //send aggregated data
+            
+            send_to_up_node(me, now, state, delay_up, info);
+            /*
             up_node = getUpperNode(state->topology, me);
             if(up_node != -1)
                 ScheduleNewEvent(up_node, now + delay_up, ARRIVE, info, sizeof(job_info));
+            */
             //printf("%d: BATCH RECEIVED\n", me);
         
             //restart buffer of batch
@@ -259,24 +281,9 @@ void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
     update_metrics(now, state->info.actuator->queue_state, info);
 
     //Schedule the next job if present
-    job_info ** info_arr = schedule_next_job(me, now, state->info.actuator->queue_state, state->info.actuator->service_rate_command, NULL, 0);
-    
-    /*
-    job_info ** info_arr = schedule_out(state->info.actuator->queue_state->queues);
-    state->info.actuator->queue_state->current_job = info_arr[0];
-
-    double rate = state->info.actuator->service_rate_command;
-    simtime_t ts_finish = now + Expent(rate);
-    if(state->info.actuator->queue_state->current_job != NULL){
-        state->info.actuator->queue_state->start_processing_timestamp = now;
-        ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
-    }
-*/
-    //double service_time = now - (state->info.actuator->queue_state->start_processing_timestamp);
-    //double response_time = now - info->arrived_in_node_timestamp;
-
-    //state->info.actuator->queue_state->sum_all_service_time += service_time;
-    //state->info.actuator->queue_state->sum_all_response_time += response_time;
+    double service_rates[NUM_OF_JOB_TYPE]; //meh
+    service_rates[COMMAND] = state->info.actuator->service_rate_command;
+    job_info ** info_arr = schedule_next_job(me, now, state->info.actuator->queue_state, service_rates, NULL, 0);
 
     int up_node;
 
@@ -339,38 +346,23 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
     update_metrics(now, queue_state, info);
 
     //Schedule the next job if present
-    job_info ** info_arr = schedule_next_job(me, now, queue_state, service_rates[info->job_type], &direction, sizeof(lan_direction));
+    job_info ** info_arr = schedule_next_job(me, now, queue_state, service_rates, &direction, sizeof(lan_direction));
 
-    /*
-
-    job_info ** info_arr = schedule_out(queue_state->queues);
-    queue_state->current_job = info_arr[0];
-
-    double rate = service_rates[info->job_type];
-    simtime_t ts_finish = now + Expent(rate);
-    if(queue_state->current_job != NULL){
-        queue_state->start_processing_timestamp = now;
-        ScheduleNewEvent(me, ts_finish, FINISH, &direction, sizeof(lan_direction));
-    }
-*/
-    //double service_time = now - (state->info.lan->queue_state->start_processing_timestamp);
-    //double response_time = now - info->arrived_in_node_timestamp;
-
-    //state->info.lan->queue_state->sum_all_service_time += service_time;
-    //state->info.lan->queue_state->sum_all_response_time += response_time;
 
     int up_node;
 
     if(info->job_type == TELEMETRY){
         //printf("TELEMETRY\n");
-        up_node = getUpperNode(state->topology, me);
-        ScheduleNewEvent(up_node, now, ARRIVE, info, sizeof(job_info));
+        send_to_up_node(me, now, state, 0, info);
+        //up_node = getUpperNode(state->topology, me);
+        //ScheduleNewEvent(up_node, now, ARRIVE, info, sizeof(job_info));
 
     }
     else if(info->job_type == TRANSITION){
         //printf("TRANSITION\n");
-        up_node = getUpperNode(state->topology, me);
-        ScheduleNewEvent(up_node, now, ARRIVE, info, sizeof(job_info));
+        send_to_up_node(me, now, state, 0, info);
+        //up_node = getUpperNode(state->topology, me);
+        //ScheduleNewEvent(up_node, now, ARRIVE, info, sizeof(job_info));
 
     }
     else if(info->job_type == COMMAND){
