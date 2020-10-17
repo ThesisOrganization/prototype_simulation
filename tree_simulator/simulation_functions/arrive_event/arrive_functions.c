@@ -34,12 +34,21 @@ static void start_lan(unsigned int me, simtime_t now, queue_state * queue_state,
 
 }
 
+static void update_metrics(queue_state * queue_state, job_info * info){
+
+    queue_state->num_jobs_in_queue++;
+
+    queue_state->A[info->job_type]++;
+}
+
 void arrive_node(unsigned int me, simtime_t now, lp_state * state, job_info * info){
     //printf("NODE\n");
-
+/*
     state->info.node->queue_state->num_jobs_in_queue++;
 
     state->info.node->queue_state->A[info->job_type]++;
+*/
+    update_metrics(state->info.node->queue_state, info);
     //state->info.node->queue_state->num_jobs_arrived++;
     //state->info.node->queue_state->sum_all_time_between_arrivals += now - state->info.lan->queue_state->last_arrived_in_node_timestamp;
     //state->info.node->queue_state->last_arrived_in_node_timestamp = now;
@@ -52,10 +61,12 @@ void arrive_node(unsigned int me, simtime_t now, lp_state * state, job_info * in
 }
 
 void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info * info){
-
+/*
     state->info.actuator->queue_state->num_jobs_in_queue++;
 
     state->info.actuator->queue_state->A[info->job_type]++;
+*/
+    update_metrics(state->info.actuator->queue_state, info);
     //state->info.actuator->queue_state->num_jobs_arrived++;
     //state->info.actuator->queue_state->sum_all_time_between_arrivals += now - state->info.lan->queue_state->last_arrived_in_node_timestamp;
     //state->info.actuator->queue_state->last_arrived_in_node_timestamp = now;
@@ -99,10 +110,12 @@ void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info
         exit(EXIT_FAILURE);
 
     }
-
+/*
     queue_state->num_jobs_in_queue++;
 
     queue_state->A[info->job_type]++;
+*/
+    update_metrics(queue_state, info);
     //state->info.lan->queue_state->num_jobs_arrived++;
     //state->info.lan->queue_state->sum_all_time_between_arrivals += now - state->info.lan->queue_state->last_arrived_in_node_timestamp;
     //state->info.lan->queue_state->last_arrived_in_node_timestamp = now;

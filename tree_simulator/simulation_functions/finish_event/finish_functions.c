@@ -85,20 +85,39 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, job_i
     ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
 }
 
-static void update_metrics(simtime_t now, lp_state * state, job_info * info){
+static void update_metrics(simtime_t now, queue_state * queue_state, job_info * info){
 
-    state->info.node->queue_state->num_jobs_in_queue--;
+    queue_state->num_jobs_in_queue--;
 
-    state->info.node->queue_state->C[info->job_type]++;
-    state->info.node->queue_state->B[info->job_type] += now - state->info.node->queue_state->start_processing_timestamp;
-    state->info.node->queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
+    //printf("%d\n", queue_state->C);
+    //printf("%d\n", info->job_type);
+
+    queue_state->C[info->job_type]++;
+    queue_state->B[info->job_type] += now - queue_state->start_processing_timestamp;
+    queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
 
     if(info->job_type == REPLY){
         
-        state->info.node->queue_state->B[TRANSITION] += now - state->info.node->queue_state->start_processing_timestamp;
-        state->info.node->queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
+        queue_state->B[TRANSITION] += now - queue_state->start_processing_timestamp;
+        queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
 
     }
+
+}
+
+static job_info ** schedule_next_job(unsigned int me, simtime_t now, queue_state * queue_state, double rate, lan_direction * direction, int size_lan_direction){
+
+    job_info ** info_arr = schedule_out(queue_state->queues);
+    queue_state->current_job = info_arr[0];
+
+    //double rate = service_rates[info->job_type];
+    simtime_t ts_finish = now + Expent(rate);
+    if(queue_state->current_job != NULL){
+        queue_state->start_processing_timestamp = now;
+        ScheduleNewEvent(me, ts_finish, FINISH, direction, size_lan_direction);
+    }
+
+    return info_arr;
 
 }
 
@@ -107,9 +126,11 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     job_info * info = state->info.node->queue_state->current_job;
 
     //Update metrics
-    update_metrics(now, state, info);
+    update_metrics(now, state->info.node->queue_state, info);
 
     //Schedule the next job if present
+    job_info ** info_arr = schedule_next_job(me, now, state->info.node->queue_state, state->info.node->service_rates[info->job_type], NULL, 0);
+   /* 
     job_info ** info_arr = schedule_out(state->info.node->queue_state->queues);
     state->info.node->queue_state->current_job = info_arr[0];
 
@@ -119,7 +140,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         state->info.node->queue_state->start_processing_timestamp = now;
         ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
     }
-
+*/
     //double service_time = now - (state->info.node->queue_state->start_processing_timestamp);
     //double response_time = now - info->arrived_in_node_timestamp;
 
@@ -229,18 +250,18 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     free(info_arr); //liberi l'array dell'attuale job!
     free(info); //liberi il vecchio job
 }
+
 void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
 
     job_info * info = state->info.actuator->queue_state->current_job;
 
     //Update metrics
-    state->info.actuator->queue_state->num_jobs_in_queue--;
-
-    state->info.actuator->queue_state->C[info->job_type]++;
-    state->info.actuator->queue_state->B[info->job_type] += now - state->info.actuator->queue_state->start_processing_timestamp;
-    state->info.actuator->queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
+    update_metrics(now, state->info.actuator->queue_state, info);
 
     //Schedule the next job if present
+    job_info ** info_arr = schedule_next_job(me, now, state->info.actuator->queue_state, state->info.actuator->service_rate_command, NULL, 0);
+    
+    /*
     job_info ** info_arr = schedule_out(state->info.actuator->queue_state->queues);
     state->info.actuator->queue_state->current_job = info_arr[0];
 
@@ -250,7 +271,7 @@ void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
         state->info.actuator->queue_state->start_processing_timestamp = now;
         ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
     }
-
+*/
     //double service_time = now - (state->info.actuator->queue_state->start_processing_timestamp);
     //double response_time = now - info->arrived_in_node_timestamp;
 
@@ -311,42 +332,17 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
         exit(EXIT_FAILURE);
 
     }
-/*
-    if(info->job_type == TELEMETRY){
 
-        queue_state = state->info.lan->queue_state_out;
-        service_rates = state->info.lan->service_rates_out;
-
-    }
-    else if(info->job_type == TRANSITION){
-
-        queue_state = state->info.lan->queue_state_out;
-        service_rates = state->info.lan->service_rates_out;
-
-    }
-    else if(info->job_type == COMMAND){
-
-        queue_state = state->info.lan->queue_state_in;
-        service_rates = state->info.lan->service_rates_in;
-
-    }
-    else{
-
-        printf("ERROR: lan received a data not permitted\n");
-        exit(EXIT_FAILURE);
-
-    }
-*/
     job_info * info = queue_state->current_job;
 
     //Update metrics
-    queue_state->num_jobs_in_queue--;
-
-    queue_state->C[info->job_type]++;
-    queue_state->B[info->job_type] += now - queue_state->start_processing_timestamp;
-    queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
+    update_metrics(now, queue_state, info);
 
     //Schedule the next job if present
+    job_info ** info_arr = schedule_next_job(me, now, queue_state, service_rates[info->job_type], &direction, sizeof(lan_direction));
+
+    /*
+
     job_info ** info_arr = schedule_out(queue_state->queues);
     queue_state->current_job = info_arr[0];
 
@@ -356,7 +352,7 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
         queue_state->start_processing_timestamp = now;
         ScheduleNewEvent(me, ts_finish, FINISH, &direction, sizeof(lan_direction));
     }
-
+*/
     //double service_time = now - (state->info.lan->queue_state->start_processing_timestamp);
     //double response_time = now - info->arrived_in_node_timestamp;
 
