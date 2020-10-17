@@ -110,51 +110,66 @@ typedef enum {
 } disk_type;
 //temp struct, to make things uniform with application.c
 //and check integrity in this main file
-typedef struct _lp_infos
-{
-int lp_type;
 
-int sensor_type;
-int actuator_type;
-int type_job;
-int measure_type;
-int id_LAN_up;
+typedef struct _node_topology{
+  int node_type;
+  double probNodeCommandArray;
+  double * service_time;
+  int scheduler;
+  int numberOfBelowActuators;
+  int * actuatorsTypesBelow;
+  int id_WAN_up;
+  int id_WAN_down;
+  int numberOfBelowSensors;
+  int * sensorsTypesBelow;
+  int * aggregation_rate;
+  float delay_upper_router;
+  float delay_lower_router;
+  float probCommandResponse;
+  int disk_type;
+  double * diskServices;
+} node_topology;
 
-double rateTransition;
-double serviceTimeCommand;
+typedef struct _sensor_topology{
+  int sensor_type;
+  int type_job;
+  int measure_type;
+  int id_LAN_up;
+  double * sensorRates;//it was general
+} sensor_topology;
 
-int wan_type;
-int lan_type;
-float delay;
+typedef struct _actuator_topology{
+  int actuator_type;
+  double rateTransition;
+  double serviceTimeCommand;
+  int type_job;
+  int measure_type;
+  int id_LAN_up;
+} actuator_topology;
 
-int node_type;
-double * service_time;
-int scheduler;
-int numberOfBelowActuators;
-int * actuatorsTypesBelow;
-int id_WAN_up;
-int id_WAN_down;
-int numberOfBelowSensors;
-int * sensorsTypesBelow;
-int * aggregation_rate;
-float delay_upper_router;
-float delay_lower_router;
-float probCommandResponse;
-int disk_type;
-double * diskServices;
-} lp_infos;
+typedef struct _wan_topology{
+  int wan_type;
+  float delay;
+} wan_topology;
 
-typedef struct _topArray
-{
-int upperNode;
-int numberOfLowerElements;
-int * lowerElements;
-int numberOfLANS;
-int * connectedLans;
-void * info;
-} topArray;
+typedef struct _lan_topology{
+  int lan_type;
+  //TODO metti che la prima riga la usi per fillarle tutte
+  double * LANsINserviceTimes;
+  double * LANsOUTserviceTimes;
+  float delay;
+} lan_topology;
 
-typedef struct _topology{
+//struct topology node specific
+typedef union {
+    sensor_topology sensor;
+    node_topology  node;
+    actuator_topology actuator;
+    lan_topology lan;
+    wan_topology wan;
+} specific_topology;
+
+typedef struct _general_topology{
   int total_nodes;
   int sensor_nodes;
   int actuator_nodes;
@@ -163,15 +178,21 @@ typedef struct _topology{
   int numberOfActTypes;
   int numberOfSensTypes;
   int numberOfLANsTypes;
-  int ** actuatorPaths;
-  double ** sensorRatesByType;
-  double ** LANsINserviceTimes;
-  double ** LANsOUTserviceTimes;
-  double * probOfActuators;
-  int *** ListSensorsByType;
-  int *** ListActuatorsByType;
-  topArray ** topArr; //array of poiters to topArray
-} topology;
+  double * probOfActuators;//maybe
+} general_topology
+
+typedef struct _LP_topology{
+  int lp_type;
+  int upperNode;
+  int numberOfLowerElements;
+  int * lowerElements;//set of directly below elements
+  int numberOfLANS;
+  int * connectedLans;
+  int ** actuatorPaths;//transform to array actuatorPaths[x]
+  int *** ListSensorsByType;//switch to double pointer
+  int *** ListActuatorsByType;//switch
+  specific_topology st;
+} LP_topology;
 
 
 //#############################################
