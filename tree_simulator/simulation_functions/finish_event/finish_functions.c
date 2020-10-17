@@ -170,23 +170,6 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         //printf("TELEMETRY\n");
         send_aggregated_data(me, now, state, delay_up, TELEMETRY, &state->info.node->num_telemetry_aggregated, state->info.node->telemetry_aggregation);
 
-        /*
-
-        int actual_aggr = state->info.node->num_telemetry_aggregated++;
-        //printf("%d, %d\n", me, actual_aggr);
-
-        if(actual_aggr >= state->info.node->telemetry_aggregation){
-
-            //send aggregated data
-            job_info info_to_send;
-            fill_info_to_send(&info_to_send, TELEMETRY, -1, -1);
-
-            send_to_up_node(me, now, state, delay_up, &info_to_send);
-
-            //restart buffer of telemetry
-            state->info.node->num_telemetry_aggregated = 0;
-        }
-        */
 
     }
     else if(info->job_type == TRANSITION){
@@ -206,19 +189,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
             //###################################################
             //SEND BATCH_DATA
             send_aggregated_data(me, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation);
-           /* 
-            int actual_aggr = state->info.node->num_batch_aggregated++;
-            
-            if(actual_aggr >= state->info.node->batch_aggregation){
 
-                job_info info_to_send;
-                fill_info_to_send(&info_to_send, BATCH_DATA, -1, -1);
-
-                send_to_up_node(me, now, state, delay_up, &info_to_send);
-
-                state->info.node->num_batch_aggregated = 0;
-            }
-        */
         }
 
         //###################################################
@@ -243,22 +214,6 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
         send_aggregated_data(me, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation);
 
-        /*
-        int actual_aggr = state->info.node->num_batch_aggregated++;
-        //printf("%d, %d\n", me, actual_aggr);
-
-        if(actual_aggr >= state->info.node->batch_aggregation){
-
-            //send aggregated data
-            job_info info_to_send;
-            fill_info_to_send(&info_to_send, BATCH_DATA, -1, -1);
-
-            send_to_up_node(me, now, state, delay_up, &info_to_send);
-        
-            //restart buffer of batch
-            state->info.node->num_batch_aggregated = 0;
-        }
-*/
     }
     else if(info->job_type == REPLY){
 
