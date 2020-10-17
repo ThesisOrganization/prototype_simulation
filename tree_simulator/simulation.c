@@ -301,18 +301,23 @@ bool OnGVT(int me, lp_state *snapshot)
     //printf("%d\n", me);
     if(snapshot->type == NODE){
 
+#ifdef PRINT_RESULTS
         print_pre(me, snapshot->actual_timestamp, snapshot->type);
         print_metrics(me, snapshot->info.node->queue_state, T);
+#endif
 
     }
     else if(snapshot->type == ACTUATOR){
 
+#ifdef PRINT_RESULTS
         print_pre(me, snapshot->actual_timestamp, snapshot->type);
         print_metrics(me, snapshot->info.actuator->queue_state, T);
+#endif
 
     }
     else if(snapshot->type == LAN){
 
+#ifdef PRINT_RESULTS
         print_pre(me, snapshot->actual_timestamp, snapshot->type);
 
         printf("<<<<<<<<<<<<<<<<<<<<\n");
@@ -321,6 +326,7 @@ bool OnGVT(int me, lp_state *snapshot)
         printf("<<<<<<<<<<<<<<<<<<<<\n");
         printf("Lan OUT:\n");
         print_metrics(me, snapshot->info.lan->queue_state_out, T);
+#endif
 
     }
 

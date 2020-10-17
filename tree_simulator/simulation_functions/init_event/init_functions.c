@@ -50,26 +50,26 @@ void init_node(unsigned int me, simtime_t now, lp_state * state, lp_infos * info
     int num_queues = 1;
     state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
-    state->info.node->service_rates = getServiceRates(state->topology, me);
+    state->info.node->service_rates = GET_SERVICE_RATES(state->topology, me);
 
     //state->info.node->service_rates[TRANSITION] *= 2; //to delete
 
-    state->info.node->type = infos->node_type;
+    state->info.node->type = GET_NODE_TYPE(state->topology, me);
 
-    state->info.node->telemetry_aggregation = infos->aggregation_rate[TELEMETRY];
+    state->info.node->telemetry_aggregation = GET_AGGREGATION_RATE(state->topology, me)[TELEMETRY];
     state->info.node->num_telemetry_aggregated = 0;
 
-    state->info.node->up_delay = infos->delay_upper_router;
-    state->info.node->down_delay = infos->delay_lower_router;
+    state->info.node->up_delay = GET_DELAY_UPPER_ROUTER(state->topology, me);
+    state->info.node->down_delay = GET_DELAY_LOWER_ROUTER(state->topology, me);
 
-    state->info.node->id_wan_down = infos->id_WAN_down;
+    state->info.node->id_wan_down = GET_WAN_DOWN(state->topology, me);
 
-    state->info.node->batch_aggregation = infos->aggregation_rate[BATCH];
+    state->info.node->batch_aggregation = GET_AGGREGATION_RATE(state->topology, me)[BATCH];
     state->info.node->num_batch_aggregated = 0;
 
     //int node_type = state->info.node->type;
     //state->info.node->prob_cmd = state->topology->probNodeCommandArray[node_type];
-    state->info.node->prob_cmd = getProbCommandResponse(state->topology, me);
+    state->info.node->prob_cmd = GET_PROB_COMMAND(state->topology, me);
 
     /*
     ///init disk queue
@@ -89,9 +89,9 @@ void init_sensor(unsigned int me, simtime_t now, lp_state * state, lp_infos * in
     //printf("sensor\n");
 
     state->info.sensor = malloc(sizeof(sensor_state));
-    int sensor_type = infos->sensor_type;
+    int sensor_type = GET_SENSOR_TYPE(state->topology, me);
     //printf("%d\n", sensor_type);
-    double * sensor_rate = getSensorRatesForOneSensorType(state->topology, sensor_type);
+    double * sensor_rate = GET_SENSOR_TYPE_RATES(state->topology, sensor_type);
     double rate_transition = sensor_rate[TRANSITION];
     double rate_telemetry = sensor_rate[TELEMETRY];
 
@@ -123,9 +123,9 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state, lp_infos * 
     int num_queues = 1;
     state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
-    state->info.actuator->service_rate_command = infos->serviceTimeCommand;
+    state->info.actuator->service_rate_command = GET_SERVICE_COMMAND(state->topology, me);
 
-    double rate_transition = infos->rateTransition;
+    double rate_transition = GET_RATE_TRANSITION(state->topology, me);
     state->info.actuator->rate_transition = rate_transition;
 
     //schedule generate for all actuators
@@ -156,9 +156,9 @@ void init_lan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos
     state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
 
-    int lan_type = infos->lan_type;
-    state->info.lan->service_rates_in = getLANsINserviceTimesForOneLANType(state->topology, lan_type);
-    state->info.lan->service_rates_out = getLANsOUTserviceTimesForOneLANType(state->topology, lan_type);
+    int lan_type = GET_LAN_TYPE(state->topology, me);
+    state->info.lan->service_rates_in = GET_LAN_IN_TYPE_SERVICE(state->topology, lan_type);
+    state->info.lan->service_rates_out = GET_LAN_OUT_TYPE_SERVICE(state->topology, lan_type);
 
 }
 
@@ -167,6 +167,6 @@ void init_wan(unsigned int me, simtime_t now, lp_state * state, lp_infos * infos
     //printf("wan\n");
     state->info.wan = malloc(sizeof(wan_state));
 
-    state->info.wan->delay = infos->delay;
+    state->info.wan->delay = GET_DELAY(state->topology, me);
 
 }

@@ -1,7 +1,4 @@
-#include "../../../utils/priority_scheduler/priority_scheduler.h"
-#include "../../../utils/partop/header.h"
-#include "../../../utils/priority_queue/priority_queue.h"
-#include "../../../utils/application_datatypes.h"
+#include "../common_functions.h"
 
 #ifndef ARRIVE_FUNCTIONS_H
 #define ARRIVE_FUNCTIONS_H
