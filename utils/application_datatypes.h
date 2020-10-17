@@ -113,36 +113,36 @@ typedef enum {
 
 typedef struct _node_topology{
   int node_type;
-  double probNodeCommandArray;
-  double * service_time;
   int scheduler;
-  int numberOfBelowActuators;
-  int * actuatorsTypesBelow;
-  int id_WAN_up;
-  int id_WAN_down;
-  int numberOfBelowSensors;
-  int * sensorsTypesBelow;
+  int disk_type;
+  double * diskServices;
   int * aggregation_rate;
   float delay_upper_router;
   float delay_lower_router;
+  double * service_time;
   float probCommandResponse;
-  int disk_type;
-  double * diskServices;
+  int id_WAN_up;
+  int id_WAN_down;
+  double probNodeCommandArray;
+  int numberOfBelowActuators;
+  int * actuatorsTypesBelow;
+  int numberOfBelowSensors;
+  int * sensorsTypesBelow;
 } node_topology;
 
 typedef struct _sensor_topology{
-  int sensor_type;
   int type_job;
+  int sensor_type;
   int measure_type;
   int id_LAN_up;
-  double * sensorRates;//it was general
+  double * sensorRates;
 } sensor_topology;
 
 typedef struct _actuator_topology{
+  int type_job;
   int actuator_type;
   double rateTransition;
   double serviceTimeCommand;
-  int type_job;
   int measure_type;
   int id_LAN_up;
 } actuator_topology;
@@ -150,24 +150,32 @@ typedef struct _actuator_topology{
 typedef struct _wan_topology{
   int wan_type;
   float delay;
+  int numberOfBelowActuators;
+  int * actuatorsTypesBelow;
+  int numberOfBelowSensors;
+  int * sensorsTypesBelow;
 } wan_topology;
 
 typedef struct _lan_topology{
   int lan_type;
-  //TODO metti che la prima riga la usi per fillarle tutte
+  float delay;
   double * LANsINserviceTimes;
   double * LANsOUTserviceTimes;
-  float delay;
+  int numberOfBelowActuators;
+  int * actuatorsTypesBelow;
+  int numberOfBelowSensors;
+  int * sensorsTypesBelow;
 } lan_topology;
 
 //struct topology node specific
 typedef union {
-    sensor_topology sensor;
-    node_topology  node;
-    actuator_topology actuator;
-    lan_topology lan;
-    wan_topology wan;
+    sensor_topology * sensor;
+    node_topology * node;
+    actuator_topology * actuator;
+    lan_topology * lan;
+    wan_topology * wan;
 } specific_topology;
+
 
 typedef struct _general_topology{
   int total_nodes;
@@ -179,7 +187,7 @@ typedef struct _general_topology{
   int numberOfSensTypes;
   int numberOfLANsTypes;
   double * probOfActuators;//maybe
-} general_topology
+} general_topology;
 
 typedef struct _LP_topology{
   int lp_type;
@@ -188,11 +196,19 @@ typedef struct _LP_topology{
   int * lowerElements;//set of directly below elements
   int numberOfLANS;
   int * connectedLans;
-  int ** actuatorPaths;//transform to array actuatorPaths[x]
-  int *** ListSensorsByType;//switch to double pointer
-  int *** ListActuatorsByType;//switch
-  specific_topology st;
+  int * actuatorPaths;//transform to array actuatorPaths[x]
+  int ** ListSensorsByType;//switch to double pointer
+  int ** ListActuatorsByType;//switch
+  specific_topology spec_top;
 } LP_topology;
+
+typedef struct _total_topology{
+  general_topology * gn;
+  LP_topology ** lpt;
+} total_topology;
+
+
+
 
 
 //#############################################
@@ -300,7 +316,6 @@ typedef struct _state {
     simtime_t actual_timestamp;
     state_type type;
     //general infos
-    topology * topology;
     int num_acts_types;
     double * prob_actuators;
     //specific infos

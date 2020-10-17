@@ -9,8 +9,10 @@ int main()
 
   printf("Main starting, retrieving array..\n");
   char * path = "test.txt";
-  topology * genTop = getTopology(path);
-
+  total_topology * genTop = getTopology(path);
+  printf("just testing..\n");
+}
+/*
   printf("Contents of generalTopology:\ntotal nodes : %d;\nsensors/actuators: %d/%d;\nWANs/LANs %d/%d;\n",genTop->total_nodes,genTop->sensor_nodes,genTop->actuator_nodes, genTop->numberOfTotalWANs,  genTop->numberOfTotalLANs);
 
   double ** res = getSensorRatesByType(genTop);
@@ -26,7 +28,7 @@ int main()
     }
     k+=1;
   }
-/*
+
   k = 0;
   printf("Rates for each sensor type and message type couple:\n");
   while(k < genTop->numberOfSensTypes){
@@ -52,6 +54,7 @@ int main()
   }
   */
   //alternatively
+  /*
   k = 0;
   printf("Service times for each LAN IN type and message type couple:\n");
   while(k < genTop->numberOfLANsTypes){ //# of possible message types
@@ -197,3 +200,4 @@ int main()
 
   }
 }
+*/

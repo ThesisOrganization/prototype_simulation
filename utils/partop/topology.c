@@ -1,312 +1,300 @@
 #include <stdio.h>
 #include "header.h"
-//GETs from info
-int getType(topology * top,int index){
-    lp_infos * infos = getInfo(top, index);
-    return(infos->lp_type);
-}
-int getActuatorType(topology * top,int index){
-    lp_infos * infos = getInfo(top, index);
-    return(infos->actuator_type);
+//GETs from specific_topology
+
+int getNodeType(LP_topology lpt){
+  return(lpt.spec_top.node->node_type);
 }
 
-int getSensorType(topology * top,int index){
-    lp_infos * infos = getInfo(top, index);
-    return(infos->sensor_type);
+int getActuatorType(LP_topology lpt){
+    return(lpt.spec_top.actuator->actuator_type);
 }
 
-int getTypeJob(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->type_job);
+int getSensorType(LP_topology lpt){
+    return(lpt.spec_top.sensor->sensor_type);
 }
 
-int getMeasureType(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->measure_type);
+int getTypeJob(LP_topology lpt){
+  int type = getType(lpt);
+  if(type == 1){
+    return(lpt.spec_top.sensor->type_job);
+
+  }
+  else{
+    return(lpt.spec_top.actuator->type_job);
+  }
 }
 
-int getLANup(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->id_LAN_up);
+int getMeasureType(LP_topology lpt){
+  int type = getType(lpt);
+  if(type == 1){
+    return(lpt.spec_top.sensor->measure_type);
+
+  }
+  else{
+    return(lpt.spec_top.actuator->measure_type);
+  }
+
 }
 
-double getRateTransition(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->rateTransition);
+int getLANup(LP_topology lpt){
+  int type = getType(lpt);
+  if(type == 1){
+    return(lpt.spec_top.sensor->id_LAN_up);
+
+  }
+  else{
+    return(lpt.spec_top.actuator->id_LAN_up);
+  }
 }
 
-double getServiceTimeCommand(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->serviceTimeCommand);
+double getRateTransition(LP_topology lpt){
+  return(lpt.spec_top.actuator->rateTransition);
 }
 
-int getWanType(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->wan_type);
+double getServiceTimeCommand(LP_topology lpt){
+  return(lpt.spec_top.actuator->serviceTimeCommand);
 }
 
-int getLanType(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->lan_type);
+int getWanType(LP_topology lpt){
+  return(lpt.spec_top.wan->wan_type);
 }
 
-float getDelay(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->delay);
+int getLanType(LP_topology lpt){
+  return(lpt.spec_top.lan->lan_type);
 }
 
-int getNodeType(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->node_type);
+float getDelay(LP_topology lpt){
+  return(lpt.spec_top.wan->delay);
+}
+double * getLANsINserviceTimesByType(LP_topology lpt){
+  return(lpt.spec_top.lan->LANsINserviceTimes);
 }
 
-double * getServiceRates(topology * top, int index){
-  lp_infos * info = getInfo(top,index);
-  return info->service_time;
-}
-
-int getScheduler(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->scheduler);
-}
-
-int getNumberOfBelowActuators(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->numberOfBelowActuators);
-}
-
-
-int * getActType(topology * top,int index){
-    lp_infos * infos = getInfo(top, index);
-    return(infos->actuatorsTypesBelow);
-}
-int getWanUp(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->id_WAN_up);
-}
-
-int getWanDown(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->id_WAN_down);
-}
-
-int getNumberOfBelowSensors(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->numberOfBelowSensors);
+double * getLANsOUTserviceTimesByType(LP_topology lpt){
+  return(lpt.spec_top.lan->LANsOUTserviceTimes);
 }
 
 
-int * getSensType(topology * top,int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->sensorsTypesBelow);
+double * getServiceRates(LP_topology lpt){
+  return(lpt.spec_top.node->service_time);
 }
 
-int * getAggregationRate(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->aggregation_rate);
+int getScheduler(LP_topology lpt){
+  return(lpt.spec_top.node->scheduler);
 }
 
-float getDelayUpperRouter(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->delay_upper_router);
+int getNumberOfBelowActuators(LP_topology lpt){
+  return(lpt.spec_top.node->numberOfBelowActuators);
 }
-float getDelayLowerRouter(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->delay_lower_router);
+
+int * getActType(LP_topology lpt){
+    return(lpt.spec_top.node->actuatorsTypesBelow);
+}
+int getWanUp(LP_topology lpt){
+  return(lpt.spec_top.node->id_WAN_up);
+}
+
+int getWanDown(LP_topology lpt){
+  return(lpt.spec_top.node->id_WAN_down);
+}
+
+int getNumberOfBelowSensors(LP_topology lpt){
+  return(lpt.spec_top.node->numberOfBelowSensors);
 }
 
 
-float getProbCommandResponse(topology * top, int index)
+int * getSensType(LP_topology lpt){
+  return(lpt.spec_top.node->sensorsTypesBelow);
+}
+
+int * getAggregationRate(LP_topology lpt){
+  return(lpt.spec_top.node->aggregation_rate);
+}
+
+float getDelayUpperRouter(LP_topology lpt){
+  return(lpt.spec_top.node->delay_upper_router);
+}
+float getDelayLowerRouter(LP_topology lpt){
+  return(lpt.spec_top.node->delay_lower_router);
+}
+
+
+float getProbCommandResponse(LP_topology lpt)
 {
-  lp_infos * infos = getInfo(top, index);
-  return infos->probCommandResponse;
+  return lpt.spec_top.node->probCommandResponse;
 }
 
-int getDiskType(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->disk_type);
+int getDiskType(LP_topology lpt){
+  return(lpt.spec_top.node->disk_type);
 }
 
-double * getDiskServices(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  return(infos->diskServices);
+double * getDiskServices(LP_topology lpt){
+  return(lpt.spec_top.node->diskServices);
 }
 
-//TOPARRAY
-int getUpperNode(topology * top, int index)
+//_LP_topology
+int getType(LP_topology lpt){
+    return(lpt.lp_type);
+}
+
+int getUpperNode(LP_topology lpt)
 {
-  topArray ** array = top->topArr;
-  return array[index]->upperNode;
+  return lpt.upperNode;
 }
-int getNumberLower(topology * top, int index)
+int getNumberLower(LP_topology lpt)
 {
-  topArray ** array = top->topArr;
-  return array[index]->numberOfLowerElements;
+  return lpt.numberOfLowerElements;
 }
 
-int * getLowers(topology * top, int index)
+int * getLowers(LP_topology lpt)
 {
-  topArray ** array = top->topArr;
-  return array[index]->lowerElements;
+  return lpt.lowerElements;
 }
 
 //The following two seems like none uses them..
-int getNumberLANS(topology * top, int index){
-  topArray ** array = top->topArr;
-  return array[index]->numberOfLANS;
+int getNumberLANS(LP_topology lpt){
+  return lpt.numberOfLANS;
 }
 
-int * getLANS(topology * top, int index){
-  topArray ** array = top->topArr;
-  return array[index]->connectedLans;
+int * getLANS(LP_topology lpt){
+  return lpt.connectedLans;
 }
-
-//Avoid using this one, will be deprecated soon.
-void * getInfo(topology * top, int index)
+int * getListActuatorsByType(LP_topology lpt, int actuatorType)
 {
-  topArray ** array = top->topArr;
-  return array[index]->info;
+    return lpt.ListActuatorsByType[actuatorType];
 }
 
+int * getListSensorsByType(LP_topology lpt, int sensorType)
+{
+    return lpt.ListSensorsByType[sensorType];
+}
+
+
+//#########################################
 //TOPOLOGY
-int getTotalNodes(topology * top)
+int getTotalNodes(general_topology * genTop)
 {
-  return top->total_nodes;
+  return genTop->total_nodes;
 }
 
-int getSensorNodes(topology * top)
+int getSensorNodes(general_topology * genTop)
 {
-  return top->sensor_nodes;
+  return genTop->sensor_nodes;
 }
 
-int getActuatorNodes(topology * top)
+int getActuatorNodes(general_topology * genTop)
 {
-  return top->actuator_nodes;
+  return genTop->actuator_nodes;
 }
 
-int getNumberOfTotalLANs(topology * top)
+int getNumberOfTotalLANs(general_topology * genTop)
 {
-  return top->numberOfTotalLANs;
+  return genTop->numberOfTotalLANs;
 }
 
-int getNumberOfTotalWANs(topology * top)
+int getNumberOfTotalWANs(general_topology * genTop)
 {
-  return top->numberOfTotalWANs;
+  return genTop->numberOfTotalWANs;
 }
 
-int getNumberOfActTypes(topology * top)
+int getNumberOfActTypes(general_topology * genTop)
 {
-  return top->numberOfActTypes;
+  return genTop->numberOfActTypes;
 }
 
-int getNumberOfSensTypes(topology * top)
+int getNumberOfSensTypes(general_topology * genTop)
 {
-  return top->numberOfSensTypes;
+  return genTop->numberOfSensTypes;
 }
 
-int getNumberOfLANsTypes(topology * top)
+int getNumberOfLANsTypes(general_topology * genTop)
 {
-  return top->numberOfLANsTypes;
+  return genTop->numberOfLANsTypes;
 }
 
-int ** getActuatorPaths(topology * top){
-  return(top->actuatorPaths);
-}
-
-int * getActuatorPathsIndex(topology * top, int index)
+double * getProbOfActuators(general_topology * genTop)
 {
-  return top->actuatorPaths[index];
+  return genTop->probOfActuators;
 }
 
-double ** getSensorRatesByType(topology * top)
-{
-  return top->sensorRatesByType;
+
+int * getActuatorPaths(LP_topology lpt){
+  return(lpt.actuatorPaths);
 }
 
-double * getSensorRatesForOneSensorType(topology * top, int index)
-{
-  return top->sensorRatesByType[index];
-}
-
-double ** getLANsINserviceTimesByType(topology * top){
-  return(top->LANsINserviceTimes);
-}
-
-double ** getLANsOUTserviceTimesByType(topology * top){
-  return(top->LANsOUTserviceTimes);
-}
-
-double * getLANsINserviceTimesForOneLANType(topology * top, int index){
-  return(top->LANsINserviceTimes[index]);
-}
-
-double * getLANsOUTserviceTimesForOneLANType(topology * top, int index){
-  return(top->LANsOUTserviceTimes[index]);
-}
-
-double * getProbOfActuators(topology * top)
-{
-  return top->probOfActuators;
-}
-
-int * getListActuatorsByType(topology * top, int nodeId, int actuatorType)
-{
-    return top->ListActuatorsByType[nodeId][actuatorType];
-}
-
-int * getListSensorsByType(topology * top, int nodeId, int sensorType)
-{
-    return top->ListSensorsByType[nodeId][sensorType];
-}
 
 //SETUP FUNCTIONS
-void setLowerElements(topology * top, int * lowerEle, int numberLower, int index)
+void setLowerElements(LP_topology lpt, int * lowerEle, int numberLower)
 {
-  topArray ** array = top->topArr;
-  array[index]->numberOfLowerElements = numberLower;
-  array[index]->lowerElements = lowerEle;
+  lpt.numberOfLowerElements = numberLower;
+  lpt.lowerElements = lowerEle;
 }
 
-void setLANs(topology * top, int * arrayLANs, int numberLANs, int index){
-  topArray ** array = top->topArr;
-  array[index]->numberOfLANS = numberLANs;
-  array[index]->connectedLans = arrayLANs;
+void setLANs(LP_topology lpt, int * arrayLANs, int numberLANs){
+  lpt.numberOfLANS = numberLANs;
+  lpt.connectedLans = arrayLANs;
 }
-
-void setWANdown(topology * top, int idWAN, int index){
-  lp_infos * infos = getInfo(top, index);
-  infos->id_WAN_down = idWAN;
+void setArrayActuatorPaths(LP_topology lpt, int * arrayActuatorPaths){
+  lpt.actuatorPaths = arrayActuatorPaths;
 }
-
-void setWANup(topology * top, int index){
-  lp_infos * infos = getInfo(top, index);
-  int upp = getUpperNode(top, index);
+void setListActuatorsByType(LP_topology lpt, int ** array){
+  lpt.ListActuatorsByType = array;
+}
+void setListSensorsByType(LP_topology lpt, int ** array){
+  lpt.ListSensorsByType = array;
+}
+void setWANdown(LP_topology lpt, int idWAN){
+  lpt.spec_top.node->id_WAN_down = idWAN;
+}
+void setWANup(LP_topology lpt){
+  int upp = getUpperNode(lpt);
   if(upp == -1){
-    infos->id_WAN_up = -1;
+    lpt.spec_top.node->id_WAN_up = -1;
   }
   else{
-    int uppType =getType(top, upp);
+    int uppType =getType(lpt);
     if(uppType == 3){
-      infos->id_WAN_up = upp;
+      lpt.spec_top.node->id_WAN_up = upp;
     }
   }
 }
+void setSensorRates(LP_topology lpt, double * array){
+  lpt.spec_top.sensor->sensorRates = array;
+}
 
-void setSensorTypes(topology * top, int * array, int index, int nts){
-  lp_infos * infos = getInfo(top, index);
+void setSensorTypes(LP_topology lpt, int * array, int nts){
+  int type = getType(lpt);
   int total = 0;
   for(int count = 0; count < nts; count++){
     total+=array[count];
   }
-  infos->sensorsTypesBelow = array;
-  infos->numberOfBelowSensors = total;
+
+  if(type == 0){
+    lpt.spec_top.node->sensorsTypesBelow = malloc(sizeof(int)*nts);
+    lpt.spec_top.node->sensorsTypesBelow = array;
+    lpt.spec_top.node->numberOfBelowSensors = total;
+  }
+  else if(type == 3){
+    lpt.spec_top.wan->sensorsTypesBelow = array;
+    lpt.spec_top.wan->numberOfBelowSensors = total;
+  }
+  else{
+    lpt.spec_top.lan->sensorsTypesBelow = array;
+    lpt.spec_top.lan->numberOfBelowSensors = total;
+  }
+
 }
-void setActuatorTypes(topology * top, int * array, int index, int nt){
-  lp_infos * infos = getInfo(top, index);
+void setActuatorTypes(LP_topology lpt, int * array, int nt){
   int total = 0;
   for(int count = 0; count < nt; count++){
     total+=array[count];
   }
-  infos->actuatorsTypesBelow = array;
-  infos->numberOfBelowActuators = total;
+  lpt.spec_top.node->actuatorsTypesBelow = array;
+  lpt.spec_top.node->numberOfBelowActuators = total;
+}
+
+void setLANserviceTimes(LP_topology lpt,double * LANsINserviceTimes, double * LANsOUTserviceTimes){
+  lpt.spec_top.lan->LANsINserviceTimes = LANsINserviceTimes;
+  lpt.spec_top.lan->LANsOUTserviceTimes = LANsOUTserviceTimes;
 }
