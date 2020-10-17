@@ -24,9 +24,15 @@ if (! (x)) {\
 
 
 #ifdef DEBUG
-#define PRINT(s) printf(s)
+#define PRINT(s) printf("%s\n", s)
 #else
 #define PRINT(s) 
+#endif
+
+#ifdef DEBUG
+#define PRINT_VALUE(v) printf("%d\n", v)
+#else
+#define PRINT_VALUE(v) 
 #endif
 
 
@@ -55,7 +61,10 @@ if (! (x)) {\
 //WANS
 #define GET_DELAY(a,b) getDelay(a,b)
 
-
+#define GET_ACTUATOR_PATHS_INDEX(a,b) getActuatorPathsIndex(a,b)
+#define GET_ACT_TYPE(a,b) getActType(a,b)
+#define GET_LIST_ACTUATORS_BY_TYPE(a,b,c) getListActuatorsByType(a,b,c)
+#define GET_UPPER_NODE(a,b) getUpperNode(a,b)
 
 
 #endif /* COMMON_FUNCTIONS_H */

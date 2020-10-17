@@ -62,7 +62,7 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, job_i
 
     int num_types = state->num_acts_types;
 
-    int * num_per_types = getActType(state->topology, me);
+    int * num_per_types = GET_ACT_TYPE(state->topology, me);
     //for(int i = 0; i < num_types; i++)
     //    printf("%d: %d\n", me, num_per_types[i]);
 
@@ -70,14 +70,14 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, job_i
     int type, selected_actuator;
     get_random_actuator(num_types, num_per_types, state->prob_actuators, &type, &selected_actuator);
 
-    int * list_actuators_by_type = getListActuatorsByType(state->topology, me, type);
+    int * list_actuators_by_type = GET_LIST_ACTUATORS_BY_TYPE(state->topology, me, type);
 
     //printf("%d\n", list_actuators_by_type[0]);
     //printf("%d\n", list_actuators_by_type[1]);
 
     int id_selected_actuator = list_actuators_by_type[selected_actuator];
 
-    int * next_hop_list = getActuatorPathsIndex(state->topology, me);
+    int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology, me);
 
     int next_hop = next_hop_list[id_selected_actuator];
 
@@ -129,7 +129,7 @@ static job_info ** schedule_next_job(unsigned int me, simtime_t now, queue_state
 
 static void send_to_up_node(unsigned int me, simtime_t now, lp_state * state, double delay, job_info * info){
 
-    int up_node = getUpperNode(state->topology, me);
+    int up_node = GET_UPPER_NODE(state->topology, me);
     if(up_node != -1)
         ScheduleNewEvent(up_node, now + delay, ARRIVE, info, sizeof(job_info));
 
@@ -201,7 +201,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     }
     else if(info->job_type == COMMAND){
 
-        int * next_hop_list = getActuatorPathsIndex(state->topology, me);
+        int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology, me);
         int next_hop = next_hop_list[info->lp_destination];
 
         if(state->info.node->type != LOCAL)
