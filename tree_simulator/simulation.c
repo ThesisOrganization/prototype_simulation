@@ -8,6 +8,26 @@
 
 char topology_path[] = "./topology.txt";
 
+#ifdef DEBUG_INITIAL_VALUES
+void print_array_double(double * array, int num_el){
+
+    for(int i=0; i<num_el; i++)
+        printf("%f ", array[i]);
+
+    printf("\n");
+
+}
+void print_array_int(int * array, int num_el){
+
+    for(int i=0; i<num_el; i++)
+        printf("%d ", array[i]);
+
+    printf("\n");
+}
+
+#endif
+
+
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
 
@@ -80,6 +100,33 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             //initializza strutture
             if(state->type == NODE){
+/*
+#ifdef DEBUG_INITIAL_VALUES_NODES
+                PRINT_VALUE(me);
+                print_array_double(GET_SERVICE_RATES(state->topology, me), NUM_OF_JOB_TYPE);
+                print_array_int(GET_AGGREGATION_RATE(state->topology, me), NUM_OF_JOB_TYPE - 1);
+                PRINT_DOUBLE(GET_DELAY_UPPER_ROUTER(state->topology, me));
+                PRINT_DOUBLE(GET_DELAY_LOWER_ROUTER(state->topology, me));
+                PRINT_VALUE(GET_WAN_DOWN(state->topology, me));
+                PRINT_DOUBLE(GET_PROB_COMMAND(state->topology, me));
+                
+                int num_devices_in_network = 22;
+                int num_type_acts = 2;
+                print_array_int(GET_ACTUATOR_PATHS_INDEX(state->topology, me), num_devices_in_network);
+                print_array_int(GET_ACT_TYPE(state->topology, me), 2);
+                int num_type1 = GET_ACT_TYPE(state->topology, me)[0];
+                int num_type2 = GET_ACT_TYPE(state->topology, me)[1];
+                print_array_int(GET_LIST_ACTUATORS_BY_TYPE(state->topology, me, 0), num_type1);
+                print_array_int(GET_LIST_ACTUATORS_BY_TYPE(state->topology, me, 1), num_type2);
+
+                PRINT_VALUE(GET_UPPER_NODE(state->topology, me));
+
+                if(me == 0)
+                    print_array_double(GET_DISK_SERVICES(state->topology, me), NUM_OF_JOB_TYPE);
+
+
+#endif
+*/
 
                 init_node(me, state);
 
@@ -296,6 +343,12 @@ void print_metrics(queue_state * queue_state, double T){
             printf("Utilization factor: %.3g\n", U);
             printf("Arrival rate: %.3g\n", lambda);
             printf("Throughput: %.3g\n", X);
+/*
+#ifdef DEBUG_RESPONSE_TIME
+            PRINT_VALUE(queue_state->C[i]);
+            PRINT_VALUE(queue_state->A[i]);
+#endif
+*/
         //}
 
 
