@@ -8,5 +8,7 @@ void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info 
 void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info * info);
 void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info * info);
 
+void arrive_disk(unsigned int me, simtime_t now, lp_state * state, job_info * info);
+
 
 #endif /* ARRIVE_FUNCTIONS_H */

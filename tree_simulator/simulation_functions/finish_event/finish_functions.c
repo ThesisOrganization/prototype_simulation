@@ -111,7 +111,7 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 
 }
 
-static job_info ** schedule_next_job(unsigned int me, simtime_t now, queue_state * queue_state, double * service_rates, lan_direction * direction, int size_lan_direction){
+static job_info ** schedule_next_job(unsigned int me, simtime_t now, queue_state * queue_state, double * service_rates, lan_direction * direction, int size_lan_direction, events_type event_to_trigger){
 
     job_info ** info_arr = schedule_out(queue_state->queues);
     queue_state->current_job = info_arr[0];
@@ -120,7 +120,7 @@ static job_info ** schedule_next_job(unsigned int me, simtime_t now, queue_state
         double rate = service_rates[queue_state->current_job->job_type];
         simtime_t ts_finish = now + Expent(rate);
         queue_state->start_processing_timestamp = now;
-        ScheduleNewEvent(me, ts_finish, FINISH, direction, size_lan_direction);
+        ScheduleNewEvent(me, ts_finish, event_to_trigger, direction, size_lan_direction);
     }
 
     return info_arr;
@@ -132,6 +132,15 @@ static void send_to_up_node(unsigned int me, simtime_t now, lp_state * state, do
     int up_node = GET_UPPER_NODE(state->topology, me);
     if(up_node != -1)
         ScheduleNewEvent(up_node, now + delay, ARRIVE, info, sizeof(job_info));
+
+}
+
+static void save_data_on_disk(unsigned int me, simtime_t now, job_type type){
+
+    job_info info_to_send;
+    fill_info_to_send(&info_to_send, type, -1, -1);
+
+    ScheduleNewEvent(me, now, ARRIVE_DISK, &info_to_send, sizeof(job_info));
 
 }
 
@@ -148,6 +157,14 @@ static void send_aggregated_data(unsigned int me, simtime_t now, lp_state * stat
 
         *num_aggregated = 0;
 
+        //##################################################
+        //SAVE DATA TO DISK
+        if(GET_NODE_TYPE(state->topology, me) == CENTRAL){
+        #ifdef DEBUG_NUMBER_MSGS
+            PRINT_VALUE(type);
+        #endif
+            save_data_on_disk(me, now, type);
+        }
     }
 }
 
@@ -159,7 +176,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     update_metrics(now, state->info.node->queue_state, info);
 
     //Schedule the next job if present
-    job_info ** info_arr = schedule_next_job(me, now, state->info.node->queue_state, state->info.node->service_rates, NULL, 0);
+    job_info ** info_arr = schedule_next_job(me, now, state->info.node->queue_state, state->info.node->service_rates, NULL, 0, FINISH);
 
     double delay_up = state->info.node->up_delay;
     double delay_down = state->info.node->down_delay;
@@ -197,6 +214,11 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         info->lp_sender = me;
 
         send_to_up_node(me, now, state, delay_up, info);
+
+        //##################################################
+        //SAVE DATA TO DISK
+        if(GET_NODE_TYPE(state->topology, me) == CENTRAL)
+            save_data_on_disk(me, now, TRANSITION);
 
     }
     else if(info->job_type == COMMAND){
@@ -236,7 +258,7 @@ void finish_actuator(unsigned int me, simtime_t now, lp_state * state){
     //Schedule the next job if present
     double service_rates[NUM_OF_JOB_TYPE]; //meh
     service_rates[COMMAND] = state->info.actuator->service_rate_command;
-    job_info ** info_arr = schedule_next_job(me, now, state->info.actuator->queue_state, service_rates, NULL, 0);
+    job_info ** info_arr = schedule_next_job(me, now, state->info.actuator->queue_state, service_rates, NULL, 0, FINISH);
 
     if(info->job_type == TELEMETRY){
         //printf("TELEMETRY\n");
@@ -297,7 +319,7 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
     update_metrics(now, queue_state, info);
 
     //Schedule the next job if present
-    job_info ** info_arr = schedule_next_job(me, now, queue_state, service_rates, &direction, sizeof(lan_direction));
+    job_info ** info_arr = schedule_next_job(me, now, queue_state, service_rates, &direction, sizeof(lan_direction), FINISH);
 
 
     if(info->job_type == TELEMETRY){
@@ -330,3 +352,22 @@ void finish_lan(unsigned int me, simtime_t now, lp_state * state, lan_direction 
     free(info); //liberi il vecchio job
 
 }
+
+
+void finish_disk(unsigned int me, simtime_t now, lp_state * state){
+
+    //PRINT("Finish event in the disk");
+    //PRINT_VALUE(me);
+
+    job_info * info = state->info.node->disk_state->current_job;
+
+    //Update metrics
+    update_metrics(now, state->info.node->disk_state, info);
+
+    job_info ** info_arr = schedule_next_job(me, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology, me), NULL, 0, FINISH_DISK);
+
+    free(info_arr);
+    free(info);
+
+}
+

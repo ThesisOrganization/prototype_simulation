@@ -217,6 +217,19 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             break;
 
+        case ARRIVE_DISK:
+            
+            state->actual_timestamp = now;
+
+            info = malloc(sizeof(job_info));
+            memcpy(info, content, sizeof(job_info));
+
+            info->arrived_in_node_timestamp = now;
+
+            arrive_disk(me, now, state, info);
+
+            break;
+
 
         case FINISH:
 
@@ -246,6 +259,15 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             }
 
             break;
+
+        case FINISH_DISK:
+
+            state->actual_timestamp = now;
+
+            finish_disk(me, now, state);
+
+            break;
+
 
     }
 }
@@ -304,6 +326,11 @@ bool OnGVT(int me, lp_state *snapshot)
 #ifdef PRINT_RESULTS
         print_pre(me, snapshot->actual_timestamp, snapshot->type);
         print_metrics(snapshot->info.node->queue_state, T);
+        if(GET_NODE_TYPE(snapshot->topology, me) == CENTRAL){
+            printf("<<<<<<<<<<<<<<<<<<<<\n");
+            printf("Disk:\n");
+            print_metrics(snapshot->info.node->disk_state, T);
+        }
 #endif
 
     }

@@ -192,7 +192,9 @@ typedef struct _topology{
 
 typedef enum { //INIT should be 0
     ARRIVE = 1,
+    ARRIVE_DISK,
     FINISH,
+    FINISH_DISK,
     GENERATE_TRANSITION,
     GENERATE_TELEMETRY
 } events_type;
@@ -238,7 +240,7 @@ typedef struct _node_state {
     double prob_cmd;
     int batch_aggregation;
     int num_batch_aggregated;
-    queue_state * disk_queue;
+    queue_state * disk_state;
 } node_state;
 
 typedef struct _actuator_state {

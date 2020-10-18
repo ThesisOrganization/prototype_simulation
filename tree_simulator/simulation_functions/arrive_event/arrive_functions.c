@@ -1,6 +1,6 @@
 #include "arrive_functions.h"
 
-static void start_device(unsigned int me, simtime_t now, queue_state * queue_state, double * service_rates, job_info * info, lan_direction * direction, int size_lan_direction){
+static void start_device(unsigned int me, simtime_t now, queue_state * queue_state, double * service_rates, job_info * info, lan_direction * direction, int size_lan_direction, events_type event_to_trigger){
 
     if(queue_state->current_job == NULL){
 
@@ -9,7 +9,7 @@ static void start_device(unsigned int me, simtime_t now, queue_state * queue_sta
 
         double rate = service_rates[info->job_type];
         simtime_t ts_finish = now + Expent(rate);
-        ScheduleNewEvent(me, ts_finish, FINISH, direction, size_lan_direction);
+        ScheduleNewEvent(me, ts_finish, event_to_trigger, direction, size_lan_direction);
 
     }
     else
@@ -29,7 +29,7 @@ void arrive_node(unsigned int me, simtime_t now, lp_state * state, job_info * in
     //printf("NODE\n");
     update_metrics(state->info.node->queue_state, info);
 
-    start_device(me, now, state->info.node->queue_state, state->info.node->service_rates, info, NULL, 0);
+    start_device(me, now, state->info.node->queue_state, state->info.node->service_rates, info, NULL, 0, FINISH);
 }
 
 void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info * info){
@@ -37,7 +37,7 @@ void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info 
 
     double service_rates[NUM_OF_JOB_TYPE]; //meh
     service_rates[COMMAND] = state->info.actuator->service_rate_command;
-    start_device(me, now, state->info.actuator->queue_state, service_rates, info, NULL, 0);
+    start_device(me, now, state->info.actuator->queue_state, service_rates, info, NULL, 0, FINISH);
 }
 
 void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info){
@@ -75,7 +75,7 @@ void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info
     }
     update_metrics(queue_state, info);
 
-    start_device(me, now, queue_state, service_rates, info, &direction, sizeof(lan_direction));
+    start_device(me, now, queue_state, service_rates, info, &direction, sizeof(lan_direction), FINISH);
 }
 
 void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info* info){
@@ -121,3 +121,16 @@ void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info* info
 
 
 }
+
+
+void arrive_disk(unsigned int me, simtime_t now, lp_state * state, job_info * info){
+
+    //PRINT("Message arrived in the disk");
+    //PRINT_VALUE(me);
+
+    update_metrics(state->info.node->disk_state, info);
+
+    start_device(me, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology, me), info, NULL, 0, FINISH_DISK);
+
+}
+

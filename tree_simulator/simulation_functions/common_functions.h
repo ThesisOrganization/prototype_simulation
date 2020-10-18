@@ -35,6 +35,12 @@ if (! (x)) {\
 #define PRINT_VALUE(v) 
 #endif
 
+#ifdef DEBUG
+//list all debug prints and tests
+//#define DEBUG_NUMBER_MSGS //used to print the type of message received by the central that are going to be saved on the disk
+
+#endif
+
 
 //NODES
 #define GET_SERVICE_RATES(a,b) getServiceRates(a,b)
@@ -65,6 +71,8 @@ if (! (x)) {\
 #define GET_ACT_TYPE(a,b) getActType(a,b)
 #define GET_LIST_ACTUATORS_BY_TYPE(a,b,c) getListActuatorsByType(a,b,c)
 #define GET_UPPER_NODE(a,b) getUpperNode(a,b)
+
+#define GET_DISK_SERVICES(a,b) getDiskServices(a,b)
 
 
 #endif /* COMMON_FUNCTIONS_H */
