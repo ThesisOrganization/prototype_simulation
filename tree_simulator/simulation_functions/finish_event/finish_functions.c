@@ -58,7 +58,27 @@ static void send_reply(unsigned int me, simtime_t now, lp_state * state, int sen
 
 }
 
-static void send_command(unsigned int me, simtime_t now, lp_state * state, double delay){
+static void send_command(unsigned int me, simtime_t now, lp_state * state, int id_selected_actuator, double delay_down){
+
+    int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology, me);
+    int next_hop = next_hop_list[id_selected_actuator];
+    
+    //############################
+    job_info info_to_send;
+    fill_info_to_send(&info_to_send, COMMAND, -1, id_selected_actuator);
+
+    //ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
+
+    //############################
+
+    if(state->info.node->type != LOCAL)
+        ScheduleNewEvent(next_hop, now + delay_down, ARRIVE, &info_to_send, sizeof(job_info));
+    else
+        ScheduleNewEvent(next_hop, now, ARRIVE, &info_to_send, sizeof(job_info));
+
+}
+
+static int get_id_random_actuator(unsigned int me, lp_state * state){
 
     int num_types = state->num_acts_types;
 
@@ -77,6 +97,12 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, doubl
 
     int id_selected_actuator = list_actuators_by_type[selected_actuator];
 
+
+    return id_selected_actuator;
+
+
+/*
+    //send command
     int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology, me);
 
     int next_hop = next_hop_list[id_selected_actuator];
@@ -89,6 +115,7 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, doubl
     fill_info_to_send(&info_to_send, COMMAND, -1, id_selected_actuator);
 
     ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
+    */
 }
 
 static void update_metrics(simtime_t now, queue_state * queue_state, job_info * info){
@@ -159,12 +186,8 @@ static void send_aggregated_data(unsigned int me, simtime_t now, lp_state * stat
 
         //##################################################
         //SAVE DATA TO DISK
-        if(GET_NODE_TYPE(state->topology, me) == CENTRAL){
-        #ifdef DEBUG_NUMBER_MSGS
-            PRINT_VALUE(type);
-        #endif
+        if(GET_NODE_TYPE(state->topology, me) == CENTRAL)
             save_data_on_disk(me, now, type);
-        }
     }
 }
 
@@ -201,7 +224,8 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         double random_prob = Random();
         double prob_cmd = state->info.node->prob_cmd;
         if (random_prob <= prob_cmd){
-            send_command(me, now, state, delay_down);
+            int id_selected_actuator = get_id_random_actuator(me, state);
+            send_command(me, now, state, id_selected_actuator, delay_down);
 
             //###################################################
             //SEND BATCH_DATA
@@ -212,7 +236,6 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         //###################################################
         //FORWARD TRANSITION
         info->lp_sender = me;
-
         send_to_up_node(me, now, state, delay_up, info);
 
         //##################################################
@@ -223,13 +246,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
     }
     else if(info->job_type == COMMAND){
 
-        int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology, me);
-        int next_hop = next_hop_list[info->lp_destination];
-
-        if(state->info.node->type != LOCAL)
-            ScheduleNewEvent(next_hop, now + delay_down, ARRIVE, info, sizeof(job_info));
-        else
-            ScheduleNewEvent(next_hop, now, ARRIVE, info, sizeof(job_info));
+        send_command(me, now, state, info->lp_destination, delay_down);
 
     }
     else if(info->job_type == BATCH_DATA){
