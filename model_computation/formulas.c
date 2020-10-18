@@ -487,39 +487,43 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 	//computing service time, utilization factor for each message class, doing so we consider only the input rates of each node since computation for the generation of the messages is included in the service time.
 
 	for(class=CLASS_TELEMETRY;class<NUM_CLASSES && visit_type==GRAPH_COMPUTE_COMMANDS;class++){
-		if(node->input_rates[class]>0 || node->output_rates[class]>0){
-			//LAN are split in two queues, so we use different array to compute the queue parameters
-			if(node->node_split_status==NODE_SPLIT_IN_OUT){
-				//lan in
+		//LAN are split in two queues, so we use different array to compute the queue parameters
+		if(node->node_split_status==NODE_SPLIT_IN_OUT){
+			//lan in
+			if(node->input_rates[class]>0){
 				node->input_service_demands[class]= node->input_node_visits_per_class[class] * node->input_service_times[class];
 				node->input_utilization_factors[class]= node->input_rates[class] * node->input_service_demands[class];
 				node->input_total_utilization_factor+=node->input_utilization_factors[class];
-
-				//lan out
+			}
+			//lan out
+			if(node->output_rates[class]>0){
 				node->output_service_demands[class]= node->output_node_visits_per_class[class] * node->output_service_times[class];
 				node->output_utilization_factors[class]= node->output_rates[class] * node->output_service_demands[class];
 				node->output_total_utilization_factor+=node->output_utilization_factors[class];
-
-			} else {
+			}
+		} else {
+			if(node->input_rates[class]>0){
 				//all the other elements use only one queue, so their parameters can be generalized
 				node->service_demands[class]= node->node_visits_per_class[class] * node->service_times[class];
 				node->utilization_factors[class]= node->input_rates[class] * node->service_demands[class];
 				node->total_utilization_factor+=node->utilization_factors[class];
+			}
 
-			}
-			if(node->node_storage_state==NODE_SIMPLE_STORAGE){
-				//we assume that data make only one visit one the simple storage component
-				node->storage_service_demands[class]= node->storage_visits_per_class[class] * node->storage_service_times[class];
-				node->storage_utilization_factors[class]=node->storage_input_rates[class]* node->storage_service_demands[class];
-				node->storage_total_utilization_factor+=node->utilization_factors[class];
-			}
+		}
+		if(node->node_storage_state==NODE_SIMPLE_STORAGE && node->storage_input_rates[class]>0){
+			//we assume that data make only one visit one the simple storage component
+			node->storage_service_demands[class]= node->storage_visits_per_class[class] * node->storage_service_times[class];
+			node->storage_utilization_factors[class]=node->storage_input_rates[class]* node->storage_service_demands[class];
+			node->storage_total_utilization_factor+=node->utilization_factors[class];
 		}
 	}
 	// now we compute the response time, since we need the total utilization factor
 	for(class=CLASS_TELEMETRY;class<NUM_CLASSES && visit_type==GRAPH_COMPUTE_COMMANDS;class++){
 		if(node->node_split_status==NODE_SPLIT_IN_OUT){
-			if(node->input_rates[class]>0 && node->output_rates[class]>0){
+			if(node->input_rates[class]>0){
 				node->input_response_times[class]= node->input_service_demands[class] / (1- node->input_total_utilization_factor);
+			}
+			if(node->output_rates[class]>0){
 				node->output_response_times[class]= node->output_service_demands[class] / (1- node->output_total_utilization_factor);
 			}
 		} else {
@@ -528,7 +532,7 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 			}
 		}
 		if(node->node_storage_state==NODE_SIMPLE_STORAGE && node->storage_input_rates[class]>0){
-			node->storage_response_times[class]=node->service_demands[class] / (1-node->total_utilization_factor);
+			node->storage_response_times[class]=node->storage_service_demands[class] / (1-node->storage_total_utilization_factor);
 		}
 	}
 }
