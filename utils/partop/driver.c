@@ -6,95 +6,46 @@
 int main()
 {
   //We retrieve the topology, answer the question of who needs to receive for each sender node in the data
-
-  printf("Main starting, retrieving array..\n");
+  printf("Main starting, retrieving topology..\n");
   char * path = "test.txt";
-  total_topology * genTop = getTopology(path);
-  printf("just testing..\n");
-}
-/*
-  printf("Contents of generalTopology:\ntotal nodes : %d;\nsensors/actuators: %d/%d;\nWANs/LANs %d/%d;\n",genTop->total_nodes,genTop->sensor_nodes,genTop->actuator_nodes, genTop->numberOfTotalWANs,  genTop->numberOfTotalLANs);
+  total_topology * totTop = getTopology(path);
+  general_topology * genTop = getGenTopology(totTop);
 
-  double ** res = getSensorRatesByType(genTop);
-  int k = 0;
-  int l;
+  int nn = getTotalNodes(genTop);
+  int ns = getSensorNodes(genTop);
+  int na = getActuatorNodes(genTop);
+  int nl = getNumberOfTotalLANs(genTop);
+  int nw = getNumberOfTotalWANs(genTop);
+  int totalElements = nn+ns+na+nl+nw;
+  printf("Starting general topology prints\n");
 
-  printf("Rates for each sensor type and message type couple:\n");
-  while(k < genTop->numberOfSensTypes){
-    l = 0;
-    while(l < 2){//# of possible message types
-      printf("Type %d Sensor, sending a message of type %d has a rate of %f;\n",k, l, res[k][l]);
-      l+=1;
-    }
-    k+=1;
+  printf("Contents of generalTopology:\ntotal nodes : %d;\nsensors/actuators: %d/%d;\nWANs/LANs %d/%d;\n",nn,ns,na,nw,nl);
+
+  int at = getNumberOfActTypes(genTop);
+
+  int st = getNumberOfSensTypes(genTop);
+
+  int lt = getNumberOfLANsTypes(genTop);
+  printf("%d act types, %d sens types, %d lan types.\n",at,st,lt);
+
+  double * probAct = getProbOfActuators(genTop);
+  for(int c = 0; c < at; c++){
+    printf("%f probability of actuator type %d of receiving a command.\n",probAct[c],c);
   }
+  printf("General topology correctly analyzed!\n");
 
-  k = 0;
-  printf("Rates for each sensor type and message type couple:\n");
-  while(k < genTop->numberOfSensTypes){
-    l = 0;
-    double * temp1 = getSensorRatesForOneSensorType(genTop,k);
-    while(l < 2){//# of possible message types
-      printf("Type %d Sensor, sending a message of type %d has a rate of %f;\n",k, l, temp1[l]);
-      l+=1;
-    }
-    k+=1;
-  }*/
-  /*
-  double ** LSTBT = getLANServiceTimesByType(genTop);
-  k = 0;
-  printf("Service times for each LAN type and message type couple:\n");
-  while(k < genTop->numberOfLANsTypes){ //# of possible message types
-    l = 0;
-    while(l < 5){
-      printf("Type %d LAN serving a message of type %d has a service time of %f;\n",k, l, LSTBT[k][l]);
-      l+=1;
-    }
-    k+=1;
-  }
-  */
-  //alternatively
-  /*
-  k = 0;
-  printf("Service times for each LAN IN type and message type couple:\n");
-  while(k < genTop->numberOfLANsTypes){ //# of possible message types
-    l = 0;
-    double * temp2 = getLANsINserviceTimesForOneLANType(genTop,k);
-    while(l < 5){
-      printf("Type %d LAN IN serving a message of type %d has a service time of %f;\n",k, l, temp2[l]);
-      l+=1;
-    }
-    k+=1;
-  }
-  k = 0;
-  printf("Service times for each LAN OUT type and message type couple:\n");
-  while(k < genTop->numberOfLANsTypes){ //# of possible message types
-    l = 0;
-    double * temp2 = getLANsOUTserviceTimesForOneLANType(genTop,k);
-    while(l < 5){
-      printf("Type %d LAN OUT serving a message of type %d has a service time of %f;\n",k, l, temp2[l]);
-      l+=1;
-    }
-    k+=1;
-  }
-  //double * getSensorRatesForOneType(topology * top, int index);
-  for(k = 0;k < genTop->numberOfActTypes;k++){
-    printf("Probability of an actuator of type %d of receiving a command: %f. \n",k,genTop->probOfActuators[k]);
-  }
+  printf("############################################\n");
+  printf("Starting LP topologies prints..\n");
 
-  //topArray ** topArray = genTop->topArr;
-  printf("\nChecking informations integrity..\n");
+  for(int i = 0; i < totalElements; i++){
+    LP_topology * temp_lpt =  getLPTopology(totTop,i);
 
-  for(int i = 0; i < genTop->total_nodes + genTop->sensor_nodes + genTop->actuator_nodes + genTop->numberOfTotalWANs + genTop->numberOfTotalLANs; i++){
+    int * solution = getLowers(temp_lpt);
 
-    int * solution = getLowers(genTop, i);
-
-    int numLow = getNumberLower(genTop, i);
+    int numLow = getNumberLower(temp_lpt);
     int j = 0;
 
-    lp_infos * infos = getInfo(genTop, i);
-
-    int upp = getUpperNode(genTop, i);
+    int upp = getUpperNode(temp_lpt);
     if(upp != -1) printf("Element %d has upper node %d.\n",i,upp);
 
     if(solution[0] != -1){//-1 is a temporal solution when nodes have no lower level
@@ -109,43 +60,89 @@ int main()
       }
       printf(".\n");
     }
+    int lp_type = getType(temp_lpt);
+    if(lp_type == 0){//node
+      int node_type = getNodeType(temp_lpt);
+      printf("Node %d has this type: %d.\n",i,node_type);
+      int scheduler = getScheduler(temp_lpt);
+      printf("Node %d has this scheduler: %d.\n",i,scheduler);
 
-    if(infos->lp_type == 0){//node
-      double * serviceTimes = getServiceRates(genTop, i);
-      for(k = 0;k < 5;k++){
+      if(node_type == 0){//Central
+        int disk_type = getDiskType(temp_lpt);
+        printf("Node %d has this type of DISK: %d.\n",i,disk_type);
+        double * diskServices = getDiskServices(temp_lpt);
+        for(int k = 0;k < 4;k++){
+          if(k == 0){
+            printf("Node %d has a disk with these service times: %f",i,diskServices[k]);
+          }
+          else{
+            printf(", %f",diskServices[k]);
+          }
+        }
+        printf(".\n");
+      }
+      int * aggregation_rates = getAggregationRate(temp_lpt);
+      for(int k = 0;k < 4;k++){
+        if(k == 0){
+          printf("Node %d has these aggregation rates %d",i,aggregation_rates[k]);
+        }
+        else{
+          printf(", %d",aggregation_rates[k]);
+        }
+      }
+      printf(".\n");
+
+      float delay_upper_router = getDelayUpperRouter(temp_lpt);
+      float delay_lower_router = getDelayLowerRouter(temp_lpt);
+      printf("Node %d has this delay on upper router: %f.\n",i,delay_upper_router);
+      printf("Node %d has this delay on lower router: %f.\n",i,delay_lower_router);
+
+      double * serviceTimes = getServiceTimesNodes(temp_lpt);
+      for(int k = 0;k < 5;k++){
         printf("Node %d, when processing a message of type %d, has a service time %f.\n",i,k,serviceTimes[k]);
       }
-      printf("Node %d has this scheduler: %d.\n",i,infos->scheduler);
-      printf("Node %d has this type: %d.\n",i,infos->node_type);
-      printf("Node %d has %d total sensors below.\n", i, infos->numberOfBelowSensors);
-      for(k = 0;k < genTop->numberOfActTypes;k++){
-        if(k == 0){
-          printf("Node %d has %d actuators of type %d",i,infos->actuatorsTypesBelow[k],k);
+
+      float pr = getProbCommandResponse(temp_lpt);
+      printf("Node %d has probability of %f of responding to a transition with a command.\n",i,pr);
+
+      int id_WAN_up = getWanUp(temp_lpt);
+      int id_WAN_down = getWanDown(temp_lpt);
+      printf("Node %d has upper WAN : %d.\n",i,id_WAN_up);
+      printf("Node %d has lower WAN: %d.\n",i,id_WAN_down);
+
+      int numberOfBelowActuators = getNumberOfBelowActuators(temp_lpt);
+      int ** ListActuatorsByType = getListActuatorsByTypeComplete(temp_lpt);
+      printf("Node %d has %d actuators below(undirectly).\n",i,numberOfBelowActuators);
+      int * actuatorsTypesBelow = getActuatorTypesBelowList(temp_lpt);
+      for(int k = 0;k < at;k++){
+        if(actuatorsTypesBelow[k] != 0){
+          printf("Node %d has %d actuators of type %d: %d",i,actuatorsTypesBelow[k],k,ListActuatorsByType[k][0]);
+          for(int t = 1; t < actuatorsTypesBelow[k]; t++){
+            printf(", %d",ListActuatorsByType[k][t]);
+          }
+          printf(".\n");
         }
-        else{
-          printf(", %d of type %d",infos->actuatorsTypesBelow[k],k);
-        }
+
       }
-      printf(".\n");
 
-      printf("Node %d has upper WAN : %d.\n",i,infos->id_WAN_up);
-      printf("Node %d has lower WAN: %d.\n",i,infos->id_WAN_down);
-      for(k = 0;k < 4;k++){
-        if(k == 0){
-          printf("Node %d has these aggregation rates %d",i,infos->aggregation_rate[k]);
+      int numberOfBelowSensors = getNumberOfBelowSensors(temp_lpt);
+      int ** ListSensorsByType = getListSensorsByTypeComplete(temp_lpt);
+      printf("Node %d has %d sensors below(undirectly).\n",i,numberOfBelowSensors);
+      int * sensorsTypesBelow = getSensorsTypesBelowList(temp_lpt);
+      for(int k = 0;k < at;k++){
+        if(sensorsTypesBelow[k] != 0){
+          printf("Node %d has %d sensors of type %d: %d",i,sensorsTypesBelow[k],k,ListSensorsByType[k][0]);
+          for(int t = 1; t < sensorsTypesBelow[k]; t++){
+            printf(", %d",ListSensorsByType[k][t]);
+          }
+          printf(".\n");
         }
-        else{
-          printf(", %d",infos->aggregation_rate[k]);
-        }
+
       }
-      printf(".\n");
 
-      printf("Node %d has this delay on upper router: %f.\n",i,infos->delay_upper_router);
-      printf("Node %d has this delay on lower router: %f.\n",i,infos->delay_lower_router);
+      int numLANS = getNumberLANS(temp_lpt);
 
-      int numLANS = getNumberLANS(genTop, i);
-
-      int * LANS = getLANS(genTop, i);
+      int * LANS = getLANS(temp_lpt);
       int c = 0;
       if(LANS[0] != -1){
         printf("Node %d manages %d LAN(s): %d", i,numLANS, LANS[0]);
@@ -156,48 +153,145 @@ int main()
         }
       printf(".\n");
       }
-      float pr = getProbCommandResponse(genTop, i);
-      printf("Node %d has probability of %f of responding to a transition with a command.\n",i,pr);
 
-      if(infos->node_type == 0){
-        printf("Node %d has this type of DISK: %d.\n",i,infos->disk_type);
-        for(k = 0;k < 4;k++){
-          if(k == 0){
-            printf("Node %d has a disk with these service times: %f",i,infos->diskServices[k]);
-          }
-          else{
-            printf(", %f",infos->diskServices[k]);
-          }
+    int * actuatorPaths = getActuatorPaths(temp_lpt);
+    for(int k = 0;k < totalElements; k++){
+      if(k == 0){
+        printf("Printing paths, only available paths are printed!\n");
+      }
+      if(actuatorPaths[k] != -1){
+        printf("Node %d next hop to reach %d : [%d]\n",i,k,actuatorPaths[k]);
+      }
+    }
+  }
+    else if(lp_type == 1){//sensor
+      int type_job = getTypeJob(temp_lpt);
+      printf("Sensor %d has this job type: %d.\n",i,type_job);
+      int sensor_type = getSensorType(temp_lpt);
+      printf("Sensor %d is of this type: %d.\n",i,sensor_type);
+      int measure_type = getMeasureType(temp_lpt);
+      printf("Sensor %d has this measure type: %d.\n",i,measure_type);
+      int id_LAN_up = getLANup(temp_lpt);
+      printf("Sensor %d has this LAN up: %d.\n",i,id_LAN_up);
+
+      double * sensorRates = getSensorRates(temp_lpt);
+      for(int k = 0; k < 2; k++){
+        printf("Sensor %d has rate %f for message type %d.\n",i,sensorRates[k],k);
+      }
+    }
+    else if(lp_type == 2){
+      int type_job = getTypeJob(temp_lpt);
+      printf("Actuator %d has this job type: %d.\n",i,type_job);
+      int actuator_type = getActuatorType(temp_lpt);
+      printf("Actuator %d is of this type: %d.\n",i,actuator_type);
+      int measure_type = getMeasureType(temp_lpt);
+      printf("Actuator %d has this measure type: %d.\n",i,measure_type);
+      int id_LAN_up = getLANup(temp_lpt);
+      printf("Actuator %d has this LAN up: %d.\n",i,id_LAN_up);
+      double rateTransition = getRateTransition(temp_lpt);
+      printf("Actuator %d has this rate of transition: %f.\n",i,rateTransition);
+      double serviceTimeCommand = getServiceTimeCommand(temp_lpt);
+      printf("Actuator %d has this service time for commands: %f.\n",i,serviceTimeCommand);
+
+    }
+    else if(lp_type == 3){//wan
+      int wan_type = getWanType(temp_lpt);
+      printf("WAN %d has this type: %d.\n",i,wan_type);
+      float delay = getDelay(temp_lpt);
+      printf("WAN %d has this delay: %f.\n",i,delay);
+
+      int * actuatorPaths = getActuatorPaths(temp_lpt);
+      for(int k = 0;k < totalElements; k++){
+        if(k == 0){
+          printf("Printing paths, only available paths are printed!\n");
         }
-        printf(".\n");
+        if(actuatorPaths[k] != -1){
+          printf("WAN %d next hop to reach %d : [%d]\n",i,k,actuatorPaths[k]);
+        }
+      }
+      int numberOfBelowActuators = getNumberOfBelowActuators(temp_lpt);
+      int ** ListActuatorsByType = getListActuatorsByTypeComplete(temp_lpt);
+      printf("WAN %d has %d actuators below(undirectly).\n",i,numberOfBelowActuators);
+      int * actuatorsTypesBelow = getActuatorTypesBelowList(temp_lpt);
+      for(int k = 0;k < at;k++){
+        if(actuatorsTypesBelow[k] != 0){
+          printf("WAN %d has %d actuators of type %d: %d",i,actuatorsTypesBelow[k],k,ListActuatorsByType[k][0]);
+          for(int t = 1; t < actuatorsTypesBelow[k]; t++){
+            printf(", %d",ListActuatorsByType[k][t]);
+          }
+          printf(".\n");
+        }
+
+      }
+
+      int numberOfBelowSensors = getNumberOfBelowSensors(temp_lpt);
+      int ** ListSensorsByType = getListSensorsByTypeComplete(temp_lpt);
+      printf("WAN %d has %d sensors below(undirectly).\n",i,numberOfBelowSensors);
+      int * sensorsTypesBelow = getSensorsTypesBelowList(temp_lpt);
+      for(int k = 0;k < at;k++){
+        if(sensorsTypesBelow[k] != 0){
+          printf("WAN %d has %d sensors of type %d: %d",i,sensorsTypesBelow[k],k,ListSensorsByType[k][0]);
+          for(int t = 1; t < sensorsTypesBelow[k]; t++){
+            printf(", %d",ListSensorsByType[k][t]);
+          }
+          printf(".\n");
+        }
+
       }
 
     }
+    else if(lp_type == 4){//lan
+      int lan_type = getLanType(temp_lpt);
+      printf("WAN %d has this type: %d.\n",i,lan_type);
 
-    else if(infos->lp_type ==1){//SENSOR
-      printf("Sensor %d has this job type: %d.\n",i,infos->type_job);
-      printf("Sensor %d is of this type: %d.\n",i,infos->sensor_type);
-      printf("Sensor %d has this measure type: %d.\n",i,infos->measure_type);
-      printf("Sensor %d has this LAN up: %d.\n",i,infos->id_LAN_up);
+      float delay = getDelay(temp_lpt);
+      printf("LAN %d has this delay: %f.\n",i,delay);
 
-    }
-    else if(infos->lp_type ==2){//ACTUATOR
-      printf("Actuator %d has this job type: %d.\n",i,infos->type_job);
-      printf("Actuator %d is of this type: %d.\n",i,infos->actuator_type);
-      printf("Actuator %d has this measure type: %d.\n",i,infos->measure_type);
-      printf("Actuator %d has this rate of transition type: %f.\n",i,infos->rateTransition);
-      printf("Actuator %d has this service time for commands: %f.\n",i,infos->serviceTimeCommand);
-      printf("Actuator %d has this LAN up: %d.\n",i,infos->id_LAN_up);
-    }
-    else if(infos->lp_type ==3){//WAN
-      printf("WAN %d has this type: %d.\n",i,infos->wan_type);
-      printf("WAN %d has this delay: %f.\n",i,infos->delay);
-    }
-    else if(infos->lp_type ==4){//LAN
-      printf("LAN %d has this job type: %d.\n",i,infos->lan_type);
-      printf("LAN %d has this delay: %f.\n",i,infos->delay);
-    }
+      int * actuatorPaths = getActuatorPaths(temp_lpt);
+      for(int k = 0;k < totalElements; k++){
+        if(k == 0){
+          printf("Printing paths, only available paths are printed!\n");
+        }
+        if(actuatorPaths[k] != -1){
+          printf("LAN %d next hop to reach %d : [%d]\n",i,k,actuatorPaths[k]);
+        }
+      }
 
+      int numberOfBelowActuators = getNumberOfBelowActuators(temp_lpt);
+      int ** ListActuatorsByType = getListActuatorsByTypeComplete(temp_lpt);
+      printf("LAN %d has %d actuators below(undirectly).\n",i,numberOfBelowActuators);
+      int * actuatorsTypesBelow = getActuatorTypesBelowList(temp_lpt);
+      for(int k = 0;k < at;k++){
+        if(actuatorsTypesBelow[k] != 0){
+          printf("LAN %d has %d actuators of type %d: %d",i,actuatorsTypesBelow[k],k,ListActuatorsByType[k][0]);
+          for(int t = 1; t < actuatorsTypesBelow[k]; t++){
+            printf(", %d",ListActuatorsByType[k][t]);
+          }
+          printf(".\n");
+        }
+
+      }
+
+      int numberOfBelowSensors = getNumberOfBelowSensors(temp_lpt);
+      int ** ListSensorsByType = getListSensorsByTypeComplete(temp_lpt);
+      printf("LAN %d has %d sensors below(undirectly).\n",i,numberOfBelowSensors);
+      int * sensorsTypesBelow = getSensorsTypesBelowList(temp_lpt);
+      for(int k = 0;k < at;k++){
+        if(sensorsTypesBelow[k] != 0){
+          printf("LAN %d has %d sensors of type %d: %d",i,sensorsTypesBelow[k],k,ListSensorsByType[k][0]);
+          for(int t = 1; t < sensorsTypesBelow[k]; t++){
+            printf(", %d",ListSensorsByType[k][t]);
+          }
+          printf(".\n");
+        }
+
+      }
+      double * LANsINserviceTimes = getLANsINserviceTimesByType(temp_lpt);
+      double * LANsOUTserviceTimes = getLANsOUTserviceTimesByType(temp_lpt);
+      for(int k = 0; k < 5;k++){
+        printf("LAN IN service type for message type %d : %f.\n",k,LANsINserviceTimes[k]);
+        printf("LAN OUT service type for message type %d : %f.\n",k,LANsOUTserviceTimes[k]);
+      }
+    }
   }
 }
-*/

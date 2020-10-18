@@ -4,6 +4,8 @@
 //PSA: "directly" means that the elements is the next hop in
 //any direction, the direction is specified by the function.
 //##################################
+general_topology * getGenTopology(total_topology * totTop);
+LP_topology * getLPTopology(total_topology * totTop, int index);
 //specific topology
 
 //Return the type of actuator index
@@ -14,6 +16,7 @@ int getLanType(LP_topology * lpt);
 int getTypeJob(LP_topology * lpt);
 int getMeasureType(LP_topology * lpt);
 int getLANup(LP_topology * lpt);
+double * getSensorRates(LP_topology * lpt);
 //Rate transition of actuators
 double getRateTransition(LP_topology * lpt);
 //Service time for commands messages for actuators
@@ -29,18 +32,22 @@ double * getLANsOUTserviceTimesByType(LP_topology * lpt);
 
 //CENTRAL/REGIONAL/LOCAL
 int getNodeType(LP_topology * lpt);
-//Returns the list of service times for the element index
+//Returns the list of service times for the element index, will be deprecated
+//by getServiceTimesNodes
 double * getServiceRates(LP_topology * lpt);
+double * getServiceTimesNodes(LP_topology * lpt);
 int getScheduler(LP_topology * lpt);
 int getNumberOfBelowActuators(LP_topology * lpt);
 //Retrieve a list where the i-th represents how many actuators
 //of type i the element index has.
 int * getActType(LP_topology * lpt);
+int * getActuatorTypesBelowList(LP_topology * lpt);
 int getWanUp(LP_topology * lpt);
 int getWanDown(LP_topology * lpt);
 //Same as previous functions, but for sensors.
 int getNumberOfBelowSensors(LP_topology * lpt);
 int * getSensType(LP_topology * lpt);
+int * getSensorsTypesBelowList(LP_topology * lpt);
 int * getAggregationRate(LP_topology * lpt);
 float getDelayUpperRouter(LP_topology * lpt);
 float getDelayLowerRouter(LP_topology * lpt);
@@ -68,6 +75,9 @@ int * getLANS(LP_topology * lpt);
 int * getListActuatorsByType(LP_topology * lpt, int actuatorType);
 //Same but with sensors
 int * getListSensorsByType(LP_topology * lpt, int sensorType);
+//Not divided by type
+int ** getListActuatorsByTypeComplete(LP_topology * lpt);
+int ** getListSensorsByTypeComplete(LP_topology * lpt);
 //#################################
 
 //Create topology from txt file in path
@@ -95,7 +105,7 @@ void setSensorRates(LP_topology * lpt, double * array);
 void setLowerElements(LP_topology *  lpt, int * lowerEle, int numberLower);
 void setLANs(LP_topology *  lpt, int * arrayLANs, int numberLANs);
 void setWANdown(LP_topology * lpt, int idWAN);
-void setWANup(LP_topology * lpt);
+void setWANup(LP_topology * specific_lpt,LP_topology ** lpt);
 void setArrayActuatorPaths(LP_topology * lpt, int * arrayActuatorPaths);
 void setSensorTypes(LP_topology * lpt, int * array, int nts);
 void setActuatorTypes(LP_topology * lpt, int * array, int nt);

@@ -123,7 +123,6 @@ typedef struct _node_topology{
   float probCommandResponse;
   int id_WAN_up;
   int id_WAN_down;
-  double probNodeCommandArray;
   int numberOfBelowActuators;
   int * actuatorsTypesBelow;
   int numberOfBelowSensors;
@@ -186,28 +185,26 @@ typedef struct _general_topology{
   int numberOfActTypes;
   int numberOfSensTypes;
   int numberOfLANsTypes;
-  double * probOfActuators;//maybe
+  double * probOfActuators;
 } general_topology;
 
 typedef struct _LP_topology{
   int lp_type;
   int upperNode;
   int numberOfLowerElements;
-  int * lowerElements;//set of directly below elements
+  int * lowerElements;
   int numberOfLANS;
   int * connectedLans;
-  int * actuatorPaths;//transform to array actuatorPaths[x]
-  int ** ListSensorsByType;//switch to double pointer
-  int ** ListActuatorsByType;//switch
-  specific_topology * spec_top;
+  int * actuatorPaths;
+  int ** ListSensorsByType;
+  int ** ListActuatorsByType;
+  specific_topology spec_top;
 } LP_topology;
 
 typedef struct _total_topology{
   general_topology * gn;
   LP_topology ** lpt;
 } total_topology;
-
-
 
 
 
