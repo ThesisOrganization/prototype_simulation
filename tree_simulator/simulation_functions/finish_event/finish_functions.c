@@ -63,13 +63,9 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, int i
     int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology, me);
     int next_hop = next_hop_list[id_selected_actuator];
     
-    //############################
     job_info info_to_send;
     fill_info_to_send(&info_to_send, COMMAND, -1, id_selected_actuator);
 
-    //ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
-
-    //############################
 
     if(state->info.node->type != LOCAL)
         ScheduleNewEvent(next_hop, now + delay_down, ARRIVE, &info_to_send, sizeof(job_info));
@@ -100,22 +96,6 @@ static int get_id_random_actuator(unsigned int me, lp_state * state){
 
     return id_selected_actuator;
 
-
-/*
-    //send command
-    int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology, me);
-
-    int next_hop = next_hop_list[id_selected_actuator];
-
-    //printf("%d, %d\n", me, next_hop);
-
-    //printf("GENERATING A COMMAND\n");
-
-    job_info info_to_send;
-    fill_info_to_send(&info_to_send, COMMAND, -1, id_selected_actuator);
-
-    ScheduleNewEvent(next_hop, now + delay, ARRIVE, &info_to_send, sizeof(job_info));
-    */
 }
 
 static void update_metrics(simtime_t now, queue_state * queue_state, job_info * info){
