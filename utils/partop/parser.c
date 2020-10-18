@@ -5,35 +5,33 @@
 #include <string.h>
 #include "../application_datatypes.h"
 
-void parse_strings(char ** strings,LP_topology lpt, int upperNode){
+void parse_strings(char ** strings,LP_topology * this_lpt, int upperNode){
     char * ptr;
     int counter = 0;
-
     if( !strcmp(strings[0], "NODE") ){
+        node_topology * nodeTop = malloc(sizeof(node_topology));
 
-        lpt.lp_type = NODE;
+        this_lpt->lp_type = NODE;
         char * end_str;
         char * end_ptr;
 
-        lpt.spec_top.node = malloc(sizeof(node_topology));
-
         if( !strcmp(strings[1], "SCHEDULER1") )
-            lpt.spec_top.node->scheduler = SCHEDULER1;
+            nodeTop->scheduler = SCHEDULER1;
         else if( !strcmp(strings[1], "SCHEDULER2") )
-            lpt.spec_top.node->scheduler = SCHEDULER2;
+            nodeTop->scheduler = SCHEDULER2;
         else if( !strcmp(strings[1], "SCHEDULER3") )
-            lpt.spec_top.node->scheduler = SCHEDULER3;
+            nodeTop->scheduler = SCHEDULER3;
         else
             exit(EXIT_FAILURE);
 
         if( !strcmp(strings[2], "CENTRAL") ){
-            lpt.spec_top.node->node_type = CENTRAL;
+            nodeTop->node_type = CENTRAL;
             if( !strcmp(strings[9], "RAID1") )
-                lpt.spec_top.node->disk_type = RAID1;
+                nodeTop->disk_type = RAID1;
             else if( !strcmp(strings[8], "RAID2") )
-                lpt.spec_top.node->disk_type = RAID2;
+                nodeTop->disk_type = RAID2;
             else if( !strcmp(strings[8], "RAID3") )
-                lpt.spec_top.node->disk_type = RAID3;
+                nodeTop->disk_type = RAID3;
             else
                 exit(EXIT_FAILURE);
 
@@ -45,14 +43,14 @@ void parse_strings(char ** strings,LP_topology lpt, int upperNode){
               ptr = strtok_r(NULL,"/",&end_str);
               counter+=1;
             }
-            lpt.spec_top.node->diskServices = diskServiceArray;
+            nodeTop->diskServices = diskServiceArray;
 
         }
 
         else if( !strcmp(strings[2], "REGIONAL") )
-            lpt.spec_top.node->node_type = REGIONAL;
+            nodeTop->node_type = REGIONAL;
         else if( !strcmp(strings[2], "LOCAL") )
-            lpt.spec_top.node->node_type = LOCAL;
+            nodeTop->node_type = LOCAL;
         else
             exit(EXIT_FAILURE);
 
@@ -65,12 +63,13 @@ void parse_strings(char ** strings,LP_topology lpt, int upperNode){
           counter+=1;
         }
 
-        lpt.spec_top.node->aggregation_rate = aggregation_rates;
+        nodeTop->aggregation_rate = aggregation_rates;
 
         float delayUP = strtod(strings[4],&ptr);
-        lpt.spec_top.node->delay_upper_router = delayUP;
+        nodeTop->delay_upper_router = delayUP;
+
         float delayDOWN = atof(strings[5]);
-        lpt.spec_top.node->delay_lower_router = delayDOWN;
+        nodeTop->delay_lower_router = delayDOWN;
 
         ptr = strtok_r(strings[6], "/", &end_str);
         double * serviceArray = malloc((sizeof(double)) * 5); //fixed, 5 type of data.
@@ -80,117 +79,121 @@ void parse_strings(char ** strings,LP_topology lpt, int upperNode){
           ptr = strtok_r(NULL,"/",&end_str);
           counter+=1;
         }
-        lpt.spec_top.node->service_time = serviceArray;
+        nodeTop->service_time = serviceArray;
 
         float probCommand = strtod(strings[7],&ptr);
-        lpt.spec_top.node->probCommandResponse = probCommand;
-
+        nodeTop->probCommandResponse = probCommand;
+        this_lpt->spec_top->node = malloc(sizeof(node_topology));
+        this_lpt->spec_top->node = nodeTop;
     }
     else if( !strcmp(strings[0], "SENSOR") ){
+        specific_topology * specTop = malloc(sizeof(sensor_topology));
 
-        lpt.lp_type = SENSOR;
+        this_lpt->lp_type = SENSOR;
 
-        lpt.spec_top.sensor = malloc(sizeof(sensor_topology));
         if( !strcmp(strings[1], "BATCH") )
-            lpt.spec_top.sensor->type_job = BATCH;
+            specTop->sensor->type_job = BATCH;
         else if( !strcmp(strings[1], "REAL_TIME") )
-            lpt.spec_top.sensor->type_job = REAL_TIME;
+            specTop->sensor->type_job = REAL_TIME;
         else if( !strcmp(strings[1], "LOSSY") )
-            lpt.spec_top.sensor->type_job = LOSSY;
+            specTop->sensor->type_job = LOSSY;
         else
             exit(EXIT_FAILURE);
 
         if( !strcmp(strings[2], "SENSOR_TYPE0") )
-            lpt.spec_top.sensor->sensor_type = SENSOR_TYPE0;
+            specTop->sensor->sensor_type = SENSOR_TYPE0;
         else if( !strcmp(strings[2], "SENSOR_TYPE1") )
-            lpt.spec_top.sensor->sensor_type = SENSOR_TYPE1;
+            specTop->sensor->sensor_type = SENSOR_TYPE1;
         else
             exit(EXIT_FAILURE);
-
         if( !strcmp(strings[3], "MEASURE0") ){
-          lpt.spec_top.sensor->measure_type = MEASURE0;
+          specTop->sensor->measure_type = MEASURE0;
         }
         else if( !strcmp(strings[3], "MEASURE1") )
-          lpt.spec_top.sensor->measure_type = MEASURE1;
+          specTop->sensor->measure_type = MEASURE1;
         else if( !strcmp(strings[3], "MEASURE2") )
-          lpt.spec_top.sensor->measure_type = MEASURE2;
+          specTop->sensor->measure_type = MEASURE2;
         else
           exit(EXIT_FAILURE);
 
-        lpt.spec_top.sensor->id_LAN_up = upperNode;
+        specTop->sensor->id_LAN_up = upperNode;
+        this_lpt->spec_top = specTop;
 
     }
     else if( !strcmp(strings[0], "ACTUATOR") ){
+        specific_topology * specTop = malloc(sizeof(actuator_topology));
 
-        lpt.lp_type = ACTUATOR;
+        this_lpt->lp_type = ACTUATOR;
 
-        lpt.spec_top.actuator = malloc(sizeof(actuator_topology));
         if( !strcmp(strings[1], "BATCH") )
-            lpt.spec_top.actuator->type_job = BATCH;
+            specTop->actuator->type_job = BATCH;
         else if( !strcmp(strings[1], "REAL_TIME") )
-            lpt.spec_top.actuator->type_job = REAL_TIME;
+            specTop->actuator->type_job = REAL_TIME;
         else if( !strcmp(strings[1], "LOSSY") )
-            lpt.spec_top.actuator->type_job = LOSSY;
+            specTop->actuator->type_job = LOSSY;
         else
             exit(EXIT_FAILURE);
         if( !strcmp(strings[2], "ACTUATOR_TYPE0") )
-            lpt.spec_top.actuator->actuator_type = ACTUATOR_TYPE0;
+            specTop->actuator->actuator_type = ACTUATOR_TYPE0;
         else if( !strcmp(strings[2], "ACTUATOR_TYPE1") )
-            lpt.spec_top.actuator->actuator_type = ACTUATOR_TYPE1;
+            specTop->actuator->actuator_type = ACTUATOR_TYPE1;
         else
             exit(EXIT_FAILURE);
 
         if( !strcmp(strings[3], "MEASURE0") ){
-          lpt.spec_top.actuator->measure_type = MEASURE0;
+          specTop->actuator->measure_type = MEASURE0;
         }
         else if( !strcmp(strings[3], "MEASURE1") )
-            lpt.spec_top.actuator->measure_type = MEASURE1;
+            specTop->actuator->measure_type = MEASURE1;
         else if( !strcmp(strings[3], "MEASURE2") )
-            lpt.spec_top.actuator->measure_type = MEASURE2;
+            specTop->actuator->measure_type = MEASURE2;
         else
           exit(EXIT_FAILURE);
 
-        lpt.spec_top.actuator->id_LAN_up = upperNode;
+        specTop->actuator->id_LAN_up = upperNode;
 
         double rateTransition = strtod(strings[4], &ptr);
-        lpt.spec_top.actuator->rateTransition = rateTransition;
+        specTop->actuator->rateTransition = rateTransition;
 
         double serviceTimeCommand = strtod(strings[5], &ptr);
-        lpt.spec_top.actuator->serviceTimeCommand = serviceTimeCommand;
+        specTop->actuator->serviceTimeCommand = serviceTimeCommand;
+        this_lpt->spec_top = specTop;
 
     }
     else if( !strcmp(strings[0], "WAN") ){
+        specific_topology * specTop = malloc(sizeof(wan_topology));
 
-        lpt.lp_type = WAN;
+        this_lpt->lp_type = WAN;
 
-        lpt.spec_top.wan = malloc(sizeof(wan_topology));
         if( !strcmp(strings[1], "WAN_TYPE0") )
-            lpt.spec_top.wan->wan_type = WAN_TYPE0;
+            specTop->wan->wan_type = WAN_TYPE0;
         else if( !strcmp(strings[1], "WAN_TYPE1") )
-            lpt.spec_top.wan->wan_type = WAN_TYPE1;
+            specTop->wan->wan_type = WAN_TYPE1;
         else
             exit(EXIT_FAILURE);
 
         double delay = strtod(strings[2], &ptr);
-        lpt.spec_top.wan->delay = delay;
+        specTop->wan->delay = delay;
+
+        this_lpt->spec_top = specTop;
 
     }
     else if( !strcmp(strings[0], "LAN") ){
+        specific_topology * specTop = malloc(sizeof(lan_topology));
 
-        lpt.lp_type = LAN;
-
-        lpt.spec_top.lan = malloc(sizeof(lan_topology));
+        this_lpt->lp_type = LAN;
         if( !strcmp(strings[1], "LAN_TYPE0") )
-            lpt.spec_top.lan->lan_type = LAN_TYPE0;
+            specTop->lan->lan_type = LAN_TYPE0;
         else if( !strcmp(strings[1], "LAN_TYPE1") )
-            lpt.spec_top.lan->lan_type = LAN_TYPE1;
+            specTop->lan->lan_type = LAN_TYPE1;
         else if( !strcmp(strings[1], "LAN_TYPE2") )
-            lpt.spec_top.lan->lan_type = LAN_TYPE2;
+            specTop->lan->lan_type = LAN_TYPE2;
         else
             exit(EXIT_FAILURE);
 
         double delay = strtod(strings[2], &ptr);
-        lpt.spec_top.lan->delay = delay;
+        specTop->lan->delay = delay;
+        this_lpt->spec_top = specTop;
 
     }
     else{
@@ -199,31 +202,44 @@ void parse_strings(char ** strings,LP_topology lpt, int upperNode){
 
 }
 
-void upwardSearchActSensType(LP_topology * lpt, int up, int index, int ** array){
-
+void upwardSearchActSensType(LP_topology ** lpt, int up, int index, int ** array){
+  printf("INDEX %d",index);
+  fflush(stdout);
+  printf("LOL?%d\n",lpt[index]->spec_top->sensor->sensor_type);
+  fflush(stdout);
   if(index != up){
     up = getUpperNode(lpt[up]);
   }
   else{
     up =  getUpperNode(lpt[index]);
   }
+  printf("up %d",up);
+  fflush(stdout);
   if(up == -1){ //Can't go higher
     return;
   }
   int typeSenAct = getType(lpt[index]);
   int at;
+  printf("HERE? %d\n", typeSenAct);
+  fflush(stdout);
   if(typeSenAct == 1){//sensor
+    printf("%d\n",lpt[index]->spec_top->sensor->sensor_type);
+    fflush(stdout);
     at = getSensorType(lpt[index]);
   }
   else{
     at = getActuatorType(lpt[index]);
   }
+  printf("HERE?\n");
+  fflush(stdout);
   array[up][at] +=1 ;
+  printf("HERE?\n");
+  fflush(stdout);
   upwardSearchActSensType(lpt,up,index,array);
 }
 
 //recursive call where we travel upward until the central node
-void upwardSearchSubtreeFilling(LP_topology * lpt, int up, int index, int *** result){
+void upwardSearchSubtreeFilling(LP_topology ** lpt, int up, int index, int *** result){
   //index : starting actuator
   if(index != up){
     up = getUpperNode(lpt[up]);
@@ -270,7 +286,7 @@ void upwardSearchSubtreeFilling(LP_topology * lpt, int up, int index, int *** re
 }
 
 //search the graph upward, trying to reach the destination node from the index node
-void upwardSearchActuatorPaths(LP_topology * lpt, int index, int destination, int number, int ** array){
+void upwardSearchActuatorPaths(LP_topology ** lpt, int index, int destination, int number, int ** array){
   if(index != number){//not first run
     number = getUpperNode(lpt[number]);
   }
@@ -313,7 +329,7 @@ total_topology * getTopology(char * path){
   read = getline(&temp, &len, fp);
   int totalNumberOfElements = atoi(temp);
   total_topology * EST = malloc(sizeof(total_topology));
-  LP_topology * lpt = malloc(sizeof(LP_topology) * totalNumberOfElements);
+  LP_topology ** lpt = malloc(sizeof(LP_topology*) * totalNumberOfElements);
 
   int * arrayNumberLowerElements = malloc(sizeof(int) * totalNumberOfElements);
   for(int arrCount = 0; arrCount < totalNumberOfElements; arrCount+=1){
@@ -509,11 +525,12 @@ total_topology * getTopology(char * path){
       ptr=strtok_r(NULL, ";",&end_str);
     }
 
+    lpt[temp] = malloc(sizeof(LP_topology *));
+
     parse_strings(infoArray,lpt[temp], upperNode);
+    lpt[temp]->upperNode = upperNode;
 
-    lpt[temp].upperNode = upperNode;
-
-		for(i=0;i<counter;i++){
+    for(i=0;i<counter;i++){
 				free(infoArray[i]);
 		}
 		free(infoArray);
@@ -531,7 +548,6 @@ total_topology * getTopology(char * path){
   genTop->numberOfLANsTypes = ntl;
   genTop->probOfActuators = probArray;
 
-  fflush(stdout);
   EST->gn = genTop;
 
   int ** typesSensArray = malloc(sizeof(int*) * totalNumberOfElements);
@@ -540,18 +556,24 @@ total_topology * getTopology(char * path){
   int index2 = 0;
   int index3 = 0;
   int type = 0;
-
+  printf("??node %d,type %d\n",7,lpt[7]->spec_top->sensor->sensor_type);
+  printf("%d\n",lpt[7]->spec_top->sensor->sensor_type);
+  fflush(stdout);
   //initialization of array of sensor and actuator types
   while(index < totalNumberOfElements){
     typesSensArray[index] = malloc(sizeof(int) * nts);
     typesActArray[index] = malloc(sizeof(int) * nt);
-
+    printf("??node %d,type %d\n",7,lpt[7]->spec_top->sensor->sensor_type);
+    printf("%d\n",lpt[7]->spec_top->sensor->sensor_type);
+    fflush(stdout);
     while(index2 < nts){
       typesSensArray[index][index2] = 0;
       index2+=1;
     }
     index2 = 0;
-
+    printf("??node %d,type %d\n",7,lpt[7]->spec_top->sensor->sensor_type);
+    printf("%d\n",lpt[7]->spec_top->sensor->sensor_type);
+    fflush(stdout);
     while(index3 < nt){
       typesActArray[index][index3] = 0;
       index3+=1;
@@ -560,7 +582,9 @@ total_topology * getTopology(char * path){
 
     index+=1;
   }
-
+  printf("??node %d,type %d\n",7,lpt[7]->spec_top->sensor->sensor_type);
+  printf("%d\n",lpt[7]->spec_top->sensor->sensor_type);
+  fflush(stdout);
   index = 0;
   while(index < totalNumberOfElements){
     type = getType(lpt[index]);
@@ -586,8 +610,7 @@ total_topology * getTopology(char * path){
     }
     index+=1;
   }
-  printf("DEBUG\n");
-  fflush(stdout);
+
   int *** resultAct = malloc(sizeof(int**)*totalNumberOfElements);
   int *** resultSens = malloc(sizeof(int**)*totalNumberOfElements);
 
@@ -720,7 +743,7 @@ total_topology * getTopology(char * path){
     }
   }
 
-  //same for WANs down, even if for now only 1 WAN is below or upward each node.
+  //same for WANs down, even if for now only 1 WAN is below or upward each node->
   int * WANsDownArray = malloc(sizeof(int) * totalNumberOfElements);
   for(int c = 0; c < totalNumberOfElements; c+=1){
     WANsDownArray[c] = -1;

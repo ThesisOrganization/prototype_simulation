@@ -199,7 +199,7 @@ typedef struct _LP_topology{
   int * actuatorPaths;//transform to array actuatorPaths[x]
   int ** ListSensorsByType;//switch to double pointer
   int ** ListActuatorsByType;//switch
-  specific_topology spec_top;
+  specific_topology * spec_top;
 } LP_topology;
 
 typedef struct _total_topology{
