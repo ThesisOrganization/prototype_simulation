@@ -449,7 +449,6 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 					node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND]+our_info->probCommandResponse*node->input_rates[CLASS_TRANSITION];
 				} else{
 					node->output_rates[CLASS_COMMAND]=our_info->probCommandResponse*node->input_rates[CLASS_TRANSITION];
-					node->input_rates[CLASS_COMMAND]=node->output_rates[CLASS_COMMAND];
 				}
 				//we compute parameters for the storage included in the node
 				if(node->node_storage_state==NODE_SIMPLE_STORAGE){
@@ -633,10 +632,10 @@ void init_node_data(node_data *data,int node_id,node_data* father,topology* top)
 			if(((lp_infos*)getInfo(data->top,data->node_id))->node_type==CENTRAL){
 				data->node_visits_per_class[CLASS_TRANSITION]=NODE_SINGLE_VISIT;
 			}else {
+				data->node_visits_per_class[CLASS_COMMAND]=NODE_SINGLE_VISIT;
 				data->node_visits_per_class[CLASS_TRANSITION]=NODE_DOUBLE_VISIT;
 			}
 			data->node_visits_per_class[CLASS_TELEMETRY]=NODE_SINGLE_VISIT;
-			data->node_visits_per_class[CLASS_COMMAND]=NODE_SINGLE_VISIT;
 			data->node_visits_per_class[CLASS_BATCH]=NODE_SINGLE_VISIT;
 			switch(((lp_infos*)getInfo(top,node_id))->node_type){
 				case CENTRAL:
