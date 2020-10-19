@@ -153,7 +153,7 @@ static void save_data_on_disk(unsigned int me, simtime_t now, job_type type){
 
 static void send_aggregated_data(unsigned int me, simtime_t now, lp_state * state, double delay_up, job_type type, int * num_aggregated, int max_aggregated){
 
-    int actual_aggr = (*num_aggregated)++;
+    int actual_aggr = ++(*num_aggregated);
 
     if(actual_aggr >= max_aggregated){
 

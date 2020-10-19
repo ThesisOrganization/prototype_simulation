@@ -178,12 +178,13 @@ typedef struct _topology{
 //#############################################
 
 
-#define TOTAL_NUMBER_OF_EVENTS 100
-#define PROB_CMD 0.4
+//#define TOTAL_NUMBER_OF_EVENTS 100
+//#define PROB_CMD 0.4
 //#define DELAY_MEAN 1
 //#define ARRIVE_RATE 50
 //#define FINISH_RATE 5
 //#define LEN_QUEUE 50
+#define RANDOM_START 20
 
 //#define RANGE_TIMESTAMP 10
 

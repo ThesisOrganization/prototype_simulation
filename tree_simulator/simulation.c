@@ -48,9 +48,9 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     int up_node;
     job_info * info;
     double rate_generate;
-    double time_between_arrivals;
+    //double time_between_arrivals;
 
-    simtime_t ts_generate;
+    //simtime_t ts_generate;
     //simtime_t ts_arrive = now + Expent(ARRIVE_RATE);
     //simtime_t ts_finish = now + Expent(FINISH_RATE);
     //simtime_t ts_delay = now + Expent(DELAY_MEAN);
@@ -161,7 +161,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
         case GENERATE_TRANSITION:
 
-            state->actual_timestamp = now;
+            //state->actual_timestamp = now;
             //check number of events is up to
             info_to_send.type = REAL_TIME;
             //info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
@@ -188,9 +188,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 exit(EXIT_FAILURE);
             }
 
-            time_between_arrivals = 1/rate_generate;
-            ts_generate = now + Expent(time_between_arrivals);
-            ScheduleNewEvent(me, ts_generate, GENERATE_TRANSITION, NULL, 0);
+            generate_next_job(me, now, rate_generate, 0.0, GENERATE_TRANSITION);
 
             //state->num_jobs_processed++;
             //printf("%d\n", state->num_jobs_processed);
@@ -198,7 +196,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
         case GENERATE_TELEMETRY:
 
-            state->actual_timestamp = now;
+            //state->actual_timestamp = now;
             //check number of events is up to
             info_to_send.type = REAL_TIME;
             //info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
@@ -220,16 +218,14 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 exit(EXIT_FAILURE);
             }
 
-            time_between_arrivals = 1/rate_generate;
-            ts_generate = now + Expent(time_between_arrivals);
-            ScheduleNewEvent(me, ts_generate, GENERATE_TELEMETRY, NULL, 0);
+            generate_next_job(me, now, rate_generate, 0.0, GENERATE_TELEMETRY);
 
             //state->num_jobs_processed++;
             break;
 
         case ARRIVE:
 
-            state->actual_timestamp = now;
+            //state->actual_timestamp = now;
 
             info = malloc(sizeof(job_info));
             memcpy(info, content, sizeof(job_info));
@@ -266,7 +262,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
         case ARRIVE_DISK:
             
-            state->actual_timestamp = now;
+            //state->actual_timestamp = now;
 
             info = malloc(sizeof(job_info));
             memcpy(info, content, sizeof(job_info));

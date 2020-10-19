@@ -37,6 +37,15 @@ static void init_metrics(queue_state * queue_state){
 
 }
 
+void generate_next_job(unsigned int me, simtime_t now, double rate_transition, double random_value, job_type type){
+
+    double time_between_arrivals = 1/rate_transition;
+    //simtime_t ts_generate = now + Expent(time_between_arrivals);
+    simtime_t ts_generate = now + random_value + time_between_arrivals;
+    ScheduleNewEvent(me, ts_generate, type, NULL, 0);
+
+}
+
 void init_node(unsigned int me, lp_state * state){
     //printf("node\n");
 
@@ -64,7 +73,7 @@ void init_node(unsigned int me, lp_state * state){
 
     state->info.node->id_wan_down = GET_WAN_DOWN(state->topology, me);
 
-    state->info.node->batch_aggregation = GET_AGGREGATION_RATE(state->topology, me)[BATCH];
+    state->info.node->batch_aggregation = GET_AGGREGATION_RATE(state->topology, me)[BATCH_DATA];
     state->info.node->num_batch_aggregated = 0;
 
     //int node_type = state->info.node->type;
@@ -101,13 +110,9 @@ void init_sensor(unsigned int me, simtime_t now, lp_state * state){
     state->info.sensor->rate_telemetry = rate_telemetry;
 
     //schedule generate for all sensors
-    double time_between_arrivals = 1/rate_transition;
-    simtime_t ts_generate = now + Expent(time_between_arrivals);
-    ScheduleNewEvent(me, ts_generate, GENERATE_TRANSITION, NULL, 0);
+    generate_next_job(me, now, rate_transition, Random()*RANDOM_START, GENERATE_TRANSITION);
 
-    time_between_arrivals = 1/rate_telemetry;
-    ts_generate = now + Expent(time_between_arrivals);
-    ScheduleNewEvent(me, ts_generate, GENERATE_TELEMETRY, NULL, 0);
+    generate_next_job(me, now, rate_telemetry, Random()*RANDOM_START, GENERATE_TELEMETRY);
 
 }
 
@@ -131,9 +136,7 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state){
     state->info.actuator->rate_transition = rate_transition;
 
     //schedule generate for all actuators
-    double time_between_arrivals = 1/rate_transition;
-    simtime_t ts_generate = now + Expent(time_between_arrivals);
-    ScheduleNewEvent(me, ts_generate, GENERATE_TRANSITION, NULL, 0);
+    generate_next_job(me, now, rate_transition, Random()*RANDOM_START, GENERATE_TRANSITION);
 }
 
 void init_lan(unsigned int me, lp_state * state){
