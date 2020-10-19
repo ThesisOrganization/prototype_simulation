@@ -108,6 +108,7 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
     queue_state->C[info->job_type]++;
     queue_state->B[info->job_type] += now - queue_state->start_processing_timestamp;
     queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
+    queue_state->A[info->job_type] = queue_state->A_post[info->job_type];
 
     if(info->job_type == REPLY){
         

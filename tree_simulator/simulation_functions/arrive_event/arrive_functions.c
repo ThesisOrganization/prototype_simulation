@@ -22,7 +22,8 @@ static void update_metrics(queue_state * queue_state, job_info * info){
 
     queue_state->num_jobs_in_queue++;
 
-    queue_state->A[info->job_type]++;
+    //queue_state->A[info->job_type]++;
+    queue_state->A_post[info->job_type]++;
 }
 
 void arrive_node(unsigned int me, simtime_t now, lp_state * state, job_info * info){
