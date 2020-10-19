@@ -106,27 +106,57 @@ def print_devices(list_ids, dict_devices, file_h):
         #print(dict_devices[id_device])
         if len(lans_list) > 1:
             device_id_string = lans_list[0]
-            device_id = device_id_string.strip().split(",")[0].split(": ")[1]
-            device_type = int(device_id_string.strip().split(",")[1].split(": ")[1])
-            #print(device_id)
-            subsection_string = "\\subsection{" + dict_types_devices[device_type] + " number: " + device_id + "}\n"
+            if len(device_id_string.split("......................\n")) > 1:
+                #disk
+                
+                device_id_string = lans_list[0].split("\n")[0] #manca il ritorno a capo
+                lans_list.insert(0, device_id_string)
 
-            lan_string_name, all_data_string = print_classes(lans_list[1])
-            lan_string_name = lan_string_name.strip().strip(":")
-            #print(lan_string_name)
-            subsubsection_string = "\subsubsection{" + lan_string_name + "}"
+                device_id = device_id_string.strip().split(",")[0].split(": ")[1]
+                device_type = int(device_id_string.strip().split(",")[1].split(": ")[1])
+                #print(device_id)
+                subsection_string = "\\subsection{" + dict_types_devices[device_type] + " number: " + device_id + "}\n"
 
-            file_h.write(subsection_string)
-            file_h.write(subsubsection_string)
-            file_h.write(all_data_string)
+                lan_string_name, all_data_string = print_classes(lans_list[1])
+                lan_string_name = lan_string_name.strip().strip(":")
+                lan_string_name = "Server"
+                #print(lan_string_name)
+                subsubsection_string = "\subsubsection{" + lan_string_name + "}"
 
-            lan_string_name, all_data_string = print_classes(lans_list[2])
-            lan_string_name = lan_string_name.strip().strip(":")
-            #print(lan_string_name)
-            subsubsection_string = "\subsubsection{" + lan_string_name + "}"
+                file_h.write(subsection_string)
+                file_h.write(subsubsection_string)
+                file_h.write(all_data_string)
 
-            file_h.write(subsubsection_string)
-            file_h.write(all_data_string)
+                lan_string_name, all_data_string = print_classes(lans_list[2])
+                lan_string_name = lan_string_name.strip().strip(":")
+                lan_string_name = "Disk"
+                #print(lan_string_name)
+                subsubsection_string = "\subsubsection{" + lan_string_name + "}"
+
+                file_h.write(subsubsection_string)
+                file_h.write(all_data_string)
+            else:
+                device_id = device_id_string.strip().split(",")[0].split(": ")[1]
+                device_type = int(device_id_string.strip().split(",")[1].split(": ")[1])
+                #print(device_id)
+                subsection_string = "\\subsection{" + dict_types_devices[device_type] + " number: " + device_id + "}\n"
+
+                lan_string_name, all_data_string = print_classes(lans_list[1])
+                lan_string_name = lan_string_name.strip().strip(":")
+                #print(lan_string_name)
+                subsubsection_string = "\subsubsection{" + lan_string_name + "}"
+
+                file_h.write(subsection_string)
+                file_h.write(subsubsection_string)
+                file_h.write(all_data_string)
+
+                lan_string_name, all_data_string = print_classes(lans_list[2])
+                lan_string_name = lan_string_name.strip().strip(":")
+                #print(lan_string_name)
+                subsubsection_string = "\subsubsection{" + lan_string_name + "}"
+
+                file_h.write(subsubsection_string)
+                file_h.write(all_data_string)
         else:
             device_id_string, all_data_string = print_classes(lans_list[0])
             device_id = device_id_string.strip().split(",")[0].split(": ")[1]
