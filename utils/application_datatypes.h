@@ -32,8 +32,7 @@ typedef struct _job_info {
     prio_type type; ///< The type of job.
     double arrived_in_node_timestamp;
     double deadline; ///< The deadline at which the job must be completed.
-		void* payload; ///< The actual job data.
-    //the following may be included in the payload:
+		void* payload; ///< The actual job data. (can't be sent on rootsim)
     job_type job_type;
     int lp_sender; //used for the reply
     int lp_destination; //used for command

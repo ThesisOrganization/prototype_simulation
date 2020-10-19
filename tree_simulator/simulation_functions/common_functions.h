@@ -36,8 +36,17 @@ if (! (x)) {\
 #endif
 
 #ifdef DEBUG
+#define PRINT_DOUBLE(v) printf("%f\n", v)
+#else
+#define PRINT_DOUBLE(v) 
+#endif
+
+#ifdef DEBUG
 //list all debug prints and tests
 //#define DEBUG_NUMBER_MSGS //used to print the type of message received by the central that are going to be saved on the disk
+//#define DEBUG_RESPONSE_TIME
+//#define DEBUG_INITIAL_VALUES_NODES
+
 
 #endif
 
