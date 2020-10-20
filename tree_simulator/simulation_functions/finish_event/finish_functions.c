@@ -112,33 +112,24 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
     job_type type = info->job_type;
 
     if(queue_state->start_timestamp[type] > TRANSITION_TIME_LIMIT){
-        //if(state->type == NODE && ( GET_NODE_TYPE(state->topology, me) == LOCAL || GET_NODE_TYPE(state->topology, me) == REGIONAL) && type == TRANSITION){
 
-          //  queue_state->B_post += now - queue_state->start_processing_timestamp;
-          //  queue_state->W_post += now - info->arrived_in_node_timestamp;
+        queue_state->C[type]++;
+        queue_state->B[type] += now - queue_state->start_processing_timestamp;
+        queue_state->W[type] += now - info->arrived_in_node_timestamp;
+        queue_state->A[type] = queue_state->A_post[type];
+        queue_state->actual_timestamp[type] = now;
 
-        //}
-        //else {
+        if(type == REPLY){
+            
+            queue_state->C[TRANSITION]++;
+            queue_state->B[TRANSITION] += info->busy_time_transition;
+            queue_state->W[TRANSITION] += info->waiting_time_transition;
+            queue_state->B[TRANSITION] += now - queue_state->start_processing_timestamp;
+            queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
+            queue_state->A[TRANSITION] = queue_state->A_post[TRANSITION];
+            queue_state->actual_timestamp[TRANSITION] = now;
 
-            queue_state->C[type]++;
-            queue_state->B[type] += now - queue_state->start_processing_timestamp;
-            queue_state->W[type] += now - info->arrived_in_node_timestamp;
-            queue_state->A[type] = queue_state->A_post[type];
-            queue_state->actual_timestamp[type] = now;
-
-            if(type == REPLY){
-                
-                queue_state->C[TRANSITION]++;
-                queue_state->B[TRANSITION] += info->busy_time_transition;
-                queue_state->W[TRANSITION] += info->waiting_time_transition;
-                queue_state->B[TRANSITION] += now - queue_state->start_processing_timestamp;
-                queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
-                queue_state->A[TRANSITION] = queue_state->A_post[TRANSITION];
-                queue_state->actual_timestamp[TRANSITION] = now;
-
-            }
-
-        //}
+        }
 
     }
 
