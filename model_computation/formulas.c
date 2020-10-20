@@ -459,7 +459,7 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 					node->storage_input_rates[CLASS_TELEMETRY]=node->output_rates[CLASS_TELEMETRY];
 					node->storage_input_rates[CLASS_TRANSITION]=node->output_rates[CLASS_TRANSITION];
 					//we log on disk both the messages received and the batch messages originated from command messages and we aggregate both
-					node->storage_input_rates[CLASS_BATCH]=(node->output_rates[CLASS_BATCH]+node->input_rates[CLASS_BATCH])/our_info->aggregation_rate[BATCH_DATA];
+					node->storage_input_rates[CLASS_BATCH]=node->output_rates[CLASS_BATCH];
 				}
 				node->service_times[CLASS_TELEMETRY]=our_info->service_time[TELEMETRY];
 				node->service_times[CLASS_TRANSITION]=our_info->service_time[TRANSITION];
@@ -513,7 +513,7 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 			//we assume that data make only one visit one the simple storage component
 			node->storage_service_demands[class]= node->storage_visits_per_class[class] * node->storage_service_times[class];
 			node->storage_utilization_factors[class]=node->storage_input_rates[class]* node->storage_service_demands[class];
-			node->storage_total_utilization_factor+=node->utilization_factors[class];
+			node->storage_total_utilization_factor+=node->storage_utilization_factors[class];
 		}
 	}
 	// now we compute the response time, since we need the total utilization factor
