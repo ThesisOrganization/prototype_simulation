@@ -18,23 +18,34 @@ static void start_device(unsigned int me, simtime_t now, queue_state * queue_sta
 
 }
 
-static void update_metrics(queue_state * queue_state, job_info * info){
+static void update_metrics(simtime_t now, queue_state * queue_state, job_info * info){
 
     queue_state->num_jobs_in_queue++;
 
     //queue_state->A[info->job_type]++;
-    queue_state->A_post[info->job_type]++;
+
+    job_type type = info->job_type;
+
+    if(queue_state->start_timestamp[type] <= TRANSITION_TIME_LIMIT && now > TRANSITION_TIME_LIMIT)
+        queue_state->start_timestamp[type] = now;
+
+    
+    if(queue_state->start_timestamp[type] > TRANSITION_TIME_LIMIT){
+
+        queue_state->A_post[type]++;
+
+    }
 }
 
 void arrive_node(unsigned int me, simtime_t now, lp_state * state, job_info * info){
     //printf("NODE\n");
-    update_metrics(state->info.node->queue_state, info);
+    update_metrics(now, state->info.node->queue_state, info);
 
     start_device(me, now, state->info.node->queue_state, state->info.node->service_rates, info, NULL, 0, FINISH);
 }
 
 void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info * info){
-    update_metrics(state->info.actuator->queue_state, info);
+    update_metrics(now, state->info.actuator->queue_state, info);
 
     double service_rates[NUM_OF_JOB_TYPE]; //meh
     service_rates[COMMAND] = state->info.actuator->service_rate_command;
@@ -74,7 +85,7 @@ void arrive_lan(unsigned int me, simtime_t now, lp_state * state, job_info* info
         exit(EXIT_FAILURE);
 
     }
-    update_metrics(queue_state, info);
+    update_metrics(now, queue_state, info);
 
     start_device(me, now, queue_state, service_rates, info, &direction, sizeof(lan_direction), FINISH);
 }
@@ -129,7 +140,7 @@ void arrive_disk(unsigned int me, simtime_t now, lp_state * state, job_info * in
     //PRINT("Message arrived in the disk");
     //PRINT_VALUE(me);
 
-    update_metrics(state->info.node->disk_state, info);
+    update_metrics(now, state->info.node->disk_state, info);
 
     start_device(me, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology, me), info, NULL, 0, FINISH_DISK);
 

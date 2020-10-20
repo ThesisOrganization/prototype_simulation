@@ -184,7 +184,8 @@ typedef struct _topology{
 //#define ARRIVE_RATE 50
 //#define FINISH_RATE 5
 //#define LEN_QUEUE 50
-#define RANDOM_START 20
+#define RANDOM_START 100
+#define TRANSITION_TIME_LIMIT 200000
 
 //#define RANGE_TIMESTAMP 10
 
@@ -205,20 +206,14 @@ typedef struct _queue_state {
     job_info * current_job;
     int num_jobs_in_queue;
     //METRICS, from slide 4, single queue modeling, CP
+    //note that these values are computed with the values after the last finish event before the termination
     int * A; //number of jobs arrived (arrivals)
+    int * A_post; //number of jobs arrived (arrivals), after the last finish event
     int * C; //number of jobs completed (completions)
     double * B; //busy time, time in which the queue is computing
     double * W; //time spent in the system by all arrivals
-    /*
-    int * num_jobs_arrived;
-    //int num_lossy_jobs_rejected;
-    //int num_rt_jobs_rejected;
-    //int num_batch_jobs_rejected;
-    double * last_arrived_in_node_timestamp;
-    double * sum_all_service_time;
-    double * sum_all_time_between_arrivals;
-    double * sum_all_response_time;
-    */
+    simtime_t * actual_timestamp;
+    simtime_t * start_timestamp;
     void * queues;
 } queue_state;
 
@@ -277,8 +272,9 @@ typedef union {
 typedef struct _state {
     //int num_jobs_processed;
     int lp_enabled; //1 lp enabled, 0 lp disabled
-	simtime_t start_timestamp; //usefull to compute T
-    simtime_t actual_timestamp;
+	//simtime_t start_timestamp; //usefull to compute T
+    //simtime_t actual_timestamp;
+    simtime_t device_timestamp;
     state_type type;
     //general infos
     topology * topology;
@@ -288,10 +284,5 @@ typedef struct _state {
     state_info info;
 } lp_state;
 
-/*
-typedef struct _processing_info {
-    double start_processing_timestamp;
-} processing_info;
-*/
 
 #endif /* APPLICATION_DATATYPES_H */

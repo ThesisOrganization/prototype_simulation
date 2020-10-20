@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #echo "simulation_time"
-simulation_time=5000
-number_lp=30
+simulation_time=400000
+number_lp=22
 file_output="output.txt"
-file_latex="report.tex"
+file_latex="simulation_results.tex"
 
 
 if [ -n "$2" ]; then
@@ -26,5 +26,5 @@ elif [ "$1" == "pdf" ]; then
     pdflatex $file_latex
 else
     ./queues --sequential --lp $number_lp --simulation-time $simulation_time > $file_output
-    python3 print_sorting.py $file_output
+    #python3 print_sorting.py $file_output
 fi

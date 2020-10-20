@@ -104,16 +104,25 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 
     //printf("%d\n", queue_state->C);
     //printf("%d\n", info->job_type);
+    
 
-    queue_state->C[info->job_type]++;
-    queue_state->B[info->job_type] += now - queue_state->start_processing_timestamp;
-    queue_state->W[info->job_type] += now - info->arrived_in_node_timestamp;
-    queue_state->A[info->job_type] = queue_state->A_post[info->job_type];
+    job_type type = info->job_type;
+    
+    if(queue_state->start_timestamp[type] > TRANSITION_TIME_LIMIT){
 
-    if(info->job_type == REPLY){
-        
-        queue_state->B[TRANSITION] += now - queue_state->start_processing_timestamp;
-        queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
+        queue_state->C[type]++;
+        queue_state->B[type] += now - queue_state->start_processing_timestamp;
+        queue_state->W[type] += now - info->arrived_in_node_timestamp;
+        queue_state->A[type] = queue_state->A_post[type];
+        queue_state->actual_timestamp[type] = now;
+
+        if(info->job_type == REPLY){
+            
+            queue_state->B[TRANSITION] += now - queue_state->start_processing_timestamp;
+            queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
+            queue_state->actual_timestamp[TRANSITION] = now;
+
+        }
 
     }
 

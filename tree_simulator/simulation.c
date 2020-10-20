@@ -60,9 +60,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
         case INIT:
             state = malloc(sizeof(lp_state));
             SetState(state);
-
-            state->start_timestamp = now;
-            state->actual_timestamp = now;
+    
+            //both timestamp are initialized at 0.0 in theory
+            //state->start_timestamp = now; 
+            //state->actual_timestamp = now;
+            state->device_timestamp = now;
             //printf("%.3g\n", now);
 
             //state->num_jobs_processed = 0;
@@ -100,33 +102,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             //initializza strutture
             if(state->type == NODE){
-/*
-#ifdef DEBUG_INITIAL_VALUES_NODES
-                PRINT_VALUE(me);
-                print_array_double(GET_SERVICE_RATES(state->topology, me), NUM_OF_JOB_TYPE);
-                print_array_int(GET_AGGREGATION_RATE(state->topology, me), NUM_OF_JOB_TYPE - 1);
-                PRINT_DOUBLE(GET_DELAY_UPPER_ROUTER(state->topology, me));
-                PRINT_DOUBLE(GET_DELAY_LOWER_ROUTER(state->topology, me));
-                PRINT_VALUE(GET_WAN_DOWN(state->topology, me));
-                PRINT_DOUBLE(GET_PROB_COMMAND(state->topology, me));
-                
-                int num_devices_in_network = 22;
-                int num_type_acts = 2;
-                print_array_int(GET_ACTUATOR_PATHS_INDEX(state->topology, me), num_devices_in_network);
-                print_array_int(GET_ACT_TYPE(state->topology, me), 2);
-                int num_type1 = GET_ACT_TYPE(state->topology, me)[0];
-                int num_type2 = GET_ACT_TYPE(state->topology, me)[1];
-                print_array_int(GET_LIST_ACTUATORS_BY_TYPE(state->topology, me, 0), num_type1);
-                print_array_int(GET_LIST_ACTUATORS_BY_TYPE(state->topology, me, 1), num_type2);
-
-                PRINT_VALUE(GET_UPPER_NODE(state->topology, me));
-
-                if(me == 0)
-                    print_array_double(GET_DISK_SERVICES(state->topology, me), NUM_OF_JOB_TYPE);
-
-
-#endif
-*/
 
                 init_node(me, state);
 
@@ -162,7 +137,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
         case GENERATE_TRANSITION:
 
             //state->actual_timestamp = now;
-            //check number of events is up to
+            state->device_timestamp = now;
+
             info_to_send.type = REAL_TIME;
             //info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
             info_to_send.payload = NULL;
@@ -197,7 +173,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
         case GENERATE_TELEMETRY:
 
             //state->actual_timestamp = now;
-            //check number of events is up to
+            state->device_timestamp = now;
+
             info_to_send.type = REAL_TIME;
             //info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
             info_to_send.payload = NULL;
@@ -226,6 +203,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
         case ARRIVE:
 
             //state->actual_timestamp = now;
+            state->device_timestamp = now;
 
             info = malloc(sizeof(job_info));
             memcpy(info, content, sizeof(job_info));
@@ -263,6 +241,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
         case ARRIVE_DISK:
             
             //state->actual_timestamp = now;
+            state->device_timestamp = now;
 
             info = malloc(sizeof(job_info));
             memcpy(info, content, sizeof(job_info));
@@ -276,7 +255,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
         case FINISH:
 
-            state->actual_timestamp = now;
+            //state->actual_timestamp = now;
+            state->device_timestamp = now;
 
             //state->num_jobs_processed++;
 
@@ -305,7 +285,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
         case FINISH_DISK:
 
-            state->actual_timestamp = now;
+            //state->actual_timestamp = now;
+            state->device_timestamp = now;
 
             finish_disk(me, now, state);
 
@@ -315,17 +296,18 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     }
 }
 
-void print_metrics(queue_state * queue_state, double T){
+void print_metrics(queue_state * queue_state){
 
 
     for(int i=0; i < NUM_OF_JOB_TYPE; i++){
 
-        //if(queue_state->A[i] > 0){
+        //if(queue_state->actual_timestamp[i] > TRANSITION_TIME_LIMIT){
 
             printf("......................\n");
             printf("Class number %d\n", i);
 
             //all data here are averages
+            double T = queue_state->actual_timestamp[i] - queue_state->start_timestamp[i];
             double S = queue_state->B[i] / queue_state->C[i];
             double R = queue_state->W[i] / queue_state->C[i];
             double N = queue_state->W[i] / T;
@@ -339,71 +321,64 @@ void print_metrics(queue_state * queue_state, double T){
             printf("Utilization factor: %.3g\n", U);
             printf("Arrival rate: %.3g\n", lambda);
             printf("Throughput: %.3g\n", X);
-/*
-#ifdef DEBUG_RESPONSE_TIME
-            PRINT_VALUE(queue_state->C[i]);
-            PRINT_VALUE(queue_state->A[i]);
-#endif
-*/
+        
         //}
 
 
     }
 }
 
-void print_pre(int me, simtime_t actual_timestamp, int device_type){
+void print_pre(int me, simtime_t device_timestamp, int device_type){
 
     printf("#################################################\n");
-    printf("Device number: %d, Type: %d, timestamp: %f\n", me, device_type, actual_timestamp);
+    printf("Device number: %d, Type: %d, timestamp: %f\n", me, device_type, device_timestamp);
 
 }
 
 bool OnGVT(int me, lp_state *snapshot)
 {
-    //if(snapshot->num_jobs_processed > TOTAL_NUMBER_OF_EVENTS) //now is used only by the LPs that are not used
-    //        return true;
 
     if(!snapshot->lp_enabled)
         return true;
 
-    double T = snapshot->actual_timestamp - snapshot->start_timestamp;
-
-
-    //printf("%d\n", me);
-    if(snapshot->type == NODE){
-
+    if(snapshot->device_timestamp > TRANSITION_TIME_LIMIT){
+    
+        if(snapshot->type == NODE){
+    
 #ifdef PRINT_RESULTS
-        print_pre(me, snapshot->actual_timestamp, snapshot->type);
-        print_metrics(snapshot->info.node->queue_state, T);
-        if(GET_NODE_TYPE(snapshot->topology, me) == CENTRAL){
-            printf("<<<<<<<<<<<<<<<<<<<<\n");
-            printf("Disk:\n");
-            print_metrics(snapshot->info.node->disk_state, T);
+            print_pre(me, snapshot->device_timestamp, snapshot->type);
+            print_metrics(snapshot->info.node->queue_state);
+            if(GET_NODE_TYPE(snapshot->topology, me) == CENTRAL){
+                printf("<<<<<<<<<<<<<<<<<<<<\n");
+                printf("Disk:\n");
+                print_metrics(snapshot->info.node->disk_state);
+            }
+#endif
+    
         }
-#endif
-
-    }
-    else if(snapshot->type == ACTUATOR){
-
+        else if(snapshot->type == ACTUATOR){
+    
 #ifdef PRINT_RESULTS
-        print_pre(me, snapshot->actual_timestamp, snapshot->type);
-        print_metrics(snapshot->info.actuator->queue_state, T);
+            print_pre(me, snapshot->device_timestamp, snapshot->type);
+            print_metrics(snapshot->info.actuator->queue_state);
 #endif
-
-    }
-    else if(snapshot->type == LAN){
-
+    
+        }
+        else if(snapshot->type == LAN){
+    
 #ifdef PRINT_RESULTS
-        print_pre(me, snapshot->actual_timestamp, snapshot->type);
-
-        printf("<<<<<<<<<<<<<<<<<<<<\n");
-        printf("Lan IN:\n");
-        print_metrics(snapshot->info.lan->queue_state_in, T);
-        printf("<<<<<<<<<<<<<<<<<<<<\n");
-        printf("Lan OUT:\n");
-        print_metrics(snapshot->info.lan->queue_state_out, T);
+            print_pre(me, snapshot->device_timestamp, snapshot->type);
+    
+            printf("<<<<<<<<<<<<<<<<<<<<\n");
+            printf("Lan IN:\n");
+            print_metrics(snapshot->info.lan->queue_state_in);
+            printf("<<<<<<<<<<<<<<<<<<<<\n");
+            printf("Lan OUT:\n");
+            print_metrics(snapshot->info.lan->queue_state_out);
 #endif
-
+    
+        }
+    
     }
 
     return false;

@@ -184,7 +184,7 @@ dict_devices, list_ids = get_dict(text)
 f.close()
 
 if len(sys.argv) < 3:
-    out = "report.tex"
+    out = "simulation_results.tex"
 else:
     out = sys.argv[2]
 
