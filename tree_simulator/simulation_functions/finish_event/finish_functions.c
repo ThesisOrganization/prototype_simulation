@@ -45,10 +45,13 @@ static void fill_info_to_send(job_info * info_to_send, job_type type, int sender
 
 }
 
-static void send_reply(unsigned int me, simtime_t now, lp_state * state, int sender, double delay){
+static void send_reply(unsigned int me, simtime_t now, lp_state * state, int sender, double delay, double busy_time_transition, double waiting_time_transition){
 
     job_info info_to_send;
     fill_info_to_send(&info_to_send, REPLY, sender, -1);
+
+    info_to_send.busy_time_transition = busy_time_transition;
+    info_to_send.waiting_time_transition = waiting_time_transition;
 
     int destination = state->info.node->id_wan_down;
 
@@ -107,22 +110,35 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
     
 
     job_type type = info->job_type;
-    
+
     if(queue_state->start_timestamp[type] > TRANSITION_TIME_LIMIT){
+        //if(state->type == NODE && ( GET_NODE_TYPE(state->topology, me) == LOCAL || GET_NODE_TYPE(state->topology, me) == REGIONAL) && type == TRANSITION){
 
-        queue_state->C[type]++;
-        queue_state->B[type] += now - queue_state->start_processing_timestamp;
-        queue_state->W[type] += now - info->arrived_in_node_timestamp;
-        queue_state->A[type] = queue_state->A_post[type];
-        queue_state->actual_timestamp[type] = now;
+          //  queue_state->B_post += now - queue_state->start_processing_timestamp;
+          //  queue_state->W_post += now - info->arrived_in_node_timestamp;
 
-        if(info->job_type == REPLY){
-            
-            queue_state->B[TRANSITION] += now - queue_state->start_processing_timestamp;
-            queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
-            queue_state->actual_timestamp[TRANSITION] = now;
+        //}
+        //else {
 
-        }
+            queue_state->C[type]++;
+            queue_state->B[type] += now - queue_state->start_processing_timestamp;
+            queue_state->W[type] += now - info->arrived_in_node_timestamp;
+            queue_state->A[type] = queue_state->A_post[type];
+            queue_state->actual_timestamp[type] = now;
+
+            if(type == REPLY){
+                
+                queue_state->C[TRANSITION]++;
+                queue_state->B[TRANSITION] += info->busy_time_transition;
+                queue_state->W[TRANSITION] += info->waiting_time_transition;
+                queue_state->B[TRANSITION] += now - queue_state->start_processing_timestamp;
+                queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
+                queue_state->A[TRANSITION] = queue_state->A_post[TRANSITION];
+                queue_state->actual_timestamp[TRANSITION] = now;
+
+            }
+
+        //}
 
     }
 
@@ -185,8 +201,12 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
     job_info * info = state->info.node->queue_state->current_job;
 
+    double busy_time_transition = now - state->info.node->queue_state->start_processing_timestamp;
+    double waiting_time_transition = now - info->arrived_in_node_timestamp;
+    
     //Update metrics
-    update_metrics(now, state->info.node->queue_state, info);
+    if(!( info->job_type == TRANSITION && (state->info.node->type == LOCAL || state->info.node->type == REGIONAL) ))
+        update_metrics(now, state->info.node->queue_state, info);
 
     //Schedule the next job if present
     job_info ** info_arr = schedule_next_job(me, now, state->info.node->queue_state, state->info.node->service_rates, NULL, 0, FINISH);
@@ -207,7 +227,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
         //###################################################
         //SEND REPLY
         if(state->info.node->type != LOCAL)
-            send_reply(me, now, state, info->lp_sender, delay_down);
+            send_reply(me, now, state, info->lp_sender, delay_down, info->busy_time_transition, info->waiting_time_transition);
 
         //###################################################
         //GENERATE COMMAND
@@ -225,6 +245,8 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
         //###################################################
         //FORWARD TRANSITION
+        info->busy_time_transition = busy_time_transition;
+        info->waiting_time_transition = waiting_time_transition;
         info->lp_sender = me;
         send_to_up_node(me, now, state, delay_up, info);
 

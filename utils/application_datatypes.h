@@ -35,6 +35,8 @@ typedef struct _job_info {
 		void* payload; ///< The actual job data. (can't be sent on rootsim)
     job_type job_type;
     int lp_sender; //used for the reply
+    double busy_time_transition; //used with the reply and transition
+    double waiting_time_transition; //used with the reply and transition
     int lp_destination; //used for command
 } job_info;
 
