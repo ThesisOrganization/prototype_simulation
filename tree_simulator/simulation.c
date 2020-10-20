@@ -31,29 +31,12 @@ void print_array_int(int * array, int num_el){
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
 
-    /*
-    simtime_t ts_arrive = now + Expent(ARRIVE_RATE);
-    simtime_t ts_finish = now + Expent(FINISH_RATE);
-    simtime_t ts_delay = now + Expent(DELAY_MEAN);
-
-    int up_node;
-
-    job_info * info,**info_arr;
-
-    job_info info_to_send;
-    processing_info proc_info_to_send;
-    */
 
     job_info info_to_send;
     int up_node;
     job_info * info;
     double rate_generate;
-    //double time_between_arrivals;
-
-    //simtime_t ts_generate;
-    //simtime_t ts_arrive = now + Expent(ARRIVE_RATE);
-    //simtime_t ts_finish = now + Expent(FINISH_RATE);
-    //simtime_t ts_delay = now + Expent(DELAY_MEAN);
+    simtime_t ts_update_timestamp;
 
     switch(event_type) {
 
@@ -131,6 +114,10 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 printf("Error: device type not found\n");
                 exit(EXIT_FAILURE);
             }
+
+            ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
+            ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, NULL, 0);
+
 
             break;
 
@@ -292,6 +279,15 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
             break;
 
+        case UPDATE_TIMESTAMP:
+            
+            state->device_timestamp = now;
+            
+            ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
+            ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, NULL, 0);
+
+            break;
+
 
     }
 }
@@ -341,7 +337,7 @@ bool OnGVT(int me, lp_state *snapshot)
     if(!snapshot->lp_enabled)
         return true;
 
-    if(snapshot->device_timestamp > TRANSITION_TIME_LIMIT){
+    if(snapshot->device_timestamp > MAX_SIMULATION_TIME){
     
         if(snapshot->type == NODE){
     
@@ -378,6 +374,8 @@ bool OnGVT(int me, lp_state *snapshot)
 #endif
     
         }
+
+        snapshot->lp_enabled = 0;
     
     }
 

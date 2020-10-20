@@ -184,8 +184,11 @@ typedef struct _topology{
 //#define ARRIVE_RATE 50
 //#define FINISH_RATE 5
 //#define LEN_QUEUE 50
-#define RANDOM_START 100
-#define TRANSITION_TIME_LIMIT 200000
+#define RANDOM_START 500
+#define TRANSITION_TIME_LIMIT 300000
+#define MAX_SIMULATION_TIME 800000
+
+#define NEXT_UPDATE_TIMESTAMP 100000
 
 //#define RANGE_TIMESTAMP 10
 
@@ -197,7 +200,8 @@ typedef enum { //INIT should be 0
     FINISH,
     FINISH_DISK,
     GENERATE_TRANSITION,
-    GENERATE_TELEMETRY
+    GENERATE_TELEMETRY,
+    UPDATE_TIMESTAMP
 } events_type;
 
 
