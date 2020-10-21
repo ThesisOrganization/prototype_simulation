@@ -47,7 +47,7 @@ void generate_next_job(unsigned int me, simtime_t now, double rate_transition, d
 
     double time_between_arrivals = 1/rate_transition;
     //simtime_t ts_generate = now + Expent(time_between_arrivals);
-    simtime_t ts_generate = now + random_value + time_between_arrivals;
+    simtime_t ts_generate = now + random_value + Expent(time_between_arrivals);
     ScheduleNewEvent(me, ts_generate, type, NULL, 0);
 
 }
