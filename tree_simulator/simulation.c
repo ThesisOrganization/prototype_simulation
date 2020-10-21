@@ -196,6 +196,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             memcpy(info, content, sizeof(job_info));
 
             info->arrived_in_node_timestamp = now;
+            info->deadline = now;
 
             if(state->type == NODE){
 
@@ -234,6 +235,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             memcpy(info, content, sizeof(job_info));
 
             info->arrived_in_node_timestamp = now;
+            info->deadline = now;
 
             arrive_disk(me, now, state, info);
 
