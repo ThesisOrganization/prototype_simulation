@@ -2,5 +2,6 @@ report.pdf
 report.tex
 *.txt
 !topology.txt
-simulation_results.pdf
-simulation_results.tex
+*.pdf
+*.tex
+*.json
