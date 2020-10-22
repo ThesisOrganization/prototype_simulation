@@ -326,10 +326,10 @@ void print_metrics(queue_state * queue_state){
     }
 }
 
-void print_pre(int me, simtime_t device_timestamp, int device_type){
+void print_pre(int me, simtime_t device_timestamp, int device_type, int node_type){
 
     printf("#################################################\n");
-    printf("Device number: %d, Type: %d, timestamp: %f\n", me, device_type, device_timestamp);
+    printf("Device number: %d, Type: %d, Node type: %d, timestamp: %f\n", me, device_type, node_type, device_timestamp);
 
 }
 
@@ -344,7 +344,7 @@ bool OnGVT(int me, lp_state *snapshot)
         if(snapshot->type == NODE){
     
 #ifdef PRINT_RESULTS
-            print_pre(me, snapshot->device_timestamp, snapshot->type);
+            print_pre(me, snapshot->device_timestamp, snapshot->type, snapshot->info.node->type);
             print_metrics(snapshot->info.node->queue_state);
             if(GET_NODE_TYPE(snapshot->topology, me) == CENTRAL){
                 printf("<<<<<<<<<<<<<<<<<<<<\n");
@@ -357,7 +357,7 @@ bool OnGVT(int me, lp_state *snapshot)
         else if(snapshot->type == ACTUATOR){
     
 #ifdef PRINT_RESULTS
-            print_pre(me, snapshot->device_timestamp, snapshot->type);
+            print_pre(me, snapshot->device_timestamp, snapshot->type, -1);
             print_metrics(snapshot->info.actuator->queue_state);
 #endif
     
@@ -365,7 +365,7 @@ bool OnGVT(int me, lp_state *snapshot)
         else if(snapshot->type == LAN){
     
 #ifdef PRINT_RESULTS
-            print_pre(me, snapshot->device_timestamp, snapshot->type);
+            print_pre(me, snapshot->device_timestamp, snapshot->type, -1);
     
             printf("<<<<<<<<<<<<<<<<<<<<\n");
             printf("Lan IN:\n");
