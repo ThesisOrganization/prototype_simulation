@@ -689,6 +689,7 @@ for element in ordered_id_list:
         to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
         f_out.write("\\end{minipage}")
+        f_out.write("\n\\newpage")
     elif type == 'sensor':
         str_to_write = "Sensor "
         to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
@@ -899,6 +900,7 @@ for element in ordered_id_list:
         to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
         f_out.write("\\end{minipage}")
+
     elif type == 'lan':
 
         str_to_write = "Lan IN "
@@ -1110,7 +1112,7 @@ for element in ordered_id_list:
         to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
         f_out.write("\\end{minipage}")
-
+        f_out.write("\n\\newpage")
 
         str_to_write = "Lan OUT "
         to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
@@ -1321,6 +1323,7 @@ for element in ordered_id_list:
         to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
         f_out.write("\\end{minipage}")
+        f_out.write("\n\\newpage")
 
 
     #elif type == 'wan':

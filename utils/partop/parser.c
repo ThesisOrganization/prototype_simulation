@@ -341,7 +341,7 @@ topology * getTopology(char * path){
   //loop through all the other tokens in the line
 
   char * ptr = strtok_r(temp, ";", &end_str);
-  double ** sensor_rates = malloc(sizeof(double*) * 2); //fixed, two types of messages
+  double ** sensor_rates = malloc(sizeof(double*) * nts); //fixed, two types of messages
   int index = 0;
   int counter = 0;
   while(ptr){
@@ -351,7 +351,7 @@ topology * getTopology(char * path){
 
     while(ptr2){
       if(counter == 0){
-        sensor_rates[index] = malloc(sizeof(double) * nts);
+        sensor_rates[index] = malloc(sizeof(double) * 2);
         sensor_rates[index][counter] = strtod(ptr2, &end_ptr);
       }
       else{

@@ -99,7 +99,7 @@ while index < (total_so_far+number_of_locals):
     associated_lan_down+=str(lan_id)
     lan_id+=1
     upper_lan_node = index
-    associated_lan_down+=";"+str(index)+";3;LAN,LAN_TYPE1,"+delay_lan
+    associated_lan_down+=";"+str(index)+";3;LAN,LAN_TYPE0,"+delay_lan
     index+=1
 
 lan_up_id = number_of_elements+number_of_WANS
