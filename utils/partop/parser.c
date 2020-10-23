@@ -5,7 +5,7 @@
 #include <string.h>
 #include "../application_datatypes.h"
 
-void parse_strings(char ** strings,LP_topology * this_lpt, int upperNode){
+void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
     char * ptr;
     int counter = 0;
     if( !strcmp(strings[0], "NODE") ){
@@ -202,7 +202,7 @@ void parse_strings(char ** strings,LP_topology * this_lpt, int upperNode){
 
 }
 
-void upwardSearchActSensType(LP_topology ** lpt, int up, int index, int ** array){
+void upwardSearchActSensType(Element_topology ** lpt, int up, int index, int ** array){
 
   if(index != up){
     up = getUpperNode(lpt[up]);
@@ -230,7 +230,7 @@ void upwardSearchActSensType(LP_topology ** lpt, int up, int index, int ** array
 }
 
 //recursive call where we travel upward until the central node
-void upwardSearchSubtreeFilling(LP_topology ** lpt, int up, int index, int *** result){
+void upwardSearchSubtreeFilling(Element_topology ** lpt, int up, int index, int *** result){
   //index : starting actuator
   if(index != up){
     up = getUpperNode(lpt[up]);
@@ -277,7 +277,7 @@ void upwardSearchSubtreeFilling(LP_topology ** lpt, int up, int index, int *** r
 }
 
 //search the graph upward, trying to reach the destination node from the index node
-void upwardSearchActuatorPaths(LP_topology ** lpt, int index, int destination, int number, int ** array){
+void upwardSearchActuatorPaths(Element_topology ** lpt, int index, int destination, int number, int ** array){
   if(index != number){//not first run
     number = getUpperNode(lpt[number]);
   }
@@ -321,7 +321,7 @@ total_topology * getTopology(char * path){
   int totalNumberOfElements = atoi(temp);
   total_topology * EST = malloc(sizeof(total_topology));
 
-  LP_topology ** lpt = malloc(sizeof(LP_topology*) * totalNumberOfElements);
+  Element_topology ** lpt = malloc(sizeof(Element_topology*) * totalNumberOfElements);
 
   int * arrayNumberLowerElements = malloc(sizeof(int) * totalNumberOfElements);
   for(int arrCount = 0; arrCount < totalNumberOfElements; arrCount+=1){
@@ -517,7 +517,7 @@ total_topology * getTopology(char * path){
       ptr=strtok_r(NULL, ";",&end_str);
     }
 
-    lpt[temp] = malloc(sizeof(LP_topology));
+    lpt[temp] = malloc(sizeof(Element_topology));
 
     parse_strings(infoArray,lpt[temp], upperNode);
     lpt[temp]->upperNode = upperNode;
@@ -548,6 +548,7 @@ total_topology * getTopology(char * path){
   int index2 = 0;
   int index3 = 0;
   int type = 0;
+
   //printf("??node %d,type %d\n",7,lpt[7]->spec_top.sensor->sensor_type);
   //printf("%d\n",lpt[7]->spec_top.sensor->sensor_type);
   //fflush(stdout);
@@ -591,7 +592,6 @@ total_topology * getTopology(char * path){
   while(index < totalNumberOfElements){
     type = getType(lpt[index]);
     //printf("index %d, type %d",index, type);
-    fflush(stdout);
     if(type == 0 || type == 3 || type == 4){
       setSensorTypes(lpt[index],typesSensArray[index], nts);
       setActuatorTypes(lpt[index],typesActArray[index], nt);
@@ -765,20 +765,26 @@ total_topology * getTopology(char * path){
     setLowerElements(lpt[c], lowerElementsArray[c],arrayNumberLowerElements[c]);
     setLANs(lpt[c], LANSArray[c],numberofLANs[c]);
     setArrayActuatorPaths(lpt[c],arrayActuatorPaths[c]);
-    setListActuatorsByType(lpt[c],resultAct[c]);
-    setListSensorsByType(lpt[c],resultSens[c]);
 
     if(typeC == 0){
       setWANdown(lpt[c], WANsDownArray[c]);
       setWANup(lpt[c],lpt);
+      setListActuatorsByType(lpt[c],resultAct[c],nt);
+      setListSensorsByType(lpt[c],resultSens[c],nts);
     }
     else if(typeC == 1){
       int sensType = getSensorType(lpt[c]);
       setSensorRates(lpt[c],sensor_rates[sensType]);
     }
-    if(typeC == 4){
+    else if(typeC == 3){ //WAN
+      setListActuatorsByType(lpt[c],resultAct[c],nt);
+      setListSensorsByType(lpt[c],resultSens[c],nts);
+    }
+    else if(typeC == 4){
       int lanType = getLanType(lpt[c]);
       setLANserviceTimes(lpt[c],LANsINserviceTimes[lanType],LANsOUTserviceTimes[lanType]);
+      setListActuatorsByType(lpt[c],resultAct[c],nt);
+      setListSensorsByType(lpt[c],resultSens[c],nts);
     }
 
   }

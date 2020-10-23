@@ -127,6 +127,8 @@ typedef struct _node_topology{
   int * actuatorsTypesBelow;
   int numberOfBelowSensors;
   int * sensorsTypesBelow;
+  int * ListSensorsByType;
+  int * ListActuatorsByType; //[x][y] element è il y-esimo elemento nella lista di attuatori di tipo x
 } node_topology;
 
 typedef struct _sensor_topology{
@@ -153,6 +155,9 @@ typedef struct _wan_topology{
   int * actuatorsTypesBelow;
   int numberOfBelowSensors;
   int * sensorsTypesBelow;
+  int * ListSensorsByType;
+  int * ListActuatorsByType; //[x][y] element è il y-esimo elemento nella lista di attuatori di tipo x
+
 } wan_topology;
 
 typedef struct _lan_topology{
@@ -164,6 +169,9 @@ typedef struct _lan_topology{
   int * actuatorsTypesBelow;
   int numberOfBelowSensors;
   int * sensorsTypesBelow;
+  int * ListSensorsByType;
+  int * ListActuatorsByType; //[x][y] element è il y-esimo elemento nella lista di attuatori di tipo x
+
 } lan_topology;
 
 //struct topology node specific
@@ -188,7 +196,7 @@ typedef struct _general_topology{
   double * probOfActuators;
 } general_topology;
 
-typedef struct _LP_topology{
+typedef struct _Element_topology{
   int lp_type;
   int upperNode;
   int numberOfLowerElements;
@@ -196,14 +204,12 @@ typedef struct _LP_topology{
   int numberOfLANS;
   int * connectedLans;
   int * actuatorPaths;
-  int ** ListSensorsByType;
-  int ** ListActuatorsByType;
   specific_topology spec_top;
-} LP_topology;
+} Element_topology;
 
 typedef struct _total_topology{
   general_topology * gn;
-  LP_topology ** lpt;
+  Element_topology ** lpt;
 } total_topology;
 
 
