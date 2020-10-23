@@ -2,7 +2,7 @@
 
 #echo "simulation_time"
 #simulation_time=400000
-number_lp=22
+number_lp=38
 file_output="output.txt"
 file_latex="simulation_results.tex"
 

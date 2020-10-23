@@ -1,9 +1,12 @@
 # coding=utf-8
-f_out = open("topology.txt", "w")
+f_out = open("../../tree_simulator/topology.txt", "w")
+
 numbersString = ""
+
 types_of_lans = 1
 types_of_sensors = 1
 types_of_actuators = 1
+
 aggregation_rates = "10/2/3/8,"
 sevice_time_central = "0.82/0.35/0.1/0.3/0.52,"
 service_time_regionals ="0.32/0.13/0.8/0.12/0.23,"
@@ -22,7 +25,7 @@ service_time_commands_act = "0.6\n"
 #1 CENTRAL
 number_of_regionals = 2
 number_of_locals = 4
-number_of_sensors_per_local = 2
+number_of_sensors_per_local = 5
 number_of_actuators_per_local = 1
 number_of_lans_per_local = 1 #to change
 number_of_WANS = 1 + number_of_regionals
@@ -34,13 +37,15 @@ numbersString+=str(types_of_actuators)+"\n"
 numbersString+=str(types_of_sensors)+"\n"
 numbersString+=str(types_of_lans)+"\n"
 f_out.write(numbersString);
+
 sens_tele = "0.2"
 sens_trans = "0.1"
-sensor_rates_string = sens_tele+","+sens_trans #in base al tipo fai più di ste string?
 
+sensor_rates_string = sens_tele+","+sens_trans #in base al tipo fai più di ste string?
 f_out.write(sensor_rates_string+"\n")
 
 associated_wan_up = ""
+#lan
 service_tele = "0.42"
 service_trans = "0.33"
 service_command = "0.12"

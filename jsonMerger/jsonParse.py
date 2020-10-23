@@ -1,8 +1,8 @@
 import json
 
-with open('simulation_results.json') as f_simulator:
+with open('../tree_simulator/simulation_results.json') as f_simulator:
   data_simulator = json.load(f_simulator)
-with open('model_res.json') as f_model:
+with open('../model_computation/model_res.json') as f_model:
   data_model = json.load(f_model)
 
 count = 0;
