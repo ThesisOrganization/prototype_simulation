@@ -4,7 +4,8 @@
 #simulation_time=400000
 number_lp=38
 file_output="output.txt"
-file_latex="simulation_results.tex"
+#file_latex="simulation_results.tex"
+file_json="simulation_results.json"
 
 
 if [ -n "$2" ]; then
@@ -23,13 +24,13 @@ elif [ "$1" == "print" ]; then
     ./queues --sequential --lp $number_lp 
 elif [ "$1" == "alone" ]; then
     ./queues --sequential --lp $number_lp > $file_output
-elif [ "$1" == "pdf" ]; then
-    python3 generate_pdf.py $file_output $file_latex
-    pdflatex $file_latex
+#elif [ "$1" == "pdf" ]; then
+#    python3 generate_pdf.py $file_output $file_latex
+#    pdflatex $file_latex
+elif [ "$1" == "json" ]; then
+    python3 generate_json.py $file_output $file_json
 else
     #./queues --sequential --lp $number_lp --simulation-time $simulation_time > $file_output
     ./queues --sequential --lp $number_lp > $file_output
-    python3 generate_pdf.py $file_output $file_latex
-    pdflatex $file_latex
-    #python3 print_sorting.py $file_output
+    python3 generate_json.py $file_output $file_json
 fi
