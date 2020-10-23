@@ -141,7 +141,7 @@ for element in ordered_id_list:
         U_string+="$\\\\"
         to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
         f_out.write(total_u)
 
         f_out.write(begin_table)
@@ -238,7 +238,7 @@ for element in ordered_id_list:
         U_string+="$\\\\"
         to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
         f_out.write(total_u)
 
         f_out.write(begin_table)
@@ -354,7 +354,7 @@ for element in ordered_id_list:
             U_string+="$\\\\"
             to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
             f_out.write(to_print)
-            total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+            total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
             f_out.write(total_u)
 
             f_out.write(begin_table)
@@ -449,7 +449,7 @@ for element in ordered_id_list:
             U_string+="$\\\\"
             to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
             f_out.write(to_print)
-            total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+            total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
             f_out.write(total_u)
 
             f_out.write(begin_table)
@@ -568,7 +568,7 @@ for element in ordered_id_list:
         U_string+="$\\\\"
         to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
         f_out.write(total_u)
 
         f_out.write(begin_table)
@@ -664,7 +664,7 @@ for element in ordered_id_list:
         U_string+="$\\\\"
         to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
         f_out.write(total_u)
 
         f_out.write(begin_table)
@@ -779,7 +779,7 @@ for element in ordered_id_list:
         U_string+="$\\\\"
         to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
         f_out.write(total_u)
 
         f_out.write(begin_table)
@@ -875,7 +875,7 @@ for element in ordered_id_list:
         U_string+="$\\\\"
         to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
         f_out.write(total_u)
 
         f_out.write(begin_table)
@@ -991,7 +991,7 @@ for element in ordered_id_list:
         U_string+="$\\\\"
         to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
         f_out.write(total_u)
 
         f_out.write(begin_table)
@@ -1087,7 +1087,7 @@ for element in ordered_id_list:
         U_string+="$\\\\"
         to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
         f_out.write(total_u)
 
         f_out.write(begin_table)
@@ -1202,7 +1202,7 @@ for element in ordered_id_list:
         U_string+="$\\\\"
         to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
         f_out.write(total_u)
 
         f_out.write(begin_table)
@@ -1298,7 +1298,7 @@ for element in ordered_id_list:
         U_string+="$\\\\"
         to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + str(total) + "$\n"
+        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
         f_out.write(total_u)
 
         f_out.write(begin_table)
