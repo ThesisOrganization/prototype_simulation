@@ -38,10 +38,13 @@ LAN:type of LAN[MANET/WIRELESS/ETC], delay\
 
 For the CENTRAL NODE only, it has two more fields:\
 type of connected Disk, {Disk service time telemetry, transition, command (0.00), batch}\
+## Data Structure 1: total_topology
+total_topology contains both the general topology and an array of LP_topologies, one for each element.\
+general_topology * gn;\
+LP_topology ** lpt;\
 
-## Data structure 1
-topology is composed by the general, useful informations:\
-First 8 info that shouldn't need explaining:\
+## DS 2: general_topology
+general_topology is composed by the general, useful informations:\
 int total_nodes;\
 int sensor_nodes;\
 int actuator_nodes;\
@@ -50,59 +53,98 @@ int numberOfTotalWANs;\
 int numberOfActTypes;\
 int numberOfSensTypes;\
 int numberOfLANsTypes;\
-double ** sensorRatesByType: array of arrays containing the sensor rates of each type of sensor for each type of message(only telemetry and transition).\
-double ** LANsINserviceTimes: same as sensorRatesByType but in this case it is the service time of each type of lan IN for each type of message(all 5, even if batch send should not be here, but for future updates).\
-double ** LANsOUTserviceTimes:specular.\
-double * probOfActuators: probability of each type of actuator to receive a command message.\
-int *** ListActuatorsByType: matrix where an element [x][y][z] is the z-th actuator of type y in the sub-tree of the node x.\
-int *** ListSensorsByType;\
-topArray ** topArr: array of topArray structs, see below.
+double * probOfActuators: probability of each type of receiving a command.
 
-## DS 2
-topArray is an additional data structure, used to give informations about one element without specifics about the node's nature, composed :\
+## DS 3 : LP_topology
+Second tier structure, containing the topology informations of a single node.\
+int lp_type: Node, Sensor, Actuator, WAN, LAN\
 int upperNode: which node is directly above.\
 int numberOfLowerElements: how many elements are directly below.\
 int * lowerElements: array of elements below(skipping WANs/LANs)\
 int numberOfLANS: how many LANs directly below.\
 int * connectedLans: array of LANs below.\
-void * info: see below.
+int *** ListActuatorsByType: matrix where an element [y][z] is the z-th actuator of type y in the sub-tree of this node.\
+int *** ListSensorsByType;\
+specific_topology spec_top: see below.\
 
-## DS 3
-lp_infos contains all other useful informations.\
+double ** sensorRatesByType: array of arrays containing the sensor rates of each type of sensor for each type of message(only telemetry and transition).\
+double ** LANsINserviceTimes: same as sensorRatesByType but in this case it is the service time of each type of lan IN for each type of message(all 5, even if batch send should not be here, but for future updates).\
+double ** LANsOUTserviceTimes:specular.\
+double * probOfActuators: probability of each type of actuator to receive a command message.\
+
+
+## DS 3 Specific topology
+Union of all different types of element topology.\\
 \
-int lp_type: Node, Sensor, Actuator, WAN, LAN\
+NODE\
 \
-int sensor_type;\
-int actuator_type;\
-int type_job;\
-int measure_type;\
-\
-int wan_type;\
-int lan_type;\
-float delay;\
 \
 int node_type: CENTRAL, REGIONAL, LOCAL\
-double * service_time: array of service time for each type of message\
 int scheduler: which scheduler it is used\
-int * actuatorsTypesBelow: how many actuators the node has below of each type(even indirectly)\
-int id_WAN_up;\
-int id_WAN_down;\
-int id_LAN_up;\
-int numberOfBelowSensors: how many sensors below, even indirectly.\
+int disk_type: at the moment represents either RAID1, RAID2 or RAID3.\
+double * diskServices : set containing the disk's service time for each type of message.\
 int * aggregation_rate: set of aggregation rates for a node, for each type of message.\
 float delay_upper_router;\
 float delay_lower_router;\
-int disk_type: at the moment represents either RAID1, RAID2 or RAID3.\
-double * diskServices : set containing the disk's service time for each type of message.\
-
+double * service_time: array of service time for each type of message\
+float probCommandResponse;\
+int id_WAN_up;\
+int id_WAN_down;\
+int numberOfBelowActuators;\
+int * actuatorsTypesBelow: how many actuators the node has below of each type(even indirectly)\
+int numberOfBelowSensors;\
+int * sensorsTypesBelow;\
+\
+\
+SENSOR\
+int type_job;\
+int sensor_type;\
+int measure_type;\
+int id_LAN_up;\
+double * sensorRates;\
+\
+\
+ACTUATOR\
+int type_job;\
+int actuator_type;\
+double rateTransition;\
+double serviceTimeCommand;\
+int measure_type;\
+int id_LAN_up;\
+\
+\
+WAN\
+int wan_type;\
+float delay;\
+int numberOfBelowActuators;\
+int * actuatorsTypesBelow;\
+int numberOfBelowSensors;\
+int * sensorsTypesBelow;\
+\
+\
+LAN\
+\
+int lan_type;\
+float delay;\
+double * LANsINserviceTimes;\
+double * LANsOUTserviceTimes;\
+int numberOfBelowActuators;\
+int * actuatorsTypesBelow;\
+int numberOfBelowSensors;\
+int * sensorsTypesBelow;\
 
 ## Usage
 This module should be used at startup with the function in parser.c, where the txt file specified gets parsed and put into data structures.\
 driver.c is used to show corrected and mode of use.\
 getTopology(path) starts parser.c to do so.\
-Then in topology.c all useful retrieval functions are written, for now need to pass the topology structures, if needed will be modified to accept others structs.
-
-
+general_topology * getGenTopology(total_topology * totTop);\
+LP_topology * getLPTopology(total_topology * totTop, int index)\
+Then in topology.c all useful retrieval functions are written, most require a LP_topology as input.
+## WILL BE DEPRECATED
+getServiceRates(LP_topology * lpt) will have its name changed in getServiceTimesNodes(LP_topology * lpt)\
+getActType(LP_topology * lpt) will have its name changed in getActuatorTypesBelowList(LP_topology * lpt)\
+int * getSensType(LP_topology * lpt) will have its name changed in
+getSensorsTypesBelowList(LP_topology * lpt)\
 ## DONE LAST PUSHS
 15/10\
 -added disk fields to CENTRAL:type of connected Disk, {Disk service time telemetry, transition, command (0.00), batch}.\\
@@ -110,4 +152,6 @@ Then in topology.c all useful retrieval functions are written, for now need to p
 16/10\
 -Removed line 9 containing probabilities for node types, moved it to each node. Instead of topology->probNodeCommandArray[type], topology->topArray[id node]->info->probCommandResponse.\
 17/10\
--Added GETs for every information, some refactoring.
+-Added GETs for every information, some refactoring.\
+18/10\
+-Everything got converted, check deprecated functions and how to use new syntax.

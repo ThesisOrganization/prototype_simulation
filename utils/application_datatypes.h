@@ -111,51 +111,81 @@ typedef enum {
 } disk_type;
 //temp struct, to make things uniform with application.c
 //and check integrity in this main file
-typedef struct _lp_infos
-{
-int lp_type;
 
-int sensor_type;
-int actuator_type;
-int type_job;
-int measure_type;
-int id_LAN_up;
+typedef struct _node_topology{
+  int node_type;
+  int scheduler;
+  int disk_type;
+  double * diskServices;
+  int * aggregation_rate;
+  float delay_upper_router;
+  float delay_lower_router;
+  double * service_time;
+  float probCommandResponse;
+  int id_WAN_up;
+  int id_WAN_down;
+  int numberOfBelowActuators;
+  int * actuatorsTypesBelow;
+  int numberOfBelowSensors;
+  int * sensorsTypesBelow;
+  int * ListSensorsByType;
+  int * ListActuatorsByType; //[x][y] element è il y-esimo elemento nella lista di attuatori di tipo x
+} node_topology;
 
-double rateTransition;
-double serviceTimeCommand;
+typedef struct _sensor_topology{
+  int type_job;
+  int sensor_type;
+  int measure_type;
+  int id_LAN_up;
+  double * sensorRates;
+} sensor_topology;
 
-int wan_type;
-int lan_type;
-float delay;
+typedef struct _actuator_topology{
+  int type_job;
+  int actuator_type;
+  double rateTransition;
+  double serviceTimeCommand;
+  int measure_type;
+  int id_LAN_up;
+} actuator_topology;
 
-int node_type;
-double * service_time;
-int scheduler;
-int numberOfBelowActuators;
-int * actuatorsTypesBelow;
-int id_WAN_up;
-int id_WAN_down;
-int numberOfBelowSensors;
-int * sensorsTypesBelow;
-int * aggregation_rate;
-float delay_upper_router;
-float delay_lower_router;
-float probCommandResponse;
-int disk_type;
-double * diskServices;
-} lp_infos;
+typedef struct _wan_topology{
+  int wan_type;
+  float delay;
+  int numberOfBelowActuators;
+  int * actuatorsTypesBelow;
+  int numberOfBelowSensors;
+  int * sensorsTypesBelow;
+  int * ListSensorsByType;
+  int * ListActuatorsByType; //[x][y] element è il y-esimo elemento nella lista di attuatori di tipo x
 
-typedef struct _topArray
-{
-int upperNode;
-int numberOfLowerElements;
-int * lowerElements;
-int numberOfLANS;
-int * connectedLans;
-void * info;
-} topArray;
+} wan_topology;
 
-typedef struct _topology{
+typedef struct _lan_topology{
+  int lan_type;
+  float delay;
+  double * LANsINserviceTimes;
+  double * LANsOUTserviceTimes;
+  int numberOfBelowActuators;
+  int * actuatorsTypesBelow;
+  int numberOfBelowSensors;
+  int * sensorsTypesBelow;
+  int * ListSensorsByType;
+  int * ListActuatorsByType; //[x][y] element è il y-esimo elemento nella lista di attuatori di tipo x
+
+} lan_topology;
+
+//struct topology node specific
+typedef union {
+    sensor_topology * sensor;
+    node_topology * node;
+    actuator_topology * actuator;
+    lan_topology * lan;
+    wan_topology * wan;
+} specific_topology;
+
+
+typedef struct _general_topology{
   int total_nodes;
   int sensor_nodes;
   int actuator_nodes;
@@ -164,15 +194,25 @@ typedef struct _topology{
   int numberOfActTypes;
   int numberOfSensTypes;
   int numberOfLANsTypes;
-  int ** actuatorPaths;
-  double ** sensorRatesByType;
-  double ** LANsINserviceTimes;
-  double ** LANsOUTserviceTimes;
   double * probOfActuators;
-  int *** ListSensorsByType;
-  int *** ListActuatorsByType;
-  topArray ** topArr; //array of poiters to topArray
-} topology;
+} general_topology;
+
+typedef struct _Element_topology{
+  int lp_type;
+  int upperNode;
+  int numberOfLowerElements;
+  int * lowerElements;
+  int numberOfLANS;
+  int * connectedLans;
+  int * actuatorPaths;
+  specific_topology spec_top;
+} Element_topology;
+
+typedef struct _total_topology{
+  general_topology * gn;
+  Element_topology ** lpt;
+} total_topology;
+
 
 
 //#############################################
@@ -283,7 +323,6 @@ typedef struct _state {
     simtime_t device_timestamp;
     state_type type;
     //general infos
-    topology * topology;
     int num_acts_types;
     double * prob_actuators;
     //specific infos
