@@ -2,7 +2,7 @@ import json
 
 with open('simulation_results.json') as f_simulator:
   data_simulator = json.load(f_simulator)
-with open('model_results.json') as f_model:
+with open('model_res.json') as f_model:
   data_model = json.load(f_model)
 
 count = 0;
@@ -27,19 +27,51 @@ while(count < num_elements):
     count+=1
 
 ordered_id_list.sort()
-
+params = ["telemetry","transition","command","batch"]
 f_out = open("complete_results.tex", "w")
 #title
-initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\n\\title{Results}\\begin{document}\n\\section{Detailed view}\n"
+initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\n\\title{Results}\n\\begin{document}\n\\maketitle\n\\section{Detailed view}\n"
 f_out.write(initial_header);
 begin_table ="\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc@{}}\n\\toprule\n"
+complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc|cccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $aggr_t$ & $aggr_e$ & $aggr_c$ & $aggr_b$\\\\"
+semi_complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$\\\\"
 
 for element in ordered_id_list:
     type = dict_model[element]['type']
     if type == 'node':
         str_to_write = dict_model[element]['node_type'].capitalize()
-        to_write = "\subsection{"+str_to_write+" node "+str(element)+"}\n"
+        to_write = "\\subsection{"+str_to_write+" node "+str(element)+"}\n"
         f_out.write(to_write);
+
+        table_string = "\\subsubsection{Given parameters}\n"
+        f_out.write(table_string)
+        f_out.write(complete_table)
+
+
+        service_string = "$"
+        flag = True
+        for elem2 in params:
+            if flag :
+                flag = False
+                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
+            else:
+                service_string+="$ & $"
+                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
+
+        aggrs_string = "$ & $"
+        flag = True
+        for elem2 in params:
+            if flag :
+                flag = False
+                aggrs_string+= str(dict_model[element]['parameters'][elem2]['aggregation_rate'])
+            else:
+                aggrs_string+="$ & $"
+                aggrs_string+= str(dict_model[element]['parameters'][elem2]['aggregation_rate'])
+        aggrs_string+="$\\\\"
+
+        to_print = "\n\\midrule\n"+service_string+aggrs_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
+        to_print+="\n"
+        f_out.write(to_print)
 
         table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
         table_string+= begin_table
@@ -47,8 +79,11 @@ for element in ordered_id_list:
         table_string+= "\\"
         table_string+= "\\"
         table_string+="\n"
+
         f_out.write(table_string)
-        params = dict_model[element]['parameters']
+
+
+
         lambdas_string = "$"
         flag = True
         for elem2 in params:
@@ -232,8 +267,28 @@ for element in ordered_id_list:
 
         if dict_simulator[element]['node_type'] == 'central' :
             str_to_write = "Central storage of Node "
-            to_write = "\subsection{"+str_to_write+str(element)+"}\n"
+            to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
             f_out.write(to_write);
+
+            table_string = "\\subsubsection{Given parameters}\n"
+            f_out.write(table_string)
+            f_out.write(semi_complete_table)
+
+            service_string = "$"
+            flag = True
+            for elem2 in params:
+                if flag :
+                    flag = False
+                    service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
+                else:
+                    service_string+="$ & $"
+                    service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
+
+            service_string+="$\\\\"
+
+            to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
+            to_print+="\n"
+            f_out.write(to_print)
 
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
             table_string+= begin_table
@@ -323,8 +378,6 @@ for element in ordered_id_list:
             to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
             f_out.write(to_print)
             f_out.write("\\end{minipage}")
-
-
 
             table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
             f_out.write(table_string)
@@ -422,11 +475,33 @@ for element in ordered_id_list:
             to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
             f_out.write(to_print)
             f_out.write("\\end{minipage}")
+        f_out.write("\n\\newpage")
 
     elif type == 'actuator':
         str_to_write = "Actuator "
-        to_write = "\subsection{"+str_to_write+str(element)+"}\n"
+        to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
         f_out.write(to_write);
+
+        table_string = "\\subsubsection{Given parameters}\n"
+        f_out.write(table_string)
+        f_out.write(semi_complete_table)
+
+
+        service_string = "$"
+        flag = True
+        for elem2 in params:
+            if flag :
+                flag = False
+                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
+            else:
+                service_string+="$ & $"
+                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
+
+        service_string+="$\\\\"
+
+        to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
+        to_print+="\n"
+        f_out.write(to_print)
 
         table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
         table_string+= begin_table
@@ -435,7 +510,7 @@ for element in ordered_id_list:
         table_string+= "\\"
         table_string+="\n"
         f_out.write(table_string)
-        params = dict_model[element]['parameters']
+
         lambdas_string = "$"
         flag = True
         for elem2 in params:
@@ -616,8 +691,28 @@ for element in ordered_id_list:
         f_out.write("\\end{minipage}")
     elif type == 'sensor':
         str_to_write = "Sensor "
-        to_write = "\subsection{"+str_to_write+str(element)+"}\n"
+        to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
         f_out.write(to_write);
+
+        table_string = "\\subsubsection{Given parameters}\n"
+        f_out.write(table_string)
+        f_out.write(semi_complete_table)
+
+        service_string = "$"
+        flag = True
+        for elem2 in params:
+            if flag :
+                flag = False
+                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
+            else:
+                service_string+="$ & $"
+                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
+
+        service_string+="$\\\\"
+
+        to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
+        to_print+="\n"
+        f_out.write(to_print)
 
         table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
         table_string+= begin_table
@@ -626,7 +721,6 @@ for element in ordered_id_list:
         table_string+= "\\"
         table_string+="\n"
         f_out.write(table_string)
-        params = dict_model[element]['parameters']
         lambdas_string = "$"
         flag = True
         for elem2 in params:
@@ -807,9 +901,29 @@ for element in ordered_id_list:
         f_out.write("\\end{minipage}")
     elif type == 'lan':
 
-        str_to_write = "LAN IN "
-        to_write = "\subsection{"+str_to_write+str(element)+"}\n"
+        str_to_write = "Lan IN "
+        to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
         f_out.write(to_write);
+
+        table_string = "\\subsubsection{Given parameters}\n"
+        f_out.write(table_string)
+        f_out.write(semi_complete_table)
+
+        service_string = "$"
+        flag = True
+        for elem2 in params:
+            if flag :
+                flag = False
+                service_string+= str(dict_model[element]['lan_in'][elem2]['service_time'])
+            else:
+                service_string+="$ & $"
+                service_string+= str(dict_model[element]['lan_in'][elem2]['service_time'])
+
+        service_string+="$\\\\"
+
+        to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
+        to_print+="\n"
+        f_out.write(to_print)
 
         table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
         table_string+= begin_table
@@ -818,7 +932,6 @@ for element in ordered_id_list:
         table_string+= "\\"
         table_string+="\n"
         f_out.write(table_string)
-        params = dict_model[element]['lan_in']
         lambdas_string = "$"
         flag = True
         for elem2 in params:
@@ -999,9 +1112,29 @@ for element in ordered_id_list:
         f_out.write("\\end{minipage}")
 
 
-        str_to_write = "LAN OUT "
-        to_write = "\subsection{"+str_to_write+str(element)+"}\n"
+        str_to_write = "Lan OUT "
+        to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
         f_out.write(to_write);
+
+        table_string = "\\subsubsection{Given parameters}\n"
+        f_out.write(table_string)
+        f_out.write(semi_complete_table)
+
+        service_string = "$"
+        flag = True
+        for elem2 in params:
+            if flag :
+                flag = False
+                service_string+= str(dict_model[element]['lan_out'][elem2]['service_time'])
+            else:
+                service_string+="$ & $"
+                service_string+= str(dict_model[element]['lan_out'][elem2]['service_time'])
+
+        service_string+="$\\\\"
+
+        to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
+        to_print+="\n"
+        f_out.write(to_print)
 
         table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
         table_string+= begin_table
@@ -1010,7 +1143,6 @@ for element in ordered_id_list:
         table_string+= "\\"
         table_string+="\n"
         f_out.write(table_string)
-        params = dict_model[element]['lan_out']
         lambdas_string = "$"
         flag = True
         for elem2 in params:
