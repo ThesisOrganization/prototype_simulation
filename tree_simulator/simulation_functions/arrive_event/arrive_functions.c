@@ -99,20 +99,20 @@ void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info* info
 
     if(info->job_type == TELEMETRY){
         //printf("TELEMETRY\n");
-        up_node = GET_UPPER_NODE(state->topology, me);
+        up_node = GET_UPPER_NODE(state->topology);
         ScheduleNewEvent(up_node, now + delay, ARRIVE, info, sizeof(job_info));
 
     }
     else if(info->job_type == TRANSITION){
         //printf("TRANSITION\n");
-        up_node = GET_UPPER_NODE(state->topology, me);
+        up_node = GET_UPPER_NODE(state->topology);
         ScheduleNewEvent(up_node, now + delay, ARRIVE, info, sizeof(job_info));
 
     }
     else if(info->job_type == COMMAND){
 
         //printf("COMMAND received!!!!\n");
-        int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology, me);
+        int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology);
         int next_hop = next_hop_list[info->lp_destination];
 
         ScheduleNewEvent(next_hop, now + delay, ARRIVE, info, sizeof(job_info));
@@ -120,7 +120,7 @@ void arrive_wan(unsigned int me, simtime_t now, lp_state * state, job_info* info
     }
     else if(info->job_type == BATCH_DATA){
 
-        up_node = GET_UPPER_NODE(state->topology, me);
+        up_node = GET_UPPER_NODE(state->topology);
         ScheduleNewEvent(up_node, now + delay, ARRIVE, info, sizeof(job_info));
 
     }
@@ -142,7 +142,7 @@ void arrive_disk(unsigned int me, simtime_t now, lp_state * state, job_info * in
 
     update_metrics(now, state->info.node->disk_state, info);
 
-    start_device(me, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology, me), info, NULL, 0, FINISH_DISK);
+    start_device(me, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology), info, NULL, 0, FINISH_DISK);
 
 }
 

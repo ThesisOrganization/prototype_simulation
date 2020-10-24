@@ -323,6 +323,7 @@ typedef struct _state {
     simtime_t device_timestamp;
     state_type type;
     //general infos
+    Element_topology * topology;
     int num_acts_types;
     double * prob_actuators;
     //specific infos

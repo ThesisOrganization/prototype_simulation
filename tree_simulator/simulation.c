@@ -51,16 +51,18 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             //printf("%.3g\n", now);
 
             //state->num_jobs_processed = 0;
-            state->topology = getTopology(topology_path); //later we will use a static struct
+            total_topology * tot_top = getTopology(topology_path); //later we will use a static struct
+            general_topology * gen_top = getGenTopology(tot_top);
+            state->topology = getLPTopology(tot_top, me);
 
-            unsigned int num_nodes = state->topology->total_nodes;
-            unsigned int num_sensors = state->topology->sensor_nodes;
-            unsigned int num_actuators = state->topology->actuator_nodes;
-            unsigned int num_wans = state->topology->numberOfTotalWANs;
-            unsigned int num_lans = state->topology->numberOfTotalLANs;
+            unsigned int num_nodes = GET_TOTAL_NODES(gen_top);
+            unsigned int num_sensors = GET_SENSOR_NODES(gen_top);
+            unsigned int num_actuators = GET_ACTUATOR_NODES(gen_top);
+            unsigned int num_wans = GET_NUMBER_OF_WANS(gen_top);
+            unsigned int num_lans = GET_NUMBER_OF_LANS(gen_top);
 
-            state->num_acts_types = state->topology->numberOfActTypes;
-            state->prob_actuators = state->topology->probOfActuators;
+            state->num_acts_types = GET_NUMBER_ACT_TYPES(gen_top);
+            state->prob_actuators = GET_PROB_ACTUATORS(gen_top);
 
             //if there are too few LPs, exit
             if(num_nodes + num_sensors + num_actuators + num_lans + num_wans > n_prc_tot){
@@ -79,7 +81,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
                 state->lp_enabled = 1;
 
 
-            state->type = getType(state->topology, me);
+            state->type = GET_TYPE(state->topology);
             //printf("%d\n", state->type);
             //lp_infos* infos = getInfo(state->topology, me);
 
@@ -131,7 +133,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             info_to_send.payload = NULL;
             info_to_send.job_type = TRANSITION;
 
-            up_node = getUpperNode(state->topology, me);
+            up_node = GET_UPPER_NODE(state->topology);
             ScheduleNewEvent(up_node, now, ARRIVE, &info_to_send, sizeof(job_info));
 
             //ts_generate = now + Expent(ARRIVE_RATE);
@@ -167,7 +169,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             info_to_send.payload = NULL;
             info_to_send.job_type = TELEMETRY;
 
-            up_node = getUpperNode(state->topology, me);
+            up_node = GET_UPPER_NODE(state->topology);
             ScheduleNewEvent(up_node, now, ARRIVE, &info_to_send, sizeof(job_info));
 
             //ts_generate = now + Expent(ARRIVE_RATE);
@@ -346,7 +348,7 @@ bool OnGVT(int me, lp_state *snapshot)
 #ifdef PRINT_RESULTS
             print_pre(me, snapshot->device_timestamp, snapshot->type, snapshot->info.node->type);
             print_metrics(snapshot->info.node->queue_state);
-            if(GET_NODE_TYPE(snapshot->topology, me) == CENTRAL){
+            if(GET_NODE_TYPE(snapshot->topology) == CENTRAL){
                 printf("<<<<<<<<<<<<<<<<<<<<\n");
                 printf("Disk:\n");
                 print_metrics(snapshot->info.node->disk_state);

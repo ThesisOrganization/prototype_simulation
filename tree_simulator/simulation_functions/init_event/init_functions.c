@@ -65,30 +65,30 @@ void init_node(unsigned int me, lp_state * state){
     int num_queues = 1;
     state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
-    state->info.node->service_rates = GET_SERVICE_RATES(state->topology, me);
+    state->info.node->service_rates = GET_SERVICE_RATES(state->topology);
 
     //state->info.node->service_rates[TRANSITION] *= 2; //to delete
 
-    state->info.node->type = GET_NODE_TYPE(state->topology, me);
+    state->info.node->type = GET_NODE_TYPE(state->topology);
 
-    state->info.node->telemetry_aggregation = GET_AGGREGATION_RATE(state->topology, me)[TELEMETRY];
+    state->info.node->telemetry_aggregation = GET_AGGREGATION_RATE(state->topology)[TELEMETRY];
     state->info.node->num_telemetry_aggregated = 0;
 
-    state->info.node->up_delay = GET_DELAY_UPPER_ROUTER(state->topology, me);
-    state->info.node->down_delay = GET_DELAY_LOWER_ROUTER(state->topology, me);
+    state->info.node->up_delay = GET_DELAY_UPPER_ROUTER(state->topology);
+    state->info.node->down_delay = GET_DELAY_LOWER_ROUTER(state->topology);
 
-    state->info.node->id_wan_down = GET_WAN_DOWN(state->topology, me);
+    state->info.node->id_wan_down = GET_WAN_DOWN(state->topology);
 
-    state->info.node->batch_aggregation = GET_AGGREGATION_RATE(state->topology, me)[BATCH_DATA];
+    state->info.node->batch_aggregation = GET_AGGREGATION_RATE(state->topology)[BATCH_DATA];
     state->info.node->num_batch_aggregated = 0;
 
     //int node_type = state->info.node->type;
     //state->info.node->prob_cmd = state->topology->probNodeCommandArray[node_type];
-    state->info.node->prob_cmd = GET_PROB_COMMAND(state->topology, me);
+    state->info.node->prob_cmd = GET_PROB_COMMAND(state->topology);
 
     ///init disk queue
     
-    if(GET_NODE_TYPE(state->topology, me) == CENTRAL){
+    if(GET_NODE_TYPE(state->topology) == CENTRAL){
         state->info.node->disk_state = malloc(sizeof(queue_state));
         state->info.node->disk_state->current_job = NULL;
         state->info.node->disk_state->num_jobs_in_queue = 0;
@@ -106,9 +106,9 @@ void init_sensor(unsigned int me, simtime_t now, lp_state * state){
     //printf("sensor\n");
 
     state->info.sensor = malloc(sizeof(sensor_state));
-    int sensor_type = GET_SENSOR_TYPE(state->topology, me);
+    int sensor_type = GET_SENSOR_TYPE(state->topology);
     //printf("%d\n", sensor_type);
-    double * sensor_rate = GET_SENSOR_TYPE_RATES(state->topology, sensor_type);
+    double * sensor_rate = GET_SENSOR_TYPE_RATES(state->topology);
     double rate_transition = sensor_rate[TRANSITION];
     double rate_telemetry = sensor_rate[TELEMETRY];
 
@@ -136,9 +136,9 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state){
     int num_queues = 1;
     state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
-    state->info.actuator->service_rate_command = GET_SERVICE_COMMAND(state->topology, me);
+    state->info.actuator->service_rate_command = GET_SERVICE_COMMAND(state->topology);
 
-    double rate_transition = GET_RATE_TRANSITION(state->topology, me);
+    double rate_transition = GET_RATE_TRANSITION(state->topology);
     state->info.actuator->rate_transition = rate_transition;
 
     //schedule generate for all actuators
@@ -167,9 +167,9 @@ void init_lan(unsigned int me, lp_state * state){
     state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
 
-    int lan_type = GET_LAN_TYPE(state->topology, me);
-    state->info.lan->service_rates_in = GET_LAN_IN_TYPE_SERVICE(state->topology, lan_type);
-    state->info.lan->service_rates_out = GET_LAN_OUT_TYPE_SERVICE(state->topology, lan_type);
+    int lan_type = GET_LAN_TYPE(state->topology);
+    state->info.lan->service_rates_in = GET_LAN_IN_TYPE_SERVICE(state->topology);
+    state->info.lan->service_rates_out = GET_LAN_OUT_TYPE_SERVICE(state->topology);
 
 }
 
@@ -178,6 +178,6 @@ void init_wan(unsigned int me, lp_state * state){
     //printf("wan\n");
     state->info.wan = malloc(sizeof(wan_state));
 
-    state->info.wan->delay = GET_DELAY(state->topology, me);
+    state->info.wan->delay = GET_DELAY(state->topology);
 
 }

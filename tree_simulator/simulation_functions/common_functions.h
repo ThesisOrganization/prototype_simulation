@@ -52,36 +52,46 @@ if (! (x)) {\
 
 
 //NODES
-#define GET_SERVICE_RATES(a,b) getServiceRates(a,b)
-#define GET_NODE_TYPE(a,b) getNodeType(a,b)
-#define GET_AGGREGATION_RATE(a,b) getAggregationRate(a,b)
-#define GET_DELAY_UPPER_ROUTER(a,b) getDelayUpperRouter(a,b)
-#define GET_DELAY_LOWER_ROUTER(a,b) getDelayLowerRouter(a,b)
-#define GET_WAN_DOWN(a,b) getWanDown(a,b)
-#define GET_PROB_COMMAND(a,b) getProbCommandResponse(a,b)
+#define GET_SERVICE_RATES(a) getServiceTimesNodes(a)
+#define GET_NODE_TYPE(a) getNodeType(a)
+#define GET_AGGREGATION_RATE(a) getAggregationRate(a)
+#define GET_DELAY_UPPER_ROUTER(a) getDelayUpperRouter(a)
+#define GET_DELAY_LOWER_ROUTER(a) getDelayLowerRouter(a)
+#define GET_WAN_DOWN(a) getWanDown(a)
+#define GET_PROB_COMMAND(a) getProbCommandResponse(a)
 
 //SENSORS
-#define GET_SENSOR_TYPE_RATES(a,b) getSensorRatesForOneSensorType(a,b)
-#define GET_SENSOR_TYPE(a,b) getSensorType(a,b)
+#define GET_SENSOR_TYPE_RATES(a) getSensorRates(a)
+#define GET_SENSOR_TYPE(a) getSensorType(a)
 
 //ACTUATORS
-#define GET_SERVICE_COMMAND(a,b) getServiceTimeCommand(a,b)
-#define GET_RATE_TRANSITION(a,b) getRateTransition(a,b)
+#define GET_SERVICE_COMMAND(a) getServiceTimeCommand(a)
+#define GET_RATE_TRANSITION(a) getRateTransition(a)
 
 //LANS
-#define GET_LAN_IN_TYPE_SERVICE(a,b) getLANsINserviceTimesForOneLANType(a,b)
-#define GET_LAN_OUT_TYPE_SERVICE(a,b) getLANsOUTserviceTimesForOneLANType(a,b)
-#define GET_LAN_TYPE(a,b) getLanType(a,b)
+#define GET_LAN_IN_TYPE_SERVICE(a) getLANsINserviceTimesByType(a)
+#define GET_LAN_OUT_TYPE_SERVICE(a) getLANsOUTserviceTimesByType(a)
+#define GET_LAN_TYPE(a) getLanType(a)
 
 //WANS
-#define GET_DELAY(a,b) getDelay(a,b)
+#define GET_DELAY(a) getDelay(a)
 
-#define GET_ACTUATOR_PATHS_INDEX(a,b) getActuatorPathsIndex(a,b)
-#define GET_ACT_TYPE(a,b) getActType(a,b)
-#define GET_LIST_ACTUATORS_BY_TYPE(a,b,c) getListActuatorsByType(a,b,c)
-#define GET_UPPER_NODE(a,b) getUpperNode(a,b)
+#define GET_ACTUATOR_PATHS_INDEX(a) getActuatorPaths(a)
+#define GET_ACT_TYPE(a) getActuatorTypesBelowList(a)
+#define GET_LIST_ACTUATORS_BY_TYPE(a,b) getListActuatorsByType(a,b)
+#define GET_UPPER_NODE(a) getUpperNode(a)
 
-#define GET_DISK_SERVICES(a,b) getDiskServices(a,b)
+#define GET_DISK_SERVICES(a) getDiskServices(a)
 
+#define GET_TYPE(a) getType(a)
+
+//GENERAL TOPOLOGY
+#define GET_TOTAL_NODES(a) getTotalNodes(a)
+#define GET_SENSOR_NODES(a) getSensorNodes(a)
+#define GET_ACTUATOR_NODES(a) getActuatorNodes(a)
+#define GET_NUMBER_OF_LANS(a) getNumberOfTotalLANs(a)
+#define GET_NUMBER_OF_WANS(a) getNumberOfTotalWANs(a)
+#define GET_NUMBER_ACT_TYPES(a) getNumberOfActTypes(a)
+#define GET_PROB_ACTUATORS(a) getProbOfActuators(a)
 
 #endif /* COMMON_FUNCTIONS_H */

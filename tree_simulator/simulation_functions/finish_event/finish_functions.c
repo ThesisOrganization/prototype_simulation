@@ -63,7 +63,7 @@ static void send_reply(unsigned int me, simtime_t now, lp_state * state, int sen
 
 static void send_command(unsigned int me, simtime_t now, lp_state * state, int id_selected_actuator, double delay_down){
 
-    int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology, me);
+    int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology);
     int next_hop = next_hop_list[id_selected_actuator];
     
     job_info info_to_send;
@@ -81,7 +81,7 @@ static int get_id_random_actuator(unsigned int me, lp_state * state){
 
     int num_types = state->num_acts_types;
 
-    int * num_per_types = GET_ACT_TYPE(state->topology, me);
+    int * num_per_types = GET_ACT_TYPE(state->topology);
     //for(int i = 0; i < num_types; i++)
     //    printf("%d: %d\n", me, num_per_types[i]);
 
@@ -89,7 +89,7 @@ static int get_id_random_actuator(unsigned int me, lp_state * state){
     int type, selected_actuator;
     get_random_actuator(num_types, num_per_types, state->prob_actuators, &type, &selected_actuator);
 
-    int * list_actuators_by_type = GET_LIST_ACTUATORS_BY_TYPE(state->topology, me, type);
+    int * list_actuators_by_type = GET_LIST_ACTUATORS_BY_TYPE(state->topology, type);
 
     //printf("%d\n", list_actuators_by_type[0]);
     //printf("%d\n", list_actuators_by_type[1]);
@@ -153,7 +153,7 @@ static job_info ** schedule_next_job(unsigned int me, simtime_t now, queue_state
 
 static void send_to_up_node(unsigned int me, simtime_t now, lp_state * state, double delay, job_info * info){
 
-    int up_node = GET_UPPER_NODE(state->topology, me);
+    int up_node = GET_UPPER_NODE(state->topology);
     if(up_node != -1)
         ScheduleNewEvent(up_node, now + delay, ARRIVE, info, sizeof(job_info));
 
@@ -183,7 +183,7 @@ static void send_aggregated_data(unsigned int me, simtime_t now, lp_state * stat
 
         //##################################################
         //SAVE DATA TO DISK
-        if(GET_NODE_TYPE(state->topology, me) == CENTRAL)
+        if(GET_NODE_TYPE(state->topology) == CENTRAL)
             save_data_on_disk(me, now, type);
     }
 }
@@ -243,7 +243,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
         //##################################################
         //SAVE DATA TO DISK
-        if(GET_NODE_TYPE(state->topology, me) == CENTRAL)
+        if(GET_NODE_TYPE(state->topology) == CENTRAL)
             save_data_on_disk(me, now, TRANSITION);
 
     }
@@ -384,7 +384,7 @@ void finish_disk(unsigned int me, simtime_t now, lp_state * state){
     //Update metrics
     update_metrics(now, state->info.node->disk_state, info);
 
-    job_info ** info_arr = schedule_next_job(me, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology, me), NULL, 0, FINISH_DISK);
+    job_info ** info_arr = schedule_next_job(me, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology), NULL, 0, FINISH_DISK);
 
     free(info_arr);
     free(info);
