@@ -394,13 +394,13 @@ bool OnGVT(int me, lp_state *snapshot)
     if(snapshot->device_timestamp > MAX_SIMULATION_TIME){
 
 
-        sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
-
-        FILE * output_file = fopen(file_name_complete, "w");
     
         if(snapshot->type == NODE){
     
 #ifdef PRINT_RESULTS
+            sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
+
+            FILE * output_file = fopen(file_name_complete, "w");
             //print_pre(me, snapshot->device_timestamp, snapshot->type, snapshot->info.node->type, output_file);
 
             fprintf(output_file, "{\"id\": %d,", me);
@@ -423,12 +423,16 @@ bool OnGVT(int me, lp_state *snapshot)
                 fprintf(output_file, "\"node_type\": \"local\"}");
             }
 
+            fclose(output_file);
 #endif
     
         }
         else if(snapshot->type == ACTUATOR){
     
 #ifdef PRINT_RESULTS
+            sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
+
+            FILE * output_file = fopen(file_name_complete, "w");
             //print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
             fprintf(output_file, "{\"id\": %d,", me);
             fprintf(output_file, "\"type\": \"actuator\",", me);
@@ -436,18 +440,23 @@ bool OnGVT(int me, lp_state *snapshot)
             print_metrics(snapshot->info.actuator->queue_state, output_file);
             fprintf(output_file, "},");
             fprintf(output_file, "\"node_type\": \"\"}");
+            
+            fclose(output_file);
 #endif
     
         }
         else if(snapshot->type == LAN){
     
 #ifdef PRINT_RESULTS
+            sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
+
+            FILE * output_file = fopen(file_name_complete, "w");
             //print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
     
             //fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
             //fprintf(output_file, "Lan IN:\n");
             fprintf(output_file, "{\"id\": %d,", me);
-            fprintf(output_file, "\"type\": \"actuator\",", me);
+            fprintf(output_file, "\"type\": \"lan\",", me);
             fprintf(output_file, "\"lan_in\": {");
             print_metrics(snapshot->info.lan->queue_state_in, output_file);
             fprintf(output_file, "},");
@@ -458,12 +467,12 @@ bool OnGVT(int me, lp_state *snapshot)
             fprintf(output_file, "},");
             fprintf(output_file, "\"node_type\": \"\"}");
 
+            fclose(output_file);
 #endif
     
         }
 
         snapshot->lp_enabled = 0;
-        fclose(output_file);
     
     }
 
