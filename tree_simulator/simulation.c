@@ -403,6 +403,8 @@ bool OnGVT(int me, lp_state *snapshot)
             FILE * output_file = fopen(file_name_complete, "w");
             //print_pre(me, snapshot->device_timestamp, snapshot->type, snapshot->info.node->type, output_file);
 
+            fprintf(output_file, "[");
+
             fprintf(output_file, "{\"id\": %d,", me);
             fprintf(output_file, "\"type\": \"node\",", me);
             fprintf(output_file, "\"parameters\": {");
@@ -423,6 +425,8 @@ bool OnGVT(int me, lp_state *snapshot)
                 fprintf(output_file, "\"node_type\": \"local\"}");
             }
 
+            fprintf(output_file, "]");
+
             fclose(output_file);
 #endif
     
@@ -433,6 +437,9 @@ bool OnGVT(int me, lp_state *snapshot)
             sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
 
             FILE * output_file = fopen(file_name_complete, "w");
+
+            fprintf(output_file, "[");
+
             //print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
             fprintf(output_file, "{\"id\": %d,", me);
             fprintf(output_file, "\"type\": \"actuator\",", me);
@@ -441,6 +448,8 @@ bool OnGVT(int me, lp_state *snapshot)
             fprintf(output_file, "},");
             fprintf(output_file, "\"node_type\": \"\"}");
             
+            fprintf(output_file, "]");
+
             fclose(output_file);
 #endif
     
@@ -451,6 +460,9 @@ bool OnGVT(int me, lp_state *snapshot)
             sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
 
             FILE * output_file = fopen(file_name_complete, "w");
+
+            fprintf(output_file, "[");
+
             //print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
     
             //fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
@@ -466,6 +478,8 @@ bool OnGVT(int me, lp_state *snapshot)
             print_metrics(snapshot->info.lan->queue_state_out, output_file);
             fprintf(output_file, "},");
             fprintf(output_file, "\"node_type\": \"\"}");
+
+            fprintf(output_file, "]");
 
             fclose(output_file);
 #endif
