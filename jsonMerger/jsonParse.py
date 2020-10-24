@@ -72,9 +72,9 @@ def aux(begin_table,dict,string):
     to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
     f_out.write(to_print)
 
-with open('simulation_results.json') as f_simulator:
+with open('../tree_simulator/simulation_results.json') as f_simulator:
   data_simulator = json.load(f_simulator)
-with open('model_res.json') as f_model:
+with open('../model_computation/model_res.json') as f_model:
   data_model = json.load(f_model)
 
 count = 0;
