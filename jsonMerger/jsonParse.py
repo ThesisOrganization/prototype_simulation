@@ -1,4 +1,76 @@
 import json
+def result_string_calculation(dict,params, string1, string2):
+    ret = "$"
+    flag = True
+    for elem2 in params:
+        if flag :
+            flag = False
+            ret+= str(dict[element][string1][elem2][string2])
+        else:
+            ret+="$ & $"
+            ret+= str(dict[element][string1][elem2][string2])
+    ret+="$"
+    return ret
+
+def utilization_factor_total(dict,string1,params):
+    total = 0
+    for elem2 in params:
+        total += dict[element][string1][elem2]['utilization_factor']
+    return total
+
+def aux(begin_table,dict,string):
+    table_string = begin_table
+    table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
+    table_string+= "\\"
+    table_string+= "\\"
+    table_string+="\n"
+    f_out.write(table_string)
+
+    lambdas_string = result_string_calculation(dict,params, string, 'lambda_in')
+    lambdas_string+="\\\\"
+    to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
+    f_out.write(to_print)
+
+    to_print= begin_table
+    to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
+    to_print+= "\\"
+    to_print+= "\\"
+    to_print+="\n"
+    f_out.write(to_print)
+
+    D_string = result_string_calculation(dict,params, string, 'service_demand')
+
+    D_string+="\\\\"
+    to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
+    f_out.write(to_print)
+
+    to_print = begin_table
+    to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
+    to_print+="\\"
+    to_print+="\\"
+    to_print+="\n"
+    f_out.write(to_print)
+    U_string = result_string_calculation(dict,params, string, 'utilization_factor')
+    total = utilization_factor_total(dict,string,params)
+
+    U_string+="\\\\"
+    to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
+    f_out.write(to_print)
+
+    total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
+    f_out.write(total_u)
+
+    f_out.write(begin_table)
+    to_print="$R_t$ & $R_e$ & $R_c$ & $R_b$"
+    to_print+= "\\"
+    to_print+= "\\"
+    to_print+="\n"
+    f_out.write(to_print)
+
+    R_string = result_string_calculation(dict,params, string, 'response_time')
+    R_string+="\\\\"
+    to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
+    f_out.write(to_print)
 
 with open('../tree_simulator/simulation_results.json') as f_simulator:
   data_simulator = json.load(f_simulator)
@@ -17,7 +89,6 @@ while(count < num_elements):
     for element in data_simulator[count]:
         if element != 'id':
             dict_simulator[id_simulator][element] = data_simulator[count][element]
-    #dict_simulator[id_simulator].append(element);
     id_model = data_model[count]['id']
     dict_model[id_model] = {}
     for element in data_model[count]:
@@ -47,223 +118,24 @@ for element in ordered_id_list:
         f_out.write(table_string)
         f_out.write(complete_table)
 
+        return1 = result_string_calculation(dict_model,params, 'parameters', 'service_time')
+        return1 +=" & "
+        return1 += result_string_calculation(dict_model,params, 'parameters', 'aggregation_rate')
+        return1 +="\\\\"
 
-        service_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
-            else:
-                service_string+="$ & $"
-                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
-
-        aggrs_string = "$ & $"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                aggrs_string+= str(dict_model[element]['parameters'][elem2]['aggregation_rate'])
-            else:
-                aggrs_string+="$ & $"
-                aggrs_string+= str(dict_model[element]['parameters'][elem2]['aggregation_rate'])
-        aggrs_string+="$\\\\"
-
-        to_print = "\n\\midrule\n"+service_string+aggrs_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        to_print+="\n"
+        to_print = "\n\\midrule\n"+return1+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
 
         table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-        table_string+= begin_table
-        table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-        table_string+= "\\"
-        table_string+= "\\"
-        table_string+="\n"
-
         f_out.write(table_string)
-
-
-
-        lambdas_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                lambdas_string+= str(dict_model[element]['parameters'][elem2]['lambda_in'])
-            else:
-                lambdas_string+="$ & $"
-                lambdas_string+= str(dict_model[element]['parameters'][elem2]['lambda_in'])
-        lambdas_string+="$\\\\"
-        to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-        to_print = ""
-        to_print+= begin_table
-        to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-
-        D_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                D_string+= str(dict_model[element]['parameters'][elem2]['service_demand'])
-            else:
-                D_string+="$ & $"
-                D_string+= str(dict_model[element]['parameters'][elem2]['service_demand'])
-        D_string+="$\\\\"
-        to_print = ""
-        to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        U_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                U_string+= str(dict_model[element]['parameters'][elem2]['utilization_factor'])
-            else:
-                U_string+="$ & $"
-                U_string+= str(dict_model[element]['parameters'][elem2]['utilization_factor'])
-            total+= dict_model[element]['parameters'][elem2]['utilization_factor']
-        U_string+="$\\\\"
-        to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-        f_out.write(total_u)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        R_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                R_string+= str(dict_model[element]['parameters'][elem2]['response_time'])
-            else:
-                R_string+="$ & $"
-                R_string+= str(dict_model[element]['parameters'][elem2]['response_time'])
-        R_string+="$\\\\"
-        to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
+        aux(begin_table,dict_model,'parameters')
         f_out.write("\\end{minipage}")
-
-
 
         table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
         f_out.write(table_string)
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        lambdas_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                lambdas_string+= str(dict_simulator[element]['parameters'][elem2]['lambda_in'])
-            else:
-                lambdas_string+="$ & $"
-                lambdas_string+= str(dict_simulator[element]['parameters'][elem2]['lambda_in'])
-            total+= dict_simulator[element]['parameters'][elem2]['lambda_in']
-        lambdas_string+="$\\\\"
-        to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-
-
-        to_print = ""
-        to_print+= begin_table
-        to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        D_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                D_string+= str(dict_simulator[element]['parameters'][elem2]['service_demand'])
-            else:
-                D_string+="$ & $"
-                D_string+= str(dict_simulator[element]['parameters'][elem2]['service_demand'])
-        D_string+="$\\\\"
-        to_print = ""
-        to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        U_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                U_string+= str(dict_simulator[element]['parameters'][elem2]['utilization_factor'])
-            else:
-                U_string+="$ & $"
-                U_string+= str(dict_simulator[element]['parameters'][elem2]['utilization_factor'])
-            total+= dict_simulator[element]['parameters'][elem2]['utilization_factor']
-        U_string+="$\\\\"
-        to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-        f_out.write(total_u)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        R_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                R_string+= str(dict_simulator[element]['parameters'][elem2]['response_time'])
-            else:
-                R_string+="$ & $"
-                R_string+= str(dict_simulator[element]['parameters'][elem2]['response_time'])
-            total+= dict_simulator[element]['parameters'][elem2]['response_time']
-        R_string+="$\\\\"
-        to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
+        aux(begin_table,dict_simulator,'parameters')
         f_out.write("\\end{minipage}")
+
 
         if dict_simulator[element]['node_type'] == 'central' :
             str_to_write = "Central storage of Node "
@@ -274,207 +146,22 @@ for element in ordered_id_list:
             f_out.write(table_string)
             f_out.write(semi_complete_table)
 
-            service_string = "$"
-            flag = True
-            for elem2 in params:
-                if flag :
-                    flag = False
-                    service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
-                else:
-                    service_string+="$ & $"
-                    service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
+            service_string = result_string_calculation(dict_model,params, 'parameters', 'service_time')
+            service_string+="\\\\"
 
-            service_string+="$\\\\"
-
-            to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-            to_print+="\n"
+            to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
             f_out.write(to_print)
 
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-            table_string+= begin_table
-            table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-            table_string+= "\\"
-            table_string+= "\\"
-            table_string+="\n"
             f_out.write(table_string)
-            lambdas_string = "$"
-            flag = True
-            for elem2 in params:
-                if flag :
-                    flag = False
-                    lambdas_string+= str(dict_model[element]['storage'][elem2]['lambda_in'])
-                else:
-                    lambdas_string+="$ & $"
-                    lambdas_string+= str(dict_model[element]['storage'][elem2]['lambda_in'])
-            lambdas_string+="$\\\\"
-            to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-            f_out.write(to_print)
-
-            to_print = ""
-            to_print+= begin_table
-            to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-            to_print+= "\\"
-            to_print+= "\\"
-            to_print+="\n"
-            f_out.write(to_print)
-
-            D_string = "$"
-            flag = True
-            for elem2 in params:
-                if flag :
-                    flag = False
-                    D_string+= str(dict_model[element]['storage'][elem2]['service_demand'])
-                else:
-                    D_string+="$ & $"
-                    D_string+= str(dict_model[element]['storage'][elem2]['service_demand'])
-            D_string+="$\\\\"
-            to_print = ""
-            to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-            f_out.write(to_print)
-
-            f_out.write(begin_table)
-            to_print = ""
-            to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-            to_print+= "\\"
-            to_print+= "\\"
-            to_print+="\n"
-            f_out.write(to_print)
-            to_print =""
-            U_string = "$"
-            flag = True
-            total = 0
-            for elem2 in params:
-                if flag :
-                    flag = False
-                    U_string+= str(dict_model[element]['storage'][elem2]['utilization_factor'])
-                else:
-                    U_string+="$ & $"
-                    U_string+= str(dict_model[element]['storage'][elem2]['utilization_factor'])
-                total+= dict_model[element]['storage'][elem2]['utilization_factor']
-            U_string+="$\\\\"
-            to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-            f_out.write(to_print)
-            total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-            f_out.write(total_u)
-
-            f_out.write(begin_table)
-            to_print = ""
-            to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-            to_print+= "\\"
-            to_print+= "\\"
-            to_print+="\n"
-            f_out.write(to_print)
-            to_print =""
-            R_string = "$"
-            flag = True
-            for elem2 in params:
-                if flag :
-                    flag = False
-                    R_string+= str(dict_model[element]['storage'][elem2]['response_time'])
-                else:
-                    R_string+="$ & $"
-                    R_string+= str(dict_model[element]['storage'][elem2]['response_time'])
-            R_string+="$\\\\"
-            to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-            f_out.write(to_print)
+            aux(begin_table,dict_model,'parameters')
             f_out.write("\\end{minipage}")
 
             table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
             f_out.write(table_string)
-            f_out.write(begin_table)
-            to_print = ""
-            to_print+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-            to_print+= "\\"
-            to_print+= "\\"
-            to_print+="\n"
-            f_out.write(to_print)
-            to_print =""
-            lambdas_string = "$"
-            flag = True
-            total = 0
-            for elem2 in params:
-                if flag :
-                    flag = False
-                    lambdas_string+= str(dict_simulator[element]['storage'][elem2]['lambda_in'])
-                else:
-                    lambdas_string+="$ & $"
-                    lambdas_string+= str(dict_simulator[element]['storage'][elem2]['lambda_in'])
-                total+= dict_simulator[element]['storage'][elem2]['lambda_in']
-            lambdas_string+="$\\\\"
-            to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-            f_out.write(to_print)
-
-
-            to_print = ""
-            to_print+= begin_table
-            to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-            to_print+= "\\"
-            to_print+= "\\"
-            to_print+="\n"
-            f_out.write(to_print)
-            D_string = "$"
-            flag = True
-            for elem2 in params:
-                if flag :
-                    flag = False
-                    D_string+= str(dict_simulator[element]['storage'][elem2]['service_demand'])
-                else:
-                    D_string+="$ & $"
-                    D_string+= str(dict_simulator[element]['storage'][elem2]['service_demand'])
-            D_string+="$\\\\"
-            to_print = ""
-            to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-            f_out.write(to_print)
-
-
-            f_out.write(begin_table)
-            to_print = ""
-            to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-            to_print+= "\\"
-            to_print+= "\\"
-            to_print+="\n"
-            f_out.write(to_print)
-            to_print =""
-            U_string = "$"
-            flag = True
-            total = 0
-            for elem2 in params:
-                if flag :
-                    flag = False
-                    U_string+= str(dict_simulator[element]['storage'][elem2]['utilization_factor'])
-                else:
-                    U_string+="$ & $"
-                    U_string+= str(dict_simulator[element]['storage'][elem2]['utilization_factor'])
-                total+= dict_simulator[element]['storage'][elem2]['utilization_factor']
-            U_string+="$\\\\"
-            to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-            f_out.write(to_print)
-            total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-            f_out.write(total_u)
-
-            f_out.write(begin_table)
-            to_print = ""
-            to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-            to_print+= "\\"
-            to_print+= "\\"
-            to_print+="\n"
-            f_out.write(to_print)
-            to_print =""
-            R_string = "$"
-            flag = True
-            total = 0
-            for elem2 in params:
-                if flag :
-                    flag = False
-                    R_string+= str(dict_simulator[element]['storage'][elem2]['response_time'])
-                else:
-                    R_string+="$ & $"
-                    R_string+= str(dict_simulator[element]['storage'][elem2]['response_time'])
-                total+= dict_simulator[element]['storage'][elem2]['response_time']
-            R_string+="$\\\\"
-            to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-            f_out.write(to_print)
+            aux(begin_table,dict_simulator,'parameters')
             f_out.write("\\end{minipage}")
+
         f_out.write("\n\\newpage")
 
     elif type == 'actuator':
@@ -486,419 +173,20 @@ for element in ordered_id_list:
         f_out.write(table_string)
         f_out.write(semi_complete_table)
 
+        service_string = result_string_calculation(dict_model,params, 'parameters', 'service_time')
+        service_string+="\\\\"
 
-        service_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
-            else:
-                service_string+="$ & $"
-                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
-
-        service_string+="$\\\\"
-
-        to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        to_print+="\n"
+        to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
 
         table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-        table_string+= begin_table
-        table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-        table_string+= "\\"
-        table_string+= "\\"
-        table_string+="\n"
         f_out.write(table_string)
-
-        lambdas_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                lambdas_string+= str(dict_model[element]['parameters'][elem2]['lambda_in'])
-            else:
-                lambdas_string+="$ & $"
-                lambdas_string+= str(dict_model[element]['parameters'][elem2]['lambda_in'])
-        lambdas_string+="$\\\\"
-        to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-        to_print = ""
-        to_print+= begin_table
-        to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-
-        D_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                D_string+= str(dict_model[element]['parameters'][elem2]['service_demand'])
-            else:
-                D_string+="$ & $"
-                D_string+= str(dict_model[element]['parameters'][elem2]['service_demand'])
-        D_string+="$\\\\"
-        to_print = ""
-        to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        U_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                U_string+= str(dict_model[element]['parameters'][elem2]['utilization_factor'])
-            else:
-                U_string+="$ & $"
-                U_string+= str(dict_model[element]['parameters'][elem2]['utilization_factor'])
-            total+= dict_model[element]['parameters'][elem2]['utilization_factor']
-        U_string+="$\\\\"
-        to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-        f_out.write(total_u)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        R_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                R_string+= str(dict_model[element]['parameters'][elem2]['response_time'])
-            else:
-                R_string+="$ & $"
-                R_string+= str(dict_model[element]['parameters'][elem2]['response_time'])
-            total+= dict_model[element]['parameters'][elem2]['response_time']
-        R_string+="$\\\\"
-        to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
+        aux(begin_table,dict_model,'parameters')
         f_out.write("\\end{minipage}")
 
         table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
         f_out.write(table_string)
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        lambdas_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                lambdas_string+= str(dict_model[element]['parameters'][elem2]['lambda_in'])
-            else:
-                lambdas_string+="$ & $"
-                lambdas_string+= str(dict_model[element]['parameters'][elem2]['lambda_in'])
-        lambdas_string+="$\\\\"
-        to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-
-
-        to_print = ""
-        to_print+= begin_table
-        to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        D_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                D_string+= str(dict_model[element]['parameters'][elem2]['service_demand'])
-            else:
-                D_string+="$ & $"
-                D_string+= str(dict_model[element]['parameters'][elem2]['service_demand'])
-        D_string+="$\\\\"
-        to_print = ""
-        to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        U_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                U_string+= str(dict_model[element]['parameters'][elem2]['utilization_factor'])
-            else:
-                U_string+="$ & $"
-                U_string+= str(dict_model[element]['parameters'][elem2]['utilization_factor'])
-            total+= dict_model[element]['parameters'][elem2]['utilization_factor']
-        U_string+="$\\\\"
-        to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-        f_out.write(total_u)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        R_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                R_string+= str(dict_model[element]['parameters'][elem2]['response_time'])
-            else:
-                R_string+="$ & $"
-                R_string+= str(dict_model[element]['parameters'][elem2]['response_time'])
-        R_string+="$\\\\"
-        to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        f_out.write("\\end{minipage}")
-        f_out.write("\n\\newpage")
-    elif type == 'sensor':
-        str_to_write = "Sensor "
-        to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
-        f_out.write(to_write);
-
-        table_string = "\\subsubsection{Given parameters}\n"
-        f_out.write(table_string)
-        f_out.write(semi_complete_table)
-
-        service_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
-            else:
-                service_string+="$ & $"
-                service_string+= str(dict_model[element]['parameters'][elem2]['service_time'])
-
-        service_string+="$\\\\"
-
-        to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        to_print+="\n"
-        f_out.write(to_print)
-
-        table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-        table_string+= begin_table
-        table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-        table_string+= "\\"
-        table_string+= "\\"
-        table_string+="\n"
-        f_out.write(table_string)
-        lambdas_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                lambdas_string+= str(dict_model[element]['parameters'][elem2]['lambda_in'])
-            else:
-                lambdas_string+="$ & $"
-                lambdas_string+= str(dict_model[element]['parameters'][elem2]['lambda_in'])
-        lambdas_string+="$\\\\"
-        to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-        to_print = ""
-        to_print+= begin_table
-        to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-
-        D_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                D_string+= str(dict_model[element]['parameters'][elem2]['service_demand'])
-            else:
-                D_string+="$ & $"
-                D_string+= str(dict_model[element]['parameters'][elem2]['service_demand'])
-        D_string+="$\\\\"
-        to_print = ""
-        to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        U_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                U_string+= str(dict_model[element]['parameters'][elem2]['utilization_factor'])
-            else:
-                U_string+="$ & $"
-                U_string+= str(dict_model[element]['parameters'][elem2]['utilization_factor'])
-            total+= dict_model[element]['parameters'][elem2]['utilization_factor']
-        U_string+="$\\\\"
-        to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-        f_out.write(total_u)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        R_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                R_string+= str(dict_model[element]['parameters'][elem2]['response_time'])
-            else:
-                R_string+="$ & $"
-                R_string+= str(dict_model[element]['parameters'][elem2]['response_time'])
-            total+= dict_model[element]['parameters'][elem2]['response_time']
-        R_string+="$\\\\"
-        to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        f_out.write("\\end{minipage}")
-
-        table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
-        f_out.write(table_string)
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        lambdas_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                lambdas_string+= str(dict_model[element]['parameters'][elem2]['lambda_in'])
-            else:
-                lambdas_string+="$ & $"
-                lambdas_string+= str(dict_model[element]['parameters'][elem2]['lambda_in'])
-        lambdas_string+="$\\\\"
-        to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-
-
-        to_print = ""
-        to_print+= begin_table
-        to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        D_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                D_string+= str(dict_model[element]['parameters'][elem2]['service_demand'])
-            else:
-                D_string+="$ & $"
-                D_string+= str(dict_model[element]['parameters'][elem2]['service_demand'])
-        D_string+="$\\\\"
-        to_print = ""
-        to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        U_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                U_string+= str(dict_model[element]['parameters'][elem2]['utilization_factor'])
-            else:
-                U_string+="$ & $"
-                U_string+= str(dict_model[element]['parameters'][elem2]['utilization_factor'])
-            total+= dict_model[element]['parameters'][elem2]['utilization_factor']
-        U_string+="$\\\\"
-        to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-        f_out.write(total_u)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        R_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                R_string+= str(dict_model[element]['parameters'][elem2]['response_time'])
-            else:
-                R_string+="$ & $"
-                R_string+= str(dict_model[element]['parameters'][elem2]['response_time'])
-        R_string+="$\\\\"
-        to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
+        aux(begin_table,dict_simulator,'parameters')
         f_out.write("\\end{minipage}")
 
     elif type == 'lan':
@@ -911,425 +199,46 @@ for element in ordered_id_list:
         f_out.write(table_string)
         f_out.write(semi_complete_table)
 
-        service_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                service_string+= str(dict_model[element]['lan_in'][elem2]['service_time'])
-            else:
-                service_string+="$ & $"
-                service_string+= str(dict_model[element]['lan_in'][elem2]['service_time'])
-
-        service_string+="$\\\\"
+        service_string = result_string_calculation(dict_model,params, 'lan_in', 'service_time')
+        service_string+="\\\\"
 
         to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
         to_print+="\n"
         f_out.write(to_print)
 
         table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-        table_string+= begin_table
-        table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-        table_string+= "\\"
-        table_string+= "\\"
-        table_string+="\n"
         f_out.write(table_string)
-        lambdas_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                lambdas_string+= str(dict_model[element]['lan_in'][elem2]['lambda_in'])
-            else:
-                lambdas_string+="$ & $"
-                lambdas_string+= str(dict_model[element]['lan_in'][elem2]['lambda_in'])
-        lambdas_string+="$\\\\"
-        to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-        to_print = ""
-        to_print+= begin_table
-        to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-
-        D_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                D_string+= str(dict_model[element]['lan_in'][elem2]['service_demand'])
-            else:
-                D_string+="$ & $"
-                D_string+= str(dict_model[element]['lan_in'][elem2]['service_demand'])
-        D_string+="$\\\\"
-        to_print = ""
-        to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        U_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                U_string+= str(dict_model[element]['lan_in'][elem2]['utilization_factor'])
-            else:
-                U_string+="$ & $"
-                U_string+= str(dict_model[element]['lan_in'][elem2]['utilization_factor'])
-            total+= dict_model[element]['lan_in'][elem2]['utilization_factor']
-        U_string+="$\\\\"
-        to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-        f_out.write(total_u)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        R_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                R_string+= str(dict_model[element]['lan_in'][elem2]['response_time'])
-            else:
-                R_string+="$ & $"
-                R_string+= str(dict_model[element]['lan_in'][elem2]['response_time'])
-            total+= dict_model[element]['lan_in'][elem2]['response_time']
-        R_string+="$\\\\"
-        to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
+        aux(begin_table,dict_model,'lan_in')
         f_out.write("\\end{minipage}")
 
         table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
         f_out.write(table_string)
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        lambdas_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                lambdas_string+= str(dict_model[element]['lan_in'][elem2]['lambda_in'])
-            else:
-                lambdas_string+="$ & $"
-                lambdas_string+= str(dict_model[element]['lan_in'][elem2]['lambda_in'])
-        lambdas_string+="$\\\\"
-        to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-
-
-        to_print = ""
-        to_print+= begin_table
-        to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        D_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                D_string+= str(dict_model[element]['lan_in'][elem2]['service_demand'])
-            else:
-                D_string+="$ & $"
-                D_string+= str(dict_model[element]['lan_in'][elem2]['service_demand'])
-        D_string+="$\\\\"
-        to_print = ""
-        to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        U_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                U_string+= str(dict_model[element]['lan_in'][elem2]['utilization_factor'])
-            else:
-                U_string+="$ & $"
-                U_string+= str(dict_model[element]['lan_in'][elem2]['utilization_factor'])
-            total+= dict_model[element]['lan_in'][elem2]['utilization_factor']
-        U_string+="$\\\\"
-        to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-        f_out.write(total_u)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        R_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                R_string+= str(dict_model[element]['lan_in'][elem2]['response_time'])
-            else:
-                R_string+="$ & $"
-                R_string+= str(dict_model[element]['lan_in'][elem2]['response_time'])
-        R_string+="$\\\\"
-        to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
+        aux(begin_table,dict_simulator,'lan_in')
         f_out.write("\\end{minipage}")
-        f_out.write("\n\\newpage")
 
-        str_to_write = "Lan OUT "
-        to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
-        f_out.write(to_write);
 
         table_string = "\\subsubsection{Given parameters}\n"
         f_out.write(table_string)
         f_out.write(semi_complete_table)
 
-        service_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                service_string+= str(dict_model[element]['lan_out'][elem2]['service_time'])
-            else:
-                service_string+="$ & $"
-                service_string+= str(dict_model[element]['lan_out'][elem2]['service_time'])
+        service_string = result_string_calculation(dict_model,params, 'lan_out', 'service_time')
+        service_string+="\\\\"
 
-        service_string+="$\\\\"
-
-        to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        to_print+="\n"
+        to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
         f_out.write(to_print)
 
         table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-        table_string+= begin_table
-        table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-        table_string+= "\\"
-        table_string+= "\\"
-        table_string+="\n"
         f_out.write(table_string)
-        lambdas_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                lambdas_string+= str(dict_model[element]['lan_out'][elem2]['lambda_in'])
-            else:
-                lambdas_string+="$ & $"
-                lambdas_string+= str(dict_model[element]['lan_out'][elem2]['lambda_in'])
-        lambdas_string+="$\\\\"
-        to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-        to_print = ""
-        to_print+= begin_table
-        to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-
-        D_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                D_string+= str(dict_model[element]['lan_out'][elem2]['service_demand'])
-            else:
-                D_string+="$ & $"
-                D_string+= str(dict_model[element]['lan_out'][elem2]['service_demand'])
-        D_string+="$\\\\"
-        to_print = ""
-        to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        U_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                U_string+= str(dict_model[element]['lan_out'][elem2]['utilization_factor'])
-            else:
-                U_string+="$ & $"
-                U_string+= str(dict_model[element]['lan_out'][elem2]['utilization_factor'])
-            total+= dict_model[element]['lan_out'][elem2]['utilization_factor']
-        U_string+="$\\\\"
-        to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-        f_out.write(total_u)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        R_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                R_string+= str(dict_model[element]['lan_out'][elem2]['response_time'])
-            else:
-                R_string+="$ & $"
-                R_string+= str(dict_model[element]['lan_out'][elem2]['response_time'])
-            total+= dict_model[element]['lan_out'][elem2]['response_time']
-        R_string+="$\\\\"
-        to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
+        aux(begin_table,dict_model,'lan_out')
         f_out.write("\\end{minipage}")
 
         table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
         f_out.write(table_string)
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        lambdas_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                lambdas_string+= str(dict_model[element]['lan_out'][elem2]['lambda_in'])
-            else:
-                lambdas_string+="$ & $"
-                lambdas_string+= str(dict_model[element]['lan_out'][elem2]['lambda_in'])
-        lambdas_string+="$\\\\"
-        to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-
-
-        to_print = ""
-        to_print+= begin_table
-        to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        D_string = "$"
-        flag = True
-        for elem2 in params:
-            if flag :
-                flag = False
-                D_string+= str(dict_model[element]['lan_out'][elem2]['service_demand'])
-            else:
-                D_string+="$ & $"
-                D_string+= str(dict_model[element]['lan_out'][elem2]['service_demand'])
-        D_string+="$\\\\"
-        to_print = ""
-        to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-        f_out.write(to_print)
-
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        U_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                U_string+= str(dict_model[element]['lan_out'][elem2]['utilization_factor'])
-            else:
-                U_string+="$ & $"
-                U_string+= str(dict_model[element]['lan_out'][elem2]['utilization_factor'])
-            total+= dict_model[element]['lan_out'][elem2]['utilization_factor']
-        U_string+="$\\\\"
-        to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
-        total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
-        f_out.write(total_u)
-
-        f_out.write(begin_table)
-        to_print = ""
-        to_print+="$R_t$ & $R_e$ & $R_c$ & $R_b$"
-        to_print+= "\\"
-        to_print+= "\\"
-        to_print+="\n"
-        f_out.write(to_print)
-        to_print =""
-        R_string = "$"
-        flag = True
-        total = 0
-        for elem2 in params:
-            if flag :
-                flag = False
-                R_string+= str(dict_model[element]['lan_out'][elem2]['response_time'])
-            else:
-                R_string+="$ & $"
-                R_string+= str(dict_model[element]['lan_out'][elem2]['response_time'])
-        R_string+="$\\\\"
-        to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-        f_out.write(to_print)
+        aux(begin_table,dict_simulator,'lan_out')
         f_out.write("\\end{minipage}")
         f_out.write("\n\\newpage")
 
 
-    #elif type == 'wan':
-
 f_out.write("\n\\end{document}")
-
-
 
 f_out.close()
