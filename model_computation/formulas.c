@@ -444,9 +444,10 @@ int* find_nodes_to_visit(Element_topology* elTop,int node_id,int* num_lowers){
 	// the array below is used to visit the lower nodes will be terminated by -1
 	int *lowers=NULL;
 	//when both the number of node and lans is not 0 we need to detect duplicates before exploring the subtrees to avoid doinf the same computation multiple times
+	lowers=malloc(sizeof(int)*(num_lans+num_nodes+1));
+	memset(lowers,-1,sizeof(int)*(num_lans+num_nodes+1));
 	if(num_lans>0 && num_nodes>0){
-		lowers=malloc(sizeof(int)*(num_lans+num_nodes+1));
-		memset(lowers,-1,sizeof(int)*(num_lans+num_nodes+1));
+
 		//we sort the lower nodes and the lans array
 		quicksort(nodes,getNumberLower(elTop));
 		quicksort(lans,getNumberLANS(elTop));
@@ -469,11 +470,11 @@ int* find_nodes_to_visit(Element_topology* elTop,int node_id,int* num_lowers){
 		*num_lowers=k;
 	} else{
 		if(num_lans==0){
-			lowers=nodes;
+			memcpy(lowers,nodes,sizeof(int)*num_nodes);
 			*num_lowers=num_nodes;
 		} else {
 			if(num_nodes>0){
-				lowers=lans;
+				memcpy(lowers,nodes,sizeof(int)*num_nodes);
 				*num_lowers=num_lans;
 			}
 		}
@@ -913,6 +914,7 @@ void free_node_data(node_data* data){
  * \param[in] start_id The id of the node from which we start the visit.
  */
 void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out_tex,FILE* out_json,FILE* order,int start_id,double * probOfActuatorsArray,int numberOfActTypes, int numberOfSensTypes){
+	printf("node: %d\n",data->node_id);
 	assert(data!=NULL && visit_type<NUM_GRAPH_VISITS);
 	int *lowers=NULL,num_lowers=0,i;
 	//this is the first visit of th	e tree, so we need to allocate a node_data struct for each children
@@ -921,10 +923,13 @@ void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out_tex,FILE*
 		lowers=find_nodes_to_visit(data->top,data->node_id,&num_lowers);
 		data->childrens=calloc(num_lowers,sizeof(node_data*));
 		data->num_childrens=num_lowers;
+		printf("childrens: ");
 		for(i=0;i<data->num_childrens;i++){
+			printf("%d ",lowers[i]);
 			data->childrens[i]=malloc(sizeof(node_data));
 			init_node_data(data->childrens[i],lowers[i],data,data->top);
 		}
+		printf("\n");
 		free(lowers);
 	}
 	//in the second visit we need to compute the rates for command messages before reaching the leaves
