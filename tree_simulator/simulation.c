@@ -42,33 +42,32 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     switch(event_type) {
 
         case INIT:
-            
+					//all nodes except the master node are disabled by default
+					state = malloc(sizeof(lp_state));
+					SetState(state);
+					state->lp_enabled = LP_DISABLED;
             if(me == 0){
-                
-                //MASTER CODE
-                ScheduleNewEvent(me, TS_START_SIMULATION, START_SIMULATION, NULL, 0);
-                
+							//we setup the master node and the required LPs
+							setup_master(me,n_prc_tot,state);
+							//then we can start the simulation
+							ScheduleNewEvent(me, TS_START_SIMULATION, START_SIMULATION, NULL, 0);
+						}
+            break;
 
-            }
-            else
-                ScheduleNewEvent(me, TS_START_SIMULATION, START_SIMULATION, NULL, 0);
+        case RECEIVE_SETUP_INFO:
 
             break;
 
-        case RECEIVE_INFO:
-
-            break;
-
-        case RECEIVE_DATA:
+        case RECEIVE_SETUP_DATA:
 
             break;
 
         case START_SIMULATION:
-            state = malloc(sizeof(lp_state));
-            SetState(state);
-    
+					//we enable the LP
+					state->lp_enabled=LP_ENABLED;
+
             //both timestamp are initialized at 0.0 in theory
-            //state->start_timestamp = now; 
+            //state->start_timestamp = now;
             //state->actual_timestamp = now;
             state->device_timestamp = now;
             //printf("%.3g\n", now);
@@ -252,7 +251,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             break;
 
         case ARRIVE_DISK:
-            
+
             //state->actual_timestamp = now;
             state->device_timestamp = now;
 
@@ -307,9 +306,9 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             break;
 
         case UPDATE_TIMESTAMP:
-            
+
             state->device_timestamp = now;
-            
+
             ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
             ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, NULL, 0);
 
@@ -344,7 +343,7 @@ void print_metrics(queue_state * queue_state){
             printf("Utilization factor: %.3g\n", U);
             printf("Arrival rate: %.3g\n", lambda);
             printf("Throughput: %.3g\n", X);
-        
+
         //}
 
 
@@ -365,9 +364,9 @@ bool OnGVT(int me, lp_state *snapshot)
         return true;
 
     if(snapshot->device_timestamp > MAX_SIMULATION_TIME){
-    
+
         if(snapshot->type == NODE){
-    
+
 #ifdef PRINT_RESULTS
             print_pre(me, snapshot->device_timestamp, snapshot->type, snapshot->info.node->type);
             print_metrics(snapshot->info.node->queue_state);
@@ -377,21 +376,21 @@ bool OnGVT(int me, lp_state *snapshot)
                 print_metrics(snapshot->info.node->disk_state);
             }
 #endif
-    
+
         }
         else if(snapshot->type == ACTUATOR){
-    
+
 #ifdef PRINT_RESULTS
             print_pre(me, snapshot->device_timestamp, snapshot->type, -1);
             print_metrics(snapshot->info.actuator->queue_state);
 #endif
-    
+
         }
         else if(snapshot->type == LAN){
-    
+
 #ifdef PRINT_RESULTS
             print_pre(me, snapshot->device_timestamp, snapshot->type, -1);
-    
+
             printf("<<<<<<<<<<<<<<<<<<<<\n");
             printf("Lan IN:\n");
             print_metrics(snapshot->info.lan->queue_state_in);
@@ -399,11 +398,11 @@ bool OnGVT(int me, lp_state *snapshot)
             printf("Lan OUT:\n");
             print_metrics(snapshot->info.lan->queue_state_out);
 #endif
-    
+
         }
 
         snapshot->lp_enabled = 0;
-    
+
     }
 
     return false;

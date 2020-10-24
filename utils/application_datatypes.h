@@ -244,13 +244,13 @@ typedef enum { //INIT should be 0
     GENERATE_TRANSITION,
     GENERATE_TELEMETRY,
     UPDATE_TIMESTAMP,
-    RECEIVE_INFO,
-    RECEIVE_DATA,
+    RECEIVE_SETUP_INFO,
+    RECEIVE_SETUP_DATA,
     START_SIMULATION
 } events_type;
 
 typedef enum {
-    DATA0 = 1,
+    TS_RECV_ELEMENT_TOPOLOGY = 1,
     DATA1,
     DATA2,
     DATA3,
@@ -329,10 +329,34 @@ typedef union {
     wan_state * wan;
 } state_info;
 
+///Used to determine is an LP is active or not
+typedef enum {
+	LP_DISABLED=0,
+	LP_ENABLED
+} lp_usage_types;
+
+/// Used to determine the type of data received in a ::RECEIVE_SETUP_DATA event.
+typedef enum {
+	SETUP_DATA_PINT=0, ///< int*
+	SETUP_DATA_PDOUBLE, ///< double*
+	SETUP_DATA_ELEMENT_TOPOLOGY,
+	SETUP_DATA_LAN_TOPOLOGY,
+	SETUP_DATA_WAN_TOPOLOGY,
+	SETUP_DATA_SENSOR_TOPOLOGY,
+	SETUP_DATA_ACTUATOR_TOPOLOGY,
+	SETUP_DATA_NODE_TOPOLOGY
+} setup_data_types;
+
+typedef struct {
+	int element_id; ///< The id of the element which the data we are about to receive belongs
+	setup_data_types next_data_type; ///< The type of the data we are about to receive
+	size_t next_data_size; ///< The size of the data we are about to receive
+} setup_info;
+
 typedef struct _state {
     //int num_jobs_processed;
-    int lp_enabled; //1 lp enabled, 0 lp disabled
-	//simtime_t start_timestamp; //usefull to compute T
+	lp_usage_types lp_enabled; //1 lp enabled, 0 lp disabled
+	//simtime_t start_timestamp; //useful to compute T
     //simtime_t actual_timestamp;
     simtime_t device_timestamp;
     state_type type;
