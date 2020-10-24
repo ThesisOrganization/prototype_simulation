@@ -510,7 +510,7 @@ void compute_data(node_data* node,graph_visit_type visit_type,double * probOfAct
 		}
 		//get the father node
 		father_node=node->father;
-		while(elem_type!=NODE || node_type!=father_type){
+		while(getType(father_node->top)!=NODE || getNodeType(father_node->top)!=father_type){
 			father_node=father_node->father;
 		}
 		//compute the weighted number of actuators below our father
@@ -917,7 +917,7 @@ void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out_tex,FILE*
 	printf("node: %d\n",data->node_id);
 	assert(data!=NULL && visit_type<NUM_GRAPH_VISITS);
 	int *lowers=NULL,num_lowers=0,i;
-	//this is the first visit of the tree, so we need to allocate a node_data struct for each children
+	//this is the first visit of th	e tree, so we need to allocate a node_data struct for each children
 	if(visit_type==GRAPH_COMPUTE_RATES){
 		//we get the array of the lower nodes to be visited
 		lowers=find_nodes_to_visit(data->top,data->node_id,&num_lowers);
@@ -975,7 +975,8 @@ int main(int argc, char** argv){
 	Element_topology ** elTop = totTop->lpt;
 	//topology * genTop = getTopology(topology_path);
 	node_data* central=malloc(sizeof(node_data));
-	central_id=find_central(elTop,genTop->total_nodes);
+	int total = getTotalNodes(genTop)+ getSensorNodes(genTop)+ getActuatorNodes(genTop)+ getNumberOfTotalLANs(genTop)+ getNumberOfTotalWANs(genTop);
+	central_id=find_central(elTop,total);
 
 	Element_topology * elTop_central = getLPTopology(totTop,central_id);
 	init_node_data(central,central_id,NULL,elTop_central);
