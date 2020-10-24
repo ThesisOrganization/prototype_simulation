@@ -8,6 +8,9 @@
 #include "./simulation_functions/setup_protocol/setup_protocol.h"
 
 char topology_path[] = "./topology.txt";
+char file_name[] = "lp_data/lp";
+char end_file_name[] = ".txt";
+char file_name_complete[64];
 
 #ifdef DEBUG_INITIAL_VALUES
 void print_array_double(double * array, int num_el){
@@ -319,15 +322,15 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     }
 }
 
-void print_metrics(queue_state * queue_state){
+void print_metrics(queue_state * queue_state, FILE * output_file){
 
 
     for(int i=0; i < NUM_OF_JOB_TYPE; i++){
 
         //if(queue_state->actual_timestamp[i] > TRANSITION_TIME_LIMIT){
 
-            printf("......................\n");
-            printf("Class number %d\n", i);
+            fprintf(output_file, "......................\n");
+            fprintf(output_file, "Class number %d\n", i);
 
             //all data here are averages
             double T = queue_state->actual_timestamp[i] - queue_state->start_timestamp[i];
@@ -338,12 +341,12 @@ void print_metrics(queue_state * queue_state){
             double lambda = queue_state->A[i] / T;
             double X = queue_state->C[i] / T;
 
-            printf("Average Service time: %.3g\n", S);
-            printf("Average Response time: %.3g\n", R);
-            printf("Average number of visits: %.3g\n", N);
-            printf("Utilization factor: %.3g\n", U);
-            printf("Arrival rate: %.3g\n", lambda);
-            printf("Throughput: %.3g\n", X);
+            fprintf(output_file, "Average Service time: %.3g\n", S);
+            fprintf(output_file, "Average Response time: %.3g\n", R);
+            fprintf(output_file, "Average number of visits: %.3g\n", N);
+            fprintf(output_file, "Utilization factor: %.3g\n", U);
+            fprintf(output_file, "Arrival rate: %.3g\n", lambda);
+            fprintf(output_file, "Throughput: %.3g\n", X);
         
         //}
 
@@ -351,10 +354,10 @@ void print_metrics(queue_state * queue_state){
     }
 }
 
-void print_pre(int me, simtime_t device_timestamp, int device_type, int node_type){
+void print_pre(int me, simtime_t device_timestamp, int device_type, int node_type, FILE * output_file){
 
-    printf("#################################################\n");
-    printf("Device number: %d, Type: %d, Node type: %d, timestamp: %f\n", me, device_type, node_type, device_timestamp);
+    fprintf(output_file, "#################################################\n");
+    fprintf(output_file, "Device number: %d, Type: %d, Node type: %d, timestamp: %f\n", me, device_type, node_type, device_timestamp);
 
 }
 
@@ -365,16 +368,21 @@ bool OnGVT(int me, lp_state *snapshot)
         return true;
 
     if(snapshot->device_timestamp > MAX_SIMULATION_TIME){
+
+
+        sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
+
+        FILE * output_file = fopen(file_name_complete, "w");
     
         if(snapshot->type == NODE){
     
 #ifdef PRINT_RESULTS
-            print_pre(me, snapshot->device_timestamp, snapshot->type, snapshot->info.node->type);
-            print_metrics(snapshot->info.node->queue_state);
+            print_pre(me, snapshot->device_timestamp, snapshot->type, snapshot->info.node->type, output_file);
+            print_metrics(snapshot->info.node->queue_state, output_file);
             if(GET_NODE_TYPE(snapshot->topology) == CENTRAL){
-                printf("<<<<<<<<<<<<<<<<<<<<\n");
-                printf("Disk:\n");
-                print_metrics(snapshot->info.node->disk_state);
+                fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
+                fprintf(output_file, "Disk:\n");
+                print_metrics(snapshot->info.node->disk_state, output_file);
             }
 #endif
     
@@ -382,27 +390,28 @@ bool OnGVT(int me, lp_state *snapshot)
         else if(snapshot->type == ACTUATOR){
     
 #ifdef PRINT_RESULTS
-            print_pre(me, snapshot->device_timestamp, snapshot->type, -1);
-            print_metrics(snapshot->info.actuator->queue_state);
+            print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
+            print_metrics(snapshot->info.actuator->queue_state, output_file);
 #endif
     
         }
         else if(snapshot->type == LAN){
     
 #ifdef PRINT_RESULTS
-            print_pre(me, snapshot->device_timestamp, snapshot->type, -1);
+            print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
     
-            printf("<<<<<<<<<<<<<<<<<<<<\n");
-            printf("Lan IN:\n");
-            print_metrics(snapshot->info.lan->queue_state_in);
-            printf("<<<<<<<<<<<<<<<<<<<<\n");
-            printf("Lan OUT:\n");
-            print_metrics(snapshot->info.lan->queue_state_out);
+            fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
+            fprintf(output_file, "Lan IN:\n");
+            print_metrics(snapshot->info.lan->queue_state_in, output_file);
+            fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
+            fprintf(output_file, "Lan OUT:\n");
+            print_metrics(snapshot->info.lan->queue_state_out, output_file);
 #endif
     
         }
 
         snapshot->lp_enabled = 0;
+        fclose(output_file);
     
     }
 
