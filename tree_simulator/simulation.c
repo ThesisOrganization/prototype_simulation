@@ -5,6 +5,7 @@
 #include "./simulation_functions/init_event/init_functions.h"
 #include "./simulation_functions/arrive_event/arrive_functions.h"
 #include "./simulation_functions/finish_event/finish_functions.h"
+#include "./simulation_functions/setup_protocol/setup_protocol.h"
 
 char topology_path[] = "./topology.txt";
 
@@ -41,6 +42,28 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
     switch(event_type) {
 
         case INIT:
+            
+            if(me == 0){
+                
+                //MASTER CODE
+                ScheduleNewEvent(me, TS_START_SIMULATION, START_SIMULATION, NULL, 0);
+                
+
+            }
+            else
+                ScheduleNewEvent(me, TS_START_SIMULATION, START_SIMULATION, NULL, 0);
+
+            break;
+
+        case RECEIVE_INFO:
+
+            break;
+
+        case RECEIVE_DATA:
+
+            break;
+
+        case START_SIMULATION:
             state = malloc(sizeof(lp_state));
             SetState(state);
     

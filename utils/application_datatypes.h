@@ -243,8 +243,22 @@ typedef enum { //INIT should be 0
     FINISH_DISK,
     GENERATE_TRANSITION,
     GENERATE_TELEMETRY,
-    UPDATE_TIMESTAMP
+    UPDATE_TIMESTAMP,
+    RECEIVE_INFO,
+    RECEIVE_DATA,
+    START_SIMULATION
 } events_type;
+
+typedef enum {
+    DATA0 = 1,
+    DATA1,
+    DATA2,
+    DATA3,
+    DATA4,
+    DATA5,
+    DATA6,
+    TS_START_SIMULATION
+} ts_data;
 
 
 typedef struct _queue_state {
