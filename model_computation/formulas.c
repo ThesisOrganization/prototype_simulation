@@ -52,7 +52,7 @@ typedef enum{
 typedef struct node_data{
 	//we use the input_rates array for the lan in and the output_rates array for the lan out when the node is a lan
 	double *input_rates,*service_demands,*utilization_factors,*response_times,*output_rates, total_utilization_factor,*service_times; ///< Parameters to be computed
-	topology* top; ///< The ::topology*.
+	Element_topology* top; ///< The ::topology*.
 	data_classes classes; ///< The number of classes of messages (usually this is equal to ::NUM_CLASSES).
 	int* node_visits_per_class; ///< The visits that each messages does on the current node, ordered by ::data_classes
 	int node_id; ///< The id of the current node in the topology.
@@ -131,11 +131,11 @@ void print_results_in_table_int(char* elem,int node_id,char* table_type,char* ta
 void print_results(node_data* node,FILE* out){
 	char* table_header=malloc(sizeof(char)*512);
 	char* table_type=malloc(sizeof(char)*128);
-	if(getType(node->top,node->node_id)!=WAN && getType(node->top,node->node_id)!=SENSOR){
+	if(getType(node->top)!=WAN && getType(node->top)!=SENSOR){
 		fprintf(out,"\\subsection{%s %d}\n",node->type,node->node_id);
 		fprintf(out,"Type: %s\\\\\n",node->node_type);
 	}
-	if(getType(node->top,node->node_id)!=WAN && (getType(node->top,node->node_id)!=LAN && node->node_split_status==NODE_NOT_SPLIT) && getType(node->top,node->node_id)!=SENSOR){
+	if(getType(node->top)!=WAN && (getType(node->top)!=LAN && node->node_split_status==NODE_NOT_SPLIT) && getType(node->top)!=SENSOR){
 		//we print the rates table
 		snprintf(table_type,sizeof(char)*128,"rates");
 		//snprintf(table_type,sizeof(char)*128,"input rates");
@@ -166,15 +166,15 @@ void print_results(node_data* node,FILE* out){
 		print_results_in_table(node->type,node->node_id,table_type,table_header,node->response_times,node->classes,out);
 	} else{
 
-		if(getType(node->top,node->node_id)==WAN ){
+		if(getType(node->top)==WAN ){
 			//	fprintf(out,"Delay: $%.3g$",((lp_infos*)getInfo(node->top,node->node_id))->delay);
 		} else{
-			if(getType(node->top,node->node_id)==SENSOR){
+			if(getType(node->top)==SENSOR){
 				//	snprintf(table_type,sizeof(char)*128,"output rates");
 				//	snprintf(table_header,sizeof(char)*512,"$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$\\\\\n\\midrule\n");
 				//	print_results_in_table(node->name,node->node_id,table_type,table_header,node->output_rates,node->classes,out);
 			} else {
-				if(getType(node->top,node->node_id)){
+				if(getType(node->top)){
 					fprintf(out,"\\subsubsection{LAN in}");
 				}
 				snprintf(table_type,sizeof(char)*128,"Lan in rates");
@@ -202,7 +202,7 @@ void print_results(node_data* node,FILE* out){
 				snprintf(table_type,sizeof(char)*128,"Lan in response times");
 				snprintf(table_header,sizeof(char)*512,"$R_t$ & $R_e$ & $R_c$ & $R_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->type,node->node_id,table_type,table_header,node->input_response_times,node->classes,out);
-				if(getType(node->top,node->node_id)){
+				if(getType(node->top)){
 					fprintf(out,"\\subsubsection{LAN out}");
 				}
 				//LAN out
@@ -229,7 +229,7 @@ void print_results(node_data* node,FILE* out){
 			}
 		}
 	}
-	if(getType(node->top,node->node_id)==NODE && ((lp_infos*)getInfo(node->top,node->node_id))->node_type==CENTRAL){
+	if(getType(node->top)==NODE && getNodeType(node->top)==CENTRAL){
 		fprintf(out,"\\subsubsection{Central node storage system}\n");
 		snprintf(table_type,sizeof(char)*128,"rates");
 		//snprintf(table_type,sizeof(char)*128,"input rates");
@@ -324,26 +324,26 @@ void print_parameters(node_data* node,node_splitting_classes split_class,node_st
 		switch(class){
 			case CLASS_TELEMETRY:
 				fprintf(out,"\"telemetry\" : {");
-				if(getType(node->top,node->node_id)==NODE){
-					fprintf(out,"\"aggregation_rate\" : %d,",getAggregationRate(node->top,node->node_id)[TELEMETRY]);
+				if(getType(node->top)==NODE){
+					fprintf(out,"\"aggregation_rate\" : %d,",getAggregationRate(node->top)[TELEMETRY]);
 				}
 				break;
 			case CLASS_TRANSITION:
 				fprintf(out,"\"transition\" : {");
-				if(getType(node->top,node->node_id)==NODE){
-					fprintf(out,"\"aggregation_rate\" : %d,",getAggregationRate(node->top,node->node_id)[TRANSITION]);
+				if(getType(node->top)==NODE){
+					fprintf(out,"\"aggregation_rate\" : %d,",getAggregationRate(node->top)[TRANSITION]);
 				}
 				break;
 			case CLASS_COMMAND:
 				fprintf(out,"\"command\" : {");
-				if(getType(node->top,node->node_id)==NODE){
-					fprintf(out,"\"aggregation_rate\" : %d,",getAggregationRate(node->top,node->node_id)[COMMAND]);
+				if(getType(node->top)==NODE){
+					fprintf(out,"\"aggregation_rate\" : %d,",getAggregationRate(node->top)[COMMAND]);
 				}
 				break;
 			case CLASS_BATCH:
 				fprintf(out,"\"batch\" : {");
-				if(getType(node->top,node->node_id)==NODE){
-					fprintf(out,"\"aggregation_rate\" : %d,",getAggregationRate(node->top,node->node_id)[BATCH_DATA]);
+				if(getType(node->top)==NODE){
+					fprintf(out,"\"aggregation_rate\" : %d,",getAggregationRate(node->top)[BATCH_DATA]);
 				}
 				break;
 			default:
@@ -354,7 +354,7 @@ void print_parameters(node_data* node,node_splitting_classes split_class,node_st
 		fprintf(out,"\"service_demand\" : %.3g,",service_demands[class]);
 		fprintf(out,"\"utilization_factor\" : %.3g,",utilization_factors[class]);
 		fprintf(out,"\"response_time\" : %.3g,",response_times[class]);
-		if(getType(node->top,node->node_id)!=SENSOR){
+		if(getType(node->top)!=SENSOR){
 			fprintf(out,"\"service_time\" : %.3g,",service_times[class]);
 		}
 		fprintf(out,"\"number_of_visits\" : %d",number_visits[class]);
@@ -378,19 +378,19 @@ void print_json(node_data* node,FILE* out){
 	fprintf(out,"\"type\" : \"%s\",",node->type);
 
 	//we now print the parameters accordingly with the node type
-	switch(getType(node->top,node->node_id)){
+	switch(getType(node->top)){
 		case SENSOR:
 		case ACTUATOR:
 		case NODE:
 			//we print node_type only for nodes
-			if(getType(node->top,node->node_id)==NODE){
+			if(getType(node->top)==NODE){
 				fprintf(out,"\"node_type\" : \"%s\",",node->node_type);
 			}
 			fprintf(out,"\"parameters\" : {");
 			print_parameters(node,NODE_NOT_SPLIT,NODE_NO_STORAGE,out);
 			fprintf(out,"}");
 			//central node has also storage parameters
-			if(getType(node->top,node->node_id)==NODE && getNodeType(node->top,node->node_id)==CENTRAL){
+			if(getType(node->top)==NODE && getNodeType(node->top)==CENTRAL){
 				fprintf(out,",\"storage\" : {");
 				print_parameters(node,NODE_NOT_SPLIT,NODE_SIMPLE_STORAGE,out);
 				fprintf(out,"}");
@@ -414,11 +414,15 @@ void print_json(node_data* node,FILE* out){
  * \param[in] elements The lenght of the ::topArray struct (usually ::topology->num_nodes).
  * \returns The id of the central node (supposed to be unique).
  */
-int find_central(topArray** array,int elements){
+int find_central(Element_topology ** array,int elements){
 	int i,central=-1;
 	for(i=0;i<elements && central==-1;i++){
-		if(((lp_infos*) array[i]->info)->lp_type==NODE && ((lp_infos*)array[i]->info)->node_type==CENTRAL){
-			central=i;
+		int type = getType(array[i]);
+		if(type==NODE){
+			int node_type =getNodeType(array[i]);
+			if(node_type == CENTRAL){
+				central=i;
+			}
 		}
 	}
 	assert(central!=-1);
@@ -431,12 +435,12 @@ int find_central(topArray** array,int elements){
  * \param[out] num_lowers The number of lower nodes.
  * \return a -1 terminated array of integers, which represents the ids of the lower nodes connected to `node_id`
  */
-int* find_nodes_to_visit(topology* top,int node_id,int* num_lowers){
+int* find_nodes_to_visit(Element_topology* elTop,int node_id,int* num_lowers){
 	int i,j,k,duplicate;
-	int num_lans=getNumberLANS(top,node_id);
-	int num_nodes=getNumberLower(top,node_id);
-	int *nodes=getLowers(top,node_id);
-	int *lans=getLANS(top,node_id);
+	int num_lans=getNumberLANS(elTop);
+	int num_nodes=getNumberLower(elTop);
+	int *nodes=getLowers(elTop);
+	int *lans=getLANS(elTop);
 	// the array below is used to visit the lower nodes will be terminated by -1
 	int *lowers=NULL;
 	//when both the number of node and lans is not 0 we need to detect duplicates before exploring the subtrees to avoid doinf the same computation multiple times
@@ -444,8 +448,8 @@ int* find_nodes_to_visit(topology* top,int node_id,int* num_lowers){
 		lowers=malloc(sizeof(int)*(num_lans+num_nodes+1));
 		memset(lowers,-1,sizeof(int)*(num_lans+num_nodes+1));
 		//we sort the lower nodes and the lans array
-		quicksort(nodes,getNumberLower(top,node_id));
-		quicksort(lans,getNumberLANS(top,node_id));
+		quicksort(nodes,getNumberLower(elTop));
+		quicksort(lans,getNumberLANS(elTop));
 		//we copy the contents of the nodes array into lower
 		memcpy(lowers,nodes,sizeof(int)*num_nodes);
 		//then we add the non-duplicate items
@@ -481,20 +485,20 @@ int* find_nodes_to_visit(topology* top,int node_id,int* num_lowers){
  * \param[in] node The node of which we want to compute parameters.
  * \param[in] visit_type The type of graph visit we are performing.
  */
-void compute_data(node_data* node,graph_visit_type visit_type){
+void compute_data(node_data* node,graph_visit_type visit_type,double * probOfActuators, int numberOfActTypes, int numberOfSensTypes){
 	double total_command_dest_weight_num=0,branch_command_dest_weight_num=0,*childrens_total_rate=NULL,rate_transition_sensors_below=0,rate_telemetry_sensors_below=0,rate_transition_actuators_below=0,*rates;
 	node_data* father_node=NULL;
 	int i,j,father_type;
 	data_classes class;
 	assert(visit_type==GRAPH_COMPUTE_COMMANDS || visit_type==GRAPH_COMPUTE_RATES);
-	int elem_type=getType(node->top,node->node_id);
+	int elem_type=getType(node->top);
+	int node_type = getNodeType(node->top);
 	//we get the node information struct
-	lp_infos *our_info=(lp_infos*) getInfo(node->top,node->node_id);
 	// if we are not the a sensor, a wan or the central node  we need to compute the number of actuators that our upper node (WAN ecluded) can reach with a command message, weighted by their probability to be reached
-	if((elem_type!=NODE || our_info->node_type!=CENTRAL) && elem_type!=SENSOR && elem_type!=WAN ){
+	if((elem_type!=NODE || node_type!=CENTRAL) && elem_type!=SENSOR && elem_type!=WAN ){
 		switch(elem_type){
 			case NODE:
-				if(our_info->node_type==LOCAL){
+				if(node_type==LOCAL){
 					father_type=REGIONAL;
 				} else{
 					father_type=CENTRAL;
@@ -505,55 +509,55 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 		}
 		//get the father node
 		father_node=node->father;
-		while(getType(father_node->top,father_node->node_id)!=NODE || ((lp_infos*) getInfo(father_node->top,father_node->node_id))->node_type!=father_type){
+		while(getType(father_node->top)!=NODE || getNodeType(father_node->top)!=father_type){
 			father_node=father_node->father;
 		}
 		//compute the weighted number of actuators below our father
-		for(i=0;i<node->top->numberOfActTypes;i++){
-			total_command_dest_weight_num+=((lp_infos*)getInfo(father_node->top,father_node->node_id))->actuatorsTypesBelow[i]*father_node->top->probOfActuators[i];
+		for(i=0;i<numberOfActTypes;i++){
+			total_command_dest_weight_num+=getActuatorTypesBelowList(father_node->top)[i]*probOfActuators[i];
 		}
 		//if we are not an actuator we need to compute the weighted number of actuators below us
 		if(elem_type!=ACTUATOR){
-			for(i=0;i<node->top->numberOfActTypes;i++){
-				branch_command_dest_weight_num+=((lp_infos*)getInfo(node->top,node->node_id))->actuatorsTypesBelow[i]*node->top->probOfActuators[i];
+			for(i=0;i<numberOfActTypes;i++){
+				branch_command_dest_weight_num+=getActuatorTypesBelowList(node->top)[i]*probOfActuators[i];
 			}
 		}
 		// if the node is a split lan and we are an actuator, we need to get the rates from the lan in.
-		if(getType(father_node->top,father_node->node_id)==LAN && father_node->node_split_status==NODE_SPLIT_IN_OUT && our_info->node_type==ACTUATOR){
+		if(getType(father_node->top)==LAN && father_node->node_split_status==NODE_SPLIT_IN_OUT && getNodeType(node->top)==ACTUATOR){
 			rates=father_node->input_rates;
 		} else {
 			rates=father_node->output_rates;
 		}
 	}
 	// we have different rates formula for each element type
-	switch(getType(node->top,node->node_id)){
+	switch(getType(node->top)){
 		case SENSOR:
 			if(visit_type==GRAPH_COMPUTE_RATES){
 				//sensors can send only telemetry and transition messages
-				node->output_rates[CLASS_TELEMETRY]=node->top->sensorRatesByType[our_info->sensor_type][TELEMETRY];
-				node->output_rates[CLASS_TRANSITION]=node->top->sensorRatesByType[our_info->sensor_type][TRANSITION];
+				node->output_rates[CLASS_TELEMETRY]=getSensorRates(node->top)[TELEMETRY];
+				node->output_rates[CLASS_TRANSITION]=getSensorRates(node->top)[TRANSITION];
 			}
 			break;
 		case ACTUATOR:
 			//actuators send transitions and receive commands
 			if(visit_type==GRAPH_COMPUTE_RATES){
-				node->output_rates[CLASS_TRANSITION]=our_info->rateTransition;
+				node->output_rates[CLASS_TRANSITION]=getRateTransition(node->top);
 			}
 			if(visit_type==GRAPH_COMPUTE_COMMANDS){
-				node->input_rates[CLASS_COMMAND]= rates[CLASS_COMMAND] * ( node->top->probOfActuators[our_info->actuator_type] / total_command_dest_weight_num);
+				node->input_rates[CLASS_COMMAND]= rates[CLASS_COMMAND] * ( probOfActuators[getActuatorType(node->top)] / total_command_dest_weight_num);
 			}
-			node->service_times[CLASS_COMMAND]=our_info->serviceTimeCommand;
+			node->service_times[CLASS_COMMAND]=getServiceTimeCommand(node->top);
 			break;
 		case LAN:
 			//Lan rely messages from local nodes to sensors /actuators and vice versa, but are split in two queues
 			if(visit_type==GRAPH_COMPUTE_RATES){
-				for(i=0;i<node->top->numberOfSensTypes;i++){
-					rate_telemetry_sensors_below+=our_info->sensorsTypesBelow[i]*getSensorRatesForOneSensorType(node->top,i)[TELEMETRY];
-					rate_transition_sensors_below+=our_info->sensorsTypesBelow[i]*getSensorRatesForOneSensorType(node->top,i)[TRANSITION];
+				for(i=0;i<numberOfSensTypes;i++){
+					rate_telemetry_sensors_below+=getSensorsTypesBelowList(node->top)[i]*getSensorRates(node->top)[TELEMETRY];
+					rate_transition_sensors_below+=getSensorsTypesBelowList(node->top)[i]*getSensorRates(node->top)[TRANSITION];
 				}
 				for(i=0;i<node->num_childrens;i++){
-					if(getType(node->top,node->childrens[i]->node_id)==ACTUATOR){
-						rate_transition_actuators_below+=((lp_infos*)getInfo(node->top,node->childrens[i]->node_id))->rateTransition;
+					if(getType(node->childrens[i]->top)==ACTUATOR){
+						rate_transition_actuators_below+=getRateTransition(node->childrens[i]->top);
 					}
 				}
 				node->output_rates[CLASS_TELEMETRY]=rate_telemetry_sensors_below;
@@ -563,9 +567,9 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 				node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num;
 			}
 			if(node->node_split_status==NODE_SPLIT_IN_OUT){
-				node->input_service_times[CLASS_COMMAND]=node->top->LANsINserviceTimes[our_info->lan_type][COMMAND];
-				node->output_service_times[CLASS_TELEMETRY]=node->top->LANsOUTserviceTimes[our_info->lan_type][TELEMETRY];
-				node->output_service_times[CLASS_TRANSITION]=node->top->LANsOUTserviceTimes[our_info->lan_type][TRANSITION];
+				node->input_service_times[CLASS_COMMAND]=getLANsINserviceTimesByType(node->top)[COMMAND];
+				node->output_service_times[CLASS_TELEMETRY]=getLANsOUTserviceTimesByType(node->top)[TELEMETRY];
+				node->output_service_times[CLASS_TRANSITION]=getLANsOUTserviceTimesByType(node->top)[TRANSITION];
 			}
 			break;
 		case NODE:
@@ -579,37 +583,37 @@ void compute_data(node_data* node,graph_visit_type visit_type){
 					}
 				}
 				node->input_rates[CLASS_TELEMETRY]=childrens_total_rate[CLASS_TELEMETRY];
-				node->output_rates[CLASS_TELEMETRY]=childrens_total_rate[CLASS_TELEMETRY]/our_info->aggregation_rate[TELEMETRY];
+				node->output_rates[CLASS_TELEMETRY]=childrens_total_rate[CLASS_TELEMETRY]/getAggregationRate(node->top)[TELEMETRY];
 				node->input_rates[CLASS_TRANSITION]=childrens_total_rate[CLASS_TRANSITION];
 				node->output_rates[CLASS_TRANSITION]=node->input_rates[CLASS_TRANSITION];
 				//generated messages are not counted in the queue
 				node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH];
-				node->output_rates[CLASS_BATCH]=(node->input_rates[CLASS_BATCH]+our_info->probCommandResponse*node->input_rates[CLASS_TRANSITION])/our_info->aggregation_rate[BATCH_DATA];
+				node->output_rates[CLASS_BATCH]=(node->input_rates[CLASS_BATCH]+getProbCommandResponse(node->top)*node->input_rates[CLASS_TRANSITION])/getAggregationRate(node->top)[BATCH_DATA];
 				free(childrens_total_rate);
 			}
 			if(visit_type==GRAPH_COMPUTE_COMMANDS){
-				if(our_info->node_type!=CENTRAL){
+				if(getNodeType(node->top)!=CENTRAL){
 					//generated messages are not considered in the queue
 					node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num; // generated messages not counted in the queue
-					node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND]+our_info->probCommandResponse*node->input_rates[CLASS_TRANSITION];
+					node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND]+getProbCommandResponse(node->top)*node->input_rates[CLASS_TRANSITION];
 				} else{
-					node->output_rates[CLASS_COMMAND]=our_info->probCommandResponse*node->input_rates[CLASS_TRANSITION];
+					node->output_rates[CLASS_COMMAND]=getProbCommandResponse(node->top)*node->input_rates[CLASS_TRANSITION];
 				}
 				//we compute parameters for the storage included in the node
 				if(node->node_storage_state==NODE_SIMPLE_STORAGE){
-					node->storage_service_times[CLASS_TELEMETRY]=our_info->diskServices[TELEMETRY];
-					node->storage_service_times[CLASS_TRANSITION]=our_info->diskServices[TRANSITION];
-					node->storage_service_times[CLASS_BATCH]=our_info->diskServices[BATCH_DATA];
+					node->storage_service_times[CLASS_TELEMETRY]=getDiskServices(node->top)[TELEMETRY];
+					node->storage_service_times[CLASS_TRANSITION]=getDiskServices(node->top)[TRANSITION];
+					node->storage_service_times[CLASS_BATCH]=getDiskServices(node->top)[BATCH_DATA];
 					//we consider the node output rates as input rates to the storage system command messages are not logged, since they are aggregated in batch messages
 					node->storage_input_rates[CLASS_TELEMETRY]=node->output_rates[CLASS_TELEMETRY];
 					node->storage_input_rates[CLASS_TRANSITION]=node->output_rates[CLASS_TRANSITION];
 					//we log on disk both the messages received and the batch messages originated from command messages and we aggregate both
 					node->storage_input_rates[CLASS_BATCH]=node->output_rates[CLASS_BATCH];
 				}
-				node->service_times[CLASS_TELEMETRY]=our_info->service_time[TELEMETRY];
-				node->service_times[CLASS_TRANSITION]=our_info->service_time[TRANSITION];
-				node->service_times[CLASS_COMMAND]=our_info->service_time[COMMAND];
-				node->service_times[CLASS_BATCH]=our_info->service_time[BATCH_DATA];
+				node->service_times[CLASS_TELEMETRY]=getServiceTimesNodes(node->top)[TELEMETRY];
+				node->service_times[CLASS_TRANSITION]=getServiceTimesNodes(node->top)[TRANSITION];
+				node->service_times[CLASS_COMMAND]=getServiceTimesNodes(node->top)[COMMAND];
+				node->service_times[CLASS_BATCH]=getServiceTimesNodes(node->top)[BATCH_DATA];
 			}
 			break;
 			//the default case handles all the node which are modeled as delays
@@ -688,17 +692,18 @@ void compute_data(node_data* node,graph_visit_type visit_type){
  * \param[in] top The ::topology struct containing the general info.
  * The childrens array is not allocated here since we do not now yet how many childs we have
  */
-void init_node_data(node_data *data,int node_id,node_data* father,topology* top){
+void init_node_data(node_data *data,int node_id,node_data* father,Element_topology * elTop){
 	memset(data,0,sizeof(node_data));
 	data->node_id=node_id;
 	data->father=father;
-	data->top=top;
+	data->top=elTop;
 	data->classes=NUM_CLASSES;
 	data->input_rates=calloc(NUM_CLASSES,sizeof(double));
 	data->output_rates=calloc(NUM_CLASSES,sizeof(double));
 	//transition messages have two visits only between nodes
 	//we model a lan as a split queue
-	if(getType(top,node_id)==LAN){
+	int type = getType(elTop);
+	if(type==LAN){
 		data->node_split_status=NODE_SPLIT_IN_OUT;
 		data->input_service_times=calloc(NUM_CLASSES,sizeof(double));
 		data->output_service_times=calloc(NUM_CLASSES,sizeof(double));
@@ -719,32 +724,36 @@ void init_node_data(node_data *data,int node_id,node_data* father,topology* top)
 		data->response_times=calloc(NUM_CLASSES,sizeof(double));
 	}
 	// in this implementation only the central node has storage
-	if(getType(top,node_id)==NODE && ((lp_infos*)getInfo(top,node_id))->node_type==CENTRAL){
-		data->node_storage_state=NODE_SIMPLE_STORAGE;
-		data->storage_input_rates=calloc(NUM_CLASSES,sizeof(double));
-		data->storage_response_times=calloc(NUM_CLASSES,sizeof(double));
-		data->storage_service_demands=calloc(NUM_CLASSES,sizeof(double));
-		data->storage_service_times=calloc(NUM_CLASSES,sizeof(double));
-		data->storage_utilization_factors=calloc(NUM_CLASSES,sizeof(double));
-		data->storage_visits_per_class=calloc(NUM_CLASSES,sizeof(int));
-		data->storage_visits_per_class[CLASS_TELEMETRY]=NODE_SINGLE_VISIT;
-		data->storage_visits_per_class[CLASS_TRANSITION]=NODE_SINGLE_VISIT;
-		data->storage_visits_per_class[CLASS_BATCH]=NODE_SINGLE_VISIT;
-	} else {
+	if(type==NODE){
+		int node_type = getNodeType(elTop);
+	 	if(node_type == CENTRAL){
+			data->node_storage_state=NODE_SIMPLE_STORAGE;
+			data->storage_input_rates=calloc(NUM_CLASSES,sizeof(double));
+			data->storage_response_times=calloc(NUM_CLASSES,sizeof(double));
+			data->storage_service_demands=calloc(NUM_CLASSES,sizeof(double));
+			data->storage_service_times=calloc(NUM_CLASSES,sizeof(double));
+			data->storage_utilization_factors=calloc(NUM_CLASSES,sizeof(double));
+			data->storage_visits_per_class=calloc(NUM_CLASSES,sizeof(int));
+			data->storage_visits_per_class[CLASS_TELEMETRY]=NODE_SINGLE_VISIT;
+			data->storage_visits_per_class[CLASS_TRANSITION]=NODE_SINGLE_VISIT;
+			data->storage_visits_per_class[CLASS_BATCH]=NODE_SINGLE_VISIT;
+		} else {
 		data->node_storage_state=NODE_NO_STORAGE;
+	}
 	}
 	//setup of variables according to the element type
 	data->type=malloc(sizeof(char)*128);
 	data->node_type=malloc(sizeof(char)*128);
 	data->node_type[0]='\0';
-	switch(getType(top,node_id)){
+	switch(type){
 		case SENSOR:
 			data->node_visits_per_class[CLASS_TRANSITION]=NODE_NO_VISIT;
 			data->node_visits_per_class[CLASS_TELEMETRY]=NODE_NO_VISIT;
 			data->node_visits_per_class[CLASS_COMMAND]=NODE_NO_VISIT;
 			data->node_visits_per_class[CLASS_BATCH]=NODE_NO_VISIT;
 			snprintf(data->type,sizeof(char)*128,"sensor");
-			snprintf(data->node_type,sizeof(char)*128,"%d",((lp_infos*)getInfo(top,node_id))->sensor_type);
+			int sens_type = getSensorType(elTop);
+			snprintf(data->node_type,sizeof(char)*128,"%d",sens_type);
 			break;
 		case ACTUATOR:
 			data->node_visits_per_class[CLASS_TRANSITION]=NODE_NO_VISIT;
@@ -752,7 +761,8 @@ void init_node_data(node_data *data,int node_id,node_data* father,topology* top)
 			data->node_visits_per_class[CLASS_COMMAND]=NODE_SINGLE_VISIT;
 			data->node_visits_per_class[CLASS_BATCH]=NODE_NO_VISIT;
 			snprintf(data->type,sizeof(char)*128,"actuator");
-			snprintf(data->node_type,sizeof(char)*128,"%d",((lp_infos*)getInfo(top,node_id))->actuator_type);
+			int act_type = getActuatorType(elTop);
+			snprintf(data->node_type,sizeof(char)*128,"%d",act_type);
 			break;
 		case LAN:
 			data->input_node_visits_per_class[CLASS_TRANSITION]=NODE_NO_VISIT;
@@ -774,7 +784,7 @@ void init_node_data(node_data *data,int node_id,node_data* father,topology* top)
 			break;
 		case NODE:
 			//central node do not receive replies
-			if(((lp_infos*)getInfo(data->top,data->node_id))->node_type==CENTRAL){
+			if(getNodeType(elTop)==CENTRAL){
 				data->node_visits_per_class[CLASS_TRANSITION]=NODE_SINGLE_VISIT;
 			}else {
 				data->node_visits_per_class[CLASS_COMMAND]=NODE_SINGLE_VISIT;
@@ -783,7 +793,7 @@ void init_node_data(node_data *data,int node_id,node_data* father,topology* top)
 			data->node_visits_per_class[CLASS_TELEMETRY]=NODE_SINGLE_VISIT;
 			data->node_visits_per_class[CLASS_BATCH]=NODE_SINGLE_VISIT;
 			snprintf(data->type,sizeof(char)*128,"node");
-			switch(((lp_infos*)getInfo(top,node_id))->node_type){
+			switch(getNodeType(elTop)){
 				case CENTRAL:
 					snprintf(data->node_type,sizeof(char)*128,"central");
 					break;
@@ -902,10 +912,10 @@ void free_node_data(node_data* data){
  * \param[in] order The output file that conatains the order of node id as csv (needed for ::GRAPH_PRINT_DATA visit type).
  * \param[in] start_id The id of the node from which we start the visit.
  */
-void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out_tex,FILE* out_json,FILE* order,int start_id){
+void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out_tex,FILE* out_json,FILE* order,int start_id,double * probOfActuatorsArray,int numberOfActTypes, int numberOfSensTypes){
 	assert(data!=NULL && visit_type<NUM_GRAPH_VISITS);
 	int *lowers=NULL,num_lowers=0,i;
-	//this is the first visit of the tree, so we need to allocate a node_data struct for each children
+	//this is the first visit of th	e tree, so we need to allocate a node_data struct for each children
 	if(visit_type==GRAPH_COMPUTE_RATES){
 		//we get the array of the lower nodes to be visited
 		lowers=find_nodes_to_visit(data->top,data->node_id,&num_lowers);
@@ -919,19 +929,19 @@ void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out_tex,FILE*
 	}
 	//in the second visit we need to compute the rates for command messages before reaching the leaves
 	if(visit_type==GRAPH_COMPUTE_COMMANDS){
-		compute_data(data,visit_type);
+		compute_data(data,visit_type,probOfActuatorsArray,numberOfActTypes,numberOfSensTypes);
 	}
 	//to begin computation and to print results we need to reach a node with no lower nodes
 	for(i=0;i<data->num_childrens && data->childrens!=NULL;i++){
-		graph_visit(data->childrens[i],visit_type,out_tex,out_json,order,start_id);
+		graph_visit(data->childrens[i],visit_type,out_tex,out_json,order,start_id,probOfActuatorsArray, numberOfActTypes, numberOfSensTypes);
 	}
 	//during the first visit we need to compute rate for most of the message types starting for the leaves of the tree
 	if(visit_type==GRAPH_COMPUTE_RATES){
-		compute_data(data,visit_type);
+		compute_data(data,visit_type,probOfActuatorsArray,numberOfActTypes,numberOfSensTypes);
 	}
 	// in the third visit we print the data and free the occupied memory
 	if(visit_type==GRAPH_PRINT_DATA){
-		if(getType(data->top,data->node_id)!=WAN && getType(data->top,data->node_id)!=SENSOR){
+		if(getType(data->top)!=WAN && getType(data->top)!=SENSOR){
 			fprintf(order,"%d",data->node_id);
 			print_results(data,out_tex);
 			//with this type of visit we will add the central node as last
@@ -955,16 +965,22 @@ int main(int argc, char** argv){
 	fprintf(out_tex,"\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\begin{document}\n");
 	fprintf(out_tex,"\\section{Computed Formulas Example}\n");
 	fprintf(out_json,"[");
-	topology * genTop = getTopology(topology_path);
+	total_topology * totTop = getTopology(topology_path);
+	general_topology * genTop = getGenTopology(totTop);
+	Element_topology ** elTop = totTop->lpt;
+	//topology * genTop = getTopology(topology_path);
 	node_data* central=malloc(sizeof(node_data));
-	central_id=find_central(genTop->topArr,genTop->total_nodes);
-	init_node_data(central,central_id,NULL,genTop);
+	int total = getTotalNodes(genTop)+ getSensorNodes(genTop)+ getActuatorNodes(genTop)+ getNumberOfTotalLANs(genTop)+ getNumberOfTotalWANs(genTop);
+	central_id=find_central(elTop,total);
+
+	Element_topology * elTop_central = getLPTopology(totTop,central_id);
+	init_node_data(central,central_id,NULL,elTop_central);
 	//1st visit, to compute rates
-	graph_visit(central,GRAPH_COMPUTE_RATES,out_tex,out_json,order,central->node_id);
+	graph_visit(central,GRAPH_COMPUTE_RATES,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
 	//2nd visit, to compute commands
-	graph_visit(central,GRAPH_COMPUTE_COMMANDS,out_tex,out_json,order,central->node_id);
+	graph_visit(central,GRAPH_COMPUTE_COMMANDS,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
 	//3rd visit, to print results
-	graph_visit(central,GRAPH_PRINT_DATA,out_tex,out_json,order,central->node_id);
+	graph_visit(central,GRAPH_PRINT_DATA,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
 	free(central);
 	fprintf(out_tex,"\\end{document}");
 	fprintf(out_json,"]");
