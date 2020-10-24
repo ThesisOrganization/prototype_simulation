@@ -1,22 +1,22 @@
+#ifndef COMMON_FUNCTIONS_H
+#define COMMON_FUNCTIONS_H
+
 #include "../../utils/priority_scheduler/priority_scheduler.h"
 #include "../../utils/partop/header.h"
 #include "../../utils/priority_queue/priority_queue.h"
 #include "../../utils/application_datatypes.h"
 
-#ifndef COMMON_FUNCTIONS_H
-#define COMMON_FUNCTIONS_H
-
 /*
-#define DEBUG  
-#ifdef DEBUG 
-#define ASSERT(x,s)\ 
-if (! (x)) {\ 
-    printf(s);\ 
-    exit(1);\ 
-} 
-#else  
-#define ASSERT(x,s) 
-#endif 
+#define DEBUG
+#ifdef DEBUG
+#define ASSERT(x,s)\
+if (! (x)) {\
+    printf(s);\
+    exit(1);\
+}
+#else
+#define ASSERT(x,s)
+#endif
 */
 
 //#define DEBUG
@@ -26,19 +26,19 @@ if (! (x)) {\
 #ifdef DEBUG
 #define PRINT(s) printf("%s\n", s)
 #else
-#define PRINT(s) 
+#define PRINT(s)
 #endif
 
 #ifdef DEBUG
 #define PRINT_VALUE(v) printf("%d\n", v)
 #else
-#define PRINT_VALUE(v) 
+#define PRINT_VALUE(v)
 #endif
 
 #ifdef DEBUG
 #define PRINT_DOUBLE(v) printf("%f\n", v)
 #else
-#define PRINT_DOUBLE(v) 
+#define PRINT_DOUBLE(v)
 #endif
 
 #ifdef DEBUG

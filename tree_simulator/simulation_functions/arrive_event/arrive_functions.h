@@ -1,7 +1,7 @@
-#include "../common_functions.h"
-
 #ifndef ARRIVE_FUNCTIONS_H
 #define ARRIVE_FUNCTIONS_H
+
+#include "../common_functions.h"
 
 void arrive_node(unsigned int me, simtime_t now, lp_state * state, job_info * info);
 void arrive_actuator(unsigned int me, simtime_t now, lp_state * state, job_info * info);

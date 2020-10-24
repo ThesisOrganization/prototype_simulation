@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef PRIORITY_SCHEDULER_H
+#define PRIORITY_SCHEDULER_H
 /// We failed to schedule in a job
 #define SCHEDULE_FAIL 0
 /// We have scheduled a job in successfully
@@ -62,3 +62,4 @@ job_info** schedule_out(priority_scheduler* sched);
  * \returns ::SCHEDULE_FAIL if the job has been rejected or ::SCHEDULE_DONE otherwise.
  */
 int schedule_in(priority_scheduler* sched,job_info* job);
+#endif

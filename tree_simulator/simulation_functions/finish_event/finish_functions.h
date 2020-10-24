@@ -1,7 +1,7 @@
-#include "../common_functions.h"
-
 #ifndef FINISH_FUNCTIONS_H
 #define FINISH_FUNCTIONS_H
+
+#include "../common_functions.h"
 
 void finish_node(unsigned int me, simtime_t now, lp_state * state);
 void finish_actuator(unsigned int me, simtime_t now, lp_state * state);
