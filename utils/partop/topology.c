@@ -428,8 +428,10 @@ void setWANup(Element_topology * specific_lpt,Element_topology ** lpt){
     }
   }
 }
-void setSensorRates(Element_topology * lpt, double * array){
-  lpt->spec_top.sensor->sensorRates = array;
+void setSensorRates(Element_topology * lpt, double * array, int size){
+  double * results = malloc(size);
+  memcpy(results, array, size);
+  lpt->spec_top.sensor->sensorRates = results;
 }
 
 void setSensorTypes(Element_topology * lpt, int * array, int nts){
@@ -475,17 +477,21 @@ void setActuatorTypes(Element_topology * lpt, int * array, int nt){
 
 }
 
-void setLANserviceTimes(Element_topology * lpt,double * LANsINserviceTimes, double * LANsOUTserviceTimes){
-  lpt->spec_top.lan->LANsINserviceTimes = LANsINserviceTimes;
-  lpt->spec_top.lan->LANsOUTserviceTimes = LANsOUTserviceTimes;
+void setLANserviceTimes(Element_topology * lpt,double * LANsINserviceTimes, double * LANsOUTserviceTimes, int size1, int size2){
+  double * results1 = malloc(size1);
+  memcpy(results1, LANsINserviceTimes, size1);
+
+  double * results2 = malloc(size2);
+  memcpy(results2, LANsOUTserviceTimes, size2);
+
+  lpt->spec_top.lan->LANsINserviceTimes = results1;
+  lpt->spec_top.lan->LANsOUTserviceTimes = results2;
 }
 
 void destroyGeneralTopology(general_topology * gn){
   free(gn->probOfActuators);
 }
 void destroyElementTopologyArray(Element_topology ** lpt,int total_elements){
-  int flag = 0;
-  int flag1 = 0;
   for(int i = 0; i < total_elements; i++){
 
     free(lpt[i]->lowerElements);
@@ -502,8 +508,7 @@ void destroyElementTopologyArray(Element_topology ** lpt,int total_elements){
       free(lpt[i]->spec_top.node->ListSensorsByType);
       free(lpt[i]->spec_top.node->ListActuatorsByType);
     }
-    else if (type == 1 && !flag){//sensor
-      flag = 1;
+    else if (type == 1){//sensor
       free(lpt[i]->spec_top.sensor->sensorRates);
     }
     else if (type == 3){//wan
@@ -512,12 +517,9 @@ void destroyElementTopologyArray(Element_topology ** lpt,int total_elements){
       free(lpt[i]->spec_top.wan->ListSensorsByType);
       free(lpt[i]->spec_top.wan->ListActuatorsByType);
     }
-    else if (type == 4 && !flag1){//wan
-      if(!flag1){
-        flag1 = 1;
-        free(lpt[i]->spec_top.lan->LANsINserviceTimes);
-        free(lpt[i]->spec_top.lan->LANsOUTserviceTimes);
-      }
+    else if (type == 4){//wan
+      free(lpt[i]->spec_top.lan->LANsINserviceTimes);
+      free(lpt[i]->spec_top.lan->LANsOUTserviceTimes);
       free(lpt[i]->spec_top.lan->actuatorsTypesBelow);
       free(lpt[i]->spec_top.lan->sensorsTypesBelow);
       free(lpt[i]->spec_top.lan->ListSensorsByType);

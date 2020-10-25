@@ -774,7 +774,7 @@ total_topology * getTopology(char * path){
     }
     else if(typeC == 1){
       int sensType = getSensorType(lpt[c]);
-      setSensorRates(lpt[c],sensor_rates[sensType]);
+      setSensorRates(lpt[c],sensor_rates[sensType],sizeof(sensor_rates[sensType]));
     }
     else if(typeC == 3){ //WAN
       setListActuatorsByType(lpt[c],resultAct[c],nt);
@@ -782,7 +782,7 @@ total_topology * getTopology(char * path){
     }
     else if(typeC == 4){
       int lanType = getLanType(lpt[c]);
-      setLANserviceTimes(lpt[c],LANsINserviceTimes[lanType],LANsOUTserviceTimes[lanType]);
+      setLANserviceTimes(lpt[c],LANsINserviceTimes[lanType],LANsOUTserviceTimes[lanType],sizeof(LANsINserviceTimes[lanType]),sizeof(LANsOUTserviceTimes[lanType]));
       setListActuatorsByType(lpt[c],resultAct[c],nt);
       setListSensorsByType(lpt[c],resultSens[c],nts);
     }
