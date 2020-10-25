@@ -1,3 +1,6 @@
+/** \file setup_protocol.h
+ * \brief LP setup functions.
+ */
 #ifndef SETUP_PROTOCOL_H
 #define SETUP_PROTOCOL_H
 
