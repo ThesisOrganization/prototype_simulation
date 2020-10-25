@@ -1,16 +1,16 @@
 # coding=utf-8
 import numpy as np
-
 f_out = open("../../tree_simulator/topology.txt", "w")
 
 numbersString = ""
 
-#TODO
+#TODO, don't touch
 types_of_lans = 1
-types_of_sensors = 1
+types_of_sensors = 2
 types_of_actuators = 1
 
 #USER SHOULD CHANGE THESE
+####################################
 aggregation_rates = "2/2/3/10,"
 sevice_time_central = "1.5/1.0/1.0/0.5/1.0,"
 service_time_regionals ="1.5/1.0/1.0/0.5/1.0,"
@@ -25,36 +25,39 @@ prob_command_generated_local = "0.5"
 service_time_disks = "0.4/0.73/0.00/0.23\n"
 rate_trans_act = "0.005,"
 service_time_commands_act = "0.6\n"
-#1 CENTRAL
+#1 CENTRAL, implicit
 number_of_regionals = 2
 number_of_locals = 4
 sensors_start = 1+number_of_regionals+number_of_locals
-number_of_lans = 1 #to change
+number_of_lans = 1 #to change, future work
 number_of_WANS = 1 + number_of_regionals
+####################################
+
 
 #USER SHOULD CHANGE THESE
-different_amounts_sensors = 6 #0-5
+####################################
+different_amounts_sensors_type1 = 6 #0-5
+different_amounts_sensors_type2 = 5
 different_amounts_actuators = 2 #0-1
+####################################
 
+number_of_locals_with_x_sensors_y_actuators_per_regional = np.zeros((number_of_regionals,different_amounts_sensors_type1,different_amounts_sensors_type2,different_amounts_actuators)).astype(int);
 
-number_of_locals_with_x_sensors_y_actuators_per_regional = np.zeros((number_of_regionals,different_amounts_sensors,different_amounts_actuators)).astype(int);
-
-#number_of_locals_with_x_sensors_y_actuators_per_regional[0][1][2] = locals under regional 0-th with 1 sensor and 2 actuators
 #USER SHOULD INPUT THESE, add new ones if necessary
-
-number_of_locals_with_x_sensors_y_actuators_per_regional[0][1][1] = 2
-number_of_locals_with_x_sensors_y_actuators_per_regional[1][1][1] = 2
+####################################
+number_of_locals_with_x_sensors_y_actuators_per_regional[0][2][1][1] = 2 #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
+number_of_locals_with_x_sensors_y_actuators_per_regional[1][2][1][1] = 2
+####################################
 total_sensors = 0
 total_actuators = 0
 for i in range(number_of_regionals):
-    for j in range(different_amounts_sensors) :
-        for k in range(different_amounts_actuators):
-            total_sensors+=j*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][k]
-            total_actuators+=k*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][k]
+    for j in range(different_amounts_sensors_type1) :
+        for l in range(different_amounts_sensors_type2):
+            for k in range(different_amounts_actuators):
+                total_sensors+=j*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
+                total_actuators+=k*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
 
-#USER SHOULD CHANGE THESE
-sens_tele = "0.002"
-sens_trans = "0.005"
+
 
 number_of_elements = 1 + number_of_regionals + number_of_locals+total_sensors+total_actuators
 number_of_elements_to_write = 1 + number_of_regionals + number_of_locals * 2+total_sensors+total_actuators+number_of_WANS #change x2 because LAN
@@ -64,19 +67,28 @@ numbersString+=str(types_of_sensors)+"\n"
 numbersString+=str(types_of_lans)+"\n"
 f_out.write(numbersString);
 
-
-
-sensor_rates_string = sens_tele+","+sens_trans #in base al tipo fai più di ste string?
+#USER SHOULD CHANGE THESE
+####################################
+sens_tele_type1 = "0.002"
+sens_trans_type1 = "0.0"
+sens_tele_type2 = "0.0"
+sens_trans_type2 = "0.005"
+####################################
+sensor_rates_string1 = sens_tele_type1+","+sens_trans_type1+";" #in base al tipo fai più di ste string?
+sensor_rates_string2 = sens_tele_type2+","+sens_trans_type2 #in base al tipo fai più di ste string?
+sensor_rates_string = sensor_rates_string1+sensor_rates_string2
 f_out.write(sensor_rates_string+"\n")
 
 associated_wan_up = ""
 #lan
 #USER SHOULD CHANGE THESE
+####################################
 service_tele = "0.2"
 service_trans = "0.2"
 service_command = "0.1"
 service_batch = "0.3"
 service_reply = "0.11"
+####################################
 LAN_IN_services = service_tele +"," +service_trans+","+service_command+","+service_batch+","+service_reply
 f_out.write(LAN_IN_services+"\n")
 
@@ -114,29 +126,32 @@ lan_id = number_of_elements+number_of_WANS
 count = number_of_elements+1 #the wans!
 sensor_actuator_string = ""
 for i in range(number_of_regionals):
-    for j in range(different_amounts_sensors) :
-        for k in range(different_amounts_actuators):
-            if(number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][k] != 0):
-                for last in range(number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][k]):
-                    to_write = str(index)+";"+str(count)+";8;NODE,SCHEDULER2,LOCAL,"+aggregation_rates+delay_lower_router+delay_lower_router
-                    to_write+=service_time_locals+prob_command_generated_local+"\n"
-                    f_out.write(to_write)
+    for j in range(different_amounts_sensors_type1) :
+        for l in range(different_amounts_sensors_type2):
+            for k in range(different_amounts_actuators):
+                if(number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k] != 0):
+                    for last in range(number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]):
+                        to_write = str(index)+";"+str(count)+";8;NODE,SCHEDULER2,LOCAL,"+aggregation_rates+delay_lower_router+delay_lower_router
+                        to_write+=service_time_locals+prob_command_generated_local+"\n"
+                        f_out.write(to_write)
 
-                    associated_lan_down+=str(lan_id)
+                        associated_lan_down+=str(lan_id)
 
-                    upper_lan_node = index
-                    associated_lan_down+=";"+str(index)+";3;LAN,LAN_TYPE0,"+delay_lan
+                        upper_lan_node = index
+                        associated_lan_down+=";"+str(index)+";3;LAN,LAN_TYPE0,"+delay_lan
+                        for sens in range(j):
+                            sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,BATCH,SENSOR_TYPE0,MEASURE0\n"
+                            sensors_start+=1
+                        for sens2 in range(l):
+                            sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,BATCH,SENSOR_TYPE1,MEASURE0\n"
+                            sensors_start+=1
+                        for act in range(k):
+                            sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,BATCH,ACTUATOR_TYPE0,MEASURE0,"+rate_trans_act+service_time_commands_act
+                            sensors_start+=1
+                        lan_id+=1
+                        index+=1
 
-                    for sens in range(j):
-                        sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,BATCH,SENSOR_TYPE0,MEASURE0\n"
-                        sensors_start+=1
-                    for act in range(k):
-                        sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,BATCH,ACTUATOR_TYPE0,MEASURE0,"+rate_trans_act+service_time_commands_act
-                        sensors_start+=1
-                    lan_id+=1
-                    index+=1
-
-    count+=1
+                count+=1
 
 
 f_out.write(sensor_actuator_string)
