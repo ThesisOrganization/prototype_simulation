@@ -109,8 +109,6 @@ typedef enum {
     RAID2,
     RAID3
 } disk_type;
-//temp struct, to make things uniform with application.c
-//and check integrity in this main file
 
 typedef struct _node_topology{
   int node_type;
@@ -250,15 +248,25 @@ typedef enum { //INIT should be 0
 } events_type;
 
 typedef enum {
-    TS_RECV_ELEMENT_TOPOLOGY = 1,
-    DATA1,
-    DATA2,
-    DATA3,
-    DATA4,
-    DATA5,
-    DATA6,
+		TS_RECV_GENERAL_TOPOLOGY=1,
+    TS_RECV_ELEMENT_TOPOLOGY,
+    TS_RECV_SPECIFIC_TOPOLOGY,
+    TS_RECV_BELOW_DEVICES_INFO,
     TS_START_SIMULATION
 } ts_data;
+
+/// Used to determine the type of data received in a ::RECEIVE_SETUP_DATA event.
+typedef enum {
+	SETUP_DATA_PINT=0, ///< int*
+	SETUP_DATA_PDOUBLE, ///< double*
+	SETUP_DATA_GENERAL_TOPOLOGY,
+	SETUP_DATA_ELEMENT_TOPOLOGY,
+	SETUP_DATA_LAN_TOPOLOGY,
+	SETUP_DATA_WAN_TOPOLOGY,
+	SETUP_DATA_SENSOR_TOPOLOGY,
+	SETUP_DATA_ACTUATOR_TOPOLOGY,
+	SETUP_DATA_NODE_TOPOLOGY
+} setup_data_types;
 
 
 typedef struct _queue_state {
@@ -335,17 +343,6 @@ typedef enum {
 	LP_ENABLED
 } lp_usage_types;
 
-/// Used to determine the type of data received in a ::RECEIVE_SETUP_DATA event.
-typedef enum {
-	SETUP_DATA_PINT=0, ///< int*
-	SETUP_DATA_PDOUBLE, ///< double*
-	SETUP_DATA_ELEMENT_TOPOLOGY,
-	SETUP_DATA_LAN_TOPOLOGY,
-	SETUP_DATA_WAN_TOPOLOGY,
-	SETUP_DATA_SENSOR_TOPOLOGY,
-	SETUP_DATA_ACTUATOR_TOPOLOGY,
-	SETUP_DATA_NODE_TOPOLOGY
-} setup_data_types;
 
 typedef struct {
 	int element_id; ///< The id of the element which the data we are about to receive belongs

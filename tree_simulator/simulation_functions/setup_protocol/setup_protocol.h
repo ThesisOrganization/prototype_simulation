@@ -3,11 +3,9 @@
 
 #include "../common_functions.h"
 
-/** \brief Initializes the master LP and sends topology information to the other LP.
- * \param[in] me The id of the master LP.
- * \param[in] n_prc_tot The number of LPs.
- * \param[in] master_state The state of the master LP.
+/** \brief Reads the topology file and sends topology information to the other LPs.
+ * \param[in] n_prc_tot The number of given LPs.
  */
-void setup_master(int me,int n_prc_tot,lp_state* master_state);
+void setup_master(int n_prc_tot);
 
 #endif /* SETUP_PROTOCOL_H */

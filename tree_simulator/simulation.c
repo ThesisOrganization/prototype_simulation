@@ -48,7 +48,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					state->lp_enabled = LP_DISABLED;
             if(me == 0){
 							//we setup the master node and the required LPs
-							setup_master(me,n_prc_tot,state);
+							setup_master(n_prc_tot);
 							//then we can start the simulation
 							ScheduleNewEvent(me, TS_START_SIMULATION, START_SIMULATION, NULL, 0);
 						}

@@ -92,6 +92,7 @@ if (! (x)) {\
 #define GET_NUMBER_OF_LANS(a) getNumberOfTotalLANs(a)
 #define GET_NUMBER_OF_WANS(a) getNumberOfTotalWANs(a)
 #define GET_NUMBER_ACT_TYPES(a) getNumberOfActTypes(a)
+#define GET_NUMBER_SENS_TYPES(a) getNumberOfSensTypes(a)
 #define GET_PROB_ACTUATORS(a) getProbOfActuators(a)
 #define GET_TOPOLOGY(a) getTopology(a)
 #define GET_GEN_TOPOLOGY(a) getGenTopology(a)
@@ -99,4 +100,5 @@ if (! (x)) {\
 //ELEMENT TOPOLOGY
 #define GET_ELEMENT_TOPOLOGY(a,b) getLPTopology(a,b)
 #define GET_NUMBER_ACT_BELOW(a) getNumberOfBelowActuators(a)
+#define GET_NUMBER_SENS_BELOW(a) getNumberOfBelowSensors(a)
 #endif /* COMMON_FUNCTIONS_H */
