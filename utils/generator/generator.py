@@ -12,9 +12,9 @@ types_of_actuators = 1
 
 #USER SHOULD CHANGE THESE
 aggregation_rates = "2/2/3/10,"
-sevice_time_central = "1.5/1.0/1.0/0.5/0.52,"
-service_time_regionals ="1.5/1.0/1.0/0.5/0.52,"
-service_time_locals ="1.5/1.0/1.0/0.5/0.52,"
+sevice_time_central = "1.5/1.0/1.0/0.5/1.0,"
+service_time_regionals ="1.5/1.0/1.0/0.5/1.0,"
+service_time_locals ="1.5/1.0/1.0/0.5/1.0,"
 delay_upper_router = "0.3,"
 delay_lower_router = "0.2,"
 delay_lan = "0.3\n"
@@ -41,12 +41,17 @@ number_of_locals_with_x_sensors_y_actuators_per_regional = np.zeros((number_of_r
 
 #number_of_locals_with_x_sensors_y_actuators_per_regional[0][1][2] = locals under regional 0-th with 1 sensor and 2 actuators
 #USER SHOULD INPUT THESE, add new ones if necessary
+
 number_of_locals_with_x_sensors_y_actuators_per_regional[0][1][1] = 2
 number_of_locals_with_x_sensors_y_actuators_per_regional[1][1][1] = 2
+total_sensors = 0
+total_actuators = 0
+for i in range(number_of_regionals):
+    for j in range(different_amounts_sensors) :
+        for k in range(different_amounts_actuators):
+            total_sensors+=j*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][k]
+            total_actuators+=k*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][k]
 
-#TODO, ADD AUTOMATIC SUM. FOR NOW USER SHOULD CHANGE THESE
-total_sensors = 4
-total_actuators = 4
 #USER SHOULD CHANGE THESE
 sens_tele = "0.002"
 sens_trans = "0.005"
