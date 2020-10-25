@@ -43,7 +43,7 @@ static void init_metrics(queue_state * queue_state){
 
 }
 
-void generate_next_job(unsigned int me, simtime_t now, double rate_transition, double random_value, job_type type){
+void generate_next_job(unsigned int me, simtime_t now, double rate_transition, double random_value, events_type type){
 
     double time_between_arrivals = 1/rate_transition;
     //simtime_t ts_generate = now + Expent(time_between_arrivals);

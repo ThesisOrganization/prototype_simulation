@@ -26,8 +26,11 @@ elif [ "$1" == "alone" ]; then
     ./queues --sequential --lp $number_lp
 elif [ "$1" == "json" ]; then
     python3 generate_json.py $file_json
+elif [ "$1" == "clean" ]; then
+    rm lp_data/*.json
 else
     #./queues --sequential --lp $number_lp --simulation-time $simulation_time
+    rm lp_data/*.json
     ./queues --sequential --lp $number_lp
     python3 generate_json.py $file_json
 fi

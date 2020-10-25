@@ -12,12 +12,13 @@ fout = open(out, "w")
 path = "lp_data/"
 
 list_files_name = os.listdir(path)
+list_files_name.remove(".gitignore")
 final_list = []
 
 for file_name in list_files_name:
     fin = open(path + file_name, "r")
     #print(file_name)
-    final_list.append(json.load(fin))
+    final_list.extend(json.load(fin))
     fin.close()
 
 

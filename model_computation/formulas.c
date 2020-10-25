@@ -552,13 +552,13 @@ void compute_data(node_data* node,graph_visit_type visit_type,double * probOfAct
 		case LAN:
 			//Lan rely messages from local nodes to sensors /actuators and vice versa, but are split in two queues
 			if(visit_type==GRAPH_COMPUTE_RATES){
-				for(i=0;i<numberOfSensTypes;i++){
-					rate_telemetry_sensors_below+=getSensorsTypesBelowList(node->top)[i]*getSensorRates(node->top)[TELEMETRY];
-					rate_transition_sensors_below+=getSensorsTypesBelowList(node->top)[i]*getSensorRates(node->top)[TRANSITION];
-				}
 				for(i=0;i<node->num_childrens;i++){
 					if(getType(node->childrens[i]->top)==ACTUATOR){
 						rate_transition_actuators_below+=getRateTransition(node->childrens[i]->top);
+					}
+					else if(getType(node->childrens[i]->top)==SENSOR){
+						rate_telemetry_sensors_below+=getSensorRates(node->childrens[i]->top)[TELEMETRY];
+						rate_transition_sensors_below+=getSensorRates(node->childrens[i]->top)[TRANSITION];
 					}
 				}
 				node->output_rates[CLASS_TELEMETRY]=rate_telemetry_sensors_below;
@@ -913,8 +913,7 @@ void free_node_data(node_data* data){
  * \param[in] order The output file that conatains the order of node id as csv (needed for ::GRAPH_PRINT_DATA visit type).
  * \param[in] start_id The id of the node from which we start the visit.
  */
-void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out_tex,FILE* out_json,FILE* order,int start_id,double * probOfActuatorsArray,int numberOfActTypes, int numberOfSensTypes){
-	printf("node: %d\n",data->node_id);
+void graph_visit(node_data* data,Element_topology ** elTop,graph_visit_type visit_type,FILE* out_tex,FILE* out_json,FILE* order,int start_id,double * probOfActuatorsArray,int numberOfActTypes, int numberOfSensTypes){
 	assert(data!=NULL && visit_type<NUM_GRAPH_VISITS);
 	int *lowers=NULL,num_lowers=0,i;
 	//this is the first visit of th	e tree, so we need to allocate a node_data struct for each children
@@ -923,11 +922,11 @@ void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out_tex,FILE*
 		lowers=find_nodes_to_visit(data->top,data->node_id,&num_lowers);
 		data->childrens=calloc(num_lowers,sizeof(node_data*));
 		data->num_childrens=num_lowers;
-		printf("childrens: ");
+		//printf("childrens: ");
 		for(i=0;i<data->num_childrens;i++){
-			printf("%d ",lowers[i]);
+			//printf("%d ",lowers[i]);
 			data->childrens[i]=malloc(sizeof(node_data));
-			init_node_data(data->childrens[i],lowers[i],data,data->top);
+			init_node_data(data->childrens[i],lowers[i],data,elTop[lowers[i]]);
 		}
 		printf("\n");
 		free(lowers);
@@ -938,7 +937,7 @@ void graph_visit(node_data* data,graph_visit_type visit_type,FILE* out_tex,FILE*
 	}
 	//to begin computation and to print results we need to reach a node with no lower nodes
 	for(i=0;i<data->num_childrens && data->childrens!=NULL;i++){
-		graph_visit(data->childrens[i],visit_type,out_tex,out_json,order,start_id,probOfActuatorsArray, numberOfActTypes, numberOfSensTypes);
+		graph_visit(data->childrens[i],elTop,visit_type,out_tex,out_json,order,start_id,probOfActuatorsArray, numberOfActTypes, numberOfSensTypes);
 	}
 	//during the first visit we need to compute rate for most of the message types starting for the leaves of the tree
 	if(visit_type==GRAPH_COMPUTE_RATES){
@@ -981,11 +980,11 @@ int main(int argc, char** argv){
 	Element_topology * elTop_central = getLPTopology(totTop,central_id);
 	init_node_data(central,central_id,NULL,elTop_central);
 	//1st visit, to compute rates
-	graph_visit(central,GRAPH_COMPUTE_RATES,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
+	graph_visit(central,elTop,GRAPH_COMPUTE_RATES,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
 	//2nd visit, to compute commands
-	graph_visit(central,GRAPH_COMPUTE_COMMANDS,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
+	graph_visit(central,elTop,GRAPH_COMPUTE_COMMANDS,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
 	//3rd visit, to print results
-	graph_visit(central,GRAPH_PRINT_DATA,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
+	graph_visit(central,elTop,GRAPH_PRINT_DATA,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
 	free(central);
 	fprintf(out_tex,"\\end{document}");
 	fprintf(out_json,"]");
