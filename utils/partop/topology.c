@@ -4,6 +4,9 @@
 general_topology * getGenTopology(total_topology * totTop){
   return(totTop->gn);
 }
+Element_topology ** getLPTopologyComplete(total_topology * totTop){
+  return(totTop->lpt);
+}
 Element_topology * getLPTopology(total_topology * totTop, int index){
   return(totTop->lpt[index]);
 }
@@ -475,4 +478,63 @@ void setActuatorTypes(Element_topology * lpt, int * array, int nt){
 void setLANserviceTimes(Element_topology * lpt,double * LANsINserviceTimes, double * LANsOUTserviceTimes){
   lpt->spec_top.lan->LANsINserviceTimes = LANsINserviceTimes;
   lpt->spec_top.lan->LANsOUTserviceTimes = LANsOUTserviceTimes;
+}
+
+void destroyGeneralTopology(general_topology * gn){
+  free(gn->probOfActuators);
+}
+void destroyElementTopologyArray(Element_topology ** lpt,int total_elements){
+  int flag = 0;
+  int flag1 = 0;
+  for(int i = 0; i < total_elements; i++){
+
+    free(lpt[i]->lowerElements);
+    free(lpt[i]->connectedLans);
+    free(lpt[i]->actuatorPaths);
+    int type = getType(lpt[i]);
+    if(type == 0){//node
+      if(getNodeType(lpt[i]) == 0){//central
+        free(lpt[i]->spec_top.node->diskServices);
+      }
+      free(lpt[i]->spec_top.node->service_time);
+      free(lpt[i]->spec_top.node->actuatorsTypesBelow);
+      free(lpt[i]->spec_top.node->sensorsTypesBelow);
+      free(lpt[i]->spec_top.node->ListSensorsByType);
+      free(lpt[i]->spec_top.node->ListActuatorsByType);
+    }
+    else if (type == 1 && !flag){//sensor
+      flag = 1;
+      free(lpt[i]->spec_top.sensor->sensorRates);
+    }
+    else if (type == 3){//wan
+      free(lpt[i]->spec_top.wan->actuatorsTypesBelow);
+      free(lpt[i]->spec_top.wan->sensorsTypesBelow);
+      free(lpt[i]->spec_top.wan->ListSensorsByType);
+      free(lpt[i]->spec_top.wan->ListActuatorsByType);
+    }
+    else if (type == 4 && !flag1){//wan
+      if(!flag1){
+        flag1 = 1;
+        free(lpt[i]->spec_top.lan->LANsINserviceTimes);
+        free(lpt[i]->spec_top.lan->LANsOUTserviceTimes);
+      }
+      free(lpt[i]->spec_top.lan->actuatorsTypesBelow);
+      free(lpt[i]->spec_top.lan->sensorsTypesBelow);
+      free(lpt[i]->spec_top.lan->ListSensorsByType);
+      free(lpt[i]->spec_top.lan->ListActuatorsByType);
+    }
+    free(lpt[i]);
+  }
+
+}
+//DESTROYS
+void destroyTotalTopology(total_topology * totTop){
+
+  int total_elements = getTotalNodes(getGenTopology(totTop))+ getSensorNodes(getGenTopology(totTop))+ getActuatorNodes(getGenTopology(totTop))+ getNumberOfTotalLANs(getGenTopology(totTop))+ getNumberOfTotalWANs(getGenTopology(totTop));
+  destroyGeneralTopology(getGenTopology(totTop));
+  free(totTop->gn);
+  destroyElementTopologyArray(getLPTopologyComplete(totTop),total_elements);
+  free(totTop->lpt);
+  free(totTop);
+
 }

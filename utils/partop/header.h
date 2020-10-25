@@ -6,6 +6,7 @@
 //##################################
 general_topology * getGenTopology(total_topology * totTop);
 Element_topology * getLPTopology(total_topology * totTop, int index);
+Element_topology ** getLPTopologyComplete(total_topology * totTop);
 //specific topology
 
 //Return the type of actuator index
@@ -109,4 +110,11 @@ void setActuatorTypes(Element_topology * lpt, int * array, int nt);
 void setListActuatorsByType(Element_topology * lpt, int ** array, int nt);
 void setListSensorsByType(Element_topology * lpt, int ** array, int nts);
 void setLANserviceTimes(Element_topology * lpt,double * LANsINserviceTimes, double * LANsOUTserviceTimes);
+//DESTROYS
+void destroyGeneralTopology(general_topology * gn);
+void destroyElementTopologyArray(Element_topology ** lpt,int total_elements);
+void destroyTotalTopology(total_topology * totTop);
+
+
+
 #endif /* HEADER_H */
