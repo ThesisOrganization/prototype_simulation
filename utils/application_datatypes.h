@@ -196,7 +196,7 @@ typedef struct _general_topology{
 } general_topology;
 
 typedef struct _Element_topology{
-  int lp_type;
+  state_type lp_type;
   int upperNode;
   int numberOfLowerElements;
   int * lowerElements;
@@ -247,25 +247,29 @@ typedef enum { //INIT should be 0
     START_SIMULATION
 } events_type;
 
+/** These timestamp are used during the various phases of the setup.
+ * The value of the timestamp is used as it is to send the struct the refer to, then every inner pointer is sent as a separate message using an increase of 0.01, to avoid overlapping of the messages for different structs.
+ */
 typedef enum {
-		TS_RECV_GENERAL_TOPOLOGY=1,
-    TS_RECV_ELEMENT_TOPOLOGY,
-    TS_RECV_SPECIFIC_TOPOLOGY,
-    TS_RECV_BELOW_DEVICES_INFO,
-    TS_START_SIMULATION
+		TS_RECV_GENERAL_TOPOLOGY=1, ///< Timestamp used to start sending the general_topology.
+    TS_RECV_ELEMENT_TOPOLOGY, ///< Timestamp used to start sendig Element_topology.
+    TS_RECV_SPECIFIC_TOPOLOGY,///< Timestamp used to start sending the specific_topology.
+    TS_RECV_BELOW_DEVICES_INFO, ///< Timestamp used to start sending info about the below sensors/actuators.
+    TS_START_SIMULATION ///< This value must be higher that all the timestamps in the setup phase sincr it's used to start the simulation after the initialization of the LPs.
 } ts_data;
 
 /// Used to determine the type of data received in a ::RECEIVE_SETUP_DATA event.
 typedef enum {
-	SETUP_DATA_PINT=0, ///< int*
+	SETUP_DATA_LP_STATE=0, ///< lp_state struct
+	SETUP_DATA_PINT, ///< int*
 	SETUP_DATA_PDOUBLE, ///< double*
-	SETUP_DATA_GENERAL_TOPOLOGY,
-	SETUP_DATA_ELEMENT_TOPOLOGY,
-	SETUP_DATA_LAN_TOPOLOGY,
-	SETUP_DATA_WAN_TOPOLOGY,
-	SETUP_DATA_SENSOR_TOPOLOGY,
-	SETUP_DATA_ACTUATOR_TOPOLOGY,
-	SETUP_DATA_NODE_TOPOLOGY
+	SETUP_DATA_GENERAL_TOPOLOGY, ///< general_topology struct
+	SETUP_DATA_ELEMENT_TOPOLOGY, ///< Element_topology struct
+	SETUP_DATA_LAN_TOPOLOGY, ///< lan_topology struct
+	SETUP_DATA_WAN_TOPOLOGY, ///< wan_topology struct
+	SETUP_DATA_SENSOR_TOPOLOGY, ///< sensor_topology struct
+	SETUP_DATA_ACTUATOR_TOPOLOGY, ///< actuator_topology struct
+	SETUP_DATA_NODE_TOPOLOGY ///< node_topology
 } setup_data_types;
 
 
@@ -345,9 +349,10 @@ typedef enum {
 
 
 typedef struct {
-	int element_id; ///< The id of the element which the data we are about to receive belongs
-	setup_data_types next_data_type; ///< The type of the data we are about to receive
-	size_t next_data_size; ///< The size of the data we are about to receive
+	int element_id; ///< The id of the element which the data we are about to receive belongs.
+	setup_data_types data_type; ///< The type of the data we are about to receive.
+	setup_data_types container_struct; ///< The type of the struct which contains the data we will receive.
+	size_t data_size; ///< The size of the data we are about to receive.
 } setup_info;
 
 typedef struct _state {
@@ -359,10 +364,12 @@ typedef struct _state {
     state_type type;
     //general infos
     Element_topology * topology;
+		general_topology* general_topology;
     int num_acts_types;
     double * prob_actuators;
     //specific infos
     state_info info;
+		setup_info *setup_data_info; //setup info, will be freed when the setup is completed
 } lp_state;
 
 

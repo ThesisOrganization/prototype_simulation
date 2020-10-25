@@ -3,12 +3,11 @@
  */
 #include "setup_protocol.h"
 #include "setup_send_functions.h"
+#include "setup_recv_functions.h"
 
 /// The master node will schedule topology messages for itself to minimize memory consuption.
 void setup_master(int n_prc_tot){
 	int i;
-	double ts_skew;
-	setup_info info;
 	Element_topology *elem_top=NULL;
 	//we use the parser to get informations about the general topology
 	total_topology *tot_top=GET_TOPOLOGY("topology.txt");
@@ -31,7 +30,7 @@ void setup_master(int n_prc_tot){
 		send_element_topology(tot_top,i,num_required_lps);
 		//after having sent all the topology info to the node we can activate it
 		ScheduleNewEvent(i,TS_START_SIMULATION,START_SIMULATION,NULL,0);
-		//TODO free Element_topology.
 	}
-	//TODO free general_topology and total_topology.
+	//we free the total topology since it's not needed
+	DESTROY_TOTAL_TOPOLOGY(tot_top);
 }

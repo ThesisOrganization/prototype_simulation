@@ -48,22 +48,23 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
         case INIT:
 					//all nodes except the master node are disabled by default
 					state = malloc(sizeof(lp_state));
+					//a safe memset to obtain a clean starting state
+					memset(state,0,sizeof(lp_state));
 					SetState(state);
 					state->lp_enabled = LP_DISABLED;
             if(me == 0){
 							//we setup the master node and the required LPs
 							setup_master(n_prc_tot);
-							//then we can start the simulation
-							ScheduleNewEvent(me, TS_START_SIMULATION, START_SIMULATION, NULL, 0);
 						}
             break;
 
         case RECEIVE_SETUP_INFO:
 
-            break;
+            recv_setup_info(content,state);
+						break;
 
         case RECEIVE_SETUP_DATA:
-
+					recv_setup_data(state,content);
             break;
 
         case START_SIMULATION:

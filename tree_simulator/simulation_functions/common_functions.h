@@ -52,7 +52,7 @@ if (! (x)) {\
 
 
 //NODES
-#define GET_SERVICE_RATES(a) getServiceTimesNodes(a)
+#define GET_SERVICE_TIMES_NODES(a) getServiceTimesNodes(a)
 #define GET_NODE_TYPE(a) getNodeType(a)
 #define GET_AGGREGATION_RATE(a) getAggregationRate(a)
 #define GET_DELAY_UPPER_ROUTER(a) getDelayUpperRouter(a)
@@ -63,6 +63,7 @@ if (! (x)) {\
 //SENSORS
 #define GET_SENSOR_TYPE_RATES(a) getSensorRates(a)
 #define GET_SENSOR_TYPE(a) getSensorType(a)
+#define GET_LIST_SENSORS_BY_TYPE(a,b) getListSensorsByType(a,b)
 
 //ACTUATORS
 #define GET_SERVICE_COMMAND(a) getServiceTimeCommand(a)
@@ -77,7 +78,8 @@ if (! (x)) {\
 #define GET_DELAY(a) getDelay(a)
 
 #define GET_ACTUATOR_PATHS_INDEX(a) getActuatorPaths(a)
-#define GET_ACT_TYPE(a) getActuatorTypesBelowList(a)
+#define GET_ACT_TYPE_BELOW_LIST(a) getActuatorTypesBelowList(a)
+#define GET_SENS_TYPE_BELOW_LIST(a) getSensorsTypesBelowList(a)
 #define GET_LIST_ACTUATORS_BY_TYPE(a,b) getListActuatorsByType(a,b)
 #define GET_UPPER_NODE(a) getUpperNode(a)
 
@@ -101,4 +103,12 @@ if (! (x)) {\
 #define GET_ELEMENT_TOPOLOGY(a,b) getLPTopology(a,b)
 #define GET_NUMBER_ACT_BELOW(a) getNumberOfBelowActuators(a)
 #define GET_NUMBER_SENS_BELOW(a) getNumberOfBelowSensors(a)
+#define GET_NUMBER_LOWER_ELEMENTS(a) getNumberLower(a)
+#define GET_LOWER_ELEMENTS(a) getLowers(a)
+#define GET_LANS(a) getLANS(a)
+#define GET_NUMBER_LANS(a) getNumberLANS(a)
+
+
+//TOTAL TOPOLOGY
+#define DESTROY_TOTAL_TOPOLOGY(a) destroyTotalTopology(a)
 #endif /* COMMON_FUNCTIONS_H */
