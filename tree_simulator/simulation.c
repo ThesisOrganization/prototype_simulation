@@ -32,6 +32,36 @@ void print_array_int(int * array, int num_el){
 
 #endif
 
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+
+
+int check_metrics(queue_state * queue_state){
+
+    int return_bool = 1;
+    int i;
+    int sum_arrived = 0;
+
+    for(i=0; i < NUM_OF_JOB_TYPE; i++)
+        sum_arrived += queue_state->C[i];
+
+    if(sum_arrived == 0){
+        return_bool = 0;
+        return return_bool;
+    }
+
+    for(i=0; i < NUM_OF_JOB_TYPE; i++){
+        double R = queue_state->W[i] / queue_state->C[i];
+        double normalization = MAX(R, queue_state->old_response_times[i]);
+        double diff_value = ( fabs(R - queue_state->old_response_times[i]) ) / normalization;
+        double threshold = THRESHOLD*0.01;
+        if(diff_value > threshold)
+            return_bool = 0;
+        queue_state->old_response_times[i] = R;
+    }
+
+    return return_bool;
+}
+
 
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
@@ -316,8 +346,44 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             
             state->device_timestamp = now;
 
-            if(state->device_timestamp > MAX_SIMULATION_TIME)
-                state->simulation_completed = SIMULATION_STOP;
+            if(state->device_timestamp > TRANSITION_TIME_LIMIT){
+
+                int boolean_check = 0;
+
+                if(state->type == NODE){
+
+                    boolean_check = check_metrics(state->info.node->queue_state);
+
+                    if(state->info.node->type == CENTRAL)
+                        boolean_check = check_metrics(state->info.node->disk_state);
+
+                }
+                else if(state->type == ACTUATOR){
+
+                    boolean_check = check_metrics(state->info.actuator->queue_state);
+
+                }
+                else if(state->type == LAN){
+
+                    boolean_check = check_metrics(state->info.lan->queue_state_in);
+                    boolean_check = check_metrics(state->info.lan->queue_state_out);
+
+                }
+                else{
+
+                    //state->simulation_completed = SIMULATION_STOP;
+                    boolean_check = 1;
+
+                }
+
+                if(state->device_timestamp > MAX_SIMULATION_TIME || boolean_check)
+                    state->simulation_completed = SIMULATION_STOP;
+                else{
+                    state->simulation_completed = SIMULATION_ACTIVE;
+                    state->lp_enabled = 1;
+                }
+
+            }
             
             ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
             ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, NULL, 0);
@@ -483,9 +549,9 @@ bool OnGVT(int me, lp_state *snapshot)
     
         }
 
+        snapshot->lp_enabled = 0;
         return true;
 
-        //snapshot->lp_enabled = 0;
     
     }
 

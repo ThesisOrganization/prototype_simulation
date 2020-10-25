@@ -28,6 +28,7 @@ static void init_metrics(queue_state * queue_state){
     queue_state->B = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
     queue_state->start_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
     queue_state->actual_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
+    queue_state->old_response_times = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
 
     for(int i=0; i < NUM_OF_JOB_TYPE; i++){
 
@@ -38,6 +39,7 @@ static void init_metrics(queue_state * queue_state){
         queue_state->B[i] = 0.0;
         queue_state->start_timestamp[i] = 0.0;
         queue_state->actual_timestamp[i] = 0.0;
+        queue_state->old_response_times[i] = -1.0;
 
     }
 

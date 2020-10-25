@@ -231,6 +231,7 @@ typedef struct _total_topology{
 #define MAX_SIMULATION_TIME 800000
 
 #define NEXT_UPDATE_TIMESTAMP 100000
+#define THRESHOLD 3 ///percentage
 
 //#define RANGE_TIMESTAMP 10
 
@@ -274,6 +275,7 @@ typedef struct _queue_state {
     double * W; //time spent in the system by all arrivals
     simtime_t * actual_timestamp;
     simtime_t * start_timestamp;
+    double * old_response_times;
     void * queues;
 } queue_state;
 
