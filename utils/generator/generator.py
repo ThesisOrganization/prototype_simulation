@@ -11,19 +11,19 @@ types_of_sensors = 1
 types_of_actuators = 1
 
 #USER SHOULD CHANGE THESE
-aggregation_rates = "10/2/3/8,"
-sevice_time_central = "0.82/0.35/0.1/0.3/0.52,"
-service_time_regionals ="0.32/0.13/0.8/0.12/0.23,"
-service_time_locals ="0.32/0.13/0.8/0.12/0.23,"
+aggregation_rates = "2/2/3/10,"
+sevice_time_central = "1.5/1.0/1.0/0.5/0.52,"
+service_time_regionals ="1.5/1.0/1.0/0.5/0.52,"
+service_time_locals ="1.5/1.0/1.0/0.5/0.52,"
 delay_upper_router = "0.3,"
 delay_lower_router = "0.2,"
 delay_lan = "0.3\n"
 delay_wan = "0.5\n"
-prob_command_generated_central = "0.32,"
-prob_command_generated_regional = "0.4"
-prob_command_generated_local = "0.2"
+prob_command_generated_central = "0.5,"
+prob_command_generated_regional = "0.5"
+prob_command_generated_local = "0.5"
 service_time_disks = "0.4/0.73/0.00/0.23\n"
-rate_trans_act = "0.15,"
+rate_trans_act = "0.005,"
 service_time_commands_act = "0.6\n"
 #1 CENTRAL
 number_of_regionals = 2
@@ -41,16 +41,15 @@ number_of_locals_with_x_sensors_y_actuators_per_regional = np.zeros((number_of_r
 
 #number_of_locals_with_x_sensors_y_actuators_per_regional[0][1][2] = locals under regional 0-th with 1 sensor and 2 actuators
 #USER SHOULD INPUT THESE, add new ones if necessary
-number_of_locals_with_x_sensors_y_actuators_per_regional[0][2][1] = 2
-number_of_locals_with_x_sensors_y_actuators_per_regional[0][5][1] = 1
-number_of_locals_with_x_sensors_y_actuators_per_regional[1][4][1] = 1
+number_of_locals_with_x_sensors_y_actuators_per_regional[0][1][1] = 2
+number_of_locals_with_x_sensors_y_actuators_per_regional[1][1][1] = 2
 
 #TODO, ADD AUTOMATIC SUM. FOR NOW USER SHOULD CHANGE THESE
-total_sensors = 13
+total_sensors = 4
 total_actuators = 4
 #USER SHOULD CHANGE THESE
-sens_tele = "0.2"
-sens_trans = "0.1"
+sens_tele = "0.002"
+sens_trans = "0.005"
 
 number_of_elements = 1 + number_of_regionals + number_of_locals+total_sensors+total_actuators
 number_of_elements_to_write = 1 + number_of_regionals + number_of_locals * 2+total_sensors+total_actuators+number_of_WANS #change x2 because LAN
@@ -68,9 +67,9 @@ f_out.write(sensor_rates_string+"\n")
 associated_wan_up = ""
 #lan
 #USER SHOULD CHANGE THESE
-service_tele = "0.42"
-service_trans = "0.33"
-service_command = "0.12"
+service_tele = "0.2"
+service_trans = "0.2"
+service_command = "0.1"
 service_batch = "0.3"
 service_reply = "0.11"
 LAN_IN_services = service_tele +"," +service_trans+","+service_command+","+service_batch+","+service_reply

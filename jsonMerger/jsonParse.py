@@ -216,6 +216,9 @@ for element in ordered_id_list:
         aux(begin_table,dict_simulator,'lan_in')
         f_out.write("\\end{minipage}")
 
+        str_to_write = "Lan OUT "
+        to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
+        f_out.write(to_write);
 
         table_string = "\\subsubsection{Given parameters}\n"
         f_out.write(table_string)
