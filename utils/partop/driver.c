@@ -294,4 +294,5 @@ int main()
       }
     }
   }
+  destroyTotalTopology(totTop);
 }

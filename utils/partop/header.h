@@ -6,6 +6,7 @@
 //##################################
 general_topology * getGenTopology(total_topology * totTop);
 Element_topology * getLPTopology(total_topology * totTop, int index);
+Element_topology ** getLPTopologyComplete(total_topology * totTop);
 //specific topology
 
 //Return the type of actuator index
@@ -98,7 +99,7 @@ double * getProbOfActuators(general_topology * genTop);
 int * getActuatorPaths(Element_topology * lpt);
 //These function are self explanatory but should not be used outside of first run
 //by parser.c
-void setSensorRates(Element_topology * lpt, double * array);
+void setSensorRates(Element_topology * lpt, double * array, int size);
 void setLowerElements(Element_topology *  lpt, int * lowerEle, int numberLower);
 void setLANs(Element_topology *  lpt, int * arrayLANs, int numberLANs);
 void setWANdown(Element_topology * lpt, int idWAN);
@@ -108,5 +109,12 @@ void setSensorTypes(Element_topology * lpt, int * array, int nts);
 void setActuatorTypes(Element_topology * lpt, int * array, int nt);
 void setListActuatorsByType(Element_topology * lpt, int ** array, int nt);
 void setListSensorsByType(Element_topology * lpt, int ** array, int nts);
-void setLANserviceTimes(Element_topology * lpt,double * LANsINserviceTimes, double * LANsOUTserviceTimes);
+void setLANserviceTimes(Element_topology * lpt,double * LANsINserviceTimes, double * LANsOUTserviceTimes, int size1, int size2);
+//DESTROYS
+void destroyGeneralTopology(general_topology * gn);
+void destroyElementTopologyArray(Element_topology ** lpt,int total_elements);
+void destroyTotalTopology(total_topology * totTop);
+
+
+
 #endif /* HEADER_H */
