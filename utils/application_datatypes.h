@@ -329,9 +329,15 @@ typedef union {
     wan_state * wan;
 } state_info;
 
+typedef enum {
+    SIMULATION_ACTIVE = 0,
+    SIMULATION_STOP
+} simulation_status;
+
 typedef struct _state {
     //int num_jobs_processed;
     int lp_enabled; //1 lp enabled, 0 lp disabled
+    simulation_status simulation_completed;
 	//simtime_t start_timestamp; //usefull to compute T
     //simtime_t actual_timestamp;
     simtime_t device_timestamp;

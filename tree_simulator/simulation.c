@@ -109,6 +109,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 
             state->type = GET_TYPE(state->topology);
+                
+            state->simulation_completed = SIMULATION_ACTIVE;
             //printf("%d\n", state->type);
             //lp_infos* infos = getInfo(state->topology, me);
 
@@ -313,6 +315,9 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
         case UPDATE_TIMESTAMP:
             
             state->device_timestamp = now;
+
+            if(state->device_timestamp > MAX_SIMULATION_TIME)
+                state->simulation_completed = SIMULATION_STOP;
             
             ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
             ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, NULL, 0);
@@ -377,23 +382,15 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 
     //}
 }
-/*
-void print_pre(int me, simtime_t device_timestamp, int device_type, int node_type, FILE * output_file){
 
-    fprintf(output_file, "#################################################\n");
-    fprintf(output_file, "Device number: %d, Type: %d, Node type: %d, timestamp: %f\n", me, device_type, node_type, device_timestamp);
-
-}
-*/
 bool OnGVT(int me, lp_state *snapshot)
 {
 
     if(!snapshot->lp_enabled)
         return true;
 
-    if(snapshot->device_timestamp > MAX_SIMULATION_TIME){
-
-
+    //if(snapshot->device_timestamp > MAX_SIMULATION_TIME){
+    if(snapshot->simulation_completed == SIMULATION_STOP){
     
         if(snapshot->type == NODE){
     
@@ -486,7 +483,9 @@ bool OnGVT(int me, lp_state *snapshot)
     
         }
 
-        snapshot->lp_enabled = 0;
+        return true;
+
+        //snapshot->lp_enabled = 0;
     
     }
 
