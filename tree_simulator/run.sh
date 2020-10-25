@@ -23,14 +23,11 @@ elif [ "$1" == "gdb" ]; then
 elif [ "$1" == "print" ]; then
     ./queues --sequential --lp $number_lp 
 elif [ "$1" == "alone" ]; then
-    ./queues --sequential --lp $number_lp > $file_output
-#elif [ "$1" == "pdf" ]; then
-#    python3 generate_pdf.py $file_output $file_latex
-#    pdflatex $file_latex
+    ./queues --sequential --lp $number_lp
 elif [ "$1" == "json" ]; then
-    python3 generate_json.py $file_output $file_json
+    python3 generate_json.py $file_json
 else
-    #./queues --sequential --lp $number_lp --simulation-time $simulation_time > $file_output
-    ./queues --sequential --lp $number_lp > $file_output
-    python3 generate_json.py $file_output $file_json
+    #./queues --sequential --lp $number_lp --simulation-time $simulation_time
+    ./queues --sequential --lp $number_lp
+    python3 generate_json.py $file_json
 fi
