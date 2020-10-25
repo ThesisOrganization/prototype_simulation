@@ -332,10 +332,10 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
     double T = queue_state->actual_timestamp[i] - queue_state->start_timestamp[i];
     double S = queue_state->B[i] / queue_state->C[i];
     double R = queue_state->W[i] / queue_state->C[i];
-    double N = queue_state->W[i] / T;
+    //double N = queue_state->W[i] / T;
     double U = queue_state->B[i] / T;
     double lambda = queue_state->A[i] / T;
-    double X = queue_state->C[i] / T;
+    //double X = queue_state->C[i] / T;
     
     if (isnan(-S))
         S = 0.0;
@@ -406,7 +406,7 @@ bool OnGVT(int me, lp_state *snapshot)
             fprintf(output_file, "[");
 
             fprintf(output_file, "{\"id\": %d,", me);
-            fprintf(output_file, "\"type\": \"node\",", me);
+            fprintf(output_file, "\"type\": \"node\",");
             fprintf(output_file, "\"parameters\": {");
             print_metrics(snapshot->info.node->queue_state, output_file);
             fprintf(output_file, "},");
@@ -442,7 +442,7 @@ bool OnGVT(int me, lp_state *snapshot)
 
             //print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
             fprintf(output_file, "{\"id\": %d,", me);
-            fprintf(output_file, "\"type\": \"actuator\",", me);
+            fprintf(output_file, "\"type\": \"actuator\",");
             fprintf(output_file, "\"parameters\": {");
             print_metrics(snapshot->info.actuator->queue_state, output_file);
             fprintf(output_file, "},");
@@ -468,7 +468,7 @@ bool OnGVT(int me, lp_state *snapshot)
             //fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
             //fprintf(output_file, "Lan IN:\n");
             fprintf(output_file, "{\"id\": %d,", me);
-            fprintf(output_file, "\"type\": \"lan\",", me);
+            fprintf(output_file, "\"type\": \"lan\",");
             fprintf(output_file, "\"lan_in\": {");
             print_metrics(snapshot->info.lan->queue_state_in, output_file);
             fprintf(output_file, "},");
