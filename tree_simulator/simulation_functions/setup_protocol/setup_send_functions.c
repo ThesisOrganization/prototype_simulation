@@ -28,8 +28,6 @@ static void send_sensor_topology(Element_topology* elem_top,int element_id){
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
-printf("%f\n",GET_SENSOR_TYPE_RATES(elem_top)[0]);
-printf("%f\n",GET_SENSOR_TYPE_RATES(elem_top)[1]);
 	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_SENSOR_TYPE_RATES(elem_top),info.data_size);
 }
 
@@ -172,8 +170,8 @@ static void send_node_topology(general_topology* gen_top, Element_topology* elem
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,elem_top->spec_top.node,info.data_size);
 	//we send diskServices is the type of the node is central
+	info.container_struct=SETUP_DATA_NODE_TOPOLOGY;
 	if(GET_NODE_TYPE(elem_top)==CENTRAL){
-		info.container_struct=SETUP_DATA_NODE_TOPOLOGY;
 		info.data_type=SETUP_DATA_PDOUBLE;
 		info.data_size=sizeof(double)*4; // we have a disk service time  for each class of data
 		ts_skew+=0.01;
@@ -258,6 +256,7 @@ void send_element_topology(total_topology* tot_top,int element_id, int total_ele
 			break;
 		case LAN:
 			send_lan_topology(gen_top,elem_top,element_id);
+			break;
 		case WAN:
 			send_wan_topology(gen_top,elem_top,element_id);
 			break;

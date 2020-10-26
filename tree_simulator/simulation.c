@@ -53,6 +53,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					SetState(state);
 					state->lp_enabled = LP_DISABLED;
             if(me == 0){
+							//we enable the master LP to avoid terminating the simulation during the setup
+							state->lp_enabled= LP_ENABLED;
 							//we setup the master node and the required LPs
 							setup_master(n_prc_tot);
 						}
@@ -393,7 +395,7 @@ void print_pre(int me, simtime_t device_timestamp, int device_type, int node_typ
 bool OnGVT(int me, lp_state *snapshot)
 {
 
-    if(!snapshot->lp_enabled)
+    if(snapshot->lp_enabled==LP_DISABLED)
         return true;
 
     if(snapshot->device_timestamp > MAX_SIMULATION_TIME){
@@ -492,7 +494,7 @@ bool OnGVT(int me, lp_state *snapshot)
 
         }
 
-        snapshot->lp_enabled = 0;
+        snapshot->lp_enabled = LP_DISABLED;
 
     }
 

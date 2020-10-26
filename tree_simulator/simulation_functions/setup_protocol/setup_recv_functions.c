@@ -110,6 +110,7 @@ static void recv_data_in_lan_topology(lp_state* state,void* data){
 	if(lan_top->LANsOUTserviceTimes==NULL && info->data_type==SETUP_DATA_PDOUBLE){
 		lan_top->LANsOUTserviceTimes=malloc(info->data_size);
 		memcpy(lan_top->LANsOUTserviceTimes,data,info->data_size);
+		return;
 	}
 	//we have actuatorsTypesBelow?
 	if(lan_top->actuatorsTypesBelow==NULL && info->data_type==SETUP_DATA_PINT){
@@ -267,7 +268,7 @@ static void recv_data_in_element_topology(lp_state *state,void* data){
 			break;
 			// we have received a sensor_topology?
 		case SENSOR:
-			if(spec_top->sensor==NULL && info->data_size==SETUP_DATA_SENSOR_TOPOLOGY){
+			if(spec_top->sensor==NULL && info->data_type==SETUP_DATA_SENSOR_TOPOLOGY){
 				spec_top->sensor=malloc(info->data_size);
 				memcpy(spec_top->sensor,data,info->data_size);
 				//we set the inner pointer of sensor_topology to NULL
@@ -277,9 +278,10 @@ static void recv_data_in_element_topology(lp_state *state,void* data){
 			break;
 			//we have received an actuator_topology?
 		case ACTUATOR:
-			if(spec_top->actuator==NULL && info->data_size==SETUP_DATA_ACTUATOR_TOPOLOGY){
+			if(spec_top->actuator==NULL && info->data_type==SETUP_DATA_ACTUATOR_TOPOLOGY){
 				spec_top->actuator=malloc(info->data_size);
 				memcpy(spec_top->actuator,data,info->data_size);
+				return;
 			}
 			break;
 			//we have received a wan_topology?
