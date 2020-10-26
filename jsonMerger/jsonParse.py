@@ -1,4 +1,5 @@
 import json
+import numpy as np
 def result_string_calculation(dict,params, string1, string2):
     ret = "$"
     flag = True
@@ -77,6 +78,7 @@ with open('../tree_simulator/simulation_results.json') as f_simulator:
 with open('../model_computation/model_res.json') as f_model:
   data_model = json.load(f_model)
 
+
 count = 0;
 dict_simulator = {}
 dict_model = {}
@@ -98,7 +100,102 @@ while(count < num_elements):
     count+=1
 
 ordered_id_list.sort()
+
+dict_res = {}
+list = ['lambda_in','service_demand','utilization_factor','response_time']
 params = ["telemetry","transition","command","batch"]
+######NEW PART
+for element in ordered_id_list:
+    dict_res[element] = {}
+    for i in list:
+        dict_res[element][i] = []
+        for c in params:
+            type = dict_simulator[element]['type']
+            if type == 'lan':
+                if c == 'command':
+                    dict_res[element][i].append(dict_simulator[element]['lan_in'][c][i])
+                else:
+                    dict_res[element][i].append(dict_simulator[element]['lan_out'][c][i])
+            else:
+                dict_res[element][i].append(dict_simulator[element]['parameters'][c][i])
+list_regional = []
+list_local = []
+list_lan = []
+for element in ordered_id_list:
+    type = dict_model[element]['type']
+    if(type == 'node'):
+        node_type = dict_model[element]['node_type']
+        if(node_type == 'regional'):
+            list_regional.append(element)
+        elif(node_type == 'local'):
+            list_local.append(element)
+    elif(type == 'lan'):
+        list_lan.append(element)
+
+dict_regional_similar = {}
+for element in list_regional:
+    for element2 in list_regional:
+        if(element < element2):
+            allclose_result = True
+            for c in list:
+                allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element][c],0.1)
+            if(allclose_result):
+                if(element not in dict_regional_similar):
+                    dict_regional_similar[element] = []
+                dict_regional_similar[element].append(element2)
+to_pop_list = []
+for element in dict_regional_similar.keys():
+    for element2 in dict_regional_similar.keys():
+        if element in dict_regional_similar[element2]:
+            to_pop_list.append(element)
+for element in to_pop_list:
+    dict_regional_similar.pop(element,None)
+#print(dict_regional_similar)
+#print("END REGIONAL##############")
+dict_local_similar = {}
+for element in list_local:
+    for element2 in list_local:
+        if(element < element2):
+            allclose_result = True
+            for c in list:
+                allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element][c],0.1)
+            if(allclose_result):
+                if(element not in dict_local_similar):
+                    dict_local_similar[element] = []
+                dict_local_similar[element].append(element2)
+to_pop_list = []
+for element in dict_local_similar.keys():
+    for element2 in dict_local_similar.keys():
+        if element in dict_local_similar[element2]:
+            to_pop_list.append(element)
+for element in to_pop_list:
+    dict_local_similar.pop(element,None)
+#print(dict_local_similar)
+#print("END LOCAL##############")
+dict_lan_similar = {}
+
+for element in list_lan:
+    for element2 in list_lan:
+        if(element < element2):
+            allclose_result = True
+            for c in list:
+                allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element][c],0.1)
+            if(allclose_result):
+                if(element not in dict_lan_similar):
+                    dict_lan_similar[element] = []
+                dict_lan_similar[element].append(element2)
+
+
+to_pop_list = []
+for element in dict_lan_similar.keys():
+    for element2 in dict_lan_similar.keys():
+        if element in dict_lan_similar[element2]:
+            to_pop_list.append(element)
+for element in to_pop_list:
+    dict_lan_similar.pop(element,None)
+#print(dict_lan_similar)
+#print("END LAN ######################")
+############END NEW PART
 f_out = open("complete_results.tex", "w")
 #title
 initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\n\\title{Results}\n\\begin{document}\n\\maketitle\n\\section{Detailed view}\n"

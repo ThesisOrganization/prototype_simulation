@@ -961,9 +961,16 @@ void graph_visit(node_data* data,Element_topology ** elTop,graph_visit_type visi
 
 /// \brief Computes the parameters for the topology file location passed as the first argument.
 int main(int argc, char** argv){
-	assert(argc==2);
+	//assert(argc==2);
 	//get topology from file
-	char* topology_path=argv[1];
+	char* topology_path;
+	if(argc == 2){
+		topology_path=argv[1];
+	}
+	else{
+		topology_path= "../tree_simulator/topology.txt";
+	}
+
 	FILE *out_tex=fopen("results.tex","w"), *out_json=fopen("model_res.json","w"),*order=fopen("order.txt","w");
 	int central_id;
 	fprintf(out_tex,"\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\begin{document}\n");
