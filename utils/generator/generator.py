@@ -11,23 +11,23 @@ types_of_actuators = 1
 
 #USER SHOULD CHANGE THESE
 ####################################
-aggregation_rates = "2/2/3/10,"
+aggregation_rates = "3/3/4/6,"
 sevice_time_central = "1.5/1.0/1.0/0.5/1.0,"
-service_time_regionals ="1.5/1.0/1.0/0.5/1.0,"
+service_time_regionals ="0.5/0.2/0.3/0.2/0.2,"
 service_time_locals ="1.5/1.0/1.0/0.5/1.0,"
 delay_upper_router = "0.3,"
 delay_lower_router = "0.2,"
 delay_lan = "0.3\n"
 delay_wan = "0.5\n"
-prob_command_generated_central = "0.5,"
-prob_command_generated_regional = "0.5"
-prob_command_generated_local = "0.5"
+prob_command_generated_central = "0.1,"
+prob_command_generated_regional = "0.1"
+prob_command_generated_local = "0.1"
 service_time_disks = "0.4/0.73/0.00/0.23\n"
 rate_trans_act = "0.005,"
 service_time_commands_act = "0.6\n"
 #1 CENTRAL, implicit
 number_of_regionals = 2
-number_of_locals = 4
+number_of_locals = 20
 sensors_start = 1+number_of_regionals+number_of_locals
 number_of_lans = 1 #to change, future work
 number_of_WANS = 1 + number_of_regionals
@@ -37,7 +37,7 @@ number_of_WANS = 1 + number_of_regionals
 #USER SHOULD CHANGE THESE
 ####################################
 different_amounts_sensors_type1 = 6 #0-5
-different_amounts_sensors_type2 = 5
+different_amounts_sensors_type2 = 2 #transition sensors
 different_amounts_actuators = 2 #0-1
 ####################################
 
@@ -45,8 +45,8 @@ number_of_locals_with_x_sensors_y_actuators_per_regional = np.zeros((number_of_r
 
 #USER SHOULD INPUT THESE, add new ones if necessary
 ####################################
-number_of_locals_with_x_sensors_y_actuators_per_regional[0][2][1][1] = 2 #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
-number_of_locals_with_x_sensors_y_actuators_per_regional[1][2][1][1] = 2
+number_of_locals_with_x_sensors_y_actuators_per_regional[0][5][1][1] = 10 #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
+number_of_locals_with_x_sensors_y_actuators_per_regional[1][5][1][1] = 10
 ####################################
 total_sensors = 0
 total_actuators = 0
@@ -55,6 +55,7 @@ for i in range(number_of_regionals):
         for l in range(different_amounts_sensors_type2):
             for k in range(different_amounts_actuators):
                 total_sensors+=j*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
+                total_sensors+=l*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
                 total_actuators+=k*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
 
 
@@ -151,7 +152,7 @@ for i in range(number_of_regionals):
                         lan_id+=1
                         index+=1
 
-                count+=1
+                    count+=1
 
 
 f_out.write(sensor_actuator_string)
