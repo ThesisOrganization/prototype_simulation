@@ -55,6 +55,7 @@ for i in range(number_of_regionals):
         for l in range(different_amounts_sensors_type2):
             for k in range(different_amounts_actuators):
                 total_sensors+=j*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
+                total_sensors+=l*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
                 total_actuators+=k*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
 
 
@@ -151,7 +152,7 @@ for i in range(number_of_regionals):
                         lan_id+=1
                         index+=1
 
-                count+=1
+                    count+=1
 
 
 f_out.write(sensor_actuator_string)
