@@ -78,34 +78,38 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             //printf("%.3g\n", now);
 
             //state->num_jobs_processed = 0;
-            total_topology * tot_top = getTopology(topology_path); //later we will use a static struct
-            general_topology * gen_top = getGenTopology(tot_top);
-            state->topology = getLPTopology(tot_top, me);
+						state->num_acts_types=GET_NUMBER_ACT_TYPES(state->general_topology);
+						state->prob_actuators=GET_PROB_ACTUATORS(state->general_topology);
 
-            unsigned int num_nodes = GET_TOTAL_NODES(gen_top);
-            unsigned int num_sensors = GET_SENSOR_NODES(gen_top);
-            unsigned int num_actuators = GET_ACTUATOR_NODES(gen_top);
-            unsigned int num_wans = GET_NUMBER_OF_WANS(gen_top);
-            unsigned int num_lans = GET_NUMBER_OF_LANS(gen_top);
-
-            state->num_acts_types = GET_NUMBER_ACT_TYPES(gen_top);
-            state->prob_actuators = GET_PROB_ACTUATORS(gen_top);
-
-            //if there are too few LPs, exit
-            if(num_nodes + num_sensors + num_actuators + num_lans + num_wans > n_prc_tot){
-                printf("Error: too few LPs, add more LPs\n");
-                exit(EXIT_FAILURE);
-            }
-
-
-            //if there are too may LPs, return it
-            if(me >= num_nodes + num_sensors + num_actuators + num_lans + num_wans){
-                //state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
-                state->lp_enabled = 0;
-                break;
-            }
-            else
-                state->lp_enabled = 1;
+						//legacy implementation
+//             total_topology * tot_top = getTopology(topology_path); //later we will use a static struct
+//             general_topology * gen_top = getGenTopology(tot_top);
+//             state->topology = getLPTopology(tot_top, me);
+//
+//             unsigned int num_nodes = GET_TOTAL_NODES(gen_top);
+//             unsigned int num_sensors = GET_SENSOR_NODES(gen_top);
+//             unsigned int num_actuators = GET_ACTUATOR_NODES(gen_top);
+//             unsigned int num_wans = GET_NUMBER_OF_WANS(gen_top);
+//             unsigned int num_lans = GET_NUMBER_OF_LANS(gen_top);
+//
+//             state->num_acts_types = GET_NUMBER_ACT_TYPES(gen_top);
+//             state->prob_actuators = GET_PROB_ACTUATORS(gen_top);
+//
+//             if there are too few LPs, exit
+//             if(num_nodes + num_sensors + num_actuators + num_lans + num_wans > n_prc_tot){
+//                 printf("Error: too few LPs, add more LPs\n");
+//                 exit(EXIT_FAILURE);
+//             }
+//
+//
+//             if there are too may LPs, return it
+//             if(me >= num_nodes + num_sensors + num_actuators + num_lans + num_wans){
+//                 state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
+//                 state->lp_enabled = 0;
+//                 break;
+//             }
+//             else
+//                 state->lp_enabled = 1;
 
 
             state->type = GET_TYPE(state->topology);

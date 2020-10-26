@@ -26,8 +26,10 @@ static void send_sensor_topology(Element_topology* elem_top,int element_id){
 	info.data_type=SETUP_DATA_PDOUBLE;
 	info.data_size=sizeof(double)*2; // sensors use only two classes of data
 	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(info));
+	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
+printf("%f\n",GET_SENSOR_TYPE_RATES(elem_top)[0]);
+printf("%f\n",GET_SENSOR_TYPE_RATES(elem_top)[1]);
 	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_SENSOR_TYPE_RATES(elem_top),info.data_size);
 }
 
@@ -140,7 +142,7 @@ static void send_wan_topology(general_topology* gen_top, Element_topology* elem_
 	info.data_size=sizeof(wan_topology);
 	info.data_type=SETUP_DATA_WAN_TOPOLOGY;
 	info.container_struct=SETUP_DATA_ELEMENT_TOPOLOGY;
-	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(info));
+	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,elem_top->spec_top.wan,info.data_size);
 	//to send informations about the below sensors and actuator we use send_below_devices_info
@@ -166,29 +168,31 @@ static void send_node_topology(general_topology* gen_top, Element_topology* elem
 	info.data_size=sizeof(node_topology);
 	info.data_type=SETUP_DATA_NODE_TOPOLOGY;
 	info.container_struct=SETUP_DATA_ELEMENT_TOPOLOGY;
-	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(info));
+	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,elem_top->spec_top.node,info.data_size);
-	//we send diskServices
-	info.container_struct=SETUP_DATA_NODE_TOPOLOGY;
-	info.data_type=SETUP_DATA_PDOUBLE;
-	info.data_size=sizeof(double)*4; // we have a disk service time  for each class of data
+	//we send diskServices is the type of the node is central
+	if(GET_NODE_TYPE(elem_top)==CENTRAL){
+		info.container_struct=SETUP_DATA_NODE_TOPOLOGY;
+		info.data_type=SETUP_DATA_PDOUBLE;
+		info.data_size=sizeof(double)*4; // we have a disk service time  for each class of data
+		ts_skew+=0.01;
+		ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(info));
-	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_DISK_SERVICES(elem_top),info.data_size);
+		ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_DISK_SERVICES(elem_top),info.data_size);
+	}
 	//we send aggregation_rate
 	info.data_type=SETUP_DATA_PINT;
-	info.data_size=sizeof(double)*4; // we have an aggregation rate for each class of data
+	info.data_size=sizeof(int)*4; // we have an aggregation rate for each class of data
 	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(info));
+	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_AGGREGATION_RATE(elem_top),info.data_size);
 	//we send service_time
 	info.data_type=SETUP_DATA_PDOUBLE;
 	info.data_size=sizeof(double)*5; // we have a service for each class of data plus the reply events
 	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(info));
+	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_SERVICE_TIMES_NODES(elem_top),info.data_size);
 	//to send informations about the below sensors and actuator we use send_below_devices_info
@@ -224,26 +228,26 @@ void send_element_topology(total_topology* tot_top,int element_id, int total_ele
 	info.container_struct=SETUP_DATA_ELEMENT_TOPOLOGY;
 	///When sending nested pointers in the topology we follow the order of the declaration
 	//we send lowerElements
-	info.data_size=sizeof(int*)*GET_NUMBER_LOWER_ELEMENTS(elem_top);
+	info.data_size=sizeof(int)*GET_NUMBER_LOWER_ELEMENTS(elem_top);
 	info.data_type=SETUP_DATA_PINT;
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_LOWER_ELEMENTS(elem_top),sizeof(info.data_size));
+	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_LOWER_ELEMENTS(elem_top),info.data_size);
 	//we send connectedLans
-	info.data_size=sizeof(int*)*GET_NUMBER_LANS(elem_top);
+	info.data_size=sizeof(int)*GET_NUMBER_LANS(elem_top);
 	info.data_type=SETUP_DATA_PINT;
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_LANS(elem_top),sizeof(info.data_size));
+	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_LANS(elem_top),info.data_size);
 	//we send actuatorPaths
-	info.data_size=sizeof(int*)*total_elements;
+	info.data_size=sizeof(int)*total_elements;
 	info.data_type=SETUP_DATA_PINT;
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_ACTUATOR_PATHS_INDEX(elem_top),sizeof(info.data_size));
+	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_ACTUATOR_PATHS_INDEX(elem_top),info.data_size);
 	//to send the specific_topology we need to check the element type and access the union accordingly
 	switch(GET_TYPE(elem_top)){
 		case SENSOR:
@@ -273,7 +277,7 @@ void send_general_topology(general_topology* gen_top,int element_id){
 	info.data_size=sizeof(general_topology);
 	info.data_type=SETUP_DATA_GENERAL_TOPOLOGY;
 	info.container_struct=SETUP_DATA_LP_STATE;
-	ScheduleNewEvent(element_id,TS_RECV_GENERAL_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(info));
+	ScheduleNewEvent(element_id,TS_RECV_GENERAL_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_GENERAL_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,gen_top,info.data_size);
 	//we send probofActuators
@@ -281,7 +285,7 @@ void send_general_topology(general_topology* gen_top,int element_id){
 	info.data_type=SETUP_DATA_PDOUBLE;
 	info.data_size=sizeof(double)*GET_NUMBER_ACT_TYPES(gen_top);
 	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_GENERAL_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(info));
+	ScheduleNewEvent(element_id,TS_RECV_GENERAL_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_GENERAL_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_PROB_ACTUATORS(gen_top),info.data_size);
 }

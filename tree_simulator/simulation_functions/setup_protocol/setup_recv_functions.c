@@ -4,7 +4,7 @@
 
 #include "setup_recv_functions.h"
 
-void setup_recv_info(setup_info* info,lp_state* state){
+void recv_setup_info(setup_info* info,lp_state* state){
 	//we allocate a new setup_data_info struct if it doesn't exists
 	if(state->setup_data_info==NULL){
 		state->setup_data_info=malloc(sizeof(setup_info));
@@ -34,8 +34,8 @@ static void recv_data_in_node_topology(lp_state* state,void* data){
 	}
 	setup_info* info=state->setup_data_info;
 	node_topology* node_top=state->topology->spec_top.node;
-	//we have diskServices?
-	if(node_top->diskServices==NULL && info->data_type==SETUP_DATA_PDOUBLE){
+	//we have diskServices and we are a central node?
+	if(node_top->diskServices==NULL && info->data_type==SETUP_DATA_PDOUBLE && GET_NODE_TYPE(state->topology)==CENTRAL){
 		node_top->diskServices=malloc(info->data_size);
 		memcpy(node_top->diskServices,data,info->data_size);
 		return;
@@ -96,7 +96,7 @@ static void recv_data_in_node_topology(lp_state* state,void* data){
 static void recv_data_in_lan_topology(lp_state* state,void* data){
 	if(state->topology==NULL || state->topology->spec_top.lan==NULL){
 		printf("Error: mismatched message for lan topology received while element_topology or lan_topology does not exist\n");
-		xit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 	setup_info* info=state->setup_data_info;
 	lan_topology* lan_top=state->topology->spec_top.lan;
@@ -353,7 +353,7 @@ static void recv_data_in_general_topology(lp_state* state, void* data){
  * Any duplicate or mismatching event will be ignored.
  */
 static void recv_data_in_lp_state(lp_state* state,void* data){
-	setup_info* info=state->setup_info;
+	setup_info* info=state->setup_data_info;
 	//we need to now which data are we receiving
 	switch(info->data_type){
 		case SETUP_DATA_GENERAL_TOPOLOGY:
@@ -404,7 +404,7 @@ static void recv_data_in_lp_state(lp_state* state,void* data){
 	}
 }
 
-void setup_recv_data(lp_state* state,void* data){
+void recv_setup_data(lp_state* state,void* data){
 	if(state->setup_data_info==NULL){
 		return;
 	}
@@ -437,5 +437,5 @@ void setup_recv_data(lp_state* state,void* data){
 			exit(EXIT_FAILURE);
 	}
 	free(state->setup_data_info);
-	state->setup_data_info==NULL;
+	state->setup_data_info=NULL;
 }

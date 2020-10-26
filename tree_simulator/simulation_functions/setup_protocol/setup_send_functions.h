@@ -3,6 +3,7 @@
  */
 #ifndef SETUP_SEND_FUNCTIONS_H
 #define SETUP_SEND_FUNCTIONS_H
+#include "../common_functions.h"
 
 /** \brief Sends an Element_topology struct to the destination LP.
  * \param[in] tot_top Total topology struct.

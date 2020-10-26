@@ -65,7 +65,7 @@ static void send_command(unsigned int me, simtime_t now, lp_state * state, int i
 
     int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology);
     int next_hop = next_hop_list[id_selected_actuator];
-    
+
     job_info info_to_send;
     fill_info_to_send(&info_to_send, COMMAND, -1, id_selected_actuator);
 
@@ -81,7 +81,7 @@ static int get_id_random_actuator(unsigned int me, lp_state * state){
 
     int num_types = state->num_acts_types;
 
-    int * num_per_types = GET_ACT_TYPE(state->topology);
+    int * num_per_types = GET_ACT_TYPE_BELOW_LIST(state->topology);
     //for(int i = 0; i < num_types; i++)
     //    printf("%d: %d\n", me, num_per_types[i]);
 
@@ -107,7 +107,7 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 
     //printf("%d\n", queue_state->C);
     //printf("%d\n", info->job_type);
-    
+
 
     job_type type = info->job_type;
 
@@ -120,7 +120,7 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
         queue_state->actual_timestamp[type] = now;
 
         if(type == REPLY){
-            
+
             queue_state->C[TRANSITION]++;
             queue_state->B[TRANSITION] += info->busy_time_transition;
             queue_state->W[TRANSITION] += info->waiting_time_transition;
@@ -194,7 +194,7 @@ void finish_node(unsigned int me, simtime_t now, lp_state * state){
 
     double busy_time_transition = now - state->info.node->queue_state->start_processing_timestamp;
     double waiting_time_transition = now - info->arrived_in_node_timestamp;
-    
+
     //Update metrics
     if(!( info->job_type == TRANSITION && (state->info.node->type == LOCAL || state->info.node->type == REGIONAL) ))
         update_metrics(now, state->info.node->queue_state, info);
