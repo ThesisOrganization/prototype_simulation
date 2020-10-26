@@ -196,6 +196,7 @@ for element in ordered_id_list:
         f_out.write(table_string)
         aux(begin_table,dict_simulator,'parameters')
         f_out.write("\\end{minipage}")
+        f_out.write("\n\\newpage")
 
     elif type == 'lan':
 

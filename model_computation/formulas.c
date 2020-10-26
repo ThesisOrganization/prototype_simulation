@@ -435,7 +435,7 @@ int find_central(Element_topology ** array,int elements){
  * \param[out] num_lowers The number of lower nodes.
  * \return a -1 terminated array of integers, which represents the ids of the lower nodes connected to `node_id`
  */
-int* find_nodes_to_visit(Element_topology* elTop,int node_id,int* num_lowers){
+int* find_nodes_to_visit(Element_topology* elTop,int* num_lowers){
 	int i,j,k,duplicate;
 	int num_lans=getNumberLANS(elTop);
 	int num_nodes=getNumberLower(elTop);
@@ -486,7 +486,7 @@ int* find_nodes_to_visit(Element_topology* elTop,int node_id,int* num_lowers){
  * \param[in] node The node of which we want to compute parameters.
  * \param[in] visit_type The type of graph visit we are performing.
  */
-void compute_data(node_data* node,graph_visit_type visit_type,double * probOfActuators, int numberOfActTypes, int numberOfSensTypes){
+void compute_data(node_data* node,graph_visit_type visit_type,double * probOfActuators, int numberOfActTypes){
 	double total_command_dest_weight_num=0,branch_command_dest_weight_num=0,*childrens_total_rate=NULL,rate_transition_sensors_below=0,rate_telemetry_sensors_below=0,rate_transition_actuators_below=0,*rates;
 	node_data* father_node=NULL;
 	int i,j,father_type;
@@ -919,7 +919,7 @@ void graph_visit(node_data* data,Element_topology ** elTop,graph_visit_type visi
 	//this is the first visit of th	e tree, so we need to allocate a node_data struct for each children
 	if(visit_type==GRAPH_COMPUTE_RATES){
 		//we get the array of the lower nodes to be visited
-		lowers=find_nodes_to_visit(data->top,data->node_id,&num_lowers);
+		lowers=find_nodes_to_visit(data->top,&num_lowers);
 		data->childrens=calloc(num_lowers,sizeof(node_data*));
 		data->num_childrens=num_lowers;
 		//printf("childrens: ");
@@ -928,12 +928,11 @@ void graph_visit(node_data* data,Element_topology ** elTop,graph_visit_type visi
 			data->childrens[i]=malloc(sizeof(node_data));
 			init_node_data(data->childrens[i],lowers[i],data,elTop[lowers[i]]);
 		}
-		printf("\n");
 		free(lowers);
 	}
 	//in the second visit we need to compute the rates for command messages before reaching the leaves
 	if(visit_type==GRAPH_COMPUTE_COMMANDS){
-		compute_data(data,visit_type,probOfActuatorsArray,numberOfActTypes,numberOfSensTypes);
+		compute_data(data,visit_type,probOfActuatorsArray,numberOfActTypes);
 	}
 	//to begin computation and to print results we need to reach a node with no lower nodes
 	for(i=0;i<data->num_childrens && data->childrens!=NULL;i++){
@@ -941,7 +940,7 @@ void graph_visit(node_data* data,Element_topology ** elTop,graph_visit_type visi
 	}
 	//during the first visit we need to compute rate for most of the message types starting for the leaves of the tree
 	if(visit_type==GRAPH_COMPUTE_RATES){
-		compute_data(data,visit_type,probOfActuatorsArray,numberOfActTypes,numberOfSensTypes);
+		compute_data(data,visit_type,probOfActuatorsArray,numberOfActTypes);
 	}
 	// in the third visit we print the data and free the occupied memory
 	if(visit_type==GRAPH_PRINT_DATA){
