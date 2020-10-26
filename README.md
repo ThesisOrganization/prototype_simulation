@@ -4,7 +4,7 @@ Here you can find all the models that we build for rootsim or USE environments.
 ## Setup
 We provide a setup script which will download ROOT-Sim source in `ROOT-Sim-source` and install its libraries and
 compiler in `ROOT-Sim-bin`.
-numberOfSensTypes
+
 ## Usage
 To use the models we provide a top-level Makefile which will compile all the models using `rootsim-cc` in their
 respective folder.\
