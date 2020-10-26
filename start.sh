@@ -11,17 +11,17 @@ echo "Done."
 echo "Starting simulation.."
 cd ../tree_simulator
 make
-if [ -n "$1" ]; then
-    echo "...with custom LPS."
-    ./run.sh run $1
-else
-  echo "...in standard execution."
-  ./run.sh
-fi
+./run.sh run $1
 echo "Done."
 echo "Parsing jsons and merging them.."
 cd ../jsonMerger
-python3 jsonParse.py
+if [ "$2" == "aggregated" ]; then
+  echo "...aggregated results."
+  python3 jsonParseAggregation.py
+else
+  echo "...standard."
+  python3 jsonParse.py
+fi
 echo "Done."
 echo "Creating pdf.."
 pdflatex complete_results.tex

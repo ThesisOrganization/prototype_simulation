@@ -135,7 +135,7 @@ for element in ordered_id_list:
     elif(type == 'actuator'):
         list_actuators.append(element)
 #######################
-print("#######15%!########")
+#print("#######15%!########")
 baseline_coefficient = 0.15
 dict_regional_similar = {}
 for element in list_regional:
@@ -155,8 +155,8 @@ for element in dict_regional_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_regional_similar.pop(element,None)
-print(dict_regional_similar)
-print("END REGIONAL##############")
+#print(dict_regional_similar)
+#print("END REGIONAL##############")
 dict_local_similar = {}
 for element in list_local:
     for element2 in list_local:
@@ -175,8 +175,8 @@ for element in dict_local_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_local_similar.pop(element,None)
-print(dict_local_similar)
-print("END LOCAL##############")
+#print(dict_local_similar)
+#print("END LOCAL##############")
 dict_lan_similar = {}
 
 for element in list_lan:
@@ -197,8 +197,8 @@ for element in dict_lan_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_lan_similar.pop(element,None)
-print(dict_lan_similar)
-print("END LAN ######################")
+#print(dict_lan_similar)
+#print("END LAN ######################")
 dict_actuator_similar = {}
 
 for element in list_actuators:
@@ -219,11 +219,11 @@ for element in dict_actuator_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_actuator_similar.pop(element,None)
-print(dict_actuator_similar)
-print("END ACTUATORS ######################")
+#print(dict_actuator_similar)
+#print("END ACTUATORS ######################")
 #####################
 similarity_coefficient = 0.05
-print("#####5%!#####")
+#print("#####5%!#####")
 dict_regional_similar = {}
 for element in list_regional:
     for element2 in list_regional:
@@ -242,8 +242,8 @@ for element in dict_regional_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_regional_similar.pop(element,None)
-print(dict_regional_similar)
-print("END REGIONAL##############")
+#print(dict_regional_similar)
+#print("END REGIONAL##############")
 dict_local_similar = {}
 for element in list_local:
     for element2 in list_local:
@@ -262,8 +262,8 @@ for element in dict_local_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_local_similar.pop(element,None)
-print(dict_local_similar)
-print("END LOCAL##############")
+#print(dict_local_similar)
+#print("END LOCAL##############")
 dict_lan_similar = {}
 
 for element in list_lan:
@@ -284,8 +284,8 @@ for element in dict_lan_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_lan_similar.pop(element,None)
-print(dict_lan_similar)
-print("END LAN ######################")
+#print(dict_lan_similar)
+#print("END LAN ######################")
 dict_actuator_similar = {}
 
 for element in list_actuators:
@@ -306,8 +306,8 @@ for element in dict_actuator_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_actuator_similar.pop(element,None)
-print(dict_actuator_similar)
-print("END ACTUATORS ######################")
+#print(dict_actuator_similar)
+#print("END ACTUATORS ######################")
 
 ############END NEW PART
 
@@ -435,6 +435,7 @@ for element in ordered_id_list:
             f_out.write(table_string)
             aux(begin_table,dict_simulator,'parameters')
             f_out.write("\\end{minipage}")
+            f_out.write("\n\\newpage")
 
         elif type == 'lan':
 
