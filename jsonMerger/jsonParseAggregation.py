@@ -222,7 +222,7 @@ for element in to_pop_list:
 #print(dict_actuator_similar)
 #print("END ACTUATORS ######################")
 #####################
-similarity_coefficient = 0.05
+similarity_coefficient = 0.1
 #print("#####5%!#####")
 dict_regional_similar = {}
 for element in list_regional:
@@ -341,7 +341,7 @@ for element in ordered_id_list:
             to_write = "\\subsection{"+str_to_write+" node "+str(element)+"}\n"
             f_out.write(to_write);
             if(element in dict_regional_similar.keys() or element in dict_local_similar.keys()):
-                to_write = "This node has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by 5\% to these other nodes: \\textbf{"
+                to_write = "This node has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by " + str(similarity_coefficient*100) + "\% to these other nodes: \\textbf{"
                 if dict_model[element]['node_type'] == 'regional':
                     for similar in dict_regional_similar[element]:
                         to_write+= str(similar)+"; "
@@ -350,7 +350,7 @@ for element in ordered_id_list:
 
                 elif dict_model[element]['node_type'] == 'local':
                     for similar in dict_local_similar[element]:
-                        to_write+= str(similar)+";"
+                        to_write+= str(similar)+"; "
                     to_write+="}"
 
                     f_out.write(to_write)
@@ -410,7 +410,7 @@ for element in ordered_id_list:
             to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
             f_out.write(to_write);
             if element in dict_actuator_similar.keys():
-                to_write = "This actuator has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by 5\% to these other nodes: \\textbf{"
+                to_write = "This actuator has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by" + str(similarity_coefficient*100) + "\% to these other nodes: \\textbf{"
                 for similar in dict_actuator_similar[element]:
                     to_write+= str(similar)+"; "
                 to_write+="}"
@@ -444,7 +444,7 @@ for element in ordered_id_list:
             f_out.write(to_write)
 
             if element in dict_lan_similar.keys():
-                to_write = "This LAN has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by 5\% to these other nodes: \\textbf{"
+                to_write = "This LAN has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by "+ str(similarity_coefficient*100) +"\% to these other nodes: \\textbf{"
                 for similar in dict_lan_similar[element]:
                     to_write+= str(similar)+"; "
                 to_write+="}"

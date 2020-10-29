@@ -28,6 +28,7 @@ static void init_metrics(queue_state * queue_state){
     queue_state->B = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
     queue_state->start_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
     queue_state->actual_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
+    queue_state->old_response_times = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
 
     for(int i=0; i < NUM_OF_JOB_TYPE; i++){
 
@@ -38,6 +39,7 @@ static void init_metrics(queue_state * queue_state){
         queue_state->B[i] = 0.0;
         queue_state->start_timestamp[i] = 0.0;
         queue_state->actual_timestamp[i] = 0.0;
+        queue_state->old_response_times[i] = -1.0;
 
     }
 
@@ -65,7 +67,7 @@ void init_node(unsigned int me, lp_state * state){
     int num_queues = 1;
     state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
-    state->info.node->service_rates = GET_SERVICE_RATES(state->topology);
+    state->info.node->service_rates = GET_SERVICE_TIMES_NODES(state->topology);
 
     //state->info.node->service_rates[TRANSITION] *= 2; //to delete
 
@@ -87,7 +89,7 @@ void init_node(unsigned int me, lp_state * state){
     state->info.node->prob_cmd = GET_PROB_COMMAND(state->topology);
 
     ///init disk queue
-    
+
     if(GET_NODE_TYPE(state->topology) == CENTRAL){
         state->info.node->disk_state = malloc(sizeof(queue_state));
         state->info.node->disk_state->current_job = NULL;

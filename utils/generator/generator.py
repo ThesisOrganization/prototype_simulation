@@ -23,11 +23,11 @@ prob_command_generated_central = "0.1,"
 prob_command_generated_regional = "0.1"
 prob_command_generated_local = "0.1"
 service_time_disks = "0.4/0.73/0.00/0.23\n"
-rate_trans_act = "0.005,"
+rate_trans_act = "0.0005,"
 service_time_commands_act = "0.6\n"
 #1 CENTRAL, implicit
 number_of_regionals = 2
-number_of_locals = 20
+number_of_locals = 100
 sensors_start = 1+number_of_regionals+number_of_locals
 number_of_lans = 1 #to change, future work
 number_of_WANS = 1 + number_of_regionals
@@ -45,8 +45,8 @@ number_of_locals_with_x_sensors_y_actuators_per_regional = np.zeros((number_of_r
 
 #USER SHOULD INPUT THESE, add new ones if necessary
 ####################################
-number_of_locals_with_x_sensors_y_actuators_per_regional[0][5][1][1] = 10 #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
-number_of_locals_with_x_sensors_y_actuators_per_regional[1][5][1][1] = 10
+number_of_locals_with_x_sensors_y_actuators_per_regional[0][5][1][1] = 50 #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
+number_of_locals_with_x_sensors_y_actuators_per_regional[1][5][1][1] = 50
 ####################################
 total_sensors = 0
 total_actuators = 0
@@ -70,10 +70,10 @@ f_out.write(numbersString);
 
 #USER SHOULD CHANGE THESE
 ####################################
-sens_tele_type1 = "0.002"
+sens_tele_type1 = "0.0002"
 sens_trans_type1 = "0.0"
 sens_tele_type2 = "0.0"
-sens_trans_type2 = "0.005"
+sens_trans_type2 = "0.0005"
 ####################################
 sensor_rates_string1 = sens_tele_type1+","+sens_trans_type1+";" #in base al tipo fai più di ste string?
 sensor_rates_string2 = sens_tele_type2+","+sens_trans_type2 #in base al tipo fai più di ste string?
