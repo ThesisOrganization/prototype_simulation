@@ -58,18 +58,20 @@ static void recv_data_in_node_topology(lp_state* state,void* data){
 		memcpy(node_top->actuatorsTypesBelow,data,info->data_size);
 		return;
 	}
-	//we have sensorsTypesBelow?
+	/*we don't send sensorsTypesBelow,kept for future use
 	if(node_top->sensorsTypesBelow==NULL && info->data_type==SETUP_DATA_PINT){
 		node_top->sensorsTypesBelow=malloc(info->data_size);
 		memcpy(node_top->sensorsTypesBelow,data,info->data_size);
 		return;
 	}
-	//we have ListSensorsByType?
+	*/
+	/*we don't send ListSensorsByType, kept for future use
 	if(node_top->ListSensorsByType==NULL && info->data_type==SETUP_DATA_PINT){
 		node_top->ListSensorsByType=malloc(info->data_size);
 		memcpy(node_top->ListSensorsByType,data,info->data_size);
 		return;
 	}
+	*/
 	//we have ListActuatorsByType?
 	if(node_top->ListActuatorsByType==NULL && info->data_type==SETUP_DATA_PINT){
 		node_top->ListActuatorsByType=malloc(info->data_size);
@@ -118,18 +120,18 @@ static void recv_data_in_lan_topology(lp_state* state,void* data){
 		memcpy(lan_top->actuatorsTypesBelow,data,info->data_size);
 		return;
 	}
-	//we have sensorsTypesBelow?
+	/* we don't send sensorsTypesBelow
 	if(lan_top->sensorsTypesBelow==NULL && info->data_type==SETUP_DATA_PINT){
 		lan_top->sensorsTypesBelow=malloc(info->data_size);
 		memcpy(lan_top->sensorsTypesBelow,data,info->data_size);
 		return;
-	}
-	//we have ListSensorsByType?
+	}*/
+	/*we don't send ListSensorsByType
 	if(lan_top->ListSensorsByType==NULL && info->data_type==SETUP_DATA_PINT){
 		lan_top->ListSensorsByType=malloc(info->data_size);
 		memcpy(lan_top->ListSensorsByType,data,info->data_size);
 		return;
-	}
+	}*/
 	//we have ListActuatorsByType?
 	if(lan_top->ListActuatorsByType==NULL && info->data_type==SETUP_DATA_PINT){
 		lan_top->ListActuatorsByType=malloc(info->data_size);
@@ -165,18 +167,20 @@ static void recv_data_in_wan_topology(lp_state* state,void* data){
 		memcpy(wan_top->actuatorsTypesBelow,data,info->data_size);
 		return;
 	}
-	//we have sensorsTypesBelow?
+	/* we don't send sensorsTypesBelow
 	if(wan_top->sensorsTypesBelow==NULL && info->data_type==SETUP_DATA_PINT){
 		wan_top->sensorsTypesBelow=malloc(info->data_size);
 		memcpy(wan_top->sensorsTypesBelow,data,info->data_size);
 		return;
 	}
-	//we have ListSensorsByType?
+	*/
+	/*we don't send ListSensorsByType
 	if(wan_top->ListSensorsByType==NULL && info->data_type==SETUP_DATA_PINT){
 		wan_top->ListSensorsByType=malloc(info->data_size);
 		memcpy(wan_top->ListSensorsByType,data,info->data_size);
 		return;
 	}
+	*/
 	//we have ListActuatorsByType?
 	if(wan_top->ListActuatorsByType==NULL && info->data_type==SETUP_DATA_PINT){
 		wan_top->ListActuatorsByType=malloc(info->data_size);
@@ -230,23 +234,25 @@ static void recv_data_in_element_topology(lp_state *state,void* data){
 	}
 	setup_info* info=state->setup_data_info;
 	specific_topology *spec_top=&(state->topology->spec_top);
-	//we already have lowerElements?
+	/*we don't need lowerElements, this is kept for future uses
 	if(state->topology->lowerElements==NULL && info->data_type==SETUP_DATA_PINT){
 		state->topology->lowerElements=malloc(info->data_size);
 		memcpy(state->topology->lowerElements,data,info->data_size);
 		return;
-	}
-	//we already have connectedLans?
+	}*/
+	/*we already have connectedLans, kept for future uses
 	if(state->topology->connectedLans==NULL && info->data_type==SETUP_DATA_PINT){
 		state->topology->connectedLans=malloc(info->data_size);
 		memcpy(state->topology->connectedLans,data,info->data_size);
 		return;
-	}
-	//we already have actuatorPaths?
-	if(state->topology->actuatorPaths==NULL && info->data_type==SETUP_DATA_PINT){
-		state->topology->actuatorPaths=malloc(info->data_size);
-		memcpy(state->topology->actuatorPaths,data,info->data_size);
-		return;
+	}*/
+	//we already have actuatorPaths if we are not a sensor or an actuator?
+	if(GET_TYPE(state->topology)!=SENSOR && GET_TYPE(state->topology)!=ACTUATOR){
+		if(state->topology->actuatorPaths==NULL && info->data_type==SETUP_DATA_PINT){
+			state->topology->actuatorPaths=malloc(info->data_size);
+			memcpy(state->topology->actuatorPaths,data,info->data_size);
+			return;
+		}
 	}
 	//now we handle the specific topology, the topology which we'll receive will vary with the element type
 	switch(state->topology->lp_type){

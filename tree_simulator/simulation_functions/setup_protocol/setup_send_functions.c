@@ -62,29 +62,37 @@ static void send_below_devices_info(general_topology* gen_top,Element_topology* 
 	info.container_struct=parent_struct;
 	//we send actuatorsTypesBelow
 	info.data_type=SETUP_DATA_PINT;
-	info.data_size=GET_NUMBER_ACT_TYPES(gen_top)*sizeof(int);
-	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
-	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_DATA,below_devices.actuatorsTypesBelow,info.data_size);
+	if(below_devices.actuatorsTypesBelow!=NULL){
+		info.data_size=GET_NUMBER_ACT_TYPES(gen_top)*sizeof(int);
+		ts_skew+=0.01;
+		ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
+		ts_skew+=0.01;
+		ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_DATA,below_devices.actuatorsTypesBelow,info.data_size);
+	}
 	//we send sensorTypesBelow
-	info.data_size=GET_NUMBER_SENS_TYPES(gen_top)*sizeof(int);
-	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
-	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_DATA,below_devices.sensorsTypesBelow,info.data_size);
+	if(below_devices.sensorsTypesBelow!=NULL){
+		info.data_size=GET_NUMBER_SENS_TYPES(gen_top)*sizeof(int);
+		ts_skew+=0.01;
+		ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
+		ts_skew+=0.01;
+		ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_DATA,below_devices.sensorsTypesBelow,info.data_size);
+	}
 	//we send ListSensorsByType
-	info.data_size=GET_NUMBER_SENS_BELOW(elem_top)*sizeof(int);
-	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
-	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_DATA,below_devices.ListSensorsByType,info.data_size);
+	if(below_devices.ListSensorsByType!=NULL){
+		info.data_size=GET_NUMBER_SENS_BELOW(elem_top)*sizeof(int);
+		ts_skew+=0.01;
+		ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
+		ts_skew+=0.01;
+		ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_DATA,below_devices.ListSensorsByType,info.data_size);
+	}
 	//we send ListActuatorsByType
-	info.data_size=GET_NUMBER_ACT_BELOW(elem_top)*sizeof(int);
-	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
-	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_DATA,below_devices.ListActuatorsByType,info.data_size);
+	if(below_devices.ListActuatorsByType!=NULL){
+		info.data_size=GET_NUMBER_ACT_BELOW(elem_top)*sizeof(int);
+		ts_skew+=0.01;
+		ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
+		ts_skew+=0.01;
+		ScheduleNewEvent(element_id,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_DATA,below_devices.ListActuatorsByType,info.data_size);
+	}
 }
 
 /** \brief Sends a lan_topology to the specified element_id
@@ -120,8 +128,12 @@ static void send_lan_topology(general_topology* gen_top,Element_topology* elem_t
 	//to send informations about the below sensors and actuator we use send_below_devices_info
 	below_devs devs;
 	devs.actuatorsTypesBelow=GET_ACT_TYPE_BELOW_LIST(elem_top);
+	/* we don't send info on the below sensors
 	devs.sensorsTypesBelow=GET_SENS_TYPE_BELOW_LIST(elem_top);
 	devs.ListSensorsByType=GET_LIST_SENSORS_BY_TYPE(elem_top,0); // we need to get the begining of the row matrix
+	*/
+	devs.sensorsTypesBelow=NULL;
+	devs.ListSensorsByType=NULL;
 	devs.ListActuatorsByType=GET_LIST_ACTUATORS_BY_TYPE(elem_top,0);
 	send_below_devices_info(gen_top,elem_top,devs,element_id,SETUP_DATA_LAN_TOPOLOGY);
 }
@@ -146,8 +158,12 @@ static void send_wan_topology(general_topology* gen_top, Element_topology* elem_
 	//to send informations about the below sensors and actuator we use send_below_devices_info
 	below_devs devs;
 	devs.actuatorsTypesBelow=GET_ACT_TYPE_BELOW_LIST(elem_top);
-	devs.sensorsTypesBelow=GET_SENS_TYPE_BELOW_LIST(elem_top);
-	devs.ListSensorsByType=GET_LIST_SENSORS_BY_TYPE(elem_top,0); // we need to get the begining of the row matrix
+	/* we don't need to send info on the below sensors
+	 devs.sensorsTypesBelow=GET_S*ENS_TYPE_BELOW_LIST(elem_top);
+	 devs.ListSensorsByType=GET_LIST_SENSORS_BY_TYPE(elem_top,0); // we need to get the beginning of the row matrix
+	 */
+	devs.sensorsTypesBelow=NULL;
+	devs.ListSensorsByType=NULL;
 	devs.ListActuatorsByType=GET_LIST_ACTUATORS_BY_TYPE(elem_top,0);
 	send_below_devices_info(gen_top,elem_top,devs,element_id,SETUP_DATA_WAN_TOPOLOGY);
 }
@@ -196,8 +212,12 @@ static void send_node_topology(general_topology* gen_top, Element_topology* elem
 	//to send informations about the below sensors and actuator we use send_below_devices_info
 	below_devs devs;
 	devs.actuatorsTypesBelow=GET_ACT_TYPE_BELOW_LIST(elem_top);
+	/* we don't need to send info on the below sensors
 	devs.sensorsTypesBelow=GET_SENS_TYPE_BELOW_LIST(elem_top);
-	devs.ListSensorsByType=GET_LIST_SENSORS_BY_TYPE(elem_top,0); // we need to get the begining of the row matrix
+	devs.ListSensorsByType=GET_LIST_SENSORS_BY_TYPE(elem_top,0); // we need to get the beginning of the row matrix
+	*/
+	devs.sensorsTypesBelow=NULL;
+	devs.ListSensorsByType=NULL;
 	devs.ListActuatorsByType=GET_LIST_ACTUATORS_BY_TYPE(elem_top,0);
 	send_below_devices_info(gen_top,elem_top,devs,element_id,SETUP_DATA_NODE_TOPOLOGY);
 }
@@ -225,27 +245,31 @@ void send_element_topology(total_topology* tot_top,int element_id, int total_ele
 	//now we need to send the arrays.
 	info.container_struct=SETUP_DATA_ELEMENT_TOPOLOGY;
 	///When sending nested pointers in the topology we follow the order of the declaration
-	//we send lowerElements
+	/*we don't send lowerElements since it's not needed by the LP
 	info.data_size=sizeof(int)*GET_NUMBER_LOWER_ELEMENTS(elem_top);
 	info.data_type=SETUP_DATA_PINT;
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_LOWER_ELEMENTS(elem_top),info.data_size);
-	//we send connectedLans
+	*/
+	/*we don't send connectedLans since it'not needed by the LP
 	info.data_size=sizeof(int)*GET_NUMBER_LANS(elem_top);
 	info.data_type=SETUP_DATA_PINT;
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
 	ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_LANS(elem_top),info.data_size);
-	//we send actuatorPaths
-	info.data_size=sizeof(int)*total_elements;
-	info.data_type=SETUP_DATA_PINT;
-	ts_skew+=0.01;
-	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
-	ts_skew+=0.01;
+	*/
+	//we don't send actuatorPaths if we are a sensor or an actuator
+	if(GET_TYPE(elem_top)!=SENSOR && GET_TYPE(elem_top)!=ACTUATOR){
+		info.data_size=sizeof(int)*total_elements;
+		info.data_type=SETUP_DATA_PINT;
+		ts_skew+=0.01;
+		ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_INFO,&info,sizeof(setup_info));
+		ts_skew+=0.01;
 	ScheduleNewEvent(element_id,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_DATA,GET_ACTUATOR_PATHS_INDEX(elem_top),info.data_size);
+	}
 	//to send the specific_topology we need to check the element type and access the union accordingly
 	switch(GET_TYPE(elem_top)){
 		case SENSOR:
