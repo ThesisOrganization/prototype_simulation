@@ -1,0 +1,72 @@
+/** \file idmap.c
+ * Implementation of the id map module.
+ */
+#include "idmap.h"
+#include "idmap_quick_sort.h"
+#include <stdlib.h>
+#include <string.h>
+
+/** \brief Binary search for the content with the supplied id.
+ * \param[in] map The map where the search must be done.
+ * \param[in] search_id The id to search for.
+ * \param[in] num_elements The number of elements in the map.
+ * \returns ::IDMAP_CONTENT_NOT_FOUND when the matching id is not found or the matching integer.
+ * IDs are assumed to be in ascending order.
+ */
+static int binary_search(idmap* map,int search_id,int num_elements){
+	int first,last,middle, content;
+	//we initialize content to the error value
+	content=IDMAP_CONTENT_NOT_FOUND;
+	first = 0;
+	last = num_elements - 1;
+	middle = (first+last)/2;
+	//we start the search
+	while (first <= last && content==IDMAP_CONTENT_NOT_FOUND) {
+		if (map[middle].id < search_id){
+			first = middle + 1;
+		} else {
+			//we update content only when the matching id is found
+			if (map[middle].id == search_id) {
+				content=map[middle].content;
+			}	else {
+				last = middle - 1;
+			}
+		}
+		middle = (first + last)/2;
+	}
+	return content;
+}
+
+idmap* create_idmap(int* id_arr,int* content_arr,int num_elements){
+	idmap *map=NULL;
+	int i;
+	//some sanity checks
+	if(num_elements>0 && id_arr!=NULL && content_arr!=NULL){
+		///The map is allocated as a contiguous array to be compatible with the setup protocol used in ROOT-Sim.
+		map=malloc(sizeof(idmap)*num_elements);
+		memset(map,0,sizeof(idmap)*num_elements);
+		//we map the content to the ids.
+		for(i=0;i<num_elements;i++){
+			map[i].id=id_arr[i];
+			map[i].content=content_arr[i];
+		}
+		///The elements of the idmap array are ordered (in acending order) by their id using the quicksort algorithm
+		quicksort(map,num_elements);
+	}
+	return map;
+}
+
+int idmap_search(idmap* map,int id,int num_elements){
+	int content=IDMAP_CONTENT_NOT_FOUND;
+	if(map!=NULL){
+		///We use a binary search to locate the element of the array that contains the specified id.
+		content=binary_search(map,id,num_elements);
+	}
+	return content;
+}
+
+void destroy_idmap(idmap* map){
+	//since the array is contiguous a single free is sufficient to clear the memory.
+	free(map);
+}
+
