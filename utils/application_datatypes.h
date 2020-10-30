@@ -2,6 +2,7 @@
 #define APPLICATION_DATATYPES_H
 
 #include <ROOT-Sim.h>
+#include "idmap/idmap.h"
 //#############################################
 //SCHEDULER DATA
 //#############################################
@@ -361,6 +362,11 @@ typedef struct {
 	size_t data_size; ///< The size of the data we are about to receive.
 } setup_info;
 
+typedef struct{
+	int element_id;
+} message_header;
+
+
 typedef struct _state {
     //int num_jobs_processed;
 	lp_usage_types lp_enabled; //1 lp enabled, 0 lp disabled
@@ -370,8 +376,9 @@ typedef struct _state {
     simtime_t device_timestamp;
     state_type type;
     //general infos
-    Element_topology * topology;
+    Element_topology** elements_array;
 		general_topology* general_topology;
+		idmap* element_to_index;
     int num_acts_types;
     double * prob_actuators;
     //specific infos

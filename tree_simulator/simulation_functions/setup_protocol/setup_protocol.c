@@ -11,6 +11,7 @@ void setup_master(int n_prc_tot){
 	Element_topology *elem_top=NULL;
 	//we use the parser to get informations about the general topology
 	total_topology *tot_top=GET_TOPOLOGY("topology.txt");
+	printf("Loaded topology\n");
 	//then we need to get the general topology
 	general_topology *gen_top=GET_GEN_TOPOLOGY(tot_top);
 	//now we can check if the number of LPs is right
@@ -22,6 +23,7 @@ void setup_master(int n_prc_tot){
 	if(num_required_lps<n_prc_tot){
 		printf("Warning: Too much LPs, simulation will continue, but %d LPs will not be actively used.\n",n_prc_tot-num_required_lps);
 	}
+	printf("sending topology information to other LPs\n");
 	//we send the topology data to each LP.
 	///we assume that the ID of the LP matches with the id of the element __This is a heavy assumption__.
 	///The master node will schedule event for all the nodes and even itself
@@ -33,4 +35,5 @@ void setup_master(int n_prc_tot){
 	}
 	//we free the total topology since it's not needed
 	DESTROY_TOTAL_TOPOLOGY(tot_top);
+	printf("setup complete\n");
 }
