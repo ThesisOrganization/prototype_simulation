@@ -66,12 +66,20 @@ int check_metrics(queue_state * queue_state){
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
 	
+	message_update msg_update;
+	message_arrive msg_arrive;
+	message_finish msg_finish;
+	message_generate msg_generate;
 	
-	job_info info_to_send;
+	int id_device;
+	int index_map;
+	
 	int up_node;
+	int up_lp;
 	job_info * info;
 	double rate_generate;
 	simtime_t ts_update_timestamp;
+	device_state * dev_state;
 	
 	switch(event_type) {
 		
@@ -103,115 +111,47 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			//we enable the LP
 			state->lp_enabled=LP_ENABLED;
 			
-			device_state * dev_state;
-			
-			//both timestamp are initialized at 0.0 in theory
-			//state->start_timestamp = now;
-			//state->actual_timestamp = now;
-			dev_state->device_timestamp = now;
-			//printf("%.3g\n", now);
-			
-			//state->num_jobs_processed = 0;
-			dev_state->num_acts_types=GET_NUMBER_ACT_TYPES(state->general_topology);
-			dev_state->prob_actuators=GET_PROB_ACTUATORS(state->general_topology);
-			
-			//legacy implementation
-			//             total_topology * tot_top = getTopology(topology_path); //later we will use a static struct
-			//             general_topology * gen_top = getGenTopology(tot_top);
-			//             state->topology = getLPTopology(tot_top, me);
-			//
-			//             unsigned int num_nodes = GET_TOTAL_NODES(gen_top);
-			//             unsigned int num_sensors = GET_SENSOR_NODES(gen_top);
-			//             unsigned int num_actuators = GET_ACTUATOR_NODES(gen_top);
-			//             unsigned int num_wans = GET_NUMBER_OF_WANS(gen_top);
-			//             unsigned int num_lans = GET_NUMBER_OF_LANS(gen_top);
-			//
-			//             state->num_acts_types = GET_NUMBER_ACT_TYPES(gen_top);
-			//             state->prob_actuators = GET_PROB_ACTUATORS(gen_top);
-			//
-			//             if there are too few LPs, exit
-			//             if(num_nodes + num_sensors + num_actuators + num_lans + num_wans > n_prc_tot){
-			//                 printf("Error: too few LPs, add more LPs\n");
-			//                 exit(EXIT_FAILURE);
-			//             }
-			//
-			//
-			//             if there are too may LPs, return it
-			//             if(me >= num_nodes + num_sensors + num_actuators + num_lans + num_wans){
-			//                 state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
-			//                 state->lp_enabled = 0;
-			//                 break;
-			//             }
-			//             else
-			//                 state->lp_enabled = 1;
-			
-			
-			dev_state->type = GET_TYPE(dev_state->topology);
-			
-			state->simulation_completed = SIMULATION_ACTIVE;
-			//printf("%d\n", state->type);
-			//lp_infos* infos = getInfo(state->topology, me);
-			
-			//initializza strutture
-			if(state->type == NODE){
+			for(int index = 0; index < state->num_devices; index++){
 				
-				init_node(me, state);
+				idmap map = state->element_to_index[index];
+				id_device = map.id; 
+				index_map = map.content;
+				dev_state = state->devices_array[index_map];
 				
-			}
-			else if(state->type == SENSOR){
+				dev_state->device_timestamp = now;
 				
-				init_sensor(me, now, state);
+				//state->num_jobs_processed = 0;
+				dev_state->num_acts_types=GET_NUMBER_ACT_TYPES(state->general_topology);
+				dev_state->prob_actuators=GET_PROB_ACTUATORS(state->general_topology);
 				
-			}
-			else if(state->type == ACTUATOR){
+				dev_state->type = GET_TYPE(dev_state->topology);
 				
-				init_actuator(me, now, state);
+				dev_state->simulation_completed = SIMULATION_ACTIVE;
 				
-			}
-			else if(state->type == LAN){
-				
-				init_lan(me, state);
-				
-			}
-			else if(state->type == WAN){
-				
-				init_wan(me, state);
-				
-			}
-			else{
-				
-				printf("Error: device type not found\n");
-				exit(EXIT_FAILURE);
-			}
-			
-			ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
-			ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, NULL, 0);
-			
-			
-			break;
-			
-			case GENERATE_TRANSITION:
-				
-				//state->actual_timestamp = now;
-				state->device_timestamp = now;
-				
-				info_to_send.type = REAL_TIME;
-				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
-				info_to_send.payload = NULL;
-				info_to_send.job_type = TRANSITION;
-				
-				up_node = GET_UPPER_NODE(state->topology);
-				ScheduleNewEvent(up_node, now, ARRIVE, &info_to_send, sizeof(job_info));
-				
-				//ts_generate = now + Expent(ARRIVE_RATE);
-				if(state->type == SENSOR){
+				//initializza strutture
+				if(dev_state->type == NODE){
 					
-					rate_generate = state->info.sensor->rate_transition;
+					init_node(id_device, dev_state);
 					
 				}
-				else if(state->type == ACTUATOR){
+				else if(dev_state->type == SENSOR){
 					
-					rate_generate = state->info.actuator->rate_transition;
+					init_sensor(id_device, now, dev_state, me);
+					
+				}
+				else if(dev_state->type == ACTUATOR){
+					
+					init_actuator(id_device, now, dev_state, me);
+					
+				}
+				else if(dev_state->type == LAN){
+					
+					init_lan(id_device, dev_state);
+					
+				}
+				else if(dev_state->type == WAN){
+					
+					init_wan(id_device, dev_state);
 					
 				}
 				else{
@@ -220,7 +160,50 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					exit(EXIT_FAILURE);
 				}
 				
-				generate_next_job(me, now, rate_generate, 0.0, GENERATE_TRANSITION);
+				ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
+				msg_update.header.element_id = id_device;
+				ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
+			}
+			
+			
+			break;
+			
+			case GENERATE_TRANSITION:
+				
+				//state->actual_timestamp = now;
+				id_device = ((message_generate*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device);
+				dev_state = state->devices_array[index_map];
+				
+				dev_state->device_timestamp = now;
+				
+				msg_arrive.info.type = REAL_TIME;
+				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
+				msg_arrive.info.payload = NULL;
+				msg_arrive.info.job_type = TRANSITION;
+				up_node = GET_UPPER_NODE(dev_state->topology);
+				msg_arrive.header.element_id = up_node;
+				up_lp = ;
+				ScheduleNewEvent(up_lp, now, ARRIVE, &msg_arrive, sizeof(message_arrive));
+				
+				//ts_generate = now + Expent(ARRIVE_RATE);
+				if(dev_state->type == SENSOR){
+					
+					rate_generate = dev_state->info.sensor->rate_transition;
+					
+				}
+				else if(dev_state->type == ACTUATOR){
+					
+					rate_generate = dev_state->info.actuator->rate_transition;
+					
+				}
+				else{
+					
+					printf("Error: device type not found\n");
+					exit(EXIT_FAILURE);
+				}
+				
+				generate_next_job(id_device, now, rate_generate, 0.0, GENERATE_TRANSITION, me);
 				
 				//state->num_jobs_processed++;
 				//printf("%d\n", state->num_jobs_processed);
@@ -229,20 +212,25 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			case GENERATE_TELEMETRY:
 				
 				//state->actual_timestamp = now;
-				state->device_timestamp = now;
+				id_device = ((message_generate*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device);
+				dev_state = state->devices_array[index_map];
 				
-				info_to_send.type = REAL_TIME;
+				dev_state->device_timestamp = now;
+				
+				msg_arrive.info.type = REAL_TIME;
 				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
-				info_to_send.payload = NULL;
-				info_to_send.job_type = TELEMETRY;
-				
-				up_node = GET_UPPER_NODE(state->topology);
-				ScheduleNewEvent(up_node, now, ARRIVE, &info_to_send, sizeof(job_info));
+				msg_arrive.info.payload = NULL;
+				msg_arrive.info.job_type = TELEMETRY;
+				up_node = GET_UPPER_NODE(dev_state->topology);
+				msg_arrive.header.element_id = up_node;
+				up_lp = ;
+				ScheduleNewEvent(up_lp, now, ARRIVE, &msg_arrive, sizeof(message_arrive));
 				
 				//ts_generate = now + Expent(ARRIVE_RATE);
-				if(state->type == SENSOR){
+				if(dev_state->type == SENSOR){
 					
-					rate_generate = state->info.sensor->rate_telemetry;
+					rate_generate = dev_state->info.sensor->rate_telemetry;
 					
 				}
 				else{
@@ -251,7 +239,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					exit(EXIT_FAILURE);
 				}
 				
-				generate_next_job(me, now, rate_generate, 0.0, GENERATE_TELEMETRY);
+				generate_next_job(id_device, now, rate_generate, 0.0, GENERATE_TELEMETRY, me);
 				
 				//state->num_jobs_processed++;
 				break;
@@ -259,32 +247,36 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			case ARRIVE:
 				
 				//state->actual_timestamp = now;
-				state->device_timestamp = now;
+				id_device = ((message_arrive*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device);
+				dev_state = state->devices_array[index_map];
+				
+				dev_state->device_timestamp = now;
 				
 				info = malloc(sizeof(job_info));
-				memcpy(info, content, sizeof(job_info));
+				memcpy(info, &(((message_arrive*)content)->info), sizeof(job_info));
 				
 				info->arrived_in_node_timestamp = now;
 				info->deadline = now;
 				
-				if(state->type == NODE){
+				if(dev_state->type == NODE){
 					
-					arrive_node(me, now, state, info);
-					
-				}
-				else if(state->type == ACTUATOR){
-					
-					arrive_actuator(me, now, state, info);
+					arrive_node(id_device, now, dev_state, info, me);
 					
 				}
-				else if(state->type == LAN){
+				else if(dev_state->type == ACTUATOR){
 					
-					arrive_lan(me, now, state, info);
+					arrive_actuator(id_device, now, dev_state, info, me);
 					
 				}
-				else if(state->type == WAN){
+				else if(dev_state->type == LAN){
 					
-					arrive_wan(me, now, state, info);
+					arrive_lan(id_device, now, dev_state, info, me);
+					
+				}
+				else if(dev_state->type == WAN){
+					
+					arrive_wan(id_device, now, dev_state, info);
 					
 				}
 				else{
@@ -298,15 +290,19 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			case ARRIVE_DISK:
 				
 				//state->actual_timestamp = now;
-				state->device_timestamp = now;
+				id_device = ((message_arrive*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device);
+				dev_state = state->devices_array[index_map];
+				
+				dev_state->device_timestamp = now;
 				
 				info = malloc(sizeof(job_info));
-				memcpy(info, content, sizeof(job_info));
+				memcpy(info, &(((message_arrive*)content)->info), sizeof(job_info));
 				
 				info->arrived_in_node_timestamp = now;
 				info->deadline = now;
 				
-				arrive_disk(me, now, state, info);
+				arrive_disk(id_device, now, dev_state, info, me);
 				
 				break;
 				
@@ -314,23 +310,27 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			case FINISH:
 				
 				//state->actual_timestamp = now;
-				state->device_timestamp = now;
+				id_device = ((message_finish*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device);
+				dev_state = state->devices_array[index_map];
+				
+				dev_state->device_timestamp = now;
 				
 				//state->num_jobs_processed++;
 				
-				if(state->type == NODE){
+				if(dev_state->type == NODE){
 					
-					finish_node(me, now, state);
-					
-				}
-				else if(state->type == ACTUATOR){
-					
-					finish_actuator(me, now, state);
+					finish_node(id_device, now, dev_state, me);
 					
 				}
-				else if(state->type == LAN){
+				else if(dev_state->type == ACTUATOR){
 					
-					finish_lan(me, now, state, *( (lan_direction *) content));
+					finish_actuator(id_device, now, dev_state, me);
+					
+				}
+				else if(dev_state->type == LAN){
+					
+					finish_lan(id_device, now, dev_state, ((message_finish*)content)->direction, me);
 					
 				}
 				else{
@@ -344,37 +344,45 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			case FINISH_DISK:
 				
 				//state->actual_timestamp = now;
-				state->device_timestamp = now;
+				id_device = ((message_finish*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device);
+				dev_state = state->devices_array[index_map];
 				
-				finish_disk(me, now, state);
+				dev_state->device_timestamp = now;
+				
+				finish_disk(id_device, now, dev_state, me);
 				
 				break;
 				
 			case UPDATE_TIMESTAMP:
 				
-				state->device_timestamp = now;
+				id_device = ((message_update*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device);
+				dev_state = state->devices_array[index_map];
 				
-				if(state->device_timestamp > TRANSITION_TIME_LIMIT){
+				dev_state->device_timestamp = now;
+				
+				if(dev_state->device_timestamp > TRANSITION_TIME_LIMIT){
 					
 					int boolean_check = 0;
 					
-					if(state->type == NODE){
+					if(dev_state->type == NODE){
 						
-						boolean_check = check_metrics(state->info.node->queue_state);
+						boolean_check = check_metrics(dev_state->info.node->queue_state);
 						
-						if(state->info.node->type == CENTRAL)
-							boolean_check = check_metrics(state->info.node->disk_state);
-						
-					}
-					else if(state->type == ACTUATOR){
-						
-						boolean_check = check_metrics(state->info.actuator->queue_state);
+						if(dev_state->info.node->type == CENTRAL)
+							boolean_check = check_metrics(dev_state->info.node->disk_state);
 						
 					}
-					else if(state->type == LAN){
+					else if(dev_state->type == ACTUATOR){
 						
-						boolean_check = check_metrics(state->info.lan->queue_state_in);
-						boolean_check = check_metrics(state->info.lan->queue_state_out);
+						boolean_check = check_metrics(dev_state->info.actuator->queue_state);
+						
+					}
+					else if(dev_state->type == LAN){
+						
+						boolean_check = check_metrics(dev_state->info.lan->queue_state_in);
+						boolean_check = check_metrics(dev_state->info.lan->queue_state_out);
 						
 					}
 					else{
@@ -384,17 +392,18 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						
 					}
 					
-					if(state->device_timestamp > MAX_SIMULATION_TIME || boolean_check)
-						state->simulation_completed = SIMULATION_STOP;
+					if(dev_state->device_timestamp > MAX_SIMULATION_TIME || boolean_check)
+						dev_state->simulation_completed = SIMULATION_STOP;
 					else{
-						state->simulation_completed = SIMULATION_ACTIVE;
+						dev_state->simulation_completed = SIMULATION_ACTIVE;
 						state->lp_enabled = LP_ENABLED;
 					}
 					
 				}
 				
 				ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
-				ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, NULL, 0);
+				msg_update.header.element_id = id_device;
+				ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
 				
 				break;
 				
@@ -403,9 +412,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 }
 
 void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
-	
-	//fprintf(output_file, "......................\n");
-	//fprintf(output_file, "Class number %d\n", i);
 	
 	//all data here are averages
 	double T = queue_state->actual_timestamp[i] - queue_state->start_timestamp[i];
@@ -433,12 +439,6 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 
 void print_metrics(queue_state * queue_state, FILE * output_file){
 	
-	
-	//for(int i=0; i < NUM_OF_JOB_TYPE; i++){
-	
-	//if(queue_state->actual_timestamp[i] > TRANSITION_TIME_LIMIT){
-	
-	
 	fprintf(output_file, "\"telemetry\": {");
 	print_class_metrics(queue_state, output_file, TELEMETRY);
 	fprintf(output_file, "},");
@@ -452,117 +452,103 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 	print_class_metrics(queue_state, output_file, BATCH_DATA);
 	fprintf(output_file, "}");
 	
-	//}
-	
-	
-	//}
 }
 
 bool OnGVT(int me, lp_state *snapshot)
 {
 	
-	if(snapshot->lp_enabled==LP_DISABLED)
+	if(snapshot->lp_enabled == LP_DISABLED)
 		return true;
 	
-	//if(snapshot->device_timestamp > MAX_SIMULATION_TIME){
-	if(snapshot->simulation_completed == SIMULATION_STOP){
+	int bool_print = 1;
+	int index;
+	int index_map;
+	int id_device;
+	idmap map;
+	device_state * dev_state;
+	
+	for(index = 0; index < snapshot->num_devices; index++){
+	
+		map = snapshot->element_to_index[index];
+		id_device = map.id; 
+		index_map = map.content;
+		dev_state = snapshot->devices_array[index_map];
+		if(dev_state->simulation_completed == SIMULATION_ACTIVE){
+			bool_print = 0;
+			break;
+		}
+	}
+	if(bool_print){
 		
-		if(snapshot->type == NODE){
+#ifdef PRINT_RESULTS
+		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
+		FILE * output_file = fopen(file_name_complete, "w");
+		
+		fprintf(output_file, "[");
+		for(index = 0; index < snapshot->num_devices; index++){
+		
+			map = snapshot->element_to_index[index];
+			id_device = map.id; 
+			index_map = map.content;
+			dev_state = snapshot->devices_array[index_map];
 			
-			#ifdef PRINT_RESULTS
-			sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
-			
-			FILE * output_file = fopen(file_name_complete, "w");
-			//print_pre(me, snapshot->device_timestamp, snapshot->type, snapshot->info.node->type, output_file);
-			
-			fprintf(output_file, "[");
-			
-			fprintf(output_file, "{\"id\": %d,", me);
-			fprintf(output_file, "\"type\": \"node\",");
-			fprintf(output_file, "\"parameters\": {");
-			print_metrics(snapshot->info.node->queue_state, output_file);
-			fprintf(output_file, "},");
-			if(GET_NODE_TYPE(snapshot->topology) == CENTRAL){
-				//fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
-				//fprintf(output_file, "Disk:\n");
-				fprintf(output_file, "\"storage\": {");
-				print_metrics(snapshot->info.node->disk_state, output_file);
+			if(dev_state->type == NODE){
+				
+				fprintf(output_file, "{\"id\": %d,", id_device);
+				fprintf(output_file, "\"type\": \"node\",");
+				fprintf(output_file, "\"parameters\": {");
+				print_metrics(dev_state->info.node->queue_state, output_file);
 				fprintf(output_file, "},");
-				fprintf(output_file, "\"node_type\": \"central\"}");
+				if(GET_NODE_TYPE(dev_state->topology) == CENTRAL){
+					
+					fprintf(output_file, "\"storage\": {");
+					print_metrics(dev_state->info.node->disk_state, output_file);
+					fprintf(output_file, "},");
+					fprintf(output_file, "\"node_type\": \"central\"}");
+				}
+				else if(GET_NODE_TYPE(dev_state->topology) == REGIONAL){
+					fprintf(output_file, "\"node_type\": \"regional\"}");
+				}
+				else if(GET_NODE_TYPE(dev_state->topology) == LOCAL){
+					fprintf(output_file, "\"node_type\": \"local\"}");
+				}
+				
 			}
-			else if(GET_NODE_TYPE(snapshot->topology) == REGIONAL){
-				fprintf(output_file, "\"node_type\": \"regional\"}");
+			else if(dev_state->type == ACTUATOR){
+				
+				fprintf(output_file, "{\"id\": %d,", id_device);
+				fprintf(output_file, "\"type\": \"actuator\",");
+				fprintf(output_file, "\"parameters\": {");
+				print_metrics(dev_state->info.actuator->queue_state, output_file);
+				fprintf(output_file, "},");
+				fprintf(output_file, "\"node_type\": \"\"}");
+				
 			}
-			else if(GET_NODE_TYPE(snapshot->topology) == LOCAL){
-				fprintf(output_file, "\"node_type\": \"local\"}");
+			else if(dev_state->type == LAN){
+				
+				fprintf(output_file, "{\"id\": %d,", id_device);
+				fprintf(output_file, "\"type\": \"lan\",");
+				fprintf(output_file, "\"lan_in\": {");
+				print_metrics(dev_state->info.lan->queue_state_in, output_file);
+				fprintf(output_file, "},");
+				
+				fprintf(output_file, "\"lan_out\": {");
+				print_metrics(dev_state->info.lan->queue_state_out, output_file);
+				fprintf(output_file, "},");
+				fprintf(output_file, "\"node_type\": \"\"}");
+				
 			}
 			
-			fprintf(output_file, "]");
-			
-			fclose(output_file);
-			#endif
+			if(index < snapshot->num_devices - 1)
+				fprintf(output_file, ",");
 			
 		}
-		else if(snapshot->type == ACTUATOR){
-			
-			#ifdef PRINT_RESULTS
-			sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
-			
-			FILE * output_file = fopen(file_name_complete, "w");
-			
-			fprintf(output_file, "[");
-			
-			//print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
-			fprintf(output_file, "{\"id\": %d,", me);
-			fprintf(output_file, "\"type\": \"actuator\",");
-			fprintf(output_file, "\"parameters\": {");
-			print_metrics(snapshot->info.actuator->queue_state, output_file);
-			fprintf(output_file, "},");
-			fprintf(output_file, "\"node_type\": \"\"}");
-			
-			fprintf(output_file, "]");
-			
-			fclose(output_file);
-			#endif
-			
-		}
-		else if(snapshot->type == LAN){
-			
-			#ifdef PRINT_RESULTS
-			
-			sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
-			
-			FILE * output_file = fopen(file_name_complete, "w");
-			
-			fprintf(output_file, "[");
-			
-			//print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
-			
-			//fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
-			//fprintf(output_file, "Lan IN:\n");
-			fprintf(output_file, "{\"id\": %d,", me);
-			fprintf(output_file, "\"type\": \"lan\",");
-			fprintf(output_file, "\"lan_in\": {");
-			print_metrics(snapshot->info.lan->queue_state_in, output_file);
-			fprintf(output_file, "},");
-			//fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
-			//fprintf(output_file, "Lan OUT:\n");
-			fprintf(output_file, "\"lan_out\": {");
-			print_metrics(snapshot->info.lan->queue_state_out, output_file);
-			fprintf(output_file, "},");
-			fprintf(output_file, "\"node_type\": \"\"}");
-			
-			fprintf(output_file, "]");
-			
-			fclose(output_file);
-			
-			#endif
-			
-		}
+		fprintf(output_file, "]");
+		fclose(output_file);
+#endif
 		
 		snapshot->lp_enabled = LP_DISABLED;
 		return true;
-		
 		
 	}
 	

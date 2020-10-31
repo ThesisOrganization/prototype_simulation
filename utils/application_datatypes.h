@@ -373,6 +373,7 @@ typedef struct{
 
 typedef struct{
 	message_header header;
+	lan_direction direction;
 } message_finish;
 
 typedef struct{
@@ -384,6 +385,7 @@ typedef struct{
 } message_update;
 
 typedef struct _device_state {
+	simulation_status simulation_completed; //to delete
 	simtime_t device_timestamp;
 	state_type type;
 	Element_topology* topology;

@@ -45,16 +45,18 @@ static void init_metrics(queue_state * queue_state){
 
 }
 
-void generate_next_job(unsigned int me, simtime_t now, double rate_transition, double random_value, events_type type){
+void generate_next_job(unsigned int id_device, simtime_t now, double rate_transition, double random_value, events_type type, unsigned int id_lp){
 
     double time_between_arrivals = 1/rate_transition;
     //simtime_t ts_generate = now + Expent(time_between_arrivals);
     simtime_t ts_generate = now + random_value + Expent(time_between_arrivals);
-    ScheduleNewEvent(me, ts_generate, type, NULL, 0);
+		message_generate msg;
+		msg.header.element_id = id_device;
+    ScheduleNewEvent(id_lp, ts_generate, type, &msg, sizeof(message_generate));
 
 }
 
-void init_node(unsigned int me, lp_state * state){
+void init_node(unsigned int id_device, device_state* state){
     //printf("node\n");
 
     state->info.node = malloc(sizeof(node_state));
@@ -103,7 +105,7 @@ void init_node(unsigned int me, lp_state * state){
 
 }
 
-void init_sensor(unsigned int me, simtime_t now, lp_state * state){
+void init_sensor(unsigned int id_device, simtime_t now, device_state * state, unsigned int id_lp){
 
     //printf("sensor\n");
 
@@ -118,13 +120,13 @@ void init_sensor(unsigned int me, simtime_t now, lp_state * state){
     state->info.sensor->rate_telemetry = rate_telemetry;
 
     //schedule generate for all sensors
-    generate_next_job(me, now, rate_transition, Random()*RANDOM_START, GENERATE_TRANSITION);
+    generate_next_job(id_device, now, rate_transition, Random()*RANDOM_START, GENERATE_TRANSITION, id_lp);
 
-    generate_next_job(me, now, rate_telemetry, Random()*RANDOM_START, GENERATE_TELEMETRY);
+    generate_next_job(id_device, now, rate_telemetry, Random()*RANDOM_START, GENERATE_TELEMETRY, id_lp);
 
 }
 
-void init_actuator(unsigned int me, simtime_t now, lp_state * state){
+void init_actuator(unsigned int id_device, simtime_t now, device_state * state, unsigned int id_lp){
 
     //printf("actuator\n");
 
@@ -144,10 +146,10 @@ void init_actuator(unsigned int me, simtime_t now, lp_state * state){
     state->info.actuator->rate_transition = rate_transition;
 
     //schedule generate for all actuators
-    generate_next_job(me, now, rate_transition, Random()*RANDOM_START, GENERATE_TRANSITION);
+    generate_next_job(id_device, now, rate_transition, Random()*RANDOM_START, GENERATE_TRANSITION, id_lp);
 }
 
-void init_lan(unsigned int me, lp_state * state){
+void init_lan(unsigned int id_device, device_state * state){
 
     //printf("lan\n");
 
@@ -175,7 +177,7 @@ void init_lan(unsigned int me, lp_state * state){
 
 }
 
-void init_wan(unsigned int me, lp_state * state){
+void init_wan(unsigned int id_device, device_state * state){
 
     //printf("wan\n");
     state->info.wan = malloc(sizeof(wan_state));
