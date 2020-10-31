@@ -386,7 +386,7 @@ typedef struct{
 typedef struct _device_state {
 	simtime_t device_timestamp;
 	state_type type;
-	Element_topology* elements_array;
+	Element_topology* topology;
 	int num_acts_types;
 	double * prob_actuators;
 	state_info info;
@@ -398,6 +398,7 @@ typedef struct _state {
 	simulation_status simulation_completed;
 	//general infos
 	device_state** devices_array;
+	int num_devices;
 	general_topology* general_topology;
 	idmap* element_to_index;
 	//specific infos

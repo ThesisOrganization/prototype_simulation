@@ -103,15 +103,17 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			//we enable the LP
 			state->lp_enabled=LP_ENABLED;
 			
+			device_state * dev_state;
+			
 			//both timestamp are initialized at 0.0 in theory
 			//state->start_timestamp = now;
 			//state->actual_timestamp = now;
-			state->device_timestamp = now;
+			dev_state->device_timestamp = now;
 			//printf("%.3g\n", now);
 			
 			//state->num_jobs_processed = 0;
-			state->num_acts_types=GET_NUMBER_ACT_TYPES(state->general_topology);
-			state->prob_actuators=GET_PROB_ACTUATORS(state->general_topology);
+			dev_state->num_acts_types=GET_NUMBER_ACT_TYPES(state->general_topology);
+			dev_state->prob_actuators=GET_PROB_ACTUATORS(state->general_topology);
 			
 			//legacy implementation
 			//             total_topology * tot_top = getTopology(topology_path); //later we will use a static struct
@@ -144,7 +146,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			//                 state->lp_enabled = 1;
 			
 			
-			state->type = GET_TYPE(state->topology);
+			dev_state->type = GET_TYPE(dev_state->topology);
 			
 			state->simulation_completed = SIMULATION_ACTIVE;
 			//printf("%d\n", state->type);
