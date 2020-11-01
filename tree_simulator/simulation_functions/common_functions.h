@@ -79,6 +79,7 @@ if (! (x)) {\
 #define GET_DELAY(a) getDelay(a)
 
 #define GET_ACTUATOR_PATHS(a) getActuatorPaths(a)
+#define GET_ACTUATOR_PATHS_INDEX(a,b) getActuatorPathsIndex(a,b)
 #define GET_ACT_TYPE_BELOW_LIST(a) getActuatorTypesBelowList(a)
 #define GET_SENS_TYPE_BELOW_LIST(a) getSensorsTypesBelowList(a)
 #define GET_LIST_ACTUATORS_BY_TYPE(a,b) getListActuatorsByType(a,b)
