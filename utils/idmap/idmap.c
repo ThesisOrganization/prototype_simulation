@@ -72,7 +72,7 @@ idmap* create_idmap(int* id_arr,int* content_arr,int num_elements,int* map_lengt
 			}
 		}
 		///The elements of the idmap array are ordered (in acending order) by their id using the quicksort algorithm
-		quicksort(map,num_valid_content);
+		idmap_quicksort(map,num_valid_content);
 	}
 	return map;
 }

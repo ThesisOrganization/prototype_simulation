@@ -14,8 +14,8 @@
 priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, int num_input, int num_output, unsigned int events, int prio){
 
 	//we sort the input and output queues by their type
-	quicksort(input,num_input);
-	quicksort(output,num_output);
+	queue_quicksort(input,num_input);
+	queue_quicksort(output,num_output);
 
 	//we allocate data for our scheduler
 	priority_scheduler* sched = (priority_scheduler*) malloc(sizeof(priority_scheduler));

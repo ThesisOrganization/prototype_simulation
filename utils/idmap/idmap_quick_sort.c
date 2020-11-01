@@ -1,6 +1,6 @@
 #include "idmap_quick_sort.h"
 /// A utility function to swap two elements
-void swap(idmap* a, idmap* b)
+static void swap(idmap* a, idmap* b)
 {
 	idmap t = *a;
 	*a = *b;
@@ -12,7 +12,7 @@ void swap(idmap* a, idmap* b)
  * array, and places all smaller (smaller than pivot)
  * to left of pivot and all greater elements to right
  * of pivot */
-int partition (idmap* arr, int low, int high)
+static int partition (idmap* arr, int low, int high)
 {
 	int pivot = arr[high].id; // pivot
 	int i = (low - 1); // Index of smaller element
@@ -36,7 +36,7 @@ int partition (idmap* arr, int low, int high)
  * arr --> Array to be sorted,
  * low --> Starting index,
  * high --> Ending index */
-void quickSort(idmap* arr, int low, int high)
+static void quickSort(idmap* arr, int low, int high)
 {
 	int pi;
 	if (low < high)
@@ -53,6 +53,6 @@ void quickSort(idmap* arr, int low, int high)
 }
 
 /// Wrapper of the recursive quickSort function.
-void quicksort(idmap* arr,int num){
+void idmap_quicksort(idmap* arr,int num){
 	quickSort(arr,0,num-1);
 }
