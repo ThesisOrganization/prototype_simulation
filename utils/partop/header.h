@@ -1,5 +1,6 @@
 #ifndef HEADER_H
 #define HEADER_H
+#include "../idmap/idmap.h"
 #include "../application_datatypes.h"
 //PSA: "directly" means that the elements is the next hop in
 //any direction, the direction is specified by the function.
@@ -7,6 +8,20 @@
 general_topology * getGenTopology(total_topology * totTop);
 Element_topology * getLPTopology(total_topology * totTop, int index);
 Element_topology ** getLPTopologyComplete(total_topology * totTop);
+lp_topology * getLPtopoogy(char * path);
+//returns the whole matrix where the [i][y] is the y-th element contained in LP i
+int ** getLPtoElementMapping(lp_topology * lptop);
+//same but returns only the array for the LP i
+int * getLPtoElementMappingOneLP(lp_topology * lptop,int index);
+//returns the whole idmap for element->LP
+idmap * getElementToLPMapping(lp_topology * lptop);
+//returns the id of the LP for the elementh index
+int getElementToLPMappingOneElement(lp_topology * lptop,int index);
+int getNumLP(lp_topology * lptop);
+//for idmap Ele->LP
+int getNumValid(lp_topology * lptop);
+//returns how many elements the LP index has mapped into.
+int getAmountsOfElementsInOneLP(lp_topology * lptop,int index);
 //specific topology
 
 //Return the type of actuator index
@@ -68,6 +83,11 @@ int getUpperNode(Element_topology * lpt);
 int getNumberLower(Element_topology * lpt);
 //Array of directly below elements
 int * getLowers(Element_topology * lpt);
+int getNumValidElToLP(Element_topology * lpt);
+idmap * getElToLPMapping(Element_topology * lpt);
+//returns the LP of the element index IF the element index is directly
+//reachable for this element.
+int getElToLPMappingOneElement(Element_topology * lpt,int index);
 //How many LANS the node directly manages
 int getNumberLANS(Element_topology * lpt);
 //Array of those LANs.
@@ -79,7 +99,7 @@ int * getListSensorsByType(Element_topology * lpt, int sensorType);
 //#################################
 
 //Create topology from txt file in path
-total_topology *  getTopology(char * path);
+total_topology *  getTopology(char * path,char * path1);
 //topology struct GETs, first 8 are general informations
 //self-explanatory.
 int getTotalNodes(general_topology * genTop);
@@ -93,10 +113,9 @@ int getNumberOfLANsTypes(general_topology * genTop);
 //array of actuator's probability of receiving a command, ordered by act type
 double * getProbOfActuators(general_topology * genTop);
 
-//Returns the matrix of paths to reach actuators.
-//Indeed an element [x][y] represents the next hop that the element x needs
-//to send the message to make it arrive at the actuator with id y.
-int * getActuatorPaths(Element_topology * lpt);
+int getNumValidActuatorPaths(Element_topology * lpt);
+idmap * getActuatorPaths(Element_topology * lpt);
+int getActuatorPathsIndex(Element_topology * lpt, int index);
 //These function are self explanatory but should not be used outside of first run
 //by parser.c
 void setSensorRates(Element_topology * lpt, double * array, int size);
@@ -104,12 +123,13 @@ void setLowerElements(Element_topology *  lpt, int * lowerEle, int numberLower);
 void setLANs(Element_topology *  lpt, int * arrayLANs, int numberLANs);
 void setWANdown(Element_topology * lpt, int idWAN);
 void setWANup(Element_topology * specific_lpt,Element_topology ** lpt);
-void setArrayActuatorPaths(Element_topology * lpt, int * arrayActuatorPaths);
-void setSensorTypes(Element_topology * lpt, int * array, int nts);
-void setActuatorTypes(Element_topology * lpt, int * array, int nt);
+void setArrayActuatorPaths(Element_topology * lpt, idmap * arrayActuatorPaths,int valid);
+void setSensorTypes(Element_topology * lpt, int * array, int nts,int size);
+void setActuatorTypes(Element_topology * lpt, int * array, int nt, int size);
 void setListActuatorsByType(Element_topology * lpt, int ** array, int nt);
 void setListSensorsByType(Element_topology * lpt, int ** array, int nts);
 void setLANserviceTimes(Element_topology * lpt,double * LANsINserviceTimes, double * LANsOUTserviceTimes, int size1, int size2);
+void setSensorTypes(Element_topology * lpt, int * array, int nts,int size);
 //DESTROYS
 void destroyGeneralTopology(general_topology * gn);
 void destroyElementTopologyArray(Element_topology ** lpt,int total_elements);

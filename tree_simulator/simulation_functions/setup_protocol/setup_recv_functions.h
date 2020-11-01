@@ -6,16 +6,10 @@
 
 #include "../common_functions.h"
 
-/** \brief receives setup info and saves it into the LP state.
- * \param[in] info The setup info to be saved.
+/** \brief Handles the reception of a setup message.
  * \param[in] state The LP state.
+ * \param[in] data The message received, which contains data that needs to be placed into the state.
  */
-void recv_setup_info(setup_info* info, lp_state* state);
-
-/** \brief Uses the setup_info in the lp state to identify the data received and places accordingly in the state.
- * \param[in] state The LP state-
- * \param[in] data The data received, which needs to be placed into the state.
- */
-void recv_setup_data(lp_state* state, void* data);
+void recv_setup_message(lp_state* state, void* data);
 
 #endif

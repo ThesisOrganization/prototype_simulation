@@ -21,6 +21,7 @@ void* create_setup_message(int device_id,setup_data_types container,setup_data_t
  * \param[in] payload The payload from where we want to extract the message_setup struct.
  * \returns The message_setup struct.
  */
+message_setup* get_setup_message_info(void* message);
 
 /** \brief Deallocates the given payload
  * \param[in] The payload to deallocate.

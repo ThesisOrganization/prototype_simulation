@@ -5,10 +5,36 @@
 
 int main()
 {
+  /*
+  lp_topology * lptopo =  getLPtopoogy("../../tree_simulator/LP.txt");
+  int nlp = getNumLP(lptopo);
+  printf("Number of LPs: %d.\n",nlp);
+  int x = 0;
+  while(x < nlp){
+    int * elementArray = getLPtoElementMappingOneLP(lptopo,x);
+    int amount = getAmountsOfElementsInOneLP(lptopo,x);
+    printf("LP %d has elements:",x);
+    for(int c = 0; c < amount; c++){
+      printf(" %d",elementArray[c]);
+    }
+    printf(".\n");
+    x+=1;
+  }
+  x = 0;
+  while(x < nel){
+    int res = getElementToLPMappingOneElement(lptopo,x);
+    printf("Element %d maps to LP %d\n",x,res);
+    x+=1;
+  }
+*/
+
   //We retrieve the topology, answer the question of who needs to receive for each sender node in the data
   printf("Main starting, retrieving topology..\n");
-  char * path = "test.txt";
-  total_topology * totTop = getTopology(path);
+  //char * path = "topology.txt";
+  char * path = "../../tree_simulator/topology.txt";
+  char * path1 = "../../tree_simulator/LP.txt";
+
+  total_topology * totTop = getTopology(path,path1);
   general_topology * genTop = getGenTopology(totTop);
 
   int nn = getTotalNodes(genTop);
@@ -38,6 +64,7 @@ int main()
 
   for(int i = 0; i < totalElements; i++){
     Element_topology * temp_lpt =  getLPTopology(totTop,i);
+
 
     int * solution = getLowers(temp_lpt);
 
@@ -121,6 +148,7 @@ int main()
           }
           printf(".\n");
         }
+        free(ListActuatorsByType);
 
       }
 
@@ -136,6 +164,7 @@ int main()
           }
           printf(".\n");
         }
+        free(ListSensorsByType);
 
       }
 
@@ -153,13 +182,14 @@ int main()
       printf(".\n");
       }
 
-    int * actuatorPaths = getActuatorPaths(temp_lpt);
+    //idmap * actuatorPaths = getActuatorPaths(temp_lpt);
     for(int k = 0;k < totalElements; k++){
       if(k == 0){
         printf("Printing paths, only available paths are printed!\n");
       }
-      if(actuatorPaths[k] != -1){
-        printf("Node %d next hop to reach %d : [%d]\n",i,k,actuatorPaths[k]);
+      int ap = getActuatorPathsIndex(temp_lpt,k);
+      if(ap != -1){
+        printf("Node %d next hop to reach %d : [%d]\n",i,k,ap);
       }
     }
   }
@@ -199,13 +229,14 @@ int main()
       float delay = getDelay(temp_lpt);
       printf("WAN %d has this delay: %f.\n",i,delay);
 
-      int * actuatorPaths = getActuatorPaths(temp_lpt);
+      //idmap * actuatorPaths = getActuatorPaths(temp_lpt);
       for(int k = 0;k < totalElements; k++){
         if(k == 0){
           printf("Printing paths, only available paths are printed!\n");
         }
-        if(actuatorPaths[k] != -1){
-          printf("WAN %d next hop to reach %d : [%d]\n",i,k,actuatorPaths[k]);
+        int ap = getActuatorPathsIndex(temp_lpt,k);
+        if(ap != -1){
+          printf("WAN %d next hop to reach %d : [%d]\n",i,k,ap);
         }
       }
       int numberOfBelowActuators = getNumberOfBelowActuators(temp_lpt);
@@ -220,6 +251,7 @@ int main()
           }
           printf(".\n");
         }
+        free(ListActuatorsByType);
 
       }
 
@@ -235,6 +267,7 @@ int main()
           }
           printf(".\n");
         }
+        free(ListSensorsByType);
 
       }
 
@@ -246,13 +279,14 @@ int main()
       float delay = getDelay(temp_lpt);
       printf("LAN %d has this delay: %f.\n",i,delay);
 
-      int * actuatorPaths = getActuatorPaths(temp_lpt);
+      //idmap * actuatorPaths = getActuatorPaths(temp_lpt);
       for(int k = 0;k < totalElements; k++){
         if(k == 0){
           printf("Printing paths, only available paths are printed!\n");
         }
-        if(actuatorPaths[k] != -1){
-          printf("LAN %d next hop to reach %d : [%d]\n",i,k,actuatorPaths[k]);
+        int ap = getActuatorPathsIndex(temp_lpt,k);
+        if(ap != -1){
+          printf("LAN %d next hop to reach %d : [%d]\n",i,k,ap);
         }
       }
 
@@ -268,7 +302,7 @@ int main()
           }
           printf(".\n");
         }
-
+        free(ListActuatorsByType);
       }
 
       int numberOfBelowSensors = getNumberOfBelowSensors(temp_lpt);
@@ -283,6 +317,7 @@ int main()
           }
           printf(".\n");
         }
+        free(ListSensorsByType);
 
       }
 
@@ -294,5 +329,29 @@ int main()
       }
     }
   }
+  /*
+  for(int i = 0; i < totalElements; i++){
+    Element_topology * temp_lpt =  getLPTopology(totTop,i);
+    int numLowers = getNumberLower(temp_lpt);
+    int * lowers = getLowers(temp_lpt);
+    int upp = getUpperNode(temp_lpt);
+    int index = 0;
+    for(int j = 0; j < numLowers+1;j++){
+      if(j == 0){
+        index = upp;
+      }
+      else{
+        index = lowers[j-1];
+      }
+      if(index != -1){
+        int result = getElToLPMappingOneElement(temp_lpt,index);
+        printf("Element %d to reach element %d goes through LP %d.\n",i,index,result);
+      }
+    }
+
+  }
+  */
+
   destroyTotalTopology(totTop);
+
 }

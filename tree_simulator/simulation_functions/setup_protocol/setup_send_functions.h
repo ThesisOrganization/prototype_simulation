@@ -3,14 +3,14 @@
  */
 #ifndef SETUP_SEND_FUNCTIONS_H
 #define SETUP_SEND_FUNCTIONS_H
-#include "../common_functions.h"
 
-/** \brief Sends an Element_topology struct to the destination LP.
- * \param[in] tot_top Total topology struct.
- * \param[in] element_id The id of __both__ the destination LP and the element of the topology.
- * \param[in] total_elements The total number of elements in the topology.
+#include "../../../utils/application_datatypes.h"
+
+/** \brief Sends the info required to fille the lp_state struct.
+ * \param[in] lp The lp whose info we want to send.
+ * \param[in] tot_top The total topology, used to get the info to send.
  */
-void send_element_topology(total_topology* tot_top,int element_id, int total_elements);
+void send_lp_info(int lp,total_topology* tot_top);
 
 /** \brief Sends a general_topology to an LP identified by element_id
  * \param[in] gen_top The general_topology to send.

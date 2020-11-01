@@ -157,7 +157,7 @@ typedef struct _wan_topology{
 	int * sensorsTypesBelow;
 	int * ListSensorsByType;
 	int * ListActuatorsByType; //[x][y] element è il y-esimo elemento nella lista di attuatori di tipo x
-	
+
 } wan_topology;
 
 typedef struct _lan_topology{
@@ -171,7 +171,7 @@ typedef struct _lan_topology{
 	int * sensorsTypesBelow;
 	int * ListSensorsByType;
 	int * ListActuatorsByType; //[x][y] element è il y-esimo elemento nella lista di attuatori di tipo x
-	
+
 } lan_topology;
 
 //struct topology node specific
@@ -197,19 +197,32 @@ typedef struct _general_topology{
 } general_topology;
 
 typedef struct _Element_topology{
-	state_type lp_type;
-	int upperNode;
-	int numberOfLowerElements;
-	int * lowerElements;
-	int numberOfLANS;
-	int * connectedLans;
-	int * actuatorPaths;
-	specific_topology spec_top;
+  state_type lp_type;
+  int upperNode;
+  int numberOfLowerElements;
+  int * lowerElements;
+  int numberOfLANS;
+  int * connectedLans;
+  //int * actuatorPaths;
+  int numValidActuatorPaths;
+  idmap * actuatorPaths;
+  int numValidElToLP;
+  idmap * ElementToLPMapping; // upper and lowers
+  specific_topology spec_top;
 } Element_topology;
 
+typedef struct _lp_topology{
+  int ** LPtoElementMapping;
+  int * amountsOfElementsInLP;
+  int numValid;
+  idmap * ElementToLPMapping;
+  int numLP;
+} lp_topology;
+
 typedef struct _total_topology{
-	general_topology * gn;
-	Element_topology ** lpt;
+  general_topology * gn;
+  Element_topology ** lpt;
+  lp_topology * lp_topology;
 } total_topology;
 
 
@@ -246,8 +259,7 @@ typedef enum { //INIT should be 0
 	UPDATE_TIMESTAMP,
 	STABILITY_ACQUIRED,
 	STABILITY_LOST,
-	RECEIVE_SETUP_INFO,
-	RECEIVE_SETUP_DATA,
+	RECEIVE_SETUP_MESSAGE,
 	START_SIMULATION
 } events_type;
 
@@ -255,7 +267,9 @@ typedef enum { //INIT should be 0
  * The value of the timestamp is used as it is to send the struct the refer to, then every inner pointer is sent as a separate message using an increase of 0.01, to avoid overlapping of the messages for different structs.
  */
 typedef enum {
-	TS_RECV_GENERAL_TOPOLOGY=1, ///< Timestamp used to start sending the general_topology.
+	TS_RECV_GENERAL_TOPOLOGY=1,///< Timestamp used to start sending the general_topology.
+	TS_RECV_ELEMENT_INDEX_MAP, ///< Timestamp used to send the element_to_index idmap.
+	TS_RECV_DEVICES, ///< Timestamp used to start sending the info on the device_array.
 	TS_RECV_ELEMENT_TOPOLOGY, ///< Timestamp used to start sendig Element_topology.
 	TS_RECV_SPECIFIC_TOPOLOGY,///< Timestamp used to start sending the specific_topology.
 	TS_RECV_BELOW_DEVICES_INFO, ///< Timestamp used to start sending info about the below sensors/actuators.
@@ -267,6 +281,9 @@ typedef enum {
 	SETUP_DATA_LP_STATE=0, ///< lp_state struct
 	SETUP_DATA_PINT, ///< int*
 	SETUP_DATA_PDOUBLE, ///< double*
+	SETUP_DATA_PIDMAP, ///<idamp*
+	SETUP_DATA_DEVICES_ARRAY,
+	SETUP_DATA_DEVICE_STATE,
 	SETUP_DATA_GENERAL_TOPOLOGY, ///< general_topology struct
 	SETUP_DATA_ELEMENT_TOPOLOGY, ///< Element_topology struct
 	SETUP_DATA_LAN_TOPOLOGY, ///< lan_topology struct
@@ -371,6 +388,7 @@ typedef struct {
 	setup_data_types data_type; ///< The type of the data we are about to receive.
 	setup_data_types container_struct; ///< The type of the struct which contains the data we will receive.
 	size_t data_size; ///< The size of the data we are about to receive.
+	void* data;
 } message_setup;
 
 typedef struct{
@@ -412,8 +430,6 @@ typedef struct _state {
 	int num_devices;
 	general_topology* general_topology;
 	idmap* element_to_index;
-	//specific infos
-	message_setup *setup_data_info; //setup info, will be freed when the setup is completed
 } lp_state;
 
 

@@ -154,4 +154,7 @@ getSensorsTypesBelowList(LP_topology * lpt)\
 17/10\
 -Added GETs for every information, some refactoring.\
 18/10\
--Everything got converted, check deprecated functions and how to use new syntax.
+-Everything got converted, check deprecated functions and how to use new syntax.\
+31/10\
+-ActuatorPaths is now an idmap, check usage in driver.c\
+-Added struct LP_topology containing everything we need for LP->Elem, Elem->LP mapping, usage in driver.c, gets are commented in header.h

@@ -5,6 +5,7 @@
 #include "../../utils/partop/header.h"
 #include "../../utils/priority_queue/priority_queue.h"
 #include "../../utils/application_datatypes.h"
+#include "../../utils/message/message.h"
 
 /*
 #define DEBUG
@@ -77,7 +78,7 @@ if (! (x)) {\
 //WANS
 #define GET_DELAY(a) getDelay(a)
 
-#define GET_ACTUATOR_PATHS_INDEX(a) getActuatorPaths(a)
+#define GET_ACTUATOR_PATHS(a) getActuatorPaths(a)
 #define GET_ACT_TYPE_BELOW_LIST(a) getActuatorTypesBelowList(a)
 #define GET_SENS_TYPE_BELOW_LIST(a) getSensorsTypesBelowList(a)
 #define GET_LIST_ACTUATORS_BY_TYPE(a,b) getListActuatorsByType(a,b)
@@ -96,7 +97,7 @@ if (! (x)) {\
 #define GET_NUMBER_ACT_TYPES(a) getNumberOfActTypes(a)
 #define GET_NUMBER_SENS_TYPES(a) getNumberOfSensTypes(a)
 #define GET_PROB_ACTUATORS(a) getProbOfActuators(a)
-#define GET_TOPOLOGY(a) getTopology(a)
+#define GET_TOPOLOGY(a,b) getTopology(a,b)
 #define GET_GEN_TOPOLOGY(a) getGenTopology(a)
 
 //ELEMENT TOPOLOGY
@@ -111,4 +112,11 @@ if (! (x)) {\
 
 //TOTAL TOPOLOGY
 #define DESTROY_TOTAL_TOPOLOGY(a) destroyTotalTopology(a)
+
+//LP TOPOLOGY
+#define GET_LP_TOPOLOGY(a) getLPTopology(a)
+#define GET_LP_DEVICES(a,b) getLPtoElementMappingOneLP(a,b)
+#define GET_NUM_LP_DEVICES(a,b) getAmountsOfElementsInOneLP(a,b)
+#define GET_NUM_ELEMENTS(a) getNumValid(a)
+#define GET_NUM_LPS(a) getNumLP(a)
 #endif /* COMMON_FUNCTIONS_H */

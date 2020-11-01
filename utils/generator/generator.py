@@ -1,6 +1,7 @@
 # coding=utf-8
 import numpy as np
 f_out = open("../../tree_simulator/topology.txt", "w")
+f_out_LP = open("../../tree_simulator/LP.txt", "w")
 
 numbersString = ""
 
@@ -67,7 +68,8 @@ numbersString+=str(types_of_actuators)+"\n"
 numbersString+=str(types_of_sensors)+"\n"
 numbersString+=str(types_of_lans)+"\n"
 f_out.write(numbersString);
-
+f_out_LP.write(str(number_of_elements_to_write)+"\n")
+f_out_LP.write(str(1+number_of_regionals+number_of_locals)+"\n");
 #USER SHOULD CHANGE THESE
 ####################################
 sens_tele_type1 = "0.0002"
@@ -104,8 +106,12 @@ id_wan_central = wan_id
 to_write ="0;-1;10;NODE,SCHEDULER1,CENTRAL,"+aggregation_rates+delay_lower_router+delay_lower_router
 to_write+=sevice_time_central+prob_command_generated_central+"RAID3,"+service_time_disks
 associated_wan_down =str(id_wan_central)+";0;3;WAN,WAN_TYPE0,"+delay_wan
-wan_id+=1
 f_out.write(to_write)
+LP_index = 0
+to_write = str(LP_index)+";"+str(2)+";"+"0"+","+str(id_wan_central)+"\n"
+LP_index+=1
+f_out_LP.write(to_write)
+wan_id+=1
 #REGIONAL+LOCAL
 index = 1
 while index < (1+number_of_regionals):
@@ -115,8 +121,11 @@ while index < (1+number_of_regionals):
     f_out.write(to_write)
 
     associated_wan_down +=str(wan_id)+";"+str(index)+";3;WAN,WAN_TYPE0,"+delay_wan
-    wan_id+=1
+    to_write = str(LP_index)+";"+str(2)+";"+str(index)+","+str(wan_id)+"\n"
+    LP_index+=1
+    f_out_LP.write(to_write)
 
+    wan_id+=1
     index+=1
 
 total_so_far = 1+number_of_regionals
@@ -132,25 +141,36 @@ for i in range(number_of_regionals):
             for k in range(different_amounts_actuators):
                 if(number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k] != 0):
                     for last in range(number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]):
+                        LP_start = str(LP_index)+";"
+                        counter_elements = 2
                         to_write = str(index)+";"+str(count)+";8;NODE,SCHEDULER2,LOCAL,"+aggregation_rates+delay_lower_router+delay_lower_router
                         to_write+=service_time_locals+prob_command_generated_local+"\n"
                         f_out.write(to_write)
-
+                        LP_to_write=";"+str(index)+","+str(lan_id)
                         associated_lan_down+=str(lan_id)
 
                         upper_lan_node = index
                         associated_lan_down+=";"+str(index)+";3;LAN,LAN_TYPE0,"+delay_lan
                         for sens in range(j):
                             sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,BATCH,SENSOR_TYPE0,MEASURE0\n"
+                            LP_to_write+=","+str(sensors_start)
+                            counter_elements+=1
                             sensors_start+=1
                         for sens2 in range(l):
                             sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,BATCH,SENSOR_TYPE1,MEASURE0\n"
+                            LP_to_write+=","+str(sensors_start)
+                            counter_elements+=1
                             sensors_start+=1
                         for act in range(k):
                             sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,BATCH,ACTUATOR_TYPE0,MEASURE0,"+rate_trans_act+service_time_commands_act
+                            LP_to_write+=","+str(sensors_start)
+                            counter_elements+=1
                             sensors_start+=1
                         lan_id+=1
                         index+=1
+                        total_write = LP_start+str(counter_elements)+LP_to_write+"\n"
+                        f_out_LP.write(total_write)
+                        LP_index+=1
 
                     count+=1
 

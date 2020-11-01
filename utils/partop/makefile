@@ -1,8 +1,8 @@
 CC = gcc
-CFLAGS = -Wall -g
-SRCS = parser.c topology.c
+CFLAGS = -Wall -g -fsanitize=address
+SRCS = parser.c topology.c ../idmap/idmap_quick_sort.c ../idmap/idmap.c
 OBJS = $(SRCS:.c=.o)
-HEADERS = $(SRCS:.c=.h)
+HEADERS = header.h ../idmap/idmap.h
 MAIN = driver
 
 all:    $(MAIN)

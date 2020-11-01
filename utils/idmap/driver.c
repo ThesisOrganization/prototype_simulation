@@ -6,12 +6,12 @@
 #include<stdlib.h>
 #include "idmap.h"
 
-#define NUM_ELEMS 5
+#define NUM_ELEMS 6
 
 int main(int argc, char** argv){
-	int num_elements=NUM_ELEMS;
-	int id_array[NUM_ELEMS]={1,2,3,4,5};
-	int content_array[NUM_ELEMS]={6,7,8,9,10};
+	int num_elements=NUM_ELEMS,map_len=0;
+	int id_array[NUM_ELEMS]={1,2,3,4,5,6};
+	int content_array[NUM_ELEMS]={6,7,-1,9,10,1};
 	int i,j,res,search_id,correct;
 	idmap *map=NULL;
 	printf("printing id and content arrays\n id_array: ");
@@ -23,13 +23,13 @@ int main(int argc, char** argv){
 		printf("%d ",content_array[i]);
 	}
 	printf("\n Creating the idmap object\n");
-	map=create_idmap(id_array,content_array,num_elements);
+	map=create_idmap(id_array,content_array,num_elements,&map_len);
 	printf("id_array and content_array can now be deallocated if they have been created with malloc\n");
 	printf("searching elements in the id map\n");
 	for(j=0;j<num_elements;j++){
 		//we emulate the search for a pseudorandom id
 		search_id=rand()%(num_elements+2);
-		res=idmap_search(map,search_id,num_elements);
+		res=idmap_search(map,search_id,map_len);
 		correct=IDMAP_CONTENT_NOT_FOUND;
 		for(i=0;i<num_elements;i++){
 			if(id_array[i]==search_id){
