@@ -244,6 +244,8 @@ typedef enum { //INIT should be 0
 	GENERATE_TRANSITION,
 	GENERATE_TELEMETRY,
 	UPDATE_TIMESTAMP,
+	STABILITY_ACQUIRED,
+	STABILITY_LOST,
 	RECEIVE_SETUP_INFO,
 	RECEIVE_SETUP_DATA,
 	START_SIMULATION
@@ -353,7 +355,12 @@ typedef enum {
 typedef enum {
 	SIMULATION_ACTIVE = 0,
 	SIMULATION_STOP
-} simulation_status;
+} simulation_status; //to delete
+
+typedef enum {
+	ELEMENT_UNSTABLE = 0,
+	ELEMENT_STABLE
+} stability_value;
 
 typedef struct{
 	int element_id; ///< The id of the element which the data we are about to receive belongs.
@@ -386,6 +393,7 @@ typedef struct{
 
 typedef struct _device_state {
 	simulation_status simulation_completed; //to delete
+	stability_value stability;
 	simtime_t device_timestamp;
 	state_type type;
 	Element_topology* topology;
@@ -397,7 +405,8 @@ typedef struct _device_state {
 typedef struct _state {
 	lp_usage_types lp_enabled; //1 lp enabled, 0 lp disabled
 	int number_lps_enabled;
-	simulation_status simulation_completed;
+	int num_stable_elements;
+	//simulation_status simulation_completed; //to delete
 	//general infos
 	device_state** devices_array;
 	int num_devices;
