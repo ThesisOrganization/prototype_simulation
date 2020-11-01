@@ -78,8 +78,8 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 	
 	message_update msg_update;
 	message_arrive msg_arrive;
-	message_finish msg_finish;
-	message_generate msg_generate;
+	//message_finish msg_finish;
+	//message_generate msg_generate;
 	
 	int id_device;
 	int index_map;
@@ -193,7 +193,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				msg_arrive.info.job_type = TRANSITION;
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
-				up_lp = ;
+				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
 				ScheduleNewEvent(up_lp, now, ARRIVE, &msg_arrive, sizeof(message_arrive));
 				
 				//ts_generate = now + Expent(ARRIVE_RATE);
@@ -234,7 +234,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				msg_arrive.info.job_type = TELEMETRY;
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
-				up_lp = ;
+				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
 				ScheduleNewEvent(up_lp, now, ARRIVE, &msg_arrive, sizeof(message_arrive));
 				
 				//ts_generate = now + Expent(ARRIVE_RATE);
