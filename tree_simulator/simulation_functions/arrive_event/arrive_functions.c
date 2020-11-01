@@ -98,7 +98,7 @@ static void schedule_wan(unsigned int next_lp, simtime_t now, double delay, job_
 	message_arrive msg;
 	msg.header.element_id = next_device;
 	msg.info = *info;
-	ScheduleNewEvent(next_lp, now + delay, ARRIVE, info, sizeof(job_info));
+	ScheduleNewEvent(next_lp, now + delay, ARRIVE, &msg, sizeof(message_arrive));
 	
 }
 
@@ -113,14 +113,14 @@ void arrive_wan(unsigned int id_device, simtime_t now, device_state * state, job
 	if(info->job_type == TELEMETRY){
 		//printf("TELEMETRY\n");
 		up_node = GET_UPPER_NODE(state->topology);
-		up_lp = ;
+		up_lp = CONVERT_ELEMENT_TO_LP(state->topology, up_node);
 		schedule_wan(up_lp, now, delay, info, up_node);
 		
 	}
 	else if(info->job_type == TRANSITION){
 		//printf("TRANSITION\n");
 		up_node = GET_UPPER_NODE(state->topology);
-		up_lp = ;
+		up_lp = CONVERT_ELEMENT_TO_LP(state->topology, up_node);
 		schedule_wan(up_lp, now, delay, info, up_node);
 		
 	}
@@ -129,15 +129,15 @@ void arrive_wan(unsigned int id_device, simtime_t now, device_state * state, job
 		//printf("COMMAND received!!!!\n");
 		int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology);
 		int next_hop = next_hop_list[info->lp_destination];
-		up_lp = ;
+		up_lp = CONVERT_ELEMENT_TO_LP(state->topology, next_hop);
 		
-		schedule_wan(up_lp, now, delay, info, up_node);
+		schedule_wan(up_lp, now, delay, info, next_hop);
 		
 	}
 	else if(info->job_type == BATCH_DATA){
 		
 		up_node = GET_UPPER_NODE(state->topology);
-		up_lp = ;
+		up_lp = CONVERT_ELEMENT_TO_LP(state->topology, up_node);
 		
 		schedule_wan(up_lp, now, delay, info, up_node);
 		
@@ -145,9 +145,9 @@ void arrive_wan(unsigned int id_device, simtime_t now, device_state * state, job
 	else if(info->job_type == REPLY){
 		
 		int next = info->lp_sender;
-		up_lp = ;
+		up_lp = CONVERT_ELEMENT_TO_LP(state->topology, next);
 		
-		schedule_wan(up_lp, now, delay, info, up_node);
+		schedule_wan(up_lp, now, delay, info, next);
 		
 	}
 	

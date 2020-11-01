@@ -54,7 +54,7 @@ static void send_reply(unsigned int id_device, simtime_t now, device_state * sta
 	info_to_send.waiting_time_transition = waiting_time_transition;
 	
 	int destination = state->info.node->id_wan_down;
-	int next_lp = ;
+	int next_lp = CONVERT_ELEMENT_TO_LP(state->topology, destination);
 	
 	message_arrive msg;
 	msg.header.element_id = destination;
@@ -68,7 +68,7 @@ static void send_command(unsigned int id_device, simtime_t now, device_state  * 
 	
 	int * next_hop_list = GET_ACTUATOR_PATHS_INDEX(state->topology);
 	int next_hop = next_hop_list[id_selected_actuator];
-	int next_lp = ;
+	int next_lp = CONVERT_ELEMENT_TO_LP(state->topology, next_hop);
 	
 	job_info info_to_send;
 	fill_info_to_send(&info_to_send, COMMAND, -1, id_selected_actuator);
@@ -165,7 +165,7 @@ static job_info ** schedule_next_job(unsigned int id_device, simtime_t now, queu
 static void send_to_up_node(unsigned int id_device, simtime_t now, device_state  * state, double delay, job_info * info){
 	
 	int up_node = GET_UPPER_NODE(state->topology);
-	int up_lp = ;
+	int up_lp = CONVERT_ELEMENT_TO_LP(state->topology, up_node);
 	
 	message_arrive msg;
 	msg.header.element_id = up_node;
@@ -221,7 +221,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 		update_metrics(now, state->info.node->queue_state, info);
 	
 	//Schedule the next job if present
-	job_info ** info_arr = schedule_next_job(id_device, now, state->info.node->queue_state, state->info.node->service_rates, NULL, 0, FINISH);
+	job_info ** info_arr = schedule_next_job(id_device, now, state->info.node->queue_state, state->info.node->service_rates, 0, FINISH, id_lp);
 	
 	double delay_up = state->info.node->up_delay;
 	double delay_down = state->info.node->down_delay;
@@ -376,7 +376,7 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 	else if(info->job_type == COMMAND){
 		
 		int destination = info->lp_destination; //you should use the function of the topology
-		int next_lp = ;
+		int next_lp = CONVERT_ELEMENT_TO_LP(state->topology, destination);
 		
 		message_arrive msg;
 		msg.header.element_id = destination;

@@ -87,6 +87,7 @@ if (! (x)) {\
 #define GET_DISK_SERVICES(a) getDiskServices(a)
 
 #define GET_TYPE(a) getType(a)
+#define CONVERT_ELEMENT_TO_LP(a,b) getElToLPMappingOneElement(a,b)
 
 //GENERAL TOPOLOGY
 #define GET_TOTAL_NODES(a) getTotalNodes(a)
