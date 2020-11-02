@@ -267,7 +267,8 @@ typedef enum { //INIT should be 0
  * The value of the timestamp is used as it is to send the struct the refer to, then every inner pointer is sent as a separate message using an increase of 0.01, to avoid overlapping of the messages for different structs.
  */
 typedef enum {
-	TS_RECV_GENERAL_TOPOLOGY=1,///< Timestamp used to start sending the general_topology.
+	TS_RECV_LP_STATE_INFO=1,
+	TS_RECV_GENERAL_TOPOLOGY,///< Timestamp used to start sending the general_topology.
 	TS_RECV_ELEMENT_INDEX_MAP, ///< Timestamp used to send the element_to_index idmap.
 	TS_RECV_DEVICES, ///< Timestamp used to start sending the info on the device_array.
 	TS_RECV_ELEMENT_TOPOLOGY, ///< Timestamp used to start sendig Element_topology.

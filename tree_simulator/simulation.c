@@ -65,7 +65,7 @@ int check_metrics(queue_state * queue_state){
 void broadcast_message(int number_lps_enabled, simtime_t ts_to_send, events_type event_to_broadcast){
 
 	for(int lp = 0; lp < number_lps_enabled; lp++){
-		
+
 		ScheduleNewEvent(lp, ts_to_send, event_to_broadcast, NULL, 0);
 
 	}
@@ -109,15 +109,16 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			break;
 
 		case RECEIVE_SETUP_MESSAGE:
-			
+
 			recv_setup_message(state,content);
-			
+
 			break;
 
 		case START_SIMULATION:
 			//we enable the LP
 			state->lp_enabled=LP_ENABLED;
-			
+			state->num_stable_elements=0;
+
 			for(int index = 0; index < state->num_devices; index++){
 
 				idmap map = state->element_to_index[index];
@@ -175,7 +176,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
 				msg_update.header.element_id = id_device;
 				ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
-				
+
 			}
 
 
@@ -403,20 +404,20 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						boolean_check = 1;
 
 					}
-					
+
 					int boolean_simulation_max = 0;
-					
+
 					if(dev_state->device_timestamp > MAX_SIMULATION_TIME){
 						boolean_check = 1;
 						boolean_simulation_max = 1;
 					}
-					
+
 					if(dev_state->stability == ELEMENT_UNSTABLE && boolean_check){
 						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
 						if(!boolean_simulation_max)
 							dev_state->stability = ELEMENT_STABLE;
 					}
-					
+
 					if(dev_state->stability == ELEMENT_STABLE && !boolean_check){
 						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
 						dev_state->stability = ELEMENT_UNSTABLE;
@@ -549,7 +550,7 @@ bool OnGVT(int me, lp_state *snapshot)
 	int total_number_of_elements = num_nodes + num_actuators + num_lans;
 	//if(snapshot->num_stable_elements > 0)
 	//	printf("stable: %d, total: %d\n", snapshot->num_stable_elements, total_number_of_elements);
-	
+
 	if(snapshot->num_stable_elements == total_number_of_elements){
 	//if(bool_print){ //to delete
 
@@ -558,13 +559,13 @@ bool OnGVT(int me, lp_state *snapshot)
 		FILE * output_file = fopen(file_name_complete, "w");
 
 		fprintf(output_file, "[");
-		
+
 		int index;
 		int index_map;
 		int id_device;
 		idmap map;
 		device_state * dev_state;
-		
+
 		for(index = 0; index < snapshot->num_devices; index++){
 
 			map = snapshot->element_to_index[index];

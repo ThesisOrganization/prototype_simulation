@@ -8,7 +8,7 @@ void* create_setup_message(int device_id,setup_data_types container,setup_data_t
 	message_setup *m_info=NULL;
 	*message_size=0;
 	//some sanity checks
-	if(device_id>=0 && data!=NULL){
+	if(data!=NULL){
 		///We need to use a contiguous memory block for both the message_setup struct and the data
 		*message_size=sizeof(message_setup)+data_size;
 		message=malloc(*message_size);

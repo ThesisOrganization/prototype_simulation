@@ -245,12 +245,12 @@ void send_general_topology(general_topology* gen_top,int lp){
 	size_t message_size;
 	void* message;
 	ts_skew+=0.01;
-	message=create_setup_message(lp,SETUP_DATA_LP_STATE,SETUP_DATA_GENERAL_TOPOLOGY,gen_top,sizeof(general_topology),&message_size);
+	message=create_setup_message(-1,SETUP_DATA_LP_STATE,SETUP_DATA_GENERAL_TOPOLOGY,gen_top,sizeof(general_topology),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_GENERAL_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
 	//destroy_message(message);
 	//we send probofActuators
 	ts_skew+=0.01;
-	message=create_setup_message(lp,SETUP_DATA_GENERAL_TOPOLOGY,SETUP_DATA_PDOUBLE,GET_PROB_ACTUATORS(gen_top),sizeof(double)*GET_NUMBER_ACT_TYPES(gen_top),&message_size);
+	message=create_setup_message(-1,SETUP_DATA_GENERAL_TOPOLOGY,SETUP_DATA_PDOUBLE,GET_PROB_ACTUATORS(gen_top),sizeof(double)*GET_NUMBER_ACT_TYPES(gen_top),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_GENERAL_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
 	//destroy_message(message);
 }
@@ -266,15 +266,12 @@ static void send_idmap(int lp,int* devices,int num_devices){
 	idmap *map;
 	void* message;
 	if(devices==NULL || num_devices>0){
-	printf("idmap content: ");
 		indexes=malloc(sizeof(int)*num_devices);
 		for(i=0;i<num_devices;i++){
 			indexes[i]=i;
-			printf("%d, ",devices[i]);
 		}
-		printf("\n");
 		map=create_idmap(devices,indexes,num_devices,&map_len);
-		message=create_setup_message(devices[0],SETUP_DATA_LP_STATE,SETUP_DATA_PIDMAP,map,sizeof(idmap)*map_len,&message_size);
+		message=create_setup_message(-1,SETUP_DATA_LP_STATE,SETUP_DATA_PIDMAP,map,sizeof(idmap)*map_len,&message_size);
 		ScheduleNewEvent(lp,TS_RECV_ELEMENT_INDEX_MAP,RECEIVE_SETUP_MESSAGE,message,message_size);
 		//destroy_message(message);
 		//destroy_idmap(map);
@@ -283,16 +280,21 @@ static void send_idmap(int lp,int* devices,int num_devices){
 
 void send_lp_info(int lp,total_topology* tot_top){
 	void* message=NULL;
-	int i,num_devices=0, *devices=NULL;
+	int i,num_devices=0, *devices=NULL, num_lp;
 	size_t message_size;
 	//we retireve the devices array for to send the idmap and the element topology to the lp.
 	num_devices=GET_NUM_LP_DEVICES(tot_top->lp_topology,lp);
 	devices=GET_LP_DEVICES(tot_top->lp_topology,lp);
+	//we send the number of used LPs.
+	num_lp=GET_NUM_LPS(tot_top->lp_topology);
+	message=create_setup_message(-1,SETUP_DATA_LP_STATE,SETUP_DATA_PINT,&num_lp,sizeof(int),&message_size);
+	ScheduleNewEvent(lp,TS_RECV_LP_STATE_INFO,RECEIVE_SETUP_MESSAGE,message,message_size);
+	//destroy_message(message);
 	//we send the idmap
 	send_idmap(lp,devices,num_devices);
 	//we need to send a setup message to make the LP allocate the devices_array
 	///When sending the message for the allocation of the device array we use data to pass the number of devices.
-	message=create_setup_message(devices[0],SETUP_DATA_LP_STATE,SETUP_DATA_DEVICES_ARRAY,&num_devices,sizeof(int),&message_size);
+	message=create_setup_message(-1,SETUP_DATA_LP_STATE,SETUP_DATA_DEVICES_ARRAY,&num_devices,sizeof(int),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_DEVICES,RECEIVE_SETUP_MESSAGE,message,message_size);
 	//destroy_message(message);
 	for(i=0;i<num_devices;i++){

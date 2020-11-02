@@ -423,6 +423,13 @@ static void recv_data_in_lp_state(lp_state* state,message_setup* info){
 				return;
 			}
 			break;
+		case SETUP_DATA_PINT:
+			if(state->number_lps_enabled==0){
+				//if the LP state receives an int* we are sending the number of enabled LP in the data field.
+				state->number_lps_enabled=*((int*)info->data);
+				return;
+			}
+			break;
 		default:
 			//we reach this point only if we already have all the necessary data for this topology, thus we got a mismatched message
 			printf("Error: mismatched setup message for lp_state received\n");
@@ -480,6 +487,8 @@ void recv_setup_message(lp_state* state,void* data){
 		default:
 			//we reach this point only if we already have all the necessary data for this topology, thus we got a mismatched message
 			printf("Error: mismatched setup message received\n");
+			//destroy_message(data);
 			exit(EXIT_FAILURE);
 	}
+	//destroy_message(data);
 }
