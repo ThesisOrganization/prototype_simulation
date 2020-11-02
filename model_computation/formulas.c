@@ -1002,5 +1002,6 @@ int main(int argc, char** argv){
 	fflush(out_json);
 	fflush(out_tex);
 	fflush(order);
+	destroyTotalTopology(totTop);
 	return 0;
 }
