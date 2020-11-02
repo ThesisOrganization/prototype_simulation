@@ -14,7 +14,7 @@ void send_lp_info(int lp,total_topology* tot_top);
 
 /** \brief Sends a general_topology to an LP identified by element_id
  * \param[in] gen_top The general_topology to send.
- * \param[in] element_id The id of __both__ the LP and the element.
+ * \param[in] lp The id of the destination LP.
  */
-void send_general_topology(general_topology* gen_top,int element_id);
+void send_general_topology(general_topology* gen_top,int lp);
 #endif

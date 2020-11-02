@@ -27,6 +27,7 @@ void setup_master(int n_prc_tot){
 	///we assume that the ID of the LP matches with the id of the element __This is a heavy assumption__.
 	///The master node will schedule event for all the nodes and even itself
 	for(lp=0;lp<num_required_lps;lp++){
+		printf("sendig to lp %d\n",lp);
 		send_general_topology(gen_top,lp);
 		//we send the info message that will setup the devices_array in the local node.
 		send_lp_info(lp,tot_top);
@@ -34,6 +35,6 @@ void setup_master(int n_prc_tot){
 		ScheduleNewEvent(lp,TS_START_SIMULATION,START_SIMULATION,NULL,0);
 	}
 	//we free the total topology since it's not needed
-	DESTROY_TOTAL_TOPOLOGY(tot_top);
+	//DESTROY_TOTAL_TOPOLOGY(tot_top);
 	printf("setup complete\n");
 }

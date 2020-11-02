@@ -232,7 +232,7 @@ static void recv_data_in_element_topology(device_state *state,message_setup* inf
 	}*/
 	//we already have actuatorPaths if we are not a sensor or an actuator?
 	if(GET_TYPE(state->topology)!=SENSOR && GET_TYPE(state->topology)!=ACTUATOR){
-		if(state->topology->actuatorPaths==NULL && info->data_type==SETUP_DATA_PINT){
+		if(state->topology->actuatorPaths==NULL && info->data_type==SETUP_DATA_PIDMAP){
 			state->topology->actuatorPaths=malloc(info->data_size);
 			memcpy(state->topology->actuatorPaths,info->data,info->data_size);
 			return;
@@ -344,7 +344,7 @@ static void recv_data_in_general_topology(lp_state* state, message_setup* info){
  * Any duplicate or mismatching event will be ignored.
  */
 static void recv_data_in_device_state(device_state* state, message_setup* info){
-	if(info->data_type==SETUP_DATA_ELEMENT_TOPOLOGY){
+	if(info->data_type!=SETUP_DATA_ELEMENT_TOPOLOGY){
 		printf("Error: devices_array or element_to_index do not exist or mismatched message for device state\n");
 		exit(EXIT_FAILURE);
 	}
@@ -395,10 +395,10 @@ static void recv_data_in_lp_state(lp_state* state,message_setup* info){
 	switch(info->data_type){
 		case SETUP_DATA_DEVICES_ARRAY:
 			if(state->devices_array==NULL){
-				///The setup message for the devices_array does not have embedded data, we need only to allocate the array and fill it with empty device_state structs. The number of devices is in the message data_size param.
-				state->devices_array=malloc(sizeof(device_state*)*info->data_size);
-				state->num_devices=info->data_size;
-				memset(state->devices_array,0,sizeof(device_state*)*info->data_size);
+				///The setup message for the devices_array does not have embedded data, we need only to allocate the array and fill it with empty device_state structs. The number of devices is in the message data param.
+				state->num_devices=*((int*)info->data);
+				state->devices_array=malloc(sizeof(device_state*)*state->num_devices);
+				memset(state->devices_array,0,sizeof(device_state*)*state->num_devices);
 				for(i=0;i<state->num_devices;i++){
 					state->devices_array[i]=malloc(sizeof(device_state));
 					memset(state->devices_array[i],0,sizeof(device_state));
@@ -440,7 +440,7 @@ void recv_setup_message(lp_state* state,void* data){
 	int elem_id=-1;
 	//we need to locate the id of the corresponding device if the container struct is not lp_state
 	if(info->container_struct!=SETUP_DATA_LP_STATE && info->container_struct!=SETUP_DATA_GENERAL_TOPOLOGY){
-		if(state->devices_array!=NULL && state->num_devices>=0 && state->element_to_index!=NULL){
+		if(state->devices_array!=NULL && state->num_devices>0 && state->element_to_index!=NULL){
 			elem_id=idmap_search(state->element_to_index,info->header.element_id,state->num_devices);
 		} else{
 			printf("Error: element_to_index or devices_array are not initialized correctly\n");
@@ -480,8 +480,6 @@ void recv_setup_message(lp_state* state,void* data){
 		default:
 			//we reach this point only if we already have all the necessary data for this topology, thus we got a mismatched message
 			printf("Error: mismatched setup message received\n");
-			destroy_message(data);
 			exit(EXIT_FAILURE);
 	}
-	destroy_message(data);
 }

@@ -28,7 +28,7 @@ rate_trans_act = "0.0005,"
 service_time_commands_act = "0.6\n"
 #1 CENTRAL, implicit
 number_of_regionals = 2
-number_of_locals = 100
+number_of_locals = 10
 sensors_start = 1+number_of_regionals+number_of_locals
 number_of_lans = 1 #to change, future work
 number_of_WANS = 1 + number_of_regionals
@@ -46,8 +46,8 @@ number_of_locals_with_x_sensors_y_actuators_per_regional = np.zeros((number_of_r
 
 #USER SHOULD INPUT THESE, add new ones if necessary
 ####################################
-number_of_locals_with_x_sensors_y_actuators_per_regional[0][5][1][1] = 50 #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
-number_of_locals_with_x_sensors_y_actuators_per_regional[1][5][1][1] = 50
+number_of_locals_with_x_sensors_y_actuators_per_regional[0][5][1][1] = 5 #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
+number_of_locals_with_x_sensors_y_actuators_per_regional[1][5][1][1] = 5
 ####################################
 total_sensors = 0
 total_actuators = 0

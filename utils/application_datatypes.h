@@ -366,6 +366,7 @@ typedef union {
 ///Used to determine is an LP is active or not
 typedef enum {
 	LP_DISABLED=0,
+	LP_SETUP,
 	LP_ENABLED
 } lp_usage_types;
 

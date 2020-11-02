@@ -102,21 +102,23 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			state->lp_enabled = LP_DISABLED;
 			if(me == 0){
 				//we enable the master LP to avoid terminating the simulation during the setup
-				state->lp_enabled= LP_ENABLED;
+				state->lp_enabled= LP_SETUP;
 				//we setup the master node and the required LPs
 				setup_master(n_prc_tot);
 			}
 			break;
 
 		case RECEIVE_SETUP_MESSAGE:
+			printf("lp %d timestamp: %lf\n",me,now);
 			recv_setup_message(state,content);
 			break;
 
 		case START_SIMULATION:
 			//we enable the LP
 			state->lp_enabled=LP_ENABLED;
-
+			printf("general topology: %p\n",state->general_topology);
 			for(int index = 0; index < state->num_devices; index++){
+				printf("element topology %p\n",state->devices_array[index]->topology);
 
 				idmap map = state->element_to_index[index];
 				id_device = map.id;
@@ -491,6 +493,9 @@ bool OnGVT(int me, lp_state *snapshot)
 
 	if(snapshot->lp_enabled == LP_DISABLED)
 		return true;
+	if(snapshot->lp_enabled == LP_SETUP){
+		return false;
+	}
 
 	int bool_print = 1; //to delete
 	int index;
@@ -533,6 +538,8 @@ bool OnGVT(int me, lp_state *snapshot)
 			index_map = map.content;
 			dev_state = snapshot->devices_array[index_map];
 
+			if(index>0 &&  (dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR))
+				fprintf(output_file, ",");
 			if(dev_state->type == NODE){
 
 				fprintf(output_file, "{\"id\": %d,", id_device);
@@ -582,9 +589,6 @@ bool OnGVT(int me, lp_state *snapshot)
 				fprintf(output_file, "\"node_type\": \"\"}");
 
 			}
-
-			if(index < snapshot->num_devices - 1)
-				fprintf(output_file, ",");
 
 		}
 		fprintf(output_file, "]");

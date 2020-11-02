@@ -119,6 +119,6 @@ if (! (x)) {\
 #define GET_LP_TOPOLOGY(a) getLPTopology(a)
 #define GET_LP_DEVICES(a,b) getLPtoElementMappingOneLP(a,b)
 #define GET_NUM_LP_DEVICES(a,b) getAmountsOfElementsInOneLP(a,b)
-#define GET_NUM_ELEMENTS(a) getNumValid(a)
+#define GET_NUM_ACT_PATHS(a) getNumValidActuatorPaths(a)
 #define GET_NUM_LPS(a) getNumLP(a)
 #endif /* COMMON_FUNCTIONS_H */
