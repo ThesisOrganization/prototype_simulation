@@ -65,7 +65,7 @@ int check_metrics(queue_state * queue_state){
 void broadcast_message(int number_lps_enabled, simtime_t ts_to_send, events_type event_to_broadcast){
 
 	for(int lp = 0; lp < number_lps_enabled; lp++){
-
+		
 		ScheduleNewEvent(lp, ts_to_send, event_to_broadcast, NULL, 0);
 
 	}
@@ -109,16 +109,16 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			break;
 
 		case RECEIVE_SETUP_MESSAGE:
-			printf("lp %d timestamp: %lf\n",me,now);
+			
 			recv_setup_message(state,content);
+			
 			break;
 
 		case START_SIMULATION:
 			//we enable the LP
 			state->lp_enabled=LP_ENABLED;
-			printf("general topology: %p\n",state->general_topology);
+			
 			for(int index = 0; index < state->num_devices; index++){
-				printf("element topology %p\n",state->devices_array[index]->topology);
 
 				idmap map = state->element_to_index[index];
 				id_device = map.id;
@@ -133,32 +133,37 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				dev_state->type = GET_TYPE(dev_state->topology);
 
-				dev_state->simulation_completed = SIMULATION_ACTIVE;
+				//dev_state->simulation_completed = SIMULATION_ACTIVE;
 
 				//initializza strutture
 				if(dev_state->type == NODE){
 
 					init_node(id_device, dev_state);
+					dev_state->stability = ELEMENT_UNSTABLE;
 
 				}
 				else if(dev_state->type == SENSOR){
 
 					init_sensor(id_device, now, dev_state, me);
+					dev_state->stability = ELEMENT_STABLE;
 
 				}
 				else if(dev_state->type == ACTUATOR){
 
 					init_actuator(id_device, now, dev_state, me);
+					dev_state->stability = ELEMENT_UNSTABLE;
 
 				}
 				else if(dev_state->type == LAN){
 
 					init_lan(id_device, dev_state);
+					dev_state->stability = ELEMENT_UNSTABLE;
 
 				}
 				else if(dev_state->type == WAN){
 
 					init_wan(id_device, dev_state);
+					dev_state->stability = ELEMENT_STABLE;
 
 				}
 				else{
@@ -170,6 +175,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
 				msg_update.header.element_id = id_device;
 				ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
+				
 			}
 
 
@@ -397,7 +403,25 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						boolean_check = 1;
 
 					}
-
+					
+					int boolean_simulation_max = 0;
+					
+					if(dev_state->device_timestamp > MAX_SIMULATION_TIME){
+						boolean_check = 1;
+						boolean_simulation_max = 1;
+					}
+					
+					if(dev_state->stability == ELEMENT_UNSTABLE && boolean_check){
+						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
+						if(!boolean_simulation_max)
+							dev_state->stability = ELEMENT_STABLE;
+					}
+					
+					if(dev_state->stability == ELEMENT_STABLE && !boolean_check){
+						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
+						dev_state->stability = ELEMENT_UNSTABLE;
+					}
+/*
 					if(boolean_check){
 
 						//set flag of stability in the state
@@ -420,7 +444,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						state->lp_enabled = LP_ENABLED; //to delete
 						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
 					}
-
+*/
 				}
 
 				ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
@@ -496,7 +520,7 @@ bool OnGVT(int me, lp_state *snapshot)
 	if(snapshot->lp_enabled == LP_SETUP){
 		return false;
 	}
-
+/*
 	int bool_print = 1; //to delete
 	int index;
 	int index_map;
@@ -515,22 +539,32 @@ bool OnGVT(int me, lp_state *snapshot)
 			break;
 		}
 	}
-
+*/
 	unsigned int num_nodes = GET_TOTAL_NODES(snapshot->general_topology);
-	unsigned int num_sensors = GET_SENSOR_NODES(snapshot->general_topology);
+	//unsigned int num_sensors = GET_SENSOR_NODES(snapshot->general_topology);
 	unsigned int num_actuators = GET_ACTUATOR_NODES(snapshot->general_topology);
-	unsigned int num_wans = GET_NUMBER_OF_WANS(snapshot->general_topology);
+	//unsigned int num_wans = GET_NUMBER_OF_WANS(snapshot->general_topology);
 	unsigned int num_lans = GET_NUMBER_OF_LANS(snapshot->general_topology);
 
-	int total_number_of_elements = num_nodes + num_sensors + num_actuators + num_wans + num_lans;
-	//if(snapshot->number_lps_enabled == total_number_of_elements){
-	if(bool_print){ //to delete
+	int total_number_of_elements = num_nodes + num_actuators + num_lans;
+	//if(snapshot->num_stable_elements > 0)
+	//	printf("stable: %d, total: %d\n", snapshot->num_stable_elements, total_number_of_elements);
+	
+	if(snapshot->num_stable_elements == total_number_of_elements){
+	//if(bool_print){ //to delete
 
 #ifdef PRINT_RESULTS
 		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
 		FILE * output_file = fopen(file_name_complete, "w");
 
 		fprintf(output_file, "[");
+		
+		int index;
+		int index_map;
+		int id_device;
+		idmap map;
+		device_state * dev_state;
+		
 		for(index = 0; index < snapshot->num_devices; index++){
 
 			map = snapshot->element_to_index[index];
@@ -595,7 +629,7 @@ bool OnGVT(int me, lp_state *snapshot)
 		fclose(output_file);
 #endif
 
-		snapshot->lp_enabled = LP_DISABLED; //to delete
+		//snapshot->lp_enabled = LP_DISABLED; //to delete
 		return true;
 
 	}
