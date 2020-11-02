@@ -17,17 +17,21 @@ fi
 #fi
 
 if [ "$1" == "valgrind" ]; then
-    valgrind --leak-check=full ./queues --sequential --lp $number_lp 
+    valgrind --leak-check=full ./queues --sequential --lp $number_lp
 elif [ "$1" == "gdb" ]; then
-    gdb --args ./queues --sequential --lp $number_lp 
+    gdb --args ./queues --sequential --lp $number_lp
 elif [ "$1" == "print" ]; then
-    ./queues --sequential --lp $number_lp 
+    ./queues --sequential --lp $number_lp
 elif [ "$1" == "alone" ]; then
     ./queues --sequential --lp $number_lp
 elif [ "$1" == "json" ]; then
     python3 generate_json.py $file_json
 elif [ "$1" == "clean" ]; then
     rm lp_data/*.json
+elif [ "$1" == "parallel" ]; then
+    rm lp_data/*.json
+    ./queues --wt $(nproc) --lp $number_lp
+    python3 generate_json.py $file_json
 else
     #./queues --sequential --lp $number_lp --simulation-time $simulation_time
     rm lp_data/*.json
