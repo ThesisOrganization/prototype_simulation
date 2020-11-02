@@ -89,6 +89,8 @@ if (! (x)) {\
 
 #define GET_TYPE(a) getType(a)
 #define CONVERT_ELEMENT_TO_LP(a,b) getElToLPMappingOneElement(a,b)
+#define GET_EL_TO_LP_MAPPING(a)  getElToLPMapping(a)
+#define GET_NUM_EL_TO_LP(a) getNumValidElToLP(a)
 
 //GENERAL TOPOLOGY
 #define GET_TOTAL_NODES(a) getTotalNodes(a)

@@ -102,7 +102,6 @@ static int get_id_random_actuator(unsigned int id_device, device_state  * state)
 
 	int id_selected_actuator = list_actuators_by_type[selected_actuator];
 
-
 	return id_selected_actuator;
 
 }

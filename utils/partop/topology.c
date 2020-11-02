@@ -305,12 +305,7 @@ int * getListActuatorsByType(Element_topology * lpt, int actuatorType)
       int how_many = ATB[i];
       so_far+=how_many;
     }
-    int how_many = ATB[actuatorType];
-    int * result = malloc(sizeof(int)* how_many);
-    for(int k = 0; k < how_many; k++){
-        result[k] = array[so_far+k];
-    }
-    return(result);
+		return array+so_far;
 }
 
 int * getListSensorsByType(Element_topology * lpt, int sensorType)
@@ -334,14 +329,7 @@ int * getListSensorsByType(Element_topology * lpt, int sensorType)
     int how_many = ATB[i];
     so_far+=how_many;
   }
-  int how_many = ATB[sensorType];
-  int * result = malloc(sizeof(int)* how_many);
-  for(int k = 0; k < how_many; k++){
-      result[k] = array[so_far+k];
-
-  }
-
-  return(result);
+  return array+so_far;
 }
 
 //#########################################

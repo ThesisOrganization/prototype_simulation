@@ -5,7 +5,7 @@
 #include "../common_functions.h"
 #include "setup_datastructures.h"
 
-/** \brief Sends a sensor_topology to the specified element_id
+/** \brief Sends a sensor_topology to the specified lp
  * \param[in] lp The id of the destination LP.
  * \param[in] elem_top The Element_topology containing the sensor_topology we want to send.
  * \param[in] element_id The id of __both__ the destination LP and the element of the topology.
@@ -18,15 +18,15 @@ static void send_sensor_topology(int lp,Element_topology* elem_top,int element_i
 	//we send the sensor_topology struct
 	message=create_setup_message(element_id,SETUP_DATA_ELEMENT_TOPOLOGY,SETUP_DATA_SENSOR_TOPOLOGY,elem_top->spec_top.sensor,sizeof(sensor_topology),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 	//we send the sensorRates array, which use only two data classes.
 	ts_skew+=0.01;
 	message=create_setup_message(element_id,SETUP_DATA_SENSOR_TOPOLOGY,SETUP_DATA_PDOUBLE,GET_SENSOR_TYPE_RATES(elem_top),sizeof(double)*2,&message_size);
 	ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 }
 
-/** \brief Sends an actuator_topology to the specified element_id
+/** \brief Sends an actuator_topology to the specified lp
  * \param[in] lp The id of the destination LP.
  * \param[in] elem_top The Element_topology containing the actuator_topology we want to send.
  * \param[in] element_id The id of __both__ the destination LP and the element of the topology.
@@ -38,10 +38,10 @@ static void send_actuator_topology(int lp,Element_topology* elem_top, int elemen
 	//we send the actuator_topology struct
 	message=create_setup_message(element_id,SETUP_DATA_ELEMENT_TOPOLOGY,SETUP_DATA_ACTUATOR_TOPOLOGY,elem_top->spec_top.actuator,sizeof(actuator_topology),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 }
 
-/** \brief Send info about the below actuators and sensors to the LP corresponding to element_id
+/** \brief Send info about the below actuators and sensors to the LP corresponding to lp
  * \param[in] lp The id of the destination LP.
  * \param[in] gen_top The general_topology struct with the informations about element types.
  * \param[in] elem_top The Element_topology of the current element.
@@ -56,32 +56,32 @@ static void send_below_devices_info(int lp,general_topology* gen_top,Element_top
 	if(below_devices.actuatorsTypesBelow!=NULL){
 		message=create_setup_message(element_id,parent_struct,SETUP_DATA_PINT,below_devices.actuatorsTypesBelow,GET_NUMBER_ACT_TYPES(gen_top)*sizeof(int),&message_size);
 		ScheduleNewEvent(lp,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-		//destroy_message(message);
+		destroy_message(message);
 	}
 	//we send sensorTypesBelow
 	if(below_devices.sensorsTypesBelow!=NULL){
 		ts_skew+=0.01;
 		message=create_setup_message(element_id,parent_struct,SETUP_DATA_PINT,below_devices.sensorsTypesBelow,GET_NUMBER_SENS_TYPES(gen_top)*sizeof(int),&message_size);
 		ScheduleNewEvent(lp,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-		//destroy_message(message);
+		destroy_message(message);
 	}
 	//we send ListSensorsByType
 	if(below_devices.ListSensorsByType!=NULL){
 		ts_skew+=0.01;
 		message=create_setup_message(element_id,parent_struct,SETUP_DATA_PINT,below_devices.ListSensorsByType,GET_NUMBER_SENS_BELOW(elem_top)*sizeof(int),&message_size);
 		ScheduleNewEvent(lp,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-		//destroy_message(message);
+		destroy_message(message);
 	}
 	//we send ListActuatorsByType
 	if(below_devices.ListActuatorsByType!=NULL){
 		ts_skew+=0.01;
 		message=create_setup_message(element_id,parent_struct,SETUP_DATA_PINT,below_devices.ListActuatorsByType,GET_NUMBER_ACT_BELOW(elem_top)*sizeof(int),&message_size);
 		ScheduleNewEvent(lp,TS_RECV_BELOW_DEVICES_INFO+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-		//destroy_message(message);
+		destroy_message(message);
 	}
 }
 
-/** \brief Sends a lan_topology to the specified element_id
+/** \brief Sends a lan_topology to the specified lp
  * \param[in] lp The id of the destination LP.
  * \param[in] gen_top The general_topology struct with the informations about element types.
  * \param[in] elem_top The Element_topology containing the lan_topology we want to send.
@@ -95,19 +95,19 @@ static void send_lan_topology(int lp,general_topology* gen_top,Element_topology*
 	//we send the lan_topology struct
 	message=create_setup_message(element_id,SETUP_DATA_ELEMENT_TOPOLOGY,SETUP_DATA_LAN_TOPOLOGY,elem_top->spec_top.lan,sizeof(lan_topology),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 	//we send LanINserviceTimes
 	//we have a service time for each message class plus one for the replies.
 	ts_skew+=0.01;
 	message=create_setup_message(element_id,SETUP_DATA_LAN_TOPOLOGY,SETUP_DATA_PDOUBLE,GET_LAN_IN_TYPE_SERVICE(elem_top),sizeof(double)*5,&message_size);
 	ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 	//we send LansOUTserviceTimes
 	//we have a service time for each message class plus one for the replies.
 	ts_skew+=0.01;
 	message=create_setup_message(element_id,SETUP_DATA_LAN_TOPOLOGY,SETUP_DATA_PDOUBLE,GET_LAN_OUT_TYPE_SERVICE(elem_top),sizeof(double)*5,&message_size);
 	ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 	//to send informations about the below sensors and actuator we use send_below_devices_info
 	below_devs devs;
 	devs.actuatorsTypesBelow=GET_ACT_TYPE_BELOW_LIST(elem_top);
@@ -134,7 +134,7 @@ static void send_wan_topology(int lp,general_topology* gen_top, Element_topology
 	double ts_skew=0.0; //We need a skew to avoid reaching the ::TS_START_SIMULATION timestamp until we have sent all the nested pointers of the wan_topology.
 	message=create_setup_message(element_id,SETUP_DATA_ELEMENT_TOPOLOGY,SETUP_DATA_WAN_TOPOLOGY,elem_top->spec_top.wan,sizeof(wan_topology),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 	//to send informations about the below sensors and actuator we use send_below_devices_info
 	below_devs devs;
 	devs.actuatorsTypesBelow=GET_ACT_TYPE_BELOW_LIST(elem_top);
@@ -148,7 +148,7 @@ static void send_wan_topology(int lp,general_topology* gen_top, Element_topology
 	send_below_devices_info(lp,gen_top,elem_top,devs,element_id,SETUP_DATA_WAN_TOPOLOGY);
 }
 
-/** \brief Sends a node_topology to the specified element_id
+/** \brief Sends a node_topology to the specified lp
  * \param[in] lp The id of the destination LP.
  * \param[in] gen_top The general_topology struct with the informations about element types.
  * \param[in] elem_top The Element_topology containing the node_topology we want to send.
@@ -163,25 +163,26 @@ static void send_node_topology(int lp,general_topology* gen_top, Element_topolog
 
 	message=create_setup_message(element_id,SETUP_DATA_ELEMENT_TOPOLOGY,SETUP_DATA_NODE_TOPOLOGY,elem_top->spec_top.node,sizeof(node_topology),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 
 	//we send diskServices is the type of the node is central, we have a disk service time for each class of data
 	if(GET_NODE_TYPE(elem_top)==CENTRAL){
+		ts_skew+=0.01;
 		message=create_setup_message(element_id,SETUP_DATA_NODE_TOPOLOGY,SETUP_DATA_PDOUBLE,GET_DISK_SERVICES(elem_top),sizeof(double)*4,&message_size);
 		ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-		//destroy_message(message);
+		destroy_message(message);
 	}
 	//we send aggregation_rate
 	ts_skew+=0.01;
 	message=create_setup_message(element_id,SETUP_DATA_NODE_TOPOLOGY,SETUP_DATA_PINT,GET_AGGREGATION_RATE(elem_top),sizeof(int)*4,&message_size);
 	ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 
 	//we send service_time
 	ts_skew+=0.01;
 	message=create_setup_message(element_id,SETUP_DATA_NODE_TOPOLOGY,SETUP_DATA_PDOUBLE,GET_SERVICE_TIMES_NODES(elem_top),sizeof(double)*5,&message_size);
 	ScheduleNewEvent(lp,TS_RECV_SPECIFIC_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 	//to send informations about the below sensors and actuator we use send_below_devices_info
 	below_devs devs;
 	devs.actuatorsTypesBelow=GET_ACT_TYPE_BELOW_LIST(elem_top);
@@ -195,7 +196,12 @@ static void send_node_topology(int lp,general_topology* gen_top, Element_topolog
 	send_below_devices_info(lp,gen_top,elem_top,devs,element_id,SETUP_DATA_NODE_TOPOLOGY);
 }
 
-//TODO document
+/** \brief Sends an element_topology to the specified lp
+ * \param[in] lp The id of the destination LP.
+ * \param[in] tot_top The total_topology struct with the informations about the element topology.
+ * \param[in] element_id The id of __both__ the destination LP and the element of the topology.
+ * This function leverages the fact that a node contains a node_topology in the spec_top parameter.
+ */
 static void send_element_topology(int lp,total_topology* tot_top,int element_id){
 	Element_topology *elem_top=GET_ELEMENT_TOPOLOGY(tot_top,element_id);
 	general_topology *gen_top=GET_GEN_TOPOLOGY(tot_top);
@@ -208,15 +214,21 @@ static void send_element_topology(int lp,total_topology* tot_top,int element_id)
 	//we send the info structure to the destination LP.
 	message=create_setup_message(element_id,SETUP_DATA_DEVICE_STATE,SETUP_DATA_ELEMENT_TOPOLOGY,elem_top,sizeof(Element_topology),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_ELEMENT_TOPOLOGY,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 	//now we need to send the arrays.
 	///When sending nested pointers in the topology we follow the order of the declaration
 	//we send only actuatorPaths if we are a sensor or an actuator the other arrays are not needed by the LP.
 	if(GET_TYPE(elem_top)!=SENSOR && GET_TYPE(elem_top)!=ACTUATOR){
+		ts_skew+=0.01;
 		message=create_setup_message(element_id,SETUP_DATA_ELEMENT_TOPOLOGY,SETUP_DATA_PIDMAP,GET_ACTUATOR_PATHS(elem_top),sizeof(idmap)*num_act_paths,&message_size);
-	ScheduleNewEvent(lp,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+		ScheduleNewEvent(lp,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
+		destroy_message(message);
 	}
+	//we send ElementToLPMapping
+	ts_skew+=0.01;
+	message=create_setup_message(element_id,SETUP_DATA_ELEMENT_TOPOLOGY,SETUP_DATA_PIDMAP,GET_EL_TO_LP_MAPPING(elem_top),sizeof(idmap)*GET_NUM_EL_TO_LP(elem_top),&message_size);
+	ScheduleNewEvent(lp,TS_RECV_ELEMENT_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
+	destroy_message(message);
 	//to send the specific_topology we need to check the element type and access the union accordingly
 	switch(GET_TYPE(elem_top)){
 		case SENSOR:
@@ -244,15 +256,14 @@ void send_general_topology(general_topology* gen_top,int lp){
 	double ts_skew=0.0; // we need a skew to send the topology info and data before reaching another point in time like TS_START_SIMULATION.
 	size_t message_size;
 	void* message;
-	ts_skew+=0.01;
 	message=create_setup_message(-1,SETUP_DATA_LP_STATE,SETUP_DATA_GENERAL_TOPOLOGY,gen_top,sizeof(general_topology),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_GENERAL_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 	//we send probofActuators
 	ts_skew+=0.01;
 	message=create_setup_message(-1,SETUP_DATA_GENERAL_TOPOLOGY,SETUP_DATA_PDOUBLE,GET_PROB_ACTUATORS(gen_top),sizeof(double)*GET_NUMBER_ACT_TYPES(gen_top),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_GENERAL_TOPOLOGY+ts_skew,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 }
 
 /** \brief Creates and sends an element <-> index idmap.
@@ -273,8 +284,9 @@ static void send_idmap(int lp,int* devices,int num_devices){
 		map=create_idmap(devices,indexes,num_devices,&map_len);
 		message=create_setup_message(-1,SETUP_DATA_LP_STATE,SETUP_DATA_PIDMAP,map,sizeof(idmap)*map_len,&message_size);
 		ScheduleNewEvent(lp,TS_RECV_ELEMENT_INDEX_MAP,RECEIVE_SETUP_MESSAGE,message,message_size);
-		//destroy_message(message);
-		//destroy_idmap(map);
+		destroy_message(message);
+		destroy_idmap(map);
+		free(indexes);
 	}
 }
 
@@ -289,14 +301,14 @@ void send_lp_info(int lp,total_topology* tot_top){
 	num_lp=GET_NUM_LPS(tot_top->lp_topology);
 	message=create_setup_message(-1,SETUP_DATA_LP_STATE,SETUP_DATA_PINT,&num_lp,sizeof(int),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_LP_STATE_INFO,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 	//we send the idmap
 	send_idmap(lp,devices,num_devices);
 	//we need to send a setup message to make the LP allocate the devices_array
 	///When sending the message for the allocation of the device array we use data to pass the number of devices.
 	message=create_setup_message(-1,SETUP_DATA_LP_STATE,SETUP_DATA_DEVICES_ARRAY,&num_devices,sizeof(int),&message_size);
 	ScheduleNewEvent(lp,TS_RECV_DEVICES,RECEIVE_SETUP_MESSAGE,message,message_size);
-	//destroy_message(message);
+	destroy_message(message);
 	for(i=0;i<num_devices;i++){
 		//we sent the element topology for each device.
 		send_element_topology(lp,tot_top,devices[i]);

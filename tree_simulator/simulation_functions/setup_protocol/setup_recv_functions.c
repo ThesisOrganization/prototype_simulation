@@ -238,6 +238,12 @@ static void recv_data_in_element_topology(device_state *state,message_setup* inf
 			return;
 		}
 	}
+	//we already have ElementToLPMapping?
+	if(state->topology->ElementToLPMapping==NULL && info->data_type==SETUP_DATA_PIDMAP){
+		state->topology->ElementToLPMapping=malloc(info->data_size);
+		memcpy(state->topology->ElementToLPMapping,info->data,info->data_size);
+		return;
+	}
 	//now we handle the specific topology, the topology which we'll receive will vary with the element type
 	switch(state->topology->lp_type){
 		//we have received a node topology?
@@ -356,6 +362,7 @@ static void recv_data_in_device_state(device_state* state, message_setup* info){
 		state->topology->lowerElements=NULL;
 		state->topology->connectedLans=NULL;
 		state->topology->actuatorPaths=NULL;
+		state->topology->ElementToLPMapping=NULL;
 		//now we need to initialize the specific_topology to NULL according to the element type
 		switch(state->topology->lp_type){
 			case NODE:
@@ -487,8 +494,6 @@ void recv_setup_message(lp_state* state,void* data){
 		default:
 			//we reach this point only if we already have all the necessary data for this topology, thus we got a mismatched message
 			printf("Error: mismatched setup message received\n");
-			//destroy_message(data);
 			exit(EXIT_FAILURE);
 	}
-	//destroy_message(data);
 }

@@ -34,6 +34,6 @@ void setup_master(int n_prc_tot){
 		ScheduleNewEvent(lp,TS_START_SIMULATION,START_SIMULATION,NULL,0);
 	}
 	//we free the total topology since it's not needed
-	//DESTROY_TOTAL_TOPOLOGY(tot_top);
-	printf("setup messsages sent\n");
+	DESTROY_TOTAL_TOPOLOGY(tot_top);
+	printf("setup messages sent\n");
 }
