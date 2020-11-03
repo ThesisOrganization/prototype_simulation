@@ -128,13 +128,10 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				dev_state->device_timestamp = now;
 
-				//state->num_jobs_processed = 0;
 				dev_state->num_acts_types=GET_NUMBER_ACT_TYPES(state->general_topology);
 				dev_state->prob_actuators=GET_PROB_ACTUATORS(state->general_topology);
 
 				dev_state->type = GET_TYPE(dev_state->topology);
-
-				//dev_state->simulation_completed = SIMULATION_ACTIVE;
 
 				//initializza strutture
 				if(dev_state->type == NODE){
@@ -184,7 +181,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 			case GENERATE_TRANSITION:
 
-				//state->actual_timestamp = now;
 				id_device = ((message_generate*)content)->header.element_id;
 				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
 				dev_state = state->devices_array[index_map];
@@ -200,7 +196,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
 				ScheduleNewEvent(up_lp, now, ARRIVE, &msg_arrive, sizeof(message_arrive));
 
-				//ts_generate = now + Expent(ARRIVE_RATE);
 				if(dev_state->type == SENSOR){
 
 					rate_generate = dev_state->info.sensor->rate_transition;
@@ -219,13 +214,10 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				generate_next_job(id_device, now, rate_generate, 0.0, GENERATE_TRANSITION, me);
 
-				//state->num_jobs_processed++;
-				//printf("%d\n", state->num_jobs_processed);
 				break;
 
 			case GENERATE_TELEMETRY:
 
-				//state->actual_timestamp = now;
 				id_device = ((message_generate*)content)->header.element_id;
 				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
 				dev_state = state->devices_array[index_map];
@@ -241,7 +233,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
 				ScheduleNewEvent(up_lp, now, ARRIVE, &msg_arrive, sizeof(message_arrive));
 
-				//ts_generate = now + Expent(ARRIVE_RATE);
 				if(dev_state->type == SENSOR){
 
 					rate_generate = dev_state->info.sensor->rate_telemetry;
@@ -255,12 +246,10 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				generate_next_job(id_device, now, rate_generate, 0.0, GENERATE_TELEMETRY, me);
 
-				//state->num_jobs_processed++;
 				break;
 
 			case ARRIVE:
 
-				//state->actual_timestamp = now;
 				id_device = ((message_arrive*)content)->header.element_id;
 				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
 				dev_state = state->devices_array[index_map];
@@ -303,7 +292,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 			case ARRIVE_DISK:
 
-				//state->actual_timestamp = now;
 				id_device = ((message_arrive*)content)->header.element_id;
 				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
 				dev_state = state->devices_array[index_map];
@@ -323,14 +311,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 			case FINISH:
 
-				//state->actual_timestamp = now;
 				id_device = ((message_finish*)content)->header.element_id;
 				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
 				dev_state = state->devices_array[index_map];
 
 				dev_state->device_timestamp = now;
-
-				//state->num_jobs_processed++;
 
 				if(dev_state->type == NODE){
 
@@ -357,7 +342,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 			case FINISH_DISK:
 
-				//state->actual_timestamp = now;
 				id_device = ((message_finish*)content)->header.element_id;
 				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
 				dev_state = state->devices_array[index_map];
@@ -422,30 +406,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
 						dev_state->stability = ELEMENT_UNSTABLE;
 					}
-/*
-					if(boolean_check){
-
-						//set flag of stability in the state
-						dev_state->stability = ELEMENT_STABLE;
-
-					}
-					else{
-
-						//unset flag of stability in the state
-						dev_state->stability = ELEMENT_UNSTABLE;
-
-					}
-
-					if(dev_state->device_timestamp > MAX_SIMULATION_TIME || boolean_check){
-						dev_state->simulation_completed = SIMULATION_STOP; //to delete
-						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
-					}
-					else{
-						dev_state->simulation_completed = SIMULATION_ACTIVE; //to delete
-						state->lp_enabled = LP_ENABLED; //to delete
-						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
-					}
-*/
+					
 				}
 
 				ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
@@ -479,8 +440,8 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 	//double N = queue_state->W[i] / T;
 	double U = queue_state->B[i] / T;
 	double lambda = queue_state->A[i] / T;
-
 	//double X = queue_state->C[i] / T;
+	
 	if (isnan(-S))
 		S = 0.0;
 	if (isnan(-R))
@@ -521,26 +482,7 @@ bool OnGVT(int me, lp_state *snapshot)
 	if(snapshot->lp_enabled == LP_SETUP){
 		return false;
 	}
-/*
-	int bool_print = 1; //to delete
-	int index;
-	int index_map;
-	int id_device;
-	idmap map;
-	device_state * dev_state;
-
-	for(index = 0; index < snapshot->num_devices; index++){ //to delete
-
-		map = snapshot->element_to_index[index];
-		id_device = map.id;
-		index_map = map.content;
-		dev_state = snapshot->devices_array[index_map];
-		if(dev_state->simulation_completed == SIMULATION_ACTIVE){
-			bool_print = 0;
-			break;
-		}
-	}
-*/
+	
 	unsigned int num_nodes = GET_TOTAL_NODES(snapshot->general_topology);
 	//unsigned int num_sensors = GET_SENSOR_NODES(snapshot->general_topology);
 	unsigned int num_actuators = GET_ACTUATOR_NODES(snapshot->general_topology);
@@ -548,11 +490,8 @@ bool OnGVT(int me, lp_state *snapshot)
 	unsigned int num_lans = GET_NUMBER_OF_LANS(snapshot->general_topology);
 
 	int total_number_of_elements = num_nodes + num_actuators + num_lans;
-	//if(snapshot->num_stable_elements > 0)
-	//	printf("stable: %d, total: %d\n", snapshot->num_stable_elements, total_number_of_elements);
 
 	if(snapshot->num_stable_elements == total_number_of_elements){
-	//if(bool_print){ //to delete
 
 #ifdef PRINT_RESULTS
 		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
@@ -630,7 +569,6 @@ bool OnGVT(int me, lp_state *snapshot)
 		fclose(output_file);
 #endif
 
-		//snapshot->lp_enabled = LP_DISABLED; //to delete
 		return true;
 
 	}
