@@ -366,7 +366,6 @@ lp_topology * getLPtopoogy(char * path){
 }
 
 total_topology * getTopology(char * path, char * path1){
-
   FILE * fp;
   char * line = NULL;
   char * temp = NULL;
@@ -926,7 +925,9 @@ total_topology * getTopology(char * path, char * path1){
   lp_topology * lp_element_topology = getLPtopoogy(path1);
   int ** reachableSetElement = malloc(sizeof(int*)*totalNumberOfElements);
   int ** reachableSetLP = malloc(sizeof(int*)*totalNumberOfElements);
+
   for(int i = 0; i < totalNumberOfElements; i ++){
+
     int numLower = getNumberLower(lpt[i]);
     int * Lowers = getLowers(lpt[i]);
     int upp = getUpperNode(lpt[i]);
