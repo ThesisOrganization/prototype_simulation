@@ -178,6 +178,10 @@ for element in ordered_id_list:
         str_to_write = "Actuator "
         to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
         f_out.write(to_write);
+        if(dict_simulator[element]["stable"]):
+            f_out.write("This element reached stability in the simulation!\\\\")
+        else:
+            f_out.write("This element didn't reach stability in the simulation!\\\\");
 
 
         table_string = "\\subsubsection{Given parameters}\n"
@@ -206,7 +210,11 @@ for element in ordered_id_list:
         str_to_write = "Lan IN "
         to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
         f_out.write(to_write)
-
+        if(dict_simulator[element]["stable"]):
+            f_out.write("This element reached stability in the simulation!\\\\")
+        else:
+            f_out.write("This element didn't reach stability in the simulation!\\\\");
+            
         table_string = "\\subsubsection{Given parameters}\n"
         f_out.write(table_string)
         f_out.write(semi_complete_table)
