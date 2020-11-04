@@ -19,7 +19,7 @@ fi
 if [ "$1" == "valgrind" ]; then
     valgrind --leak-check=full ./queues --sequential --lp $number_lp
 elif [ "$1" == "gdb" ]; then
-    gdb --args ./queues --sequential --lp $number_lp
+    gdb --args ./queues --wt 2 --lp $number_lp
 elif [ "$1" == "print" ]; then
     ./queues --sequential --lp $number_lp
 elif [ "$1" == "alone" ]; then
