@@ -11,7 +11,7 @@ echo "Done."
 echo "Starting simulation.."
 cd ../tree_simulator
 make
-./run.sh run $1
+./run.sh parallel $1
 echo "Done."
 echo "Parsing jsons and merging them.."
 cd ../jsonMerger

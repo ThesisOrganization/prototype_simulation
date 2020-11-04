@@ -30,7 +30,7 @@ elif [ "$1" == "clean" ]; then
     rm lp_data/*.json
 elif [ "$1" == "parallel" ]; then
     rm lp_data/*.json
-    ./queues --wt $(nproc) --lp $number_lp
+    ./queues --wt 2 --lp $number_lp
     python3 generate_json.py $file_json
 else
     #./queues --sequential --lp $number_lp --simulation-time $simulation_time

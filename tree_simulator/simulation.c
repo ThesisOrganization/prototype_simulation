@@ -170,7 +170,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					exit(EXIT_FAILURE);
 				}
 
-				ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
+				ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP + id_device;
 				msg_update.header.element_id = id_device;
 				ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
 
