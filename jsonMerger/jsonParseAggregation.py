@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import os.path
 def result_string_calculation(dict,params, string1, string2):
     ret = "$"
     flag = True
@@ -353,14 +354,24 @@ for element in dict_actuator_similar.keys():
 
 with open('../tree_simulator/LP.txt') as f:
     lines = f.readlines()
-    LP = lines[0].strip() #elementi
-    elements = lines[1].strip() #Lp
+    elements = lines[0].strip() #elementi
+    LP = lines[1].strip() #Lp
 f.close()
 
-with open("../tree_simulator/outputs/sequential_stats") as f:
-    lines = f.readlines()
-    start = lines[4][29:].strip()
-    finish = lines[5][29:].strip()
+if os.path.isfile('../tree_simulator/outputs/sequential_stats'):
+	with open("../tree_simulator/outputs/sequential_stats") as f:
+			run="sequential"
+			lines = f.readlines()
+			time = lines[6][29:].strip()
+			avg_mem = lines[15][29:].strip()
+			peak_mem = lines[16][29:].strip()
+else:
+	with open("../tree_simulator/outputs/execution_stats") as f:
+			lines = f.readlines()
+			run="parallel with "+lines[4][21:-5].strip()+" cores and "+lines[28][29:].strip()+" working threads"
+			time = lines[23][29:].strip()
+			avg_mem = lines[48][29:].strip()
+			peak_mem = lines[49][29:].strip()
 f.close()
 
 #If you don't use generator.py comment this part and lines 38
@@ -380,10 +391,13 @@ with open("jsonAdditionalInfo.txt") as f:
 
 
 to_write = "\\section{General Informations}"
+to_write+="Run type: "+run+".\\\\"
 to_write+= "Number of elements in the topology: "+elements+".\\\\"
 to_write+= "Number of LPs used in the simulation: "+LP+".\\\\"
-to_write+= "Simulation started at: "+start+".\\\\"
-to_write+= "Simulation ended at: "+finish+".\\\\"
+to_write+= "Simulation duration: "+time+".\\\\"
+to_write+= "Average memory usage: "+avg_mem+".\\\\"
+to_write+= "Peak memory usage: "+peak_mem+".\\\\"
+
 if(flagStable):
     to_write+= "All elements reached stability in the simulation.\\\\"
 else:
