@@ -4,6 +4,7 @@ sim_options=""
 number_lp=""
 working_threads=""
 pdf_options=""
+aggr_coeff=""
 
 for arg
 do
@@ -18,6 +19,9 @@ do
 	fi
 	if [[ ${arg:0:5} == "--wt=" ]]; then
 		working_threads=$arg
+	fi
+	if [[ ${arg:0:11} == "--sim_coef=" ]]; then
+		aggr_coeff="-sim_coef "+${arg#"--sim_coef="}
 	fi
 done
 
@@ -39,7 +43,7 @@ echo "Parsing jsons and merging them.."
 cd ../jsonMerger
 if [[ $pdf_options == "aggregated" ]]; then
   echo "...aggregated results."
-  python3 jsonParseAggregation.py
+  python3 jsonParse.py -a $aggr_coeff
 else
   echo "...standard."
   python3 jsonParse.py
