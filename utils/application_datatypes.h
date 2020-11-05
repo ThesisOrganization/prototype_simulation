@@ -306,6 +306,11 @@ typedef struct _queue_state {
 	int * C; //number of jobs completed (completions)
 	double * B; //busy time, time in which the queue is computing
 	double * W; //time spent in the system by all arrivals
+	int * A_stable;
+	int * C_stable;
+	double * B_stable;
+	double * W_stable;
+	simtime_t * actual_timestamp_stable;
 	simtime_t * actual_timestamp;
 	simtime_t * start_timestamp;
 	double * old_response_times;
@@ -412,7 +417,7 @@ typedef struct{
 } message_update;
 
 typedef struct _device_state {
-	simulation_status simulation_completed; //to delete
+	simulation_status simulation_completed; 
 	stability_value stability;
 	simtime_t device_timestamp;
 	state_type type;

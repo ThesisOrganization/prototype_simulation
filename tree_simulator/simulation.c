@@ -62,6 +62,16 @@ int check_metrics(queue_state * queue_state){
 	return return_bool;
 }
 
+void update_stable_metrics(queue_state * queue_state){
+	
+	memcpy(queue_state->C_stable, queue_state->C, sizeof(int)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->A_stable, queue_state->A, sizeof(int)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->W_stable, queue_state->W, sizeof(int)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->B_stable, queue_state->B, sizeof(int)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->actual_timestamp_stable, queue_state->actual_timestamp, sizeof(int)*NUM_OF_JOB_TYPE);
+	
+}
+
 void broadcast_message(int number_lps_enabled, simtime_t ts_to_send, events_type event_to_broadcast){
 
 	for(int lp = 0; lp < number_lps_enabled; lp++){
@@ -375,20 +385,32 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					if(dev_state->type == NODE){
 
 						boolean_check = check_metrics(dev_state->info.node->queue_state);
+						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
+							update_stable_metrics(dev_state->info.node->queue_state);
+							
 
-						if(dev_state->info.node->type == CENTRAL)
+						if(dev_state->info.node->type == CENTRAL){
 							boolean_check = check_metrics(dev_state->info.node->disk_state);
+							if(dev_state->simulation_completed == SIMULATION_ACTIVE)
+								update_stable_metrics(dev_state->info.node->disk_state);
+						}
 
 					}
 					else if(dev_state->type == ACTUATOR){
 
 						boolean_check = check_metrics(dev_state->info.actuator->queue_state);
+						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
+							update_stable_metrics(dev_state->info.actuator->queue_state);
 
 					}
 					else if(dev_state->type == LAN){
 
 						boolean_check = check_metrics(dev_state->info.lan->queue_state_in);
+						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
+							update_stable_metrics(dev_state->info.lan->queue_state_in);
 						boolean_check = check_metrics(dev_state->info.lan->queue_state_out);
+						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
+							update_stable_metrics(dev_state->info.lan->queue_state_out);
 
 					}
 					else{
@@ -404,7 +426,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						boolean_check = 1;
 						boolean_simulation_max = 1;
 					}
-
+					
 					if(dev_state->stability == ELEMENT_UNSTABLE && boolean_check && dev_state->simulation_completed == SIMULATION_ACTIVE){
 						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
 						if(!boolean_simulation_max)
@@ -443,13 +465,13 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 
 	//all data here are averages
-	double T = queue_state->actual_timestamp[i] - queue_state->start_timestamp[i];
-	double S = queue_state->B[i] / queue_state->C[i];
-	double R = queue_state->W[i] / queue_state->C[i];
-	//double N = queue_state->W[i] / T;
-	double U = queue_state->B[i] / T;
-	double lambda = queue_state->A[i] / T;
-	//double X = queue_state->C[i] / T;
+	double T = queue_state->actual_timestamp_stable[i] - queue_state->start_timestamp[i];
+	double S = queue_state->B_stable[i] / queue_state->C_stable[i];
+	double R = queue_state->W_stable[i] / queue_state->C_stable[i];
+	//double N = queue_state->W_stable[i] / T;
+	double U = queue_state->B_stable[i] / T;
+	double lambda = queue_state->A_stable[i] / T;
+	//double X = queue_state->C_stable[i] / T;
 
 	if (isnan(-S))
 		S = 0.0;
