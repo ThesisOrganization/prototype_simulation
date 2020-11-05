@@ -78,6 +78,7 @@ with open('../tree_simulator/simulation_results.json') as f_simulator:
 with open('../model_computation/model_res.json') as f_model:
   data_model = json.load(f_model)
 
+flagStable = True
 count = 0;
 dict_simulator = {}
 dict_model = {}
@@ -90,6 +91,9 @@ while(count < num_elements):
     for element in data_simulator[count]:
         if element != 'id':
             dict_simulator[id_simulator][element] = data_simulator[count][element]
+        if element == 'stable':
+            if (dict_simulator[id_simulator][element] != 1):
+                flagStable = False
     id_model = data_model[count]['id']
     dict_model[id_model] = {}
     for element in data_model[count]:
@@ -99,7 +103,6 @@ while(count < num_elements):
     count+=1
 
 ordered_id_list.sort()
-
 dict_res = {}
 list = ['lambda_in','service_demand','utilization_factor','response_time']
 params = ["telemetry","transition","command","batch"]
@@ -159,8 +162,8 @@ if(flag):
                 to_pop_list.append(element)
     for element in to_pop_list:
         dict_regional_similar.pop(element,None)
-    #print(dict_regional_similar)
-    #print("END REGIONAL##############")
+    print(dict_regional_similar)
+    print("END REGIONAL##############")
     dict_local_similar = {}
     for element in list_local:
         for element2 in list_local:
@@ -180,8 +183,8 @@ if(flag):
                 to_pop_list.append(element)
     for element in to_pop_list:
         dict_local_similar.pop(element,None)
-    #print(dict_local_similar)
-    #print("END LOCAL##############")
+    print(dict_local_similar)
+    print("END LOCAL##############")
     dict_lan_similar = {}
 
     for element in list_lan:
@@ -204,8 +207,8 @@ if(flag):
                 to_pop_list.append(element)
     for element in to_pop_list:
         dict_lan_similar.pop(element,None)
-    #print(dict_lan_similar)
-    #print("END LAN ######################")
+    print(dict_lan_similar)
+    print("END LAN ######################")
     dict_actuator_similar = {}
 
     for element in list_actuators:
@@ -227,11 +230,11 @@ if(flag):
                 to_pop_list.append(element)
     for element in to_pop_list:
         dict_actuator_similar.pop(element,None)
-    #print(dict_actuator_similar)
-    #print("END ACTUATORS ######################")
+    print(dict_actuator_similar)
+    print("END ACTUATORS ######################")
 #####################
-similarity_coefficient = 0.15
-#print("#####15%!#####")
+similarity_coefficient = 0.2
+print("#####20%!#####")
 dict_regional_similar = {}
 for element in list_regional:
     for element2 in list_regional:
@@ -252,8 +255,8 @@ for element in dict_regional_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_regional_similar.pop(element,None)
-#print(dict_regional_similar)
-#print("END REGIONAL##############")
+print(dict_regional_similar)
+print("END REGIONAL##############")
 dict_local_similar = {}
 for element in list_local:
     for element2 in list_local:
@@ -274,8 +277,8 @@ for element in dict_local_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_local_similar.pop(element,None)
-#print(dict_local_similar)
-#print("END LOCAL##############")
+print(dict_local_similar)
+print("END LOCAL##############")
 dict_lan_similar = {}
 
 for element in list_lan:
@@ -298,8 +301,8 @@ for element in dict_lan_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_lan_similar.pop(element,None)
-#print(dict_lan_similar)
-#print("END LAN ######################")
+print(dict_lan_similar)
+print("END LAN ######################")
 dict_actuator_similar = {}
 
 for element in list_actuators:
@@ -322,8 +325,8 @@ for element in dict_actuator_similar.keys():
             to_pop_list.append(element)
 for element in to_pop_list:
     dict_actuator_similar.pop(element,None)
-#print(dict_actuator_similar)
-#print("END ACTUATORS ######################")
+print(dict_actuator_similar)
+print("END ACTUATORS ######################")
 
 ############END NEW PART
 
@@ -381,6 +384,11 @@ to_write+= "Number of elements in the topology: "+elements+".\\\\"
 to_write+= "Number of LPs used in the simulation: "+LP+".\\\\"
 to_write+= "Simulation started at: "+start+".\\\\"
 to_write+= "Simulation ended at: "+finish+".\\\\"
+if(flagStable):
+    to_write+= "All elements reached stability in the simulation.\\\\"
+else:
+    to_write+= "Not all elements reached stability, in their sections it will be highlited!\\\\"
+
 to_write+="\\subsection{Topology Informations}"
 to_write+=stringAdditionalInfo
 f_out.write(to_write)
@@ -393,10 +401,8 @@ for element in ordered_id_list:
             str_to_write = dict_model[element]['node_type'].capitalize()
             to_write = "\\subsection{"+str_to_write+" node "+str(element)+"}\n"
             f_out.write(to_write);
-            if(dict_simulator[element]["stable"]):
-                f_out.write("This element reached stability in the simulation!\\\\")
-            else:
-                f_out.write("This element didn't reach stability in the simulation!\\\\");
+            if dict_simulator[element]["stable"] == 0:
+                f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
 
             if(element in dict_regional_similar.keys() or element in dict_local_similar.keys()):
@@ -468,10 +474,8 @@ for element in ordered_id_list:
             str_to_write = "Actuator "
             to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
             f_out.write(to_write);
-            if(dict_simulator[element]["stable"]):
-                f_out.write("This element reached stability in the simulation!\\\\")
-            else:
-                f_out.write("This element didn't reach stability in the simulation!\\\\");
+            if dict_simulator[element]["stable"] == 0:
+                f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
 
             if element in dict_actuator_similar.keys():
@@ -507,10 +511,8 @@ for element in ordered_id_list:
             str_to_write = "Lan IN "
             to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
             f_out.write(to_write)
-            if(dict_simulator[element]["stable"]):
-                f_out.write("This element reached stability in the simulation!\\\\")
-            else:
-                f_out.write("This element didn't reach stability in the simulation!\\\\");
+            if dict_simulator[element]["stable"] == 0:
+                f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
 
             if element in dict_lan_similar.keys():
