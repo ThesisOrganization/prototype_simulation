@@ -72,11 +72,20 @@ void broadcast_message(int number_lps_enabled, simtime_t ts_to_send, events_type
 
 }
 
+void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_device){
+	
+	message_update msg_update;
+	simtime_t ts_update_timestamp;
+	ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP + id_device;
+	msg_update.header.element_id = id_device;
+	ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
+	
+}
+
 
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
 
-	message_update msg_update;
 	message_arrive msg_arrive;
 	//message_finish msg_finish;
 	//message_generate msg_generate;
@@ -88,7 +97,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 	int up_lp;
 	job_info * info;
 	double rate_generate;
-	simtime_t ts_update_timestamp;
 	device_state * dev_state;
 
 	switch(event_type) {
@@ -132,12 +140,14 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				dev_state->prob_actuators=GET_PROB_ACTUATORS(state->general_topology);
 
 				dev_state->type = GET_TYPE(dev_state->topology);
+				dev_state->simulation_completed = SIMULATION_ACTIVE;
 
 				//initializza strutture
 				if(dev_state->type == NODE){
 
 					init_node(id_device, dev_state);
 					dev_state->stability = ELEMENT_UNSTABLE;
+					schedule_first_update_timestamp(me, now, id_device);
 
 				}
 				else if(dev_state->type == SENSOR){
@@ -150,12 +160,14 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 					init_actuator(id_device, now, dev_state, me);
 					dev_state->stability = ELEMENT_UNSTABLE;
+					schedule_first_update_timestamp(me, now, id_device);
 
 				}
 				else if(dev_state->type == LAN){
 
 					init_lan(id_device, dev_state);
 					dev_state->stability = ELEMENT_UNSTABLE;
+					schedule_first_update_timestamp(me, now, id_device);
 
 				}
 				else if(dev_state->type == WAN){
@@ -169,11 +181,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					printf("Error: device type not found\n");
 					exit(EXIT_FAILURE);
 				}
-
-				ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP + id_device;
-				msg_update.header.element_id = id_device;
-				ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
-
+				
 			}
 
 
@@ -386,6 +394,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					else{
 
 						boolean_check = 1;
+						printf("WARNING: a device that is not a node, actuator, lan receives an update timestamp\n");
 
 					}
 
@@ -396,22 +405,22 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						boolean_simulation_max = 1;
 					}
 
-					if(dev_state->stability == ELEMENT_UNSTABLE && boolean_check){
+					if(dev_state->stability == ELEMENT_UNSTABLE && boolean_check && dev_state->simulation_completed == SIMULATION_ACTIVE){
 						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
 						if(!boolean_simulation_max)
 							dev_state->stability = ELEMENT_STABLE;
+						else
+							dev_state->simulation_completed = SIMULATION_STOP;
 					}
 
-					if(dev_state->stability == ELEMENT_STABLE && !boolean_check){
+					if(dev_state->stability == ELEMENT_STABLE && !boolean_check && dev_state->simulation_completed == SIMULATION_ACTIVE){
 						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
 						dev_state->stability = ELEMENT_UNSTABLE;
 					}
 					
 				}
 
-				ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
-				msg_update.header.element_id = id_device;
-				ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
+				schedule_first_update_timestamp(me, now, id_device);
 
 				break;
 
