@@ -66,9 +66,9 @@ void update_stable_metrics(queue_state * queue_state){
 	
 	memcpy(queue_state->C_stable, queue_state->C, sizeof(int)*NUM_OF_JOB_TYPE);
 	memcpy(queue_state->A_stable, queue_state->A, sizeof(int)*NUM_OF_JOB_TYPE);
-	memcpy(queue_state->W_stable, queue_state->W, sizeof(int)*NUM_OF_JOB_TYPE);
-	memcpy(queue_state->B_stable, queue_state->B, sizeof(int)*NUM_OF_JOB_TYPE);
-	memcpy(queue_state->actual_timestamp_stable, queue_state->actual_timestamp, sizeof(int)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->W_stable, queue_state->W, sizeof(double)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->B_stable, queue_state->B, sizeof(double)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->actual_timestamp_stable, queue_state->actual_timestamp, sizeof(double)*NUM_OF_JOB_TYPE);
 	
 }
 
