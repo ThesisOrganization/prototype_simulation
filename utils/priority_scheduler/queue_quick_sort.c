@@ -1,6 +1,6 @@
 #include "../application_datatypes.h"
 /// A utility function to swap two elements
-void swap(queue_conf** a, queue_conf** b)
+static void swap(queue_conf** a, queue_conf** b)
 {
 	queue_conf* t = *a;
 	*a = *b;
@@ -12,7 +12,7 @@ void swap(queue_conf** a, queue_conf** b)
  * array, and places all smaller (smaller than pivot)
  * to left of pivot and all greater elements to right
  * of pivot */
-int partition (queue_conf** arr, int low, int high)
+static int partition (queue_conf** arr, int low, int high)
 {
 	prio_type pivot = arr[high]->type; // pivot
 	int i = (low - 1); // Index of smaller element
@@ -36,7 +36,7 @@ int partition (queue_conf** arr, int low, int high)
  * arr --> Array to be sorted,
  * low --> Starting index,
  * high --> Ending index */
-void quickSort(queue_conf** arr, int low, int high)
+static void quickSort(queue_conf** arr, int low, int high)
 {
 	int pi;
 	if (low < high)
@@ -53,6 +53,6 @@ void quickSort(queue_conf** arr, int low, int high)
 }
 
 /// Wrapper of the recursive quickSort function.
-void quicksort(queue_conf** arr,int num){
+void queue_quicksort(queue_conf** arr,int num){
 	quickSort(arr,0,num-1);
 }

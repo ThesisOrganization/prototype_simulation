@@ -3,6 +3,7 @@ import numpy as np
 f_out = open("../../tree_simulator/topology.txt", "w")
 f_out_LP = open("../../tree_simulator/LP.txt", "w")
 
+f_out_txt = open("../../jsonMerger/jsonAdditionalInfo.txt","w")
 numbersString = ""
 
 #TODO, don't touch
@@ -24,14 +25,18 @@ prob_command_generated_central = "0.1,"
 prob_command_generated_regional = "0.1"
 prob_command_generated_local = "0.1"
 service_time_disks = "0.4/0.73/0.00/0.23\n"
-rate_trans_act = "0.0005,"
 service_time_commands_act = "0.6\n"
 #1 CENTRAL, implicit
-number_of_regionals = 80
-number_of_locals = 400
+number_of_regionals = 8
+f_out_txt.write(str(number_of_regionals)+"\n")
+number_of_locals = 40
+f_out_txt.write(str(int(number_of_locals/number_of_regionals))+"\n")
 sensors_start = 1+number_of_regionals+number_of_locals
 number_of_lans = 1 #to change, future work
+f_out_txt.write(str(number_of_lans)+"\n")
 number_of_WANS = 1 + number_of_regionals
+f_out_txt.write(str(number_of_WANS)+"\n")
+
 ####################################
 
 
@@ -46,8 +51,11 @@ number_of_locals_with_x_sensors_y_actuators_per_regional = np.zeros((number_of_r
 
 #USER SHOULD INPUT THESE, add new ones if necessary
 ####################################
+num_act = 1
+num_sens_tel = 5
+num_sens_trans = 1
 for i in range(number_of_regionals):
-    number_of_locals_with_x_sensors_y_actuators_per_regional[i][5][1][1] = 5 #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
+    number_of_locals_with_x_sensors_y_actuators_per_regional[i][num_sens_tel][num_sens_trans][num_act] = 5 #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
 ####################################
 total_sensors = 0
 total_actuators = 0
@@ -58,6 +66,13 @@ for i in range(number_of_regionals):
                 total_sensors+=j*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
                 total_sensors+=l*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
                 total_actuators+=k*number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]
+
+f_out_txt.write(str(total_sensors)+"\n")
+f_out_txt.write(str(total_actuators)+"\n")
+
+f_out_txt.write(str(num_sens_tel)+"\n")
+f_out_txt.write(str(num_sens_trans)+"\n")
+f_out_txt.write(str(num_act)+"\n")
 
 
 
@@ -72,10 +87,14 @@ f_out_LP.write(str(number_of_elements_to_write)+"\n")
 f_out_LP.write(str(1+number_of_regionals+number_of_locals)+"\n");
 #USER SHOULD CHANGE THESE
 ####################################
+rate_trans_act = "0.0005,"
+f_out_txt.write(str(rate_trans_act[:-1])+"\n")
 sens_tele_type1 = "0.0002"
+f_out_txt.write(str(sens_tele_type1)+"\n")
 sens_trans_type1 = "0.0"
 sens_tele_type2 = "0.0"
 sens_trans_type2 = "0.0005"
+f_out_txt.write(str(sens_trans_type2)+"\n")
 ####################################
 sensor_rates_string1 = sens_tele_type1+","+sens_trans_type1+";" #in base al tipo fai più di ste string?
 sensor_rates_string2 = sens_tele_type2+","+sens_trans_type2 #in base al tipo fai più di ste string?

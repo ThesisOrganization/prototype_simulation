@@ -11,5 +11,5 @@
  * \param[in,out] arr The queue array to be sorted.
  * \param[in] num The number of elements in the array.
  */
-void quicksort(idmap* arr,int num);
+void idmap_quicksort(idmap* arr,int num);
 #endif

@@ -4,6 +4,7 @@
 #include "header.h"
 #include <string.h>
 #include "../application_datatypes.h"
+#include "../idmap/idmap.h"
 
 void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
     char * ptr;
@@ -298,7 +299,73 @@ void upwardSearchActuatorPaths(Element_topology ** lpt, int index, int destinati
   }
 }
 
-total_topology * getTopology(char * path){
+lp_topology * getLPtopoogy(char * path){
+  FILE * fp;
+  char * line = NULL;
+  char * temp = NULL;
+  size_t len = 0;
+  ssize_t read;
+  char *ptr;
+
+  fp = fopen(path, "r");
+
+  if (fp == NULL)
+      exit(EXIT_FAILURE);
+
+  //read first line, total number of elements
+  read = getline(&temp, &len, fp);
+  int numberOfElements = atoi(temp);
+  read = getline(&temp, &len, fp);
+  int numberOfLPs = atoi(temp);
+
+  int ** result = malloc(sizeof(int*)*numberOfLPs);
+  int * EleToLP = malloc(sizeof(int)*numberOfElements);
+  int * amountsOfElementsInLP = malloc(sizeof(int)*numberOfLPs);
+  while ((read = getline(&line, &len, fp)) != -1) {
+    //tokenize the line using ";" as a separator
+    char *end_str;
+    ptr = strtok_r(line, ";", &end_str);
+    //first element is the node we are analyzing
+    int LP_id = atoi(ptr);
+    ptr = strtok_r(NULL, ";", &end_str);
+    int numElements = atoi(ptr);
+    amountsOfElementsInLP[LP_id] = numElements;
+    result[LP_id] = malloc(sizeof(int)*numElements);
+
+    int counter = 0;//keep track of how many ";" token we iterated on
+
+    ptr = strtok_r(NULL, ",", &end_str);
+    //loop through all the other tokens in the line
+    while(ptr){
+      int element = atoi(ptr);
+      result[LP_id][counter] = element;
+      EleToLP[element] = LP_id;
+      counter+=1;
+      ptr = strtok_r(NULL,",",&end_str);
+    }
+  }
+  lp_topology * LPreturn = malloc(sizeof(lp_topology));
+  LPreturn->numLP=numberOfLPs;
+
+  LPreturn->LPtoElementMapping = result;
+
+  int * idArray = malloc(sizeof(int)*numberOfElements);
+  for(int i = 0; i < numberOfElements;i++){
+    idArray[i] = i;
+  }
+
+  int valid = 0;
+  idmap* ElementToLP = create_idmap(idArray,EleToLP,numberOfElements,&valid);
+  free(idArray);
+  free(EleToLP);
+  LPreturn->amountsOfElementsInLP = amountsOfElementsInLP;
+  LPreturn->ElementToLPMapping = ElementToLP;
+  LPreturn->numValid = valid;
+  return(LPreturn);
+
+}
+
+total_topology * getTopology(char * path, char * path1){
   FILE * fp;
   char * line = NULL;
   char * temp = NULL;
@@ -358,6 +425,7 @@ total_topology * getTopology(char * path){
 
   char * ptr = strtok_r(temp, ";", &end_str);
   double ** sensor_rates = malloc(sizeof(double*) * nts); //fixed, two types of messages
+
   int index = 0;
   int counter = 0;
   while(ptr){
@@ -385,6 +453,7 @@ total_topology * getTopology(char * path){
   index = 0;
   ptr = strtok_r(temp, ";", &end_str);
   double ** LANsINserviceTimes = malloc(sizeof(double*) * ntl);
+
   while(ptr){
     ptr2 = strtok_r(ptr,",",&end_token);
     //tokenize each ";" token through ",", iterate until end of the line
@@ -593,11 +662,18 @@ total_topology * getTopology(char * path){
     type = getType(lpt[index]);
     //printf("index %d, type %d",index, type);
     if(type == 0 || type == 3 || type == 4){
-      setSensorTypes(lpt[index],typesSensArray[index], nts);
-      setActuatorTypes(lpt[index],typesActArray[index], nt);
+      setSensorTypes(lpt[index],typesSensArray[index], nts, sizeof(int)*nts);
+      setActuatorTypes(lpt[index],typesActArray[index], nt, sizeof(int)*nt);
     }
     index+=1;
   }
+
+  for( int i = 0; i < totalNumberOfElements; i++){
+    free(typesSensArray[i]);
+    free(typesActArray[i]);
+  }
+  free(typesSensArray);
+  free(typesActArray);
 
   int *** resultAct = malloc(sizeof(int**)*totalNumberOfElements);
   int *** resultSens = malloc(sizeof(int**)*totalNumberOfElements);
@@ -758,14 +834,26 @@ total_topology * getTopology(char * path){
       }
     }
   }
+  int * id_arr = malloc(sizeof(int)*totalNumberOfElements);
+  int * valid = malloc(sizeof(int)*totalNumberOfElements);
+  for(int c = 0; c < totalNumberOfElements; c+=1){
+    id_arr[c] = c;
+  }
+
+  idmap** idmap_actPaths = malloc(sizeof(idmap*)*totalNumberOfElements);
+
+  for(int c = 0; c < totalNumberOfElements; c+=1){
+    idmap_actPaths[c] = create_idmap(id_arr,arrayActuatorPaths[c],totalNumberOfElements,&valid[c]);
+  }
+  free(id_arr);
 
   //setup some of the informations we computed
   for(int c = 0; c < totalNumberOfElements; c+=1){
     int typeC = getType(lpt[c]);
     setLowerElements(lpt[c], lowerElementsArray[c],arrayNumberLowerElements[c]);
     setLANs(lpt[c], LANSArray[c],numberofLANs[c]);
-    setArrayActuatorPaths(lpt[c],arrayActuatorPaths[c]);
-
+    setArrayActuatorPaths(lpt[c],idmap_actPaths[c],valid[c]);
+    free(idmap_actPaths[c]);
     if(typeC == 0){
       setWANdown(lpt[c], WANsDownArray[c]);
       setWANup(lpt[c],lpt);
@@ -788,8 +876,104 @@ total_topology * getTopology(char * path){
     }
 
   }
+  free(numberofLANs);
+  free(LANSArray);
+  free(lowerElementsArray);
+  free(arrayNumberLowerElements);
+  free(idmap_actPaths);
+  free(valid);
+  free(WANsDownArray);
+  for(int i = 0; i < nts; i++){
+    free(sensor_rates[i]);
+  }
+  free(sensor_rates);
+
+  for(int i = 0; i < ntl; i++){
+    free(LANsINserviceTimes[i]);
+    free(LANsOUTserviceTimes[i]);
+
+  }
+  free(LANsINserviceTimes);
+  free(LANsOUTserviceTimes);
+
+  for(int j = 0; j  < totalNumberOfElements; j++){
+    if(getType(lpt[j]) != 1 && getType(lpt[j]) != 2){
+      for(int i = 0; i < nts; i++){
+        free(resultSens[j][i]);
+      }
+    free(resultSens[j]);
+    }
+  }
+  free(resultSens);
+
+  for(int j = 0; j  < totalNumberOfElements; j++){
+    if(getType(lpt[j]) != 1 && getType(lpt[j]) != 2){
+      for(int i = 0; i < nt; i++){
+        free(resultAct[j][i]);
+      }
+    free(resultAct[j]);
+    }
+  }
+  free(resultAct);
+
+  for(int i = 0; i < totalNumberOfElements; i ++){
+    free(arrayActuatorPaths[i]);
+  }
+  free(arrayActuatorPaths);
+
+
+  lp_topology * lp_element_topology = getLPtopoogy(path1);
+  int ** reachableSetElement = malloc(sizeof(int*)*totalNumberOfElements);
+  int ** reachableSetLP = malloc(sizeof(int*)*totalNumberOfElements);
+
+  for(int i = 0; i < totalNumberOfElements; i ++){
+
+    int numLower = getNumberLower(lpt[i]);
+    int * Lowers = getLowers(lpt[i]);
+    int upp = getUpperNode(lpt[i]);
+    if(upp == -1){
+      reachableSetLP[i] = malloc(sizeof(int) * (numLower));//+1 for upper
+      reachableSetElement[i] = malloc(sizeof(int) * (numLower));//+1 for upper
+      for(int j = 0; j < numLower; j++){
+        reachableSetLP[i][j] = getElementToLPMappingOneElement(lp_element_topology,Lowers[j]);
+        reachableSetElement[i][j] = Lowers[j];
+      }
+    }
+    else{
+      reachableSetLP[i] = malloc(sizeof(int) * (numLower+1));//+1 for upper
+      reachableSetElement[i] = malloc(sizeof(int) * (numLower+1));//+1 for upper
+      reachableSetLP[i][0] = getElementToLPMappingOneElement(lp_element_topology,upp);
+      reachableSetElement[i][0] = upp;
+      for(int j = 0; j < numLower; j++){
+        reachableSetLP[i][j+1] = getElementToLPMappingOneElement(lp_element_topology,Lowers[j]);
+        reachableSetElement[i][j+1] = Lowers[j];
+      }
+    }
+
+  }
+
+  for(int i = 0; i < totalNumberOfElements; i ++){
+    int valid = 0;
+    int upp = getUpperNode(lpt[i]);
+    if(upp != -1){
+      lpt[i]->ElementToLPMapping = create_idmap(reachableSetElement[i],reachableSetLP[i],getNumberLower(lpt[i])+1,&valid);
+      lpt[i]->numValidElToLP = valid;
+    }
+    else {
+      lpt[i]->ElementToLPMapping = create_idmap(reachableSetElement[i],reachableSetLP[i],getNumberLower(lpt[i]),&valid);
+      lpt[i]->numValidElToLP = valid;
+    }
+
+  }
+  for(int i = 0; i < totalNumberOfElements; i ++){
+    free(reachableSetLP[i]);
+    free(reachableSetElement[i]);
+
+  }
+  free(reachableSetLP);
+  free(reachableSetElement);
 
   EST->lpt = lpt;
-
+  EST->lp_topology = lp_element_topology;
   return EST;
 }

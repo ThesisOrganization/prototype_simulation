@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include "header.h"
+#include "../idmap/idmap.h"
+
 //GETs from specific_topology
+
 general_topology * getGenTopology(total_topology * totTop){
   return(totTop->gn);
 }
@@ -10,6 +13,32 @@ Element_topology ** getLPTopologyComplete(total_topology * totTop){
 Element_topology * getLPTopology(total_topology * totTop, int index){
   return(totTop->lpt[index]);
 }
+int  getAmountsOfElementsInOneLP(lp_topology * lptop,int index){
+  return(lptop->amountsOfElementsInLP[index]);
+}
+int ** getLPtoElementMapping(lp_topology * lptop){
+  return(lptop->LPtoElementMapping);
+}
+int * getLPtoElementMappingOneLP(lp_topology * lptop,int index){
+  return(lptop->LPtoElementMapping[index]);
+}
+idmap * getElementToLPMapping(lp_topology * lptop){
+  return(lptop->ElementToLPMapping);
+}
+int getElementToLPMappingOneElement(lp_topology * lptop,int index){
+  int valid = getNumValid(lptop);
+  idmap * idm = getElementToLPMapping(lptop);
+  int result = idmap_search(idm,index,valid);
+  return(result);
+}
+
+int getNumLP(lp_topology * lptop){
+  return(lptop->numLP);
+}
+int getNumValid(lp_topology * lptop){
+  return(lptop->numValid);
+}
+
 int getNodeType(Element_topology * lpt){
   return(lpt->spec_top.node->node_type);
 }
@@ -225,6 +254,22 @@ int getNumberLower(Element_topology * lpt)
 {
   return lpt->numberOfLowerElements;
 }
+int getNumValidElToLP(Element_topology * lpt)
+{
+  return(lpt->numValidElToLP);
+}
+
+idmap * getElToLPMapping(Element_topology * lpt){
+  return(lpt->ElementToLPMapping);
+}
+
+int getElToLPMappingOneElement(Element_topology * lpt,int index)
+{
+  int valid = getNumValidElToLP(lpt);
+  idmap * idm = getElToLPMapping(lpt);
+  int result = idmap_search(idm,index,valid);
+  return(result);
+}
 
 int * getLowers(Element_topology * lpt)
 {
@@ -252,6 +297,7 @@ int * getListActuatorsByType(Element_topology * lpt, int actuatorType)
     else{
       array = lpt->spec_top.lan->ListActuatorsByType;
     }
+
     int * ATB = getActuatorTypesBelowList(lpt);
 
     int so_far = 0;
@@ -259,13 +305,7 @@ int * getListActuatorsByType(Element_topology * lpt, int actuatorType)
       int how_many = ATB[i];
       so_far+=how_many;
     }
-    int how_many = ATB[actuatorType];
-    int * result = malloc(sizeof(int)* how_many);
-    for(int k = 0; k < how_many; k++){
-        result[k] = array[so_far+k];
-    }
-
-    return(result);
+		return array+so_far;
 }
 
 int * getListSensorsByType(Element_topology * lpt, int sensorType)
@@ -289,14 +329,7 @@ int * getListSensorsByType(Element_topology * lpt, int sensorType)
     int how_many = ATB[i];
     so_far+=how_many;
   }
-  int how_many = ATB[sensorType];
-  int * result = malloc(sizeof(int)* how_many);
-  for(int k = 0; k < how_many; k++){
-      result[k] = array[so_far+k];
-
-  }
-
-  return(result);
+  return array+so_far;
 }
 
 //#########################################
@@ -345,9 +378,18 @@ double * getProbOfActuators(general_topology * genTop)
   return genTop->probOfActuators;
 }
 
-
-int * getActuatorPaths(Element_topology * lpt){
+int getNumValidActuatorPaths(Element_topology * lpt){
+  return(lpt->numValidActuatorPaths);
+}
+idmap * getActuatorPaths(Element_topology * lpt){
   return(lpt->actuatorPaths);
+}
+
+int getActuatorPathsIndex(Element_topology * lpt, int index){
+  int valid = getNumValidActuatorPaths(lpt);
+  idmap * idm = getActuatorPaths(lpt);
+  int result = idmap_search(idm,index,valid);
+  return result;
 }
 
 
@@ -362,8 +404,11 @@ void setLANs(Element_topology * lpt, int * arrayLANs, int numberLANs){
   lpt->numberOfLANS = numberLANs;
   lpt->connectedLans = arrayLANs;
 }
-void setArrayActuatorPaths(Element_topology * lpt, int * arrayActuatorPaths){
-  lpt->actuatorPaths = arrayActuatorPaths;
+void setArrayActuatorPaths(Element_topology * lpt, idmap* arrayActuatorPaths,int valid){
+  idmap * results = malloc(sizeof(idmap)*valid);
+  memcpy(results, arrayActuatorPaths, sizeof(idmap)*valid);
+  lpt->actuatorPaths = results;
+  lpt->numValidActuatorPaths = valid;
 }
 void setListActuatorsByType(Element_topology * lpt, int ** array, int nt){
   int * ATB = getActuatorTypesBelowList(lpt);
@@ -376,7 +421,6 @@ void setListActuatorsByType(Element_topology * lpt, int ** array, int nt){
       result[so_far+k] = array[i][k];
     }
     so_far+=how_many;
-
   }
 
   int type = getType(lpt);
@@ -434,28 +478,33 @@ void setSensorRates(Element_topology * lpt, double * array, int size){
   lpt->spec_top.sensor->sensorRates = results;
 }
 
-void setSensorTypes(Element_topology * lpt, int * array, int nts){
+void setSensorTypes(Element_topology * lpt, int * array, int nts,int size){
+  int * results = malloc(size);
+  memcpy(results, array, size);
+
   int type = getType(lpt);
   int total = 0;
   for(int count = 0; count < nts; count++){
-    total+=array[count];
+    total+=results[count];
   }
   if(type == 0){
-    lpt->spec_top.node->sensorsTypesBelow = array;
+    lpt->spec_top.node->sensorsTypesBelow = results;
     lpt->spec_top.node->numberOfBelowSensors = total;
   }
   else if(type == 3){
-    lpt->spec_top.wan->sensorsTypesBelow = array;
+    lpt->spec_top.wan->sensorsTypesBelow = results;
     lpt->spec_top.wan->numberOfBelowSensors = total;
   }
   else{
-    lpt->spec_top.lan->sensorsTypesBelow = array;
+    lpt->spec_top.lan->sensorsTypesBelow = results;
     lpt->spec_top.lan->numberOfBelowSensors = total;
-
   }
 
 }
-void setActuatorTypes(Element_topology * lpt, int * array, int nt){
+void setActuatorTypes(Element_topology * lpt, int * array, int nt, int size){
+  int * results = malloc(size);
+  memcpy(results, array, size);
+
   int total = 0;
   for(int count = 0; count < nt; count++){
     total+=array[count];
@@ -463,15 +512,15 @@ void setActuatorTypes(Element_topology * lpt, int * array, int nt){
 
   int type = getType(lpt);
   if(type == 0){
-    lpt->spec_top.node->actuatorsTypesBelow = array;
+    lpt->spec_top.node->actuatorsTypesBelow = results;
     lpt->spec_top.node->numberOfBelowActuators = total;
   }
   else if(type == 3){
-    lpt->spec_top.wan->actuatorsTypesBelow = array;
+    lpt->spec_top.wan->actuatorsTypesBelow = results;
     lpt->spec_top.wan->numberOfBelowActuators = total;
   }
   else{
-    lpt->spec_top.lan->actuatorsTypesBelow = array;
+    lpt->spec_top.lan->actuatorsTypesBelow = results;
     lpt->spec_top.lan->numberOfBelowActuators = total;
   }
 
@@ -488,6 +537,15 @@ void setLANserviceTimes(Element_topology * lpt,double * LANsINserviceTimes, doub
   lpt->spec_top.lan->LANsOUTserviceTimes = results2;
 }
 
+void destroyLPTopology(lp_topology * lptop){
+  free(lptop->ElementToLPMapping);
+  for(int i = 0; i < lptop->numLP; i++){
+    free(lptop->LPtoElementMapping[i]);
+  }
+  free(lptop->LPtoElementMapping);
+  free(lptop->amountsOfElementsInLP);
+}
+
 void destroyGeneralTopology(general_topology * gn){
   free(gn->probOfActuators);
 }
@@ -497,33 +555,42 @@ void destroyElementTopologyArray(Element_topology ** lpt,int total_elements){
     free(lpt[i]->lowerElements);
     free(lpt[i]->connectedLans);
     free(lpt[i]->actuatorPaths);
+    free(lpt[i]->ElementToLPMapping);
     int type = getType(lpt[i]);
     if(type == 0){//node
       if(getNodeType(lpt[i]) == 0){//central
         free(lpt[i]->spec_top.node->diskServices);
       }
       free(lpt[i]->spec_top.node->service_time);
+      free(lpt[i]->spec_top.node->aggregation_rate);
       free(lpt[i]->spec_top.node->actuatorsTypesBelow);
       free(lpt[i]->spec_top.node->sensorsTypesBelow);
       free(lpt[i]->spec_top.node->ListSensorsByType);
       free(lpt[i]->spec_top.node->ListActuatorsByType);
+      free(lpt[i]->spec_top.node);
     }
     else if (type == 1){//sensor
       free(lpt[i]->spec_top.sensor->sensorRates);
+      free(lpt[i]->spec_top.sensor);
+    }
+    else if (type ==  2){//actuator
+      free(lpt[i]->spec_top.actuator);
     }
     else if (type == 3){//wan
       free(lpt[i]->spec_top.wan->actuatorsTypesBelow);
       free(lpt[i]->spec_top.wan->sensorsTypesBelow);
       free(lpt[i]->spec_top.wan->ListSensorsByType);
       free(lpt[i]->spec_top.wan->ListActuatorsByType);
+      free(lpt[i]->spec_top.wan);
     }
-    else if (type == 4){//wan
+    else if (type == 4){//lan
       free(lpt[i]->spec_top.lan->LANsINserviceTimes);
       free(lpt[i]->spec_top.lan->LANsOUTserviceTimes);
       free(lpt[i]->spec_top.lan->actuatorsTypesBelow);
       free(lpt[i]->spec_top.lan->sensorsTypesBelow);
       free(lpt[i]->spec_top.lan->ListSensorsByType);
       free(lpt[i]->spec_top.lan->ListActuatorsByType);
+      free(lpt[i]->spec_top.lan);
     }
     free(lpt[i]);
   }
@@ -535,6 +602,8 @@ void destroyTotalTopology(total_topology * totTop){
   int total_elements = getTotalNodes(getGenTopology(totTop))+ getSensorNodes(getGenTopology(totTop))+ getActuatorNodes(getGenTopology(totTop))+ getNumberOfTotalLANs(getGenTopology(totTop))+ getNumberOfTotalWANs(getGenTopology(totTop));
   destroyGeneralTopology(getGenTopology(totTop));
   free(totTop->gn);
+  destroyLPTopology(totTop->lp_topology);
+  free(totTop->lp_topology);
   destroyElementTopologyArray(getLPTopologyComplete(totTop),total_elements);
   free(totTop->lpt);
   free(totTop);

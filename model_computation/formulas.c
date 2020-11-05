@@ -963,22 +963,27 @@ int main(int argc, char** argv){
 	//assert(argc==2);
 	//get topology from file
 	char* topology_path;
+	char* lp_path;
 	if(argc == 2){
 		topology_path=argv[1];
+		lp_path = argv[2];
 	}
 	else{
 		topology_path= "../tree_simulator/topology.txt";
+		lp_path= "../tree_simulator/LP.txt";
 	}
-
 	FILE *out_tex=fopen("results.tex","w"), *out_json=fopen("model_res.json","w"),*order=fopen("order.txt","w");
 	int central_id;
 	fprintf(out_tex,"\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\begin{document}\n");
 	fprintf(out_tex,"\\section{Computed Formulas Example}\n");
 	fprintf(out_json,"[");
-	total_topology * totTop = getTopology(topology_path);
+
+	total_topology * totTop = getTopology(topology_path,lp_path);
+
 	general_topology * genTop = getGenTopology(totTop);
 	Element_topology ** elTop = totTop->lpt;
 	//topology * genTop = getTopology(topology_path);
+
 	node_data* central=malloc(sizeof(node_data));
 	int total = getTotalNodes(genTop)+ getSensorNodes(genTop)+ getActuatorNodes(genTop)+ getNumberOfTotalLANs(genTop)+ getNumberOfTotalWANs(genTop);
 	central_id=find_central(elTop,total);
@@ -997,5 +1002,6 @@ int main(int argc, char** argv){
 	fflush(out_json);
 	fflush(out_tex);
 	fflush(order);
+	destroyTotalTopology(totTop);
 	return 0;
 }

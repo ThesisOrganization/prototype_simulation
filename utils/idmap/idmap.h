@@ -18,9 +18,12 @@ typedef struct{
  * \param[in] id_arr The array of the ids.
  * \param[in] content_arr The array of the content to be mapped.
  * \param[in] num_elements The number of elements of both arrays.
+ * \param[out] map_length The nomber of elements in the resulting map.
  * id_arr and content_arr must of the same size and in the same order otherwise the mapping won't work as intended.
+ * Invalid content will not be included in the map.
+ * __Notice__: both id_arr and content_arr values must be >=0, negative values will be considered error codes and filtered.
  */
-idmap* create_idmap(int* id_arr,int* content_arr,int num_elements);
+idmap* create_idmap(int* id_arr,int* content_arr,int num_elements,int* map_length);
 
 /** \brief Given an id, searches the content to be mapped.
  * \param[in] map The map where the search is done.

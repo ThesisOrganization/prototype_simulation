@@ -16,18 +16,18 @@ char file_name_complete[64];
 #ifdef DEBUG_INITIAL_VALUES
 void print_array_double(double * array, int num_el){
 
-    for(int i=0; i<num_el; i++)
-        printf("%f ", array[i]);
+	for(int i=0; i<num_el; i++)
+		printf("%f ", array[i]);
 
-    printf("\n");
+	printf("\n");
 
 }
 void print_array_int(int * array, int num_el){
 
-    for(int i=0; i<num_el; i++)
-        printf("%d ", array[i]);
+	for(int i=0; i<num_el; i++)
+		printf("%d ", array[i]);
 
-    printf("\n");
+	printf("\n");
 }
 
 #endif
@@ -37,533 +37,576 @@ void print_array_int(int * array, int num_el){
 
 int check_metrics(queue_state * queue_state){
 
-    int return_bool = 1;
-    int i;
-    int sum_arrived = 0;
+	int return_bool = 1;
+	int i;
+	int sum_arrived = 0;
 
-    for(i=0; i < NUM_OF_JOB_TYPE; i++)
-        sum_arrived += queue_state->C[i];
+	for(i=0; i < NUM_OF_JOB_TYPE; i++)
+		sum_arrived += queue_state->C[i];
 
-    if(sum_arrived == 0){
-        return_bool = 0;
-        return return_bool;
-    }
+	if(sum_arrived == 0){
+		return_bool = 0;
+		return return_bool;
+	}
 
-    for(i=0; i < NUM_OF_JOB_TYPE; i++){
-        double R = queue_state->W[i] / queue_state->C[i];
-        double normalization = MAX(R, queue_state->old_response_times[i]);
-        double diff_value = ( fabs(R - queue_state->old_response_times[i]) ) / normalization;
-        double threshold = THRESHOLD*0.01;
-        if(diff_value > threshold)
-            return_bool = 0;
-        queue_state->old_response_times[i] = R;
-    }
+	for(i=0; i < NUM_OF_JOB_TYPE; i++){
+		double R = queue_state->W[i] / queue_state->C[i];
+		double normalization = MAX(R, queue_state->old_response_times[i]);
+		double diff_value = ( fabs(R - queue_state->old_response_times[i]) ) / normalization;
+		double threshold = THRESHOLD*0.01;
+		if(diff_value > threshold)
+			return_bool = 0;
+		queue_state->old_response_times[i] = R;
+	}
 
-    return return_bool;
+	return return_bool;
+}
+
+void update_stable_metrics(queue_state * queue_state){
+	
+	memcpy(queue_state->C_stable, queue_state->C, sizeof(int)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->A_stable, queue_state->A, sizeof(int)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->W_stable, queue_state->W, sizeof(double)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->B_stable, queue_state->B, sizeof(double)*NUM_OF_JOB_TYPE);
+	memcpy(queue_state->actual_timestamp_stable, queue_state->actual_timestamp, sizeof(double)*NUM_OF_JOB_TYPE);
+	
+}
+
+void broadcast_message(int number_lps_enabled, simtime_t ts_to_send, events_type event_to_broadcast){
+
+	for(int lp = 0; lp < number_lps_enabled; lp++){
+
+		ScheduleNewEvent(lp, ts_to_send, event_to_broadcast, NULL, 0);
+
+	}
+
+}
+
+void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_device){
+
+	message_update msg_update;
+	simtime_t ts_update_timestamp;
+	ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP + id_device;
+	msg_update.header.element_id = id_device;
+	ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
+
 }
 
 
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
 
+	message_arrive msg_arrive;
+	//message_finish msg_finish;
+	//message_generate msg_generate;
 
-    job_info info_to_send;
-    int up_node;
-    job_info * info;
-    double rate_generate;
-    simtime_t ts_update_timestamp;
+	int id_device;
+	int index_map;
 
-    switch(event_type) {
+	int up_node;
+	int up_lp;
+	job_info * info;
+	double rate_generate;
+	device_state * dev_state;
 
-        case INIT:
-					//all nodes except the master node are disabled by default
-					state = malloc(sizeof(lp_state));
-					//a safe memset to obtain a clean starting state
-					memset(state,0,sizeof(lp_state));
-					SetState(state);
-					state->lp_enabled = LP_DISABLED;
-            if(me == 0){
-							//we enable the master LP to avoid terminating the simulation during the setup
-							state->lp_enabled= LP_ENABLED;
-							//we setup the master node and the required LPs
-							setup_master(n_prc_tot);
+	switch(event_type) {
+
+		case INIT:
+			//all nodes except the master node are disabled by default
+			state = malloc(sizeof(lp_state));
+			//a safe memset to obtain a clean starting state
+			memset(state,0,sizeof(lp_state));
+			SetState(state);
+			state->lp_enabled = LP_DISABLED;
+			if(me == 0){
+				//we enable the master LP to avoid terminating the simulation during the setup
+				state->lp_enabled= LP_SETUP;
+				//we setup the master node and the required LPs
+				setup_master(n_prc_tot);
+			}
+			break;
+
+		case RECEIVE_SETUP_MESSAGE:
+
+			recv_setup_message(state,content);
+
+			break;
+
+		case START_SIMULATION:
+			//we enable the LP
+			state->lp_enabled=LP_ENABLED;
+			state->num_stable_elements=0;
+
+			for(int index = 0; index < state->num_devices; index++){
+
+				idmap map = state->element_to_index[index];
+				id_device = map.id;
+				index_map = map.content;
+				dev_state = state->devices_array[index_map];
+
+				dev_state->device_timestamp = now;
+
+				dev_state->num_acts_types=GET_NUMBER_ACT_TYPES(state->general_topology);
+				dev_state->prob_actuators=GET_PROB_ACTUATORS(state->general_topology);
+
+				dev_state->type = GET_TYPE(dev_state->topology);
+				dev_state->simulation_completed = SIMULATION_ACTIVE;
+
+				//initializza strutture
+				if(dev_state->type == NODE){
+
+					init_node(id_device, dev_state);
+					dev_state->stability = ELEMENT_UNSTABLE;
+					schedule_first_update_timestamp(me, now, id_device);
+
+				}
+				else if(dev_state->type == SENSOR){
+
+					init_sensor(id_device, now, dev_state, me);
+					dev_state->stability = ELEMENT_STABLE;
+
+				}
+				else if(dev_state->type == ACTUATOR){
+
+					init_actuator(id_device, now, dev_state, me);
+					dev_state->stability = ELEMENT_UNSTABLE;
+					schedule_first_update_timestamp(me, now, id_device);
+
+				}
+				else if(dev_state->type == LAN){
+
+					init_lan(id_device, dev_state);
+					dev_state->stability = ELEMENT_UNSTABLE;
+					schedule_first_update_timestamp(me, now, id_device);
+
+				}
+				else if(dev_state->type == WAN){
+
+					init_wan(id_device, dev_state);
+					dev_state->stability = ELEMENT_STABLE;
+
+				}
+				else{
+
+					printf("Error: device type not found\n");
+					exit(EXIT_FAILURE);
+				}
+
+			}
+
+
+			break;
+
+			case GENERATE_TRANSITION:
+
+				id_device = ((message_generate*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
+				dev_state = state->devices_array[index_map];
+
+				dev_state->device_timestamp = now;
+
+				msg_arrive.info.type = REAL_TIME;
+				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
+				msg_arrive.info.payload = NULL;
+				msg_arrive.info.job_type = TRANSITION;
+				up_node = GET_UPPER_NODE(dev_state->topology);
+				msg_arrive.header.element_id = up_node;
+				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
+				ScheduleNewEvent(up_lp, now, ARRIVE, &msg_arrive, sizeof(message_arrive));
+
+				if(dev_state->type == SENSOR){
+
+					rate_generate = dev_state->info.sensor->rate_transition;
+
+				}
+				else if(dev_state->type == ACTUATOR){
+
+					rate_generate = dev_state->info.actuator->rate_transition;
+
+				}
+				else{
+
+					printf("Error: device type not found\n");
+					exit(EXIT_FAILURE);
+				}
+
+				generate_next_job(id_device, now, rate_generate, 0.0, GENERATE_TRANSITION, me);
+
+				break;
+
+			case GENERATE_TELEMETRY:
+
+				id_device = ((message_generate*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
+				dev_state = state->devices_array[index_map];
+
+				dev_state->device_timestamp = now;
+
+				msg_arrive.info.type = REAL_TIME;
+				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
+				msg_arrive.info.payload = NULL;
+				msg_arrive.info.job_type = TELEMETRY;
+				up_node = GET_UPPER_NODE(dev_state->topology);
+				msg_arrive.header.element_id = up_node;
+				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
+				ScheduleNewEvent(up_lp, now, ARRIVE, &msg_arrive, sizeof(message_arrive));
+
+				if(dev_state->type == SENSOR){
+
+					rate_generate = dev_state->info.sensor->rate_telemetry;
+
+				}
+				else{
+
+					printf("Error: device type not found\n");
+					exit(EXIT_FAILURE);
+				}
+
+				generate_next_job(id_device, now, rate_generate, 0.0, GENERATE_TELEMETRY, me);
+
+				break;
+
+			case ARRIVE:
+
+				id_device = ((message_arrive*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
+				dev_state = state->devices_array[index_map];
+
+				dev_state->device_timestamp = now;
+
+				info = malloc(sizeof(job_info));
+				memcpy(info, &(((message_arrive*)content)->info), sizeof(job_info));
+
+				info->arrived_in_node_timestamp = now;
+				info->deadline = now;
+
+				if(dev_state->type == NODE){
+
+					arrive_node(id_device, now, dev_state, info, me);
+
+				}
+				else if(dev_state->type == ACTUATOR){
+
+					arrive_actuator(id_device, now, dev_state, info, me);
+
+				}
+				else if(dev_state->type == LAN){
+
+					arrive_lan(id_device, now, dev_state, info, me);
+
+				}
+				else if(dev_state->type == WAN){
+
+					arrive_wan(id_device, now, dev_state, info);
+
+				}
+				else{
+
+					printf("Error: device type not found\n");
+					exit(EXIT_FAILURE);
+				}
+
+				break;
+
+			case ARRIVE_DISK:
+
+				id_device = ((message_arrive*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
+				dev_state = state->devices_array[index_map];
+
+				dev_state->device_timestamp = now;
+
+				info = malloc(sizeof(job_info));
+				memcpy(info, &(((message_arrive*)content)->info), sizeof(job_info));
+
+				info->arrived_in_node_timestamp = now;
+				info->deadline = now;
+
+				arrive_disk(id_device, now, dev_state, info, me);
+
+				break;
+
+
+			case FINISH:
+
+				id_device = ((message_finish*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
+				dev_state = state->devices_array[index_map];
+
+				dev_state->device_timestamp = now;
+
+				if(dev_state->type == NODE){
+
+					finish_node(id_device, now, dev_state, me);
+
+				}
+				else if(dev_state->type == ACTUATOR){
+
+					finish_actuator(id_device, now, dev_state, me);
+
+				}
+				else if(dev_state->type == LAN){
+
+					finish_lan(id_device, now, dev_state, ((message_finish*)content)->direction, me);
+
+				}
+				else{
+
+					printf("Error: device type not found\n");
+					exit(EXIT_FAILURE);
+				}
+
+				break;
+
+			case FINISH_DISK:
+
+				id_device = ((message_finish*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
+				dev_state = state->devices_array[index_map];
+
+				dev_state->device_timestamp = now;
+
+				finish_disk(id_device, now, dev_state, me);
+
+				break;
+
+			case UPDATE_TIMESTAMP:
+
+				id_device = ((message_update*)content)->header.element_id;
+				index_map = idmap_search(state->element_to_index, id_device, state->num_devices);
+				dev_state = state->devices_array[index_map];
+
+				dev_state->device_timestamp = now;
+
+				if(dev_state->device_timestamp > TRANSITION_TIME_LIMIT){
+
+					int boolean_check = 0;
+
+					if(dev_state->type == NODE){
+
+						boolean_check = check_metrics(dev_state->info.node->queue_state);
+						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
+							update_stable_metrics(dev_state->info.node->queue_state);
+							
+
+						if(dev_state->info.node->type == CENTRAL){
+							boolean_check = check_metrics(dev_state->info.node->disk_state);
+							if(dev_state->simulation_completed == SIMULATION_ACTIVE)
+								update_stable_metrics(dev_state->info.node->disk_state);
 						}
-            break;
-
-        case RECEIVE_SETUP_INFO:
 
-            recv_setup_info(content,state);
-						break;
+					}
+					else if(dev_state->type == ACTUATOR){
 
-        case RECEIVE_SETUP_DATA:
-					recv_setup_data(state,content);
-            break;
+						boolean_check = check_metrics(dev_state->info.actuator->queue_state);
+						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
+							update_stable_metrics(dev_state->info.actuator->queue_state);
 
-        case START_SIMULATION:
-					//we enable the LP
-					state->lp_enabled=LP_ENABLED;
+					}
+					else if(dev_state->type == LAN){
 
-            //both timestamp are initialized at 0.0 in theory
-            //state->start_timestamp = now;
-            //state->actual_timestamp = now;
-            state->device_timestamp = now;
-            //printf("%.3g\n", now);
+						boolean_check = check_metrics(dev_state->info.lan->queue_state_in);
+						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
+							update_stable_metrics(dev_state->info.lan->queue_state_in);
+						boolean_check = check_metrics(dev_state->info.lan->queue_state_out);
+						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
+							update_stable_metrics(dev_state->info.lan->queue_state_out);
 
-            //state->num_jobs_processed = 0;
-						state->num_acts_types=GET_NUMBER_ACT_TYPES(state->general_topology);
-						state->prob_actuators=GET_PROB_ACTUATORS(state->general_topology);
+					}
+					else{
 
-						//legacy implementation
-//             total_topology * tot_top = getTopology(topology_path); //later we will use a static struct
-//             general_topology * gen_top = getGenTopology(tot_top);
-//             state->topology = getLPTopology(tot_top, me);
-//
-//             unsigned int num_nodes = GET_TOTAL_NODES(gen_top);
-//             unsigned int num_sensors = GET_SENSOR_NODES(gen_top);
-//             unsigned int num_actuators = GET_ACTUATOR_NODES(gen_top);
-//             unsigned int num_wans = GET_NUMBER_OF_WANS(gen_top);
-//             unsigned int num_lans = GET_NUMBER_OF_LANS(gen_top);
-//
-//             state->num_acts_types = GET_NUMBER_ACT_TYPES(gen_top);
-//             state->prob_actuators = GET_PROB_ACTUATORS(gen_top);
-//
-//             if there are too few LPs, exit
-//             if(num_nodes + num_sensors + num_actuators + num_lans + num_wans > n_prc_tot){
-//                 printf("Error: too few LPs, add more LPs\n");
-//                 exit(EXIT_FAILURE);
-//             }
-//
-//
-//             if there are too may LPs, return it
-//             if(me >= num_nodes + num_sensors + num_actuators + num_lans + num_wans){
-//                 state->num_jobs_processed = TOTAL_NUMBER_OF_EVENTS + 1;
-//                 state->lp_enabled = 0;
-//                 break;
-//             }
-//             else
-//                 state->lp_enabled = 1;
+						boolean_check = 1;
+						printf("WARNING: a device that is not a node, actuator, lan receives an update timestamp\n");
 
+					}
 
-            state->type = GET_TYPE(state->topology);
-                
-            state->simulation_completed = SIMULATION_ACTIVE;
-            //printf("%d\n", state->type);
-            //lp_infos* infos = getInfo(state->topology, me);
+					int boolean_simulation_max = 0;
 
-            //initializza strutture
-            if(state->type == NODE){
+					if(dev_state->device_timestamp > MAX_SIMULATION_TIME){
+						boolean_check = 1;
+						boolean_simulation_max = 1;
+					}
+					
+					if(dev_state->stability == ELEMENT_UNSTABLE && boolean_check && dev_state->simulation_completed == SIMULATION_ACTIVE){
+						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
+						if(!boolean_simulation_max)
+							dev_state->stability = ELEMENT_STABLE;
+						else
+							dev_state->simulation_completed = SIMULATION_STOP;
+					}
 
-                init_node(me, state);
+					if(dev_state->stability == ELEMENT_STABLE && !boolean_check && dev_state->simulation_completed == SIMULATION_ACTIVE){
+						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
+						dev_state->stability = ELEMENT_UNSTABLE;
+					}
 
-            }
-            else if(state->type == SENSOR){
+				}
 
-                init_sensor(me, now, state);
+				schedule_first_update_timestamp(me, now, id_device);
 
-            }
-            else if(state->type == ACTUATOR){
+				break;
 
-                init_actuator(me, now, state);
+			case STABILITY_ACQUIRED:
 
-            }
-            else if(state->type == LAN){
+				state->num_stable_elements++;
 
-                init_lan(me, state);
+				break;
 
-            }
-            else if(state->type == WAN){
+			case STABILITY_LOST:
 
-                init_wan(me, state);
+				state->num_stable_elements--;
 
-            }
-            else{
+				break;
 
-                printf("Error: device type not found\n");
-                exit(EXIT_FAILURE);
-            }
 
-            ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
-            ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, NULL, 0);
-
-
-            break;
-
-        case GENERATE_TRANSITION:
-
-            //state->actual_timestamp = now;
-            state->device_timestamp = now;
-
-            info_to_send.type = REAL_TIME;
-            //info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
-            info_to_send.payload = NULL;
-            info_to_send.job_type = TRANSITION;
-
-            up_node = GET_UPPER_NODE(state->topology);
-            ScheduleNewEvent(up_node, now, ARRIVE, &info_to_send, sizeof(job_info));
-
-            //ts_generate = now + Expent(ARRIVE_RATE);
-            if(state->type == SENSOR){
-
-                rate_generate = state->info.sensor->rate_transition;
-
-            }
-            else if(state->type == ACTUATOR){
-
-                rate_generate = state->info.actuator->rate_transition;
-
-            }
-            else{
-
-                printf("Error: device type not found\n");
-                exit(EXIT_FAILURE);
-            }
-
-            generate_next_job(me, now, rate_generate, 0.0, GENERATE_TRANSITION);
-
-            //state->num_jobs_processed++;
-            //printf("%d\n", state->num_jobs_processed);
-            break;
-
-        case GENERATE_TELEMETRY:
-
-            //state->actual_timestamp = now;
-            state->device_timestamp = now;
-
-            info_to_send.type = REAL_TIME;
-            //info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
-            info_to_send.payload = NULL;
-            info_to_send.job_type = TELEMETRY;
-
-            up_node = GET_UPPER_NODE(state->topology);
-            ScheduleNewEvent(up_node, now, ARRIVE, &info_to_send, sizeof(job_info));
-
-            //ts_generate = now + Expent(ARRIVE_RATE);
-            if(state->type == SENSOR){
-
-                rate_generate = state->info.sensor->rate_telemetry;
-
-            }
-            else{
-
-                printf("Error: device type not found\n");
-                exit(EXIT_FAILURE);
-            }
-
-            generate_next_job(me, now, rate_generate, 0.0, GENERATE_TELEMETRY);
-
-            //state->num_jobs_processed++;
-            break;
-
-        case ARRIVE:
-
-            //state->actual_timestamp = now;
-            state->device_timestamp = now;
-
-            info = malloc(sizeof(job_info));
-            memcpy(info, content, sizeof(job_info));
-
-            info->arrived_in_node_timestamp = now;
-            info->deadline = now;
-
-            if(state->type == NODE){
-
-                arrive_node(me, now, state, info);
-
-            }
-            else if(state->type == ACTUATOR){
-
-                arrive_actuator(me, now, state, info);
-
-            }
-            else if(state->type == LAN){
-
-                arrive_lan(me, now, state, info);
-
-            }
-            else if(state->type == WAN){
-
-                arrive_wan(me, now, state, info);
-
-            }
-            else{
-
-                printf("Error: device type not found\n");
-                exit(EXIT_FAILURE);
-            }
-
-            break;
-
-        case ARRIVE_DISK:
-
-            //state->actual_timestamp = now;
-            state->device_timestamp = now;
-
-            info = malloc(sizeof(job_info));
-            memcpy(info, content, sizeof(job_info));
-
-            info->arrived_in_node_timestamp = now;
-            info->deadline = now;
-
-            arrive_disk(me, now, state, info);
-
-            break;
-
-
-        case FINISH:
-
-            //state->actual_timestamp = now;
-            state->device_timestamp = now;
-
-            //state->num_jobs_processed++;
-
-            if(state->type == NODE){
-
-                finish_node(me, now, state);
-
-            }
-            else if(state->type == ACTUATOR){
-
-                finish_actuator(me, now, state);
-
-            }
-            else if(state->type == LAN){
-
-                finish_lan(me, now, state, *( (lan_direction *) content));
-
-            }
-            else{
-
-                printf("Error: device type not found\n");
-                exit(EXIT_FAILURE);
-            }
-
-            break;
-
-        case FINISH_DISK:
-
-            //state->actual_timestamp = now;
-            state->device_timestamp = now;
-
-            finish_disk(me, now, state);
-
-            break;
-
-        case UPDATE_TIMESTAMP:
-
-            state->device_timestamp = now;
-
-            if(state->device_timestamp > TRANSITION_TIME_LIMIT){
-
-                int boolean_check = 0;
-
-                if(state->type == NODE){
-
-                    boolean_check = check_metrics(state->info.node->queue_state);
-
-                    if(state->info.node->type == CENTRAL)
-                        boolean_check = check_metrics(state->info.node->disk_state);
-
-                }
-                else if(state->type == ACTUATOR){
-
-                    boolean_check = check_metrics(state->info.actuator->queue_state);
-
-                }
-                else if(state->type == LAN){
-
-                    boolean_check = check_metrics(state->info.lan->queue_state_in);
-                    boolean_check = check_metrics(state->info.lan->queue_state_out);
-
-                }
-                else{
-
-                    //state->simulation_completed = SIMULATION_STOP;
-                    boolean_check = 1;
-
-                }
-
-                if(state->device_timestamp > MAX_SIMULATION_TIME || boolean_check)
-                    state->simulation_completed = SIMULATION_STOP;
-                else{
-                    state->simulation_completed = SIMULATION_ACTIVE;
-                    state->lp_enabled = LP_ENABLED;
-                }
-
-            }
-            
-            ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP;
-            ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, NULL, 0);
-
-            break;
-
-
-    }
+	}
 }
 
 void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 
-    //fprintf(output_file, "......................\n");
-    //fprintf(output_file, "Class number %d\n", i);
+	//all data here are averages
+	double T = queue_state->actual_timestamp_stable[i] - queue_state->start_timestamp[i];
+	double S = queue_state->B_stable[i] / queue_state->C_stable[i];
+	double R = queue_state->W_stable[i] / queue_state->C_stable[i];
+	//double N = queue_state->W_stable[i] / T;
+	double U = queue_state->B_stable[i] / T;
+	double lambda = queue_state->A_stable[i] / T;
+	//double X = queue_state->C_stable[i] / T;
 
-    //all data here are averages
-    double T = queue_state->actual_timestamp[i] - queue_state->start_timestamp[i];
-    double S = queue_state->B[i] / queue_state->C[i];
-    double R = queue_state->W[i] / queue_state->C[i];
-    //double N = queue_state->W[i] / T;
-    double U = queue_state->B[i] / T;
-    double lambda = queue_state->A[i] / T;
-
-    //double X = queue_state->C[i] / T;
-    if (isnan(-S))
-        S = 0.0;
-    if (isnan(-R))
-        R = 0.0;
-    if (isnan(-U))
-        U = 0.0;
-    if (isnan(-lambda))
-        lambda = 0.0;
-    fprintf(output_file, "\"service_demand\": %.3g,", S);
-    fprintf(output_file, "\"response_time\": %.3g,", R);
-    fprintf(output_file, "\"utilization_factor\": %.3g,", U);
-    fprintf(output_file, "\"lambda_in\": %.3g", lambda);
+	if (isnan(-S))
+		S = 0.0;
+	if (isnan(-R))
+		R = 0.0;
+	if (isnan(-U))
+		U = 0.0;
+	if (isnan(-lambda))
+		lambda = 0.0;
+	fprintf(output_file, "\"service_demand\": %.3g,", S);
+	fprintf(output_file, "\"response_time\": %.3g,", R);
+	fprintf(output_file, "\"utilization_factor\": %.3g,", U);
+	fprintf(output_file, "\"lambda_in\": %.3g", lambda);
 
 }
 
 void print_metrics(queue_state * queue_state, FILE * output_file){
 
+	fprintf(output_file, "\"telemetry\": {");
+	print_class_metrics(queue_state, output_file, TELEMETRY);
+	fprintf(output_file, "},");
+	fprintf(output_file, "\"transition\": {");
+	print_class_metrics(queue_state, output_file, TRANSITION);
+	fprintf(output_file, "},");
+	fprintf(output_file, "\"command\": {");
+	print_class_metrics(queue_state, output_file, COMMAND);
+	fprintf(output_file, "},");
+	fprintf(output_file, "\"batch\": {");
+	print_class_metrics(queue_state, output_file, BATCH_DATA);
+	fprintf(output_file, "}");
 
-    //for(int i=0; i < NUM_OF_JOB_TYPE; i++){
-
-        //if(queue_state->actual_timestamp[i] > TRANSITION_TIME_LIMIT){
-
-
-        fprintf(output_file, "\"telemetry\": {");
-        print_class_metrics(queue_state, output_file, TELEMETRY);
-        fprintf(output_file, "},");
-        fprintf(output_file, "\"transition\": {");
-        print_class_metrics(queue_state, output_file, TRANSITION);
-        fprintf(output_file, "},");
-        fprintf(output_file, "\"command\": {");
-        print_class_metrics(queue_state, output_file, COMMAND);
-        fprintf(output_file, "},");
-        fprintf(output_file, "\"batch\": {");
-        print_class_metrics(queue_state, output_file, BATCH_DATA);
-        fprintf(output_file, "}");
-
-        //}
-
-
-    //}
 }
 
 bool OnGVT(int me, lp_state *snapshot)
 {
 
-    if(snapshot->lp_enabled==LP_DISABLED)
-        return true;
+	if(snapshot->lp_enabled == LP_DISABLED)
+		return true;
+	if(snapshot->lp_enabled == LP_SETUP){
+		return false;
+	}
 
-    //if(snapshot->device_timestamp > MAX_SIMULATION_TIME){
-    if(snapshot->simulation_completed == SIMULATION_STOP){
-    
-        if(snapshot->type == NODE){
+	unsigned int num_nodes = GET_TOTAL_NODES(snapshot->general_topology);
+	//unsigned int num_sensors = GET_SENSOR_NODES(snapshot->general_topology);
+	unsigned int num_actuators = GET_ACTUATOR_NODES(snapshot->general_topology);
+	//unsigned int num_wans = GET_NUMBER_OF_WANS(snapshot->general_topology);
+	unsigned int num_lans = GET_NUMBER_OF_LANS(snapshot->general_topology);
 
-#ifdef PRINT_RESULTS
-            sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
+	int total_number_of_elements = num_nodes + num_actuators + num_lans;
 
-            FILE * output_file = fopen(file_name_complete, "w");
-            //print_pre(me, snapshot->device_timestamp, snapshot->type, snapshot->info.node->type, output_file);
-
-            fprintf(output_file, "[");
-
-            fprintf(output_file, "{\"id\": %d,", me);
-            fprintf(output_file, "\"type\": \"node\",");
-            fprintf(output_file, "\"parameters\": {");
-            print_metrics(snapshot->info.node->queue_state, output_file);
-            fprintf(output_file, "},");
-            if(GET_NODE_TYPE(snapshot->topology) == CENTRAL){
-                //fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
-                //fprintf(output_file, "Disk:\n");
-                fprintf(output_file, "\"storage\": {");
-                print_metrics(snapshot->info.node->disk_state, output_file);
-                fprintf(output_file, "},");
-                fprintf(output_file, "\"node_type\": \"central\"}");
-            }
-            else if(GET_NODE_TYPE(snapshot->topology) == REGIONAL){
-                fprintf(output_file, "\"node_type\": \"regional\"}");
-            }
-            else if(GET_NODE_TYPE(snapshot->topology) == LOCAL){
-                fprintf(output_file, "\"node_type\": \"local\"}");
-            }
-
-            fprintf(output_file, "]");
-
-            fclose(output_file);
-#endif
-
-        }
-        else if(snapshot->type == ACTUATOR){
+	if(snapshot->num_stable_elements == total_number_of_elements){
 
 #ifdef PRINT_RESULTS
-            sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
+		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
+		FILE * output_file = fopen(file_name_complete, "w");
 
-            FILE * output_file = fopen(file_name_complete, "w");
+		fprintf(output_file, "[");
 
-            fprintf(output_file, "[");
+		int index;
+		int index_map;
+		int id_device;
+		idmap map;
+		device_state * dev_state;
 
-            //print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
-            fprintf(output_file, "{\"id\": %d,", me);
-            fprintf(output_file, "\"type\": \"actuator\",");
-            fprintf(output_file, "\"parameters\": {");
-            print_metrics(snapshot->info.actuator->queue_state, output_file);
-            fprintf(output_file, "},");
-            fprintf(output_file, "\"node_type\": \"\"}");
+		for(index = 0; index < snapshot->num_devices; index++){
 
-            fprintf(output_file, "]");
+			map = snapshot->element_to_index[index];
+			id_device = map.id;
+			index_map = map.content;
+			dev_state = snapshot->devices_array[index_map];
 
-            fclose(output_file);
+			if(index>0 &&  (dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR))
+				fprintf(output_file, ",");
+			if(dev_state->type == NODE){
+
+				fprintf(output_file, "{\"id\": %d,", id_device);
+				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
+				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
+				fprintf(output_file, "\"type\": \"node\",");
+				fprintf(output_file, "\"parameters\": {");
+				print_metrics(dev_state->info.node->queue_state, output_file);
+				fprintf(output_file, "},");
+				if(GET_NODE_TYPE(dev_state->topology) == CENTRAL){
+
+					fprintf(output_file, "\"storage\": {");
+					print_metrics(dev_state->info.node->disk_state, output_file);
+					fprintf(output_file, "},");
+					fprintf(output_file, "\"node_type\": \"central\"}");
+				}
+				else if(GET_NODE_TYPE(dev_state->topology) == REGIONAL){
+					fprintf(output_file, "\"node_type\": \"regional\"}");
+				}
+				else if(GET_NODE_TYPE(dev_state->topology) == LOCAL){
+					fprintf(output_file, "\"node_type\": \"local\"}");
+				}
+
+			}
+			else if(dev_state->type == ACTUATOR){
+
+				fprintf(output_file, "{\"id\": %d,", id_device);
+				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
+				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
+				fprintf(output_file, "\"type\": \"actuator\",");
+				fprintf(output_file, "\"parameters\": {");
+				print_metrics(dev_state->info.actuator->queue_state, output_file);
+				fprintf(output_file, "},");
+				fprintf(output_file, "\"node_type\": \"\"}");
+
+			}
+			else if(dev_state->type == LAN){
+
+				fprintf(output_file, "{\"id\": %d,", id_device);
+				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
+				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
+				fprintf(output_file, "\"type\": \"lan\",");
+				fprintf(output_file, "\"lan_in\": {");
+				print_metrics(dev_state->info.lan->queue_state_in, output_file);
+				fprintf(output_file, "},");
+
+				fprintf(output_file, "\"lan_out\": {");
+				print_metrics(dev_state->info.lan->queue_state_out, output_file);
+				fprintf(output_file, "},");
+				fprintf(output_file, "\"node_type\": \"\"}");
+
+			}
+
+		}
+		fprintf(output_file, "]");
+		fclose(output_file);
 #endif
 
-        }
-        else if(snapshot->type == LAN){
+		return true;
 
-#ifdef PRINT_RESULTS
+	}
 
-            sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
-
-            FILE * output_file = fopen(file_name_complete, "w");
-
-            fprintf(output_file, "[");
-
-            //print_pre(me, snapshot->device_timestamp, snapshot->type, -1, output_file);
-
-            //fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
-            //fprintf(output_file, "Lan IN:\n");
-            fprintf(output_file, "{\"id\": %d,", me);
-            fprintf(output_file, "\"type\": \"lan\",");
-            fprintf(output_file, "\"lan_in\": {");
-            print_metrics(snapshot->info.lan->queue_state_in, output_file);
-            fprintf(output_file, "},");
-            //fprintf(output_file, "<<<<<<<<<<<<<<<<<<<<\n");
-            //fprintf(output_file, "Lan OUT:\n");
-            fprintf(output_file, "\"lan_out\": {");
-            print_metrics(snapshot->info.lan->queue_state_out, output_file);
-            fprintf(output_file, "},");
-            fprintf(output_file, "\"node_type\": \"\"}");
-
-            fprintf(output_file, "]");
-
-            fclose(output_file);
-
-#endif
-
-        }
-
-        snapshot->lp_enabled = LP_DISABLED;
-        return true;
-
-    
-    }
-
-    return false;
+	return false;
 
 }
