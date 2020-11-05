@@ -6,7 +6,8 @@ number_lp=""
 file_json="simulation_results.json"
 working_threads=$(nproc)
 options=""
-
+dbg_arg=""
+dbg_param=""
 	if [[ -e "LP.txt" && -r "LP.txt" ]]; then
 		number_lp=$(sed -n 2p LP.txt)
 	else
@@ -15,8 +16,11 @@ options=""
 
 for arg
 do
-	if [[ $arg == "valgrind" || $arg == "gdb" || $arg == "alone" || $arg == "json" || $arg == "clean" || $arg == "parallel" ]]; then
+	if [[ $arg == "alone" || $arg == "json" || $arg == "clean" || $arg == "parallel" ]]; then
 			options=$arg
+	fi
+	if [[ $arg == "valgrind" || $arg == "gdb" ]]; then
+		dbg_arg=$arg
 	fi
 	if [[ ${arg:0:5} == "--lp=" ]]; then
 		number_lp=${arg#"--lp="}
@@ -26,12 +30,15 @@ do
 	fi
 done
 
+if [ "$dbg_arg" == "valgrind" ]; then
+		dbg_param="valgrind --leak-check=full"
+elif [ "$dbg_arg" == "gdb" ]; then
+		dbg_param="gdb --args"
+fi
+
 if [[ -n $options ]]; then
-if [ "$options" == "valgrind" ]; then
-		valgrind --leak-check=full ./queues --sequential --lp $number_lp
-elif [ "$options" == "gdb" ]; then
-		gdb --args ./queues --wt 2 --lp $number_lp
-elif [ "$options" == "alone" ]; then
+
+if [ "$options" == "alone" ]; then
 		./queues --sequential --lp $number_lp
 elif [ "$options" == "json" ]; then
 		python3 generate_json.py $file_json
@@ -41,13 +48,13 @@ elif [ "$options" == "clean" ]; then
 elif [ "$options" == "parallel" ]; then
 		rm -r outputs
 		rm lp_data/*.json
-		./queues --wt $working_threads --lp $number_lp
+		$dbg_param ./queues --wt $working_threads --lp $number_lp
 		python3 generate_json.py $file_json
 		fi
 else
 		#./queues --sequential --lp $number_lp --simulation-time $simulation_time
 		rm lp_data/*.json
 		rm -r outputs
-		./queues --sequential --lp $number_lp
+		$dbg_param ./queues --sequential --lp $number_lp
 		python3 generate_json.py $file_json
 fi
