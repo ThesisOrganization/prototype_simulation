@@ -327,10 +327,9 @@ for element in to_pop_list:
 
 ############END NEW PART
 
-
 f_out = open("complete_results.tex", "w")
 #title
-initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\n\\title{Results}\n\\begin{document}\n\\maketitle\n\\section{Detailed view}\n"
+initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\n\\title{Results}\n\\begin{document}\n\\maketitle\n"
 f_out.write(initial_header);
 begin_table ="\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc@{}}\n\\toprule\n"
 complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc|cccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $aggr_t$ & $aggr_e$ & $aggr_c$ & $aggr_b$\\\\"
@@ -349,6 +348,44 @@ for element in dict_actuator_similar.keys():
     for element2 in dict_actuator_similar[element]:
         key_union.append(element2)
 
+with open('../tree_simulator/LP.txt') as f:
+    lines = f.readlines()
+    LP = lines[0].strip() #elementi
+    elements = lines[1].strip() #Lp
+f.close()
+
+with open("../tree_simulator/outputs/sequential_stats") as f:
+    lines = f.readlines()
+    start = lines[4][29:].strip()
+    finish = lines[5][29:].strip()
+f.close()
+
+#If you don't use generator.py comment this part and lines 38
+stringAdditionalInfo = ""
+with open("jsonAdditionalInfo.txt") as f:
+    lines = f.readlines()
+    stringAdditionalInfo+="There is one Central node, between the Central node and the Regional layer there is one WAN. Between each regional and its Locals there is a WAN.\\\\"
+    stringAdditionalInfo+="There are "+str(lines[0])+" regional nodes, each of them has "+str(lines[1])+" local nodes. In total "+str(int(lines[0])*int(lines[1]))+" local nodes.\\\\"
+    stringAdditionalInfo+="Each local node has "+str(lines[2])+" LANs below. Each LAN has:"#LAN (è 1)
+    stringAdditionalInfo+="\\begin{itemize}\n"
+    stringAdditionalInfo+="\\item "+str(lines[6])+"sensors sending telemetries with rate: "+str(lines[10]).strip()+".\n"#sensori telemetry per ogni locale
+    stringAdditionalInfo+="\\item "+str(lines[7])+"sensors sending transitions with rate: "+str(lines[9]).strip()+".\n"#sensori trans per ogni locale
+    stringAdditionalInfo+="\\item "+str(lines[8])+"actuators sending trasitions with rate: "+str(lines[11]).strip()+".\n"#actuators per ogni locale
+    stringAdditionalInfo+="\\end{itemize}\n"
+    stringAdditionalInfo+="In total there are "+str(lines[4])+ "total sensors and "+str(lines[5])+" total actuators.\\\\"
+    #stringAdditionalInfo+=lines[3]#WAN
+
+
+to_write = "\\section{General Informations}"
+to_write+= "Number of elements in the topology: "+elements+".\\\\"
+to_write+= "Number of LPs used in the simulation: "+LP+".\\\\"
+to_write+= "Simulation started at: "+start+".\\\\"
+to_write+= "Simulation ended at: "+finish+".\\\\"
+to_write+="\\subsection{Topology Informations}"
+to_write+=stringAdditionalInfo
+f_out.write(to_write)
+
+f_out.write("\\section{Detailed view}")
 for element in ordered_id_list:
     if(element not in key_union):
         type = dict_model[element]['type']
@@ -360,6 +397,8 @@ for element in ordered_id_list:
                 f_out.write("This element reached stability in the simulation!\\\\")
             else:
                 f_out.write("This element didn't reach stability in the simulation!\\\\");
+            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
+
             if(element in dict_regional_similar.keys() or element in dict_local_similar.keys()):
                 to_write = "This node has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by " + str(similarity_coefficient*100) + "\% to these other nodes: \\textbf{"
                 if dict_model[element]['node_type'] == 'regional':
@@ -433,6 +472,7 @@ for element in ordered_id_list:
                 f_out.write("This element reached stability in the simulation!\\\\")
             else:
                 f_out.write("This element didn't reach stability in the simulation!\\\\");
+            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
 
             if element in dict_actuator_similar.keys():
                 to_write = "This actuator has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by " + str(similarity_coefficient*100) + "\% to these other nodes: \\textbf{"
@@ -471,6 +511,8 @@ for element in ordered_id_list:
                 f_out.write("This element reached stability in the simulation!\\\\")
             else:
                 f_out.write("This element didn't reach stability in the simulation!\\\\");
+            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
+
             if element in dict_lan_similar.keys():
                 to_write = "This LAN has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by "+ str(similarity_coefficient*100) +"\% to these other nodes: \\textbf{"
                 for similar in dict_lan_similar[element]:

@@ -73,13 +73,13 @@ void broadcast_message(int number_lps_enabled, simtime_t ts_to_send, events_type
 }
 
 void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_device){
-	
+
 	message_update msg_update;
 	simtime_t ts_update_timestamp;
 	ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP + id_device;
 	msg_update.header.element_id = id_device;
 	ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
-	
+
 }
 
 
@@ -181,7 +181,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					printf("Error: device type not found\n");
 					exit(EXIT_FAILURE);
 				}
-				
+
 			}
 
 
@@ -417,7 +417,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
 						dev_state->stability = ELEMENT_UNSTABLE;
 					}
-					
+
 				}
 
 				schedule_first_update_timestamp(me, now, id_device);
@@ -450,7 +450,7 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 	double U = queue_state->B[i] / T;
 	double lambda = queue_state->A[i] / T;
 	//double X = queue_state->C[i] / T;
-	
+
 	if (isnan(-S))
 		S = 0.0;
 	if (isnan(-R))
@@ -491,7 +491,7 @@ bool OnGVT(int me, lp_state *snapshot)
 	if(snapshot->lp_enabled == LP_SETUP){
 		return false;
 	}
-	
+
 	unsigned int num_nodes = GET_TOTAL_NODES(snapshot->general_topology);
 	//unsigned int num_sensors = GET_SENSOR_NODES(snapshot->general_topology);
 	unsigned int num_actuators = GET_ACTUATOR_NODES(snapshot->general_topology);
@@ -526,6 +526,7 @@ bool OnGVT(int me, lp_state *snapshot)
 			if(dev_state->type == NODE){
 
 				fprintf(output_file, "{\"id\": %d,", id_device);
+				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
 				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
 				fprintf(output_file, "\"type\": \"node\",");
 				fprintf(output_file, "\"parameters\": {");
@@ -549,6 +550,7 @@ bool OnGVT(int me, lp_state *snapshot)
 			else if(dev_state->type == ACTUATOR){
 
 				fprintf(output_file, "{\"id\": %d,", id_device);
+				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
 				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
 				fprintf(output_file, "\"type\": \"actuator\",");
 				fprintf(output_file, "\"parameters\": {");
@@ -560,6 +562,7 @@ bool OnGVT(int me, lp_state *snapshot)
 			else if(dev_state->type == LAN){
 
 				fprintf(output_file, "{\"id\": %d,", id_device);
+				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
 				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
 				fprintf(output_file, "\"type\": \"lan\",");
 				fprintf(output_file, "\"lan_in\": {");
