@@ -1,7 +1,7 @@
 #ifndef APPLICATION_DATATYPES_H
 #define APPLICATION_DATATYPES_H
 
-#include <ROOT-Sim.h>
+#include "../ROOT-Sim-bin/include/ROOT-Sim.h"
 //#############################################
 //SCHEDULER DATA
 //#############################################
@@ -226,7 +226,7 @@ typedef struct _total_topology{
 //#define LEN_QUEUE 50
 #define RANDOM_START 500
 #define TRANSITION_TIME_LIMIT 300000
-#define MAX_SIMULATION_TIME 1000000
+#define MAX_SIMULATION_TIME 1000000000
 
 #define NEXT_UPDATE_TIMESTAMP 100000
 #define THRESHOLD 3 ///percentage

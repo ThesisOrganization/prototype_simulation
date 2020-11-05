@@ -1,4 +1,4 @@
-#include <ROOT-Sim.h>
+#include "../ROOT-Sim-bin/include/ROOT-Sim.h"
 #include <stdio.h>
 #define EVENT 1
 #define ARRIVE 2
@@ -28,18 +28,18 @@ typedef struct _client_info {
 
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, state_type *state)
 {
-    
+
     unsigned int my_up_node[3] = {1, 2, -1};
 
     simtime_t ts_arrive = now + (ARRIVE_RATE * Poisson());
     simtime_t ts_finish = now + (FINISH_RATE * Poisson());
     simtime_t ts_delay = now + (DELAY_MEAN * Poisson());
-    
+
     //simtime_t timestamp = now + 10 * Random();
     //unsigned int receiver = (unsigned int)(n_prc_tot * Random());
     int event_id_value;
     int up_node;
-    
+
     switch(event_type) {
         case INIT:
 
@@ -52,7 +52,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             state->index_insert = 0;
             state->index_remove = 0;
             state->num_clients = 0;
-            
+
             state->tot_num_clients = 0;
             state->sum_all_queue_number = 0;
             state->num_of_sums = 0;
@@ -69,13 +69,13 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
         case ARRIVE:
             event_id_value = ((client_info*)content)->id;
-            
+
             /*
             if(!me)
                 printf("Client %d started\n", event_id_value);
             printf("Client %d arrived to queue: %d\n", event_id_value, me);
             */
-            
+
             //if the queue is empty start the first job that will be added soon
             if(state->num_clients < 1)
                 ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
@@ -84,7 +84,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             state->queue[state->index_insert] = event_id_value;
             state->index_insert = (state->index_insert + 1) % LEN_QUEUE;
             state->num_clients++;
-            
+
             //schedule the next arrive event for the first queue
             if(!me){
                 client_info *new_event = malloc(sizeof(client_info));
@@ -107,20 +107,20 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
             else{
                 printf("Client %d terminated\n", state->queue[state->index_remove]);
             }*/
-            
+
             //to terminate the simulation
             state->tot_num_clients++;
-            
+
             //remove the actual client from the queue
             state->index_remove = (state->index_remove + 1) % LEN_QUEUE;
             state->num_clients--;
-        
+
             //start job for the next client in the queue if present
             if(state->num_clients > 0)
                 ScheduleNewEvent(me, ts_finish, FINISH, NULL, 0);
 
             break;
-        /*    
+        /*
         case EVENT:
             state->executed_events++;
             ScheduleNewEvent(me, timestamp, EVENT, NULL, 0);
@@ -136,7 +136,7 @@ bool OnGVT(int me, state_type *snapshot)
     snapshot->num_of_sums++;
     if(num_c > snapshot->max_queue_len)
         snapshot->max_queue_len = num_c;
-    
+
     float mean = (float) snapshot->sum_all_queue_number / snapshot->num_of_sums;
     printf("Average number of clients in queue %d: %f\n", me, mean);
     printf("Max number of clients in queue %d: %d\n", me, snapshot->max_queue_len);
