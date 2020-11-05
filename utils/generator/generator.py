@@ -27,9 +27,9 @@ prob_command_generated_local = "0.1"
 service_time_disks = "0.4/0.73/0.00/0.23\n"
 service_time_commands_act = "0.6\n"
 #1 CENTRAL, implicit
-number_of_regionals = 8
+number_of_regionals = 20
 f_out_txt.write(str(number_of_regionals)+"\n")
-number_of_locals = 40
+number_of_locals = 100
 f_out_txt.write(str(int(number_of_locals/number_of_regionals))+"\n")
 sensors_start = 1+number_of_regionals+number_of_locals
 number_of_lans = 1 #to change, future work
