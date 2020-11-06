@@ -27,11 +27,11 @@ prob_command_generated_local = "0.1"
 service_time_disks = "0.4/0.73/0.00/0.23\n"
 service_time_commands_act = "0.6\n"
 #1 CENTRAL, implicit
-number_of_regionals = 8
+number_of_regionals = 80
 f_out_txt.write(str(number_of_regionals)+"\n")
-number_of_locals = 40
+number_of_locals = 400
 f_out_txt.write(str(int(number_of_locals/number_of_regionals))+"\n")
-sensors_start = 1+number_of_regionals+number_of_locals
+sensors_start =1+number_of_regionals+number_of_locals
 number_of_lans = 1 #to change, future work
 f_out_txt.write(str(number_of_lans)+"\n")
 number_of_WANS = 1 + number_of_regionals
@@ -74,8 +74,6 @@ f_out_txt.write(str(num_sens_tel)+"\n")
 f_out_txt.write(str(num_sens_trans)+"\n")
 f_out_txt.write(str(num_act)+"\n")
 
-
-
 number_of_elements = 1 + number_of_regionals + number_of_locals+total_sensors+total_actuators
 number_of_elements_to_write = 1 + number_of_regionals + number_of_locals * 2+total_sensors+total_actuators+number_of_WANS #change x2 because LAN
 numbersString = str(number_of_elements_to_write)+"\n"
@@ -84,7 +82,7 @@ numbersString+=str(types_of_sensors)+"\n"
 numbersString+=str(types_of_lans)+"\n"
 f_out.write(numbersString);
 f_out_LP.write(str(number_of_elements_to_write)+"\n")
-f_out_LP.write(str(1+number_of_regionals+number_of_locals)+"\n");
+f_out_LP.write(str(number_of_regionals)+"\n");
 #USER SHOULD CHANGE THESE
 ####################################
 rate_trans_act = "0.0005,"
@@ -127,12 +125,18 @@ to_write+=sevice_time_central+prob_command_generated_central+"RAID3,"+service_ti
 associated_wan_down =str(id_wan_central)+";0;3;WAN,WAN_TYPE0,"+delay_wan
 f_out.write(to_write)
 LP_index = 0
-to_write = str(LP_index)+";"+str(2)+";"+"0"+","+str(id_wan_central)+"\n"
-LP_index+=1
-f_out_LP.write(to_write)
+LP_start_list="0"+","+str(id_wan_central)+","
+LP_num_elements = 2
 wan_id+=1
 #REGIONAL+LOCAL
+local_per_regional = number_of_locals/number_of_regionals
+associated_lan_down = ""
+lan_id = number_of_elements+number_of_WANS
+count = number_of_elements+1 #the wans!
+sensor_actuator_string = ""
+flagCentral = True
 index = 1
+indexLocal = number_of_regionals+1
 while index < (1+number_of_regionals):
     upper_node = wan_id
     to_write = str(index)+";"+str(id_wan_central)+";8;NODE,SCHEDULER2,REGIONAL,"+aggregation_rates+delay_lower_router+delay_lower_router
@@ -140,58 +144,61 @@ while index < (1+number_of_regionals):
     f_out.write(to_write)
 
     associated_wan_down +=str(wan_id)+";"+str(index)+";3;WAN,WAN_TYPE0,"+delay_wan
-    to_write = str(LP_index)+";"+str(2)+";"+str(index)+","+str(wan_id)+"\n"
-    LP_index+=1
-    f_out_LP.write(to_write)
+    #to_write = str(LP_index)+";"+str(2)+";"+str(index)+","+str(wan_id)+"\n"counter_elements
+    #f_out_LP.write(to_write)
 
-    wan_id+=1
-    index+=1
-
-total_so_far = 1+number_of_regionals
-inner = 0
-local_per_regional = number_of_locals/number_of_regionals
-associated_lan_down = ""
-lan_id = number_of_elements+number_of_WANS
-count = number_of_elements+1 #the wans!
-sensor_actuator_string = ""
-for i in range(number_of_regionals):
+    if flagCentral:
+        LP_start_list+=str(index)+","+str(wan_id)
+        LP_num_elements+=2
+        flagCentral = False
+    else:
+        LP_start_list = str(index)+","+str(wan_id)
+        LP_num_elements = 2
+    tot = 0
     for j in range(different_amounts_sensors_type1) :
         for l in range(different_amounts_sensors_type2):
             for k in range(different_amounts_actuators):
-                if(number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k] != 0):
-                    for last in range(number_of_locals_with_x_sensors_y_actuators_per_regional[i][j][l][k]):
-                        LP_start = str(LP_index)+";"
+                if(number_of_locals_with_x_sensors_y_actuators_per_regional[index-1][j][l][k] != 0):
+                    for last in range(number_of_locals_with_x_sensors_y_actuators_per_regional[index-1][j][l][k]):
                         counter_elements = 2
-                        to_write = str(index)+";"+str(count)+";8;NODE,SCHEDULER2,LOCAL,"+aggregation_rates+delay_lower_router+delay_lower_router
+                        to_write = str(indexLocal)+";"+str(count)+";8;NODE,SCHEDULER2,LOCAL,"+aggregation_rates+delay_lower_router+delay_lower_router
                         to_write+=service_time_locals+prob_command_generated_local+"\n"
                         f_out.write(to_write)
-                        LP_to_write=";"+str(index)+","+str(lan_id)
-                        associated_lan_down+=str(lan_id)
 
-                        upper_lan_node = index
-                        associated_lan_down+=";"+str(index)+";3;LAN,LAN_TYPE0,"+delay_lan
+                        LP_start_list+=","+str(indexLocal)+","+str(lan_id)
+
+                        associated_lan_down+=str(lan_id)
+                        upper_lan_node = indexLocal
+                        associated_lan_down+=";"+str(indexLocal)+";3;LAN,LAN_TYPE0,"+delay_lan
                         for sens in range(j):
                             sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,BATCH,SENSOR_TYPE0,MEASURE0\n"
-                            LP_to_write+=","+str(sensors_start)
+                            LP_start_list+=","+str(sensors_start)
                             counter_elements+=1
                             sensors_start+=1
                         for sens2 in range(l):
                             sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,BATCH,SENSOR_TYPE1,MEASURE0\n"
-                            LP_to_write+=","+str(sensors_start)
+                            LP_start_list+=","+str(sensors_start)
                             counter_elements+=1
                             sensors_start+=1
                         for act in range(k):
                             sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,BATCH,ACTUATOR_TYPE0,MEASURE0,"+rate_trans_act+service_time_commands_act
-                            LP_to_write+=","+str(sensors_start)
+                            LP_start_list+=","+str(sensors_start)
                             counter_elements+=1
                             sensors_start+=1
                         lan_id+=1
-                        index+=1
-                        total_write = LP_start+str(counter_elements)+LP_to_write+"\n"
-                        f_out_LP.write(total_write)
-                        LP_index+=1
-
+                        indexLocal+=1
+                        #total_write = LP_start+str(counter_elements)+LP_to_write+"\n"
+                        tot +=counter_elements
                     count+=1
+    tot = LP_num_elements+tot
+    total_write = str(LP_index)+";"+str(tot)+";"+LP_start_list+"\n"
+    f_out_LP.write(total_write)
+    LP_index+=1
+    wan_id+=1
+    index+=1
+
+
+
 
 
 f_out.write(sensor_actuator_string)
