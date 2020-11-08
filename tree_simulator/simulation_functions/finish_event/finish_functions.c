@@ -28,6 +28,10 @@ static void get_random_actuator(int num_types, int * num_per_types, double * pro
 	double prob_single_act = prob_actuators[type] / sum_prob_numbers;
 
 	int actuator = remain_random / prob_single_act;
+
+    if(actuator == num_per_types[type]) //if remain_random == prob_type_i (i.e. num_per_types[type] * prob_actuators[type]) you get an index that is too higher (rare)
+        actuator--;
+
 	//printf("Final: %d, %d\n", type, actuator);
 	*pt_type = type;
 	*pt_actuator = actuator;
@@ -252,18 +256,20 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 			send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp);
 
 		}
-
-		//###################################################
-		//FORWARD TRANSITION
-		info->busy_time_transition = busy_time_transition;
-		info->waiting_time_transition = waiting_time_transition;
-		info->lp_sender = id_device;
-		send_to_up_node(id_device, now, state, delay_up, info);
-
-		//##################################################
-		//SAVE DATA TO DISK
-		if(GET_NODE_TYPE(state->topology) == CENTRAL)
-			save_data_on_disk(id_device, now, TRANSITION, id_lp);
+		else{
+			//###################################################
+			//FORWARD TRANSITION
+			info->busy_time_transition = busy_time_transition;
+			info->waiting_time_transition = waiting_time_transition;
+			info->lp_sender = id_device;
+			send_to_up_node(id_device, now, state, delay_up, info);
+			
+			//##################################################
+			//SAVE DATA TO DISK
+			if(GET_NODE_TYPE(state->topology) == CENTRAL)
+				save_data_on_disk(id_device, now, TRANSITION, id_lp);
+			
+		}
 
 	}
 	else if(info->job_type == COMMAND){
