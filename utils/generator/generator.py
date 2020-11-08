@@ -6,30 +6,54 @@ f_out_LP = open("../../tree_simulator/LP.txt", "w")
 f_out_txt = open("../../jsonMerger/jsonAdditionalInfo.txt","w")
 numbersString = ""
 
-#TODO, don't touch
-types_of_lans = 1
+with open("config.txt") as f:
+    lines = f.readlines()
+    number_of_regionals = int(lines[2][36:-1])
+    number_of_locals = int(lines[3][36:-1])
+    aggregation_rates = lines[4][36:-1]+","
+    service_time_central = lines[5][36:-1]+","
+    service_time_regionals = lines[6][36:-1]+","
+    service_time_locals = lines[7][36:-1]+","
+    delay_upper_router = lines[8][36:-1]+","
+    delay_lower_router = lines[9][36:-1]+","
+    delay_lan = lines[10][36:-1]+"\n"
+    delay_wan = lines[11][36:-1]+"\n"
+    prob_command_generated_central =lines[12][36:-1]+","
+    prob_command_generated_regional =lines[13][36:-1]+","
+    prob_command_generated_local =lines[14][36:-1]+","
+    service_time_disks =lines[15][36:-1]+"\n"
+    service_time_commands_act =lines[16][36:-1]+"\n"
+    rate_trans_act = lines[17][36:-1]+","
+    sens_tele_type1 = lines[18][36:-1]+","
+    sens_trans_type2 = lines[19][36:-1]+","
+    service_tele = lines[20][36:-1]
+    service_trans = lines[21][36:-1]
+    service_command = lines[22][36:-1]
+    weight = lines[23][36:-1]
+
+    types_of_lans = 1
 types_of_sensors = 2
 types_of_actuators = 1
 
 #USER SHOULD CHANGE THESE
 ####################################
-aggregation_rates = "3/3/4/6,"
-sevice_time_central = "1.5/1.0/1.0/0.5/1.0,"
-service_time_regionals ="0.5/0.2/0.3/0.2/0.2,"
-service_time_locals ="1.5/1.0/1.0/0.5/1.0,"
-delay_upper_router = "0.3,"
-delay_lower_router = "0.2,"
-delay_lan = "0.3\n"
-delay_wan = "0.5\n"
-prob_command_generated_central = "0.1,"
-prob_command_generated_regional = "0.1"
-prob_command_generated_local = "0.1"
-service_time_disks = "0.4/0.73/0.00/0.23\n"
-service_time_commands_act = "0.6\n"
+#aggregation_rates = "3/3/4/6,"
+#service_time_central = "1.5/1.0/1.0/0.5/1.0,"
+#service_time_regionals ="0.5/0.2/0.3/0.2/0.2,"
+#service_time_locals ="1.5/1.0/1.0/0.5/1.0,"
+#delay_upper_router = "0.3,"
+#delay_lower_router = "0.2,"
+#delay_lan = "0.3\n"
+#delay_wan = "0.5\n"
+#prob_command_generated_central = "0.1,"
+#prob_command_generated_regional = "0.1"
+#prob_command_generated_local = "0.1"
+#service_time_disks = "0.4/0.73/0.00/0.23\n"
+#service_time_commands_act = "0.6\n"
 #1 CENTRAL, implicit
-number_of_regionals = 80
+#number_of_regionals = 8
 f_out_txt.write(str(number_of_regionals)+"\n")
-number_of_locals = 400
+#number_of_locals = 40
 f_out_txt.write(str(int(number_of_locals/number_of_regionals))+"\n")
 sensors_start =1+number_of_regionals+number_of_locals
 number_of_lans = 1 #to change, future work
@@ -85,13 +109,13 @@ f_out_LP.write(str(number_of_elements_to_write)+"\n")
 f_out_LP.write(str(number_of_regionals)+"\n");
 #USER SHOULD CHANGE THESE
 ####################################
-rate_trans_act = "0.0005,"
+#rate_trans_act = "0.0005,"
 f_out_txt.write(str(rate_trans_act[:-1])+"\n")
-sens_tele_type1 = "0.0002"
+#sens_tele_type1 = "0.0002"
 f_out_txt.write(str(sens_tele_type1)+"\n")
 sens_trans_type1 = "0.0"
 sens_tele_type2 = "0.0"
-sens_trans_type2 = "0.0005"
+#sens_trans_type2 = "0.0005"
 f_out_txt.write(str(sens_trans_type2)+"\n")
 ####################################
 sensor_rates_string1 = sens_tele_type1+","+sens_trans_type1+";" #in base al tipo fai più di ste string?
@@ -103,25 +127,25 @@ associated_wan_up = ""
 #lan
 #USER SHOULD CHANGE THESE
 ####################################
-service_tele = "0.2"
-service_trans = "0.2"
-service_command = "0.1"
-service_batch = "0.3"
-service_reply = "0.11"
+#service_tele = "0.2"
+#service_trans = "0.2"
+#service_command = "0.1"
+service_batch = "0.0"
+service_reply = "0.0"
 ####################################
 LAN_IN_services = service_tele +"," +service_trans+","+service_command+","+service_batch+","+service_reply
 f_out.write(LAN_IN_services+"\n")
 
-LAN_OUT_services = LAN_IN_services #lo aggiusto dopo, giuro
+LAN_OUT_services = LAN_IN_services
 f_out.write(LAN_OUT_services+"\n")
-weight = "1"
+#weight = "1"
 f_out.write(weight+"\n")
 #NODES
 #CENTRAL
 wan_id = number_of_elements
 id_wan_central = wan_id
 to_write ="0;-1;10;NODE,SCHEDULER1,CENTRAL,"+aggregation_rates+delay_lower_router+delay_lower_router
-to_write+=sevice_time_central+prob_command_generated_central+"RAID3,"+service_time_disks
+to_write+=service_time_central+prob_command_generated_central+"RAID3,"+service_time_disks
 associated_wan_down =str(id_wan_central)+";0;3;WAN,WAN_TYPE0,"+delay_wan
 f_out.write(to_write)
 LP_index = 0
