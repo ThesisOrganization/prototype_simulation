@@ -1,12 +1,13 @@
 # coding=utf-8
 import numpy as np
+import sys
 f_out = open("../../tree_simulator/topology.txt", "w")
 f_out_LP = open("../../tree_simulator/LP.txt", "w")
 
 f_out_txt = open("../../jsonMerger/jsonAdditionalInfo.txt","w")
 numbersString = ""
-
-with open("config.txt") as f:
+txt_path = sys.argv[1]
+with open("../../"+txt_path) as f:
     lines = f.readlines()
     number_of_regionals = int(lines[2][36:-1])
     number_of_locals = int(lines[3][36:-1])
@@ -19,8 +20,8 @@ with open("config.txt") as f:
     delay_lan = lines[10][36:-1]+"\n"
     delay_wan = lines[11][36:-1]+"\n"
     prob_command_generated_central =lines[12][36:-1]+","
-    prob_command_generated_regional =lines[13][36:-1]+","
-    prob_command_generated_local =lines[14][36:-1]+","
+    prob_command_generated_regional =lines[13][36:-1]
+    prob_command_generated_local =lines[14][36:-1]
     service_time_disks =lines[15][36:-1]+"\n"
     service_time_commands_act =lines[16][36:-1]+"\n"
     rate_trans_act = lines[17][36:-1]+","
@@ -30,7 +31,6 @@ with open("config.txt") as f:
     service_trans = lines[21][36:-1]
     service_command = lines[22][36:-1]
     weight = lines[23][36:-1]
-
     types_of_lans = 1
 types_of_sensors = 2
 types_of_actuators = 1
@@ -79,7 +79,7 @@ num_act = 1
 num_sens_tel = 5
 num_sens_trans = 1
 for i in range(number_of_regionals):
-    number_of_locals_with_x_sensors_y_actuators_per_regional[i][num_sens_tel][num_sens_trans][num_act] = 5 #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
+    number_of_locals_with_x_sensors_y_actuators_per_regional[i][num_sens_tel][num_sens_trans][num_act] = number_of_locals/number_of_regionals #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
 ####################################
 total_sensors = 0
 total_actuators = 0
