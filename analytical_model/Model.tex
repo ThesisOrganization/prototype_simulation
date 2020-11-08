@@ -387,7 +387,7 @@ The main difference in the command rate will be that we won't notice a local lev
 
 	\end{array}
 \end{equation}
-where $\lambda^{\{ n \}}_{ln, e}$ denotes the rate of $n$-th local node of the regional that we are considering, i.e. $i$-th regional. Also $aggr^{\{n\}}_{ln, t}$ denotes the aggregation for telemetry messages done by the local node $n$, while $aggr^{\{n\}}_{ln,b}$ denotes the aggregation for batch messages done by the local $n$ and $p_{cmd, cn}$ is the probability that a transition generates a command in the central node. \\
+where $\lambda^{\{ n \}}_{ln, e}$ denotes the rate of $n$-th local node of the regional that we are considering, i.e. $i$-th regional; $p^{\{ n \}}_{cmd,ln}$ instead, is the probability of the $n$-th local node to generate a command for a received transition, thus that transition will not be forwarded to the regional node directly but with an aggregated batch message; this is also true for the central node. Also $aggr^{\{n\}}_{ln, t}$ denotes the aggregation for telemetry messages done by the local node $n$, while $aggr^{\{n\}}_{ln,b}$ denotes the aggregation for batch messages done by the local $n$ and $p_{cmd, cn}$ is the probability that a transition generates a command in the central node. \\
 From the previous formulas and the open queue model we can compute the Service Demand, Utilization factor and Response time.
 \begin{equation}
 	\begin{array}{l}
@@ -456,6 +456,7 @@ From the previous formulas and the open queue model we can compute the Service D
 \subsubsection{Central node storage system}
 In this first draft, the central node storage system is not characterized with a specific system(RAID 1-5, etc) and it is modeled as a simple queue filled by the central node.\\
 Since the central node will do some aggregation and computations on the telemetry messages received by the regional nodes, the rate arriving on the disk will be divided by the aggregation parameter of the central node.\\
+Moreover, the transition messages that will be saved directly on the storage system are only the ones which did not generate a command, since transition that generate a command are sent using batch messages.
 
 \begin{equation}
 	\begin{array}{l}
