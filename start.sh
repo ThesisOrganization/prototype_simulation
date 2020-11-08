@@ -52,3 +52,4 @@ echo "Done."
 echo "Creating pdf.."
 pdflatex complete_results.tex
 echo "Done."
+mv complete_results.pdf ../pdf_results/$(date +%H_%M_%S)-complete_results.pdf
