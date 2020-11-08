@@ -6,12 +6,13 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 #include<assert.h>
 #include"../utils/partop/header.h"
 #include"quick_sort.h"
 
 /// The visit type of the topology graph, since we need to visit it more than once.
-typedef enum{
+typedef enum _graph_visit_type {
 	GRAPH_COMPUTE_RATES=0, ///< This visit will compute all the paramters for telemetry, transition and batch send messages
 	GRAPH_COMPUTE_COMMANDS, ///< This visit will compute the parameters for command messages.
 	GRAPH_PRINT_DATA, ///< This visit will print the computed parameters on the output file and free memory.
@@ -19,7 +20,7 @@ typedef enum{
 } graph_visit_type;
 
 ///Used to avoid confusion while indexing the results array given by the ::compute_data function.
-typedef enum{
+typedef enum _data_classes {
 	CLASS_TELEMETRY=0, ///< telemetry messages.
 	CLASS_TRANSITION, ///< transition messages.
 	CLASS_COMMAND, ///< command messages.
@@ -28,14 +29,14 @@ typedef enum{
 } data_classes;
 
 /// The number of visits that a message class can perform on a queue.
-typedef enum{
+typedef enum _node_visits_per_message{
 	NODE_NO_VISIT=0,
 	NODE_SINGLE_VISIT,
 	NODE_DOUBLE_VISIT
 } node_visits_per_message;
 
 ///Paramters used to indicate that the current node is a LAN which has been split in an input queue and an output queue.
-typedef enum {
+typedef enum _node_splitting_classes {
 	NODE_NOT_SPLIT=-1, ///< Not split, treat it as a single queue.
 	NODE_SPLIT_IN_OUT, ///< Node split in two queues.
 	NODE_SPLIT_IN, ///< Node split in two queues but consider only the input queue.
@@ -43,13 +44,13 @@ typedef enum {
 } node_splitting_classes;
 
 ///Enum used to indicate if the node has a storage system
-typedef enum{
+typedef enum _node_storage_classes{
 	NODE_NO_STORAGE=0, ///< Nodes with no storage
 	NODE_SIMPLE_STORAGE ///< Nodes with a simple storage (a single queue)
 }node_storage_classes;
 
 /// Struct used to hold the parameters computed for each element of the topology.
-typedef struct node_data{
+typedef struct _node_data{
 	//we use the input_rates array for the lan in and the output_rates array for the lan out when the node is a lan
 	double *input_rates,*service_demands,*utilization_factors,*response_times,*output_rates, total_utilization_factor,*service_times; ///< Parameters to be computed
 	Element_topology* top; ///< The ::topology*.
@@ -59,8 +60,8 @@ typedef struct node_data{
 	int num_childrens; ///< The number of below connected nodes.
 	char* type; ///< The name of the node (this usually matches to the node's role, e.g. sensor,actuator,local, central and regional).
 	char* node_type; ///< If the node is an actuator / sensor then it's type will be here.
-	struct node_data** childrens; ///< The array of ids of the below connected nodes.
-	struct node_data* father; ///< The above connected node.
+	struct _node_data** childrens; ///< The array of ids of the below connected nodes.
+	struct _node_data* father; ///< The above connected node.
 	//the parameters below make sense only for lans
 	node_splitting_classes node_split_status; ///this parameter makes sense only for lan/split elements, if its value is not ::NODE_NOT_SPLIT then we need to use the below double* arrays instead of the ones above, rates excluded.
 	double *input_service_times,*input_service_demands,*input_utilization_factors,*input_response_times, input_total_utilization_factor; ///< Input parameters.
@@ -586,7 +587,8 @@ void compute_data(node_data* node,graph_visit_type visit_type,double * probOfAct
 				node->input_rates[CLASS_TELEMETRY]=childrens_total_rate[CLASS_TELEMETRY];
 				node->output_rates[CLASS_TELEMETRY]=childrens_total_rate[CLASS_TELEMETRY]/getAggregationRate(node->top)[TELEMETRY];
 				node->input_rates[CLASS_TRANSITION]=childrens_total_rate[CLASS_TRANSITION];
-				node->output_rates[CLASS_TRANSITION]=node->input_rates[CLASS_TRANSITION];
+                // only the transitions which are not followed by a command are sent to the upper level
+				node->output_rates[CLASS_TRANSITION]=node->input_rates[CLASS_TRANSITION]*(1-getProbCommandResponse(node->top));
 				//generated messages are not counted in the queue
 				node->input_rates[CLASS_BATCH]=childrens_total_rate[CLASS_BATCH];
 				node->output_rates[CLASS_BATCH]=(node->input_rates[CLASS_BATCH]+getProbCommandResponse(node->top)*node->input_rates[CLASS_TRANSITION])/getAggregationRate(node->top)[BATCH_DATA];

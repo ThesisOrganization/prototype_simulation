@@ -378,7 +378,8 @@ The main difference in the command rate will be that we won't notice a local lev
         %\lambda_{rn, t} = \sum\limits_{w \in T,s \in LAN^{\{i,j)},n \in L^i}{| S^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
         \lambda_{rn, t} = \sum\limits_{n \in L^{\{i\}}}{\frac{\lambda^{\{n\}}_{ln, t}}{aggr^{\{n\}}_{ln, t}}}  \\
         %\lambda_{rn, e} = \sum\limits_{w \in T,s \in LAN^{\{i,j)},n \in L^i}{| S^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{i,j}),n \in L^i}{| A^{\{i,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
-        \lambda_{rn, e} = \sum\limits_{n \in L^{\{i\}}}{\lambda^{\{n\}}_{ln, e}} \\
+        %\lambda_{rn, e} = \sum\limits_{n \in L^{\{i\}}}{\lambda^{\{n\}}_{ln, e}} \\
+        \lambda_{rn, e} = \sum\limits_{n \in L^{\{i\}}}{\lambda^{\{n\}}_{ln, e} * (1-p^{\{ n \}}_{cmd,ln})} \\
 		%\lambda_{rn, c} = \lambda_{cn, c} * \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} + p_{cmd,rn} * \lambda_{rn, e} \\\
 		\lambda_{rn,c}= (p_{cmd,cn} * \lambda_{cn, e})* \frac{\sum\limits_{t \in T}{a_{t} * p_{t}}}{\sum\limits_{t \in T'}{a'_{t} * p_{t}}} \\\
 		\lambda_{rn,b}=\sum\limits_{n \in L^{\{i\}}}\frac{\lambda_{ln,e}^{\{n\}}*p_{cmd,ln}}{aggr_{ln,b}}\\
@@ -414,7 +415,7 @@ From the previous formulas and the open queue model we can compute the Service D
 	\caption{Focus on regional nodes and central node}
 \end{figure}
 In the highest level, we will need to work over all the regional nodes in $R$.\\
-The central node command rate is 0, since it can only generate commands to the regionals, not receive them. Note that the computation effort done in order to decide if the node (not only for the central) need to send or not a command is contained in the service time of transitions messages. 
+The central node command rate is 0, since it can only generate commands to the regionals, not receive them. Note that the computation effort done in order to decide if the node (not only for the central) need to send or not a command is contained in the service time of transitions messages.
 \begin{equation}
 	\begin{array}{l}
 		V_{cn, t} = 1 \\
@@ -424,7 +425,8 @@ The central node command rate is 0, since it can only generate commands to the r
         %\lambda_{cn, t} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, t}}  \\
         \lambda_{cn, t} = \sum\limits_{m \in R}{ \frac{\lambda^{\{m\}}_{rn, t}}{aggr^{\{ m \}}_{rn}}}  \\
         %\lambda_{cn, e} = \sum\limits_{w \in T,s \in LAN^{\{m,n)},n \in L^m, m \in R}{| S^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{s, e}} + \sum\limits_{w \in T,s \in LAN^{\{m,n}),n \in L^m, m \in R}{| A^{\{m,n,s\}}_{w} | * \lambda^{\{w\}}_{a, e}}\\
-        \lambda_{cn, e} = \sum\limits_{m \in R}{\lambda^{\{m\}}_{rn, e}} \\
+        %\lambda_{cn, e} = \sum\limits_{m \in R}{\lambda^{\{m\}}_{rn, e}} \\
+        \lambda_{cn, e} = \sum\limits_{m \in R}{\lambda^{\{m\}}_{rn, e} * (1-p^{\{ m \}}_{cmd,rn})} \\
 		%\lambda_{cn, c} = p_{cmd,cn} * \lambda_{cn, e} \\
         %\lambda_{cn, b} = \sum\limits_{m \in R}{\lambda^{\{ m \}}_{rn, b}} + p_{cmd,cn} * \lambda_{cn, e}
 		\lambda_{cn,b}=\sum\limits_{m \in R}\frac{\lambda_{rn,b}^{\{m\}}+\lambda_{rn,e}^{\{m\}}*p_{cmd,rn}}{aggr^{\{ m \}}_{rn,b}}\\
@@ -461,7 +463,7 @@ Since the central node will do some aggregation and computations on the telemetr
 		V_{cns, e} = 1 \\
 		V_{cns, b} = 1 \\
 		\lambda_{cns, t} = \frac{\lambda_{cn,t}}{aggr_{cn}} \\
-		\lambda_{cns, e} = \lambda_{cn,e} \\
+		\lambda_{cns, e} = \lambda_{cn,e} * (1-p_{cmd,cn}) \\
 		%\lambda_{cns, b} = \lambda_{cn,b} \\
 		\lambda_{cns, b} = \frac{\lambda_{cn,b}+\lambda_{cn,e}*p_{cmd,cn}}{aggr_{cn,b}} \\
 	\end{array}
