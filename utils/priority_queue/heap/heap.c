@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "heap.h"
-#include "_heap.h"
 
 heap * heap_new(HEAP_TYPE is_min_heap, int capacity) {
 
@@ -69,7 +68,7 @@ static void exchange(_heap * h, int i, int j) {
 	h->array[j]->position = j;
 }
 
-heap_entry * heap_add(heap * hh, double key, void * payload) {
+heap_entry * heap_add(heap * hh, double key, job_info payload) {
 
 	_heap * h = hh;
 
@@ -142,12 +141,14 @@ static void heapify(_heap * h, int i) {
 	}
 }
 
-void * heap_poll(heap * hh) {
+job_info heap_poll(heap * hh) {
 
 	_heap * h = hh;
 
 	//int key = -1;
-	void * payload = NULL;
+	job_info payload;
+	payload.job_type = INVALID_JOB;
+	
 	if(h->used > 0) {
 		_heap_entry * e = h->array[0];
 		h->array[0] = h->array[h->used - 1];

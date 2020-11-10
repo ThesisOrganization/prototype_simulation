@@ -21,17 +21,22 @@ int main(int argc, char** argv) {
 
     priority_queue * pq = create_queue();
 
-    int payload1 = 32;
-    int payload2 = 21;
+    //int payload1 = 32;
+    //int payload2 = 21;
+		job_info payload1;
+		payload1.job_type = 9;
+		job_info payload2;
+		payload2.job_type = 4;
 
-    enqueue(pq, 1, &payload1);
-    enqueue(pq, 3, &payload2);
+    enqueue(pq, 1, payload1);
+    enqueue(pq, 3, payload2);
 
     print_queue(pq);
+    printf("%d\n", check_presence(pq) );
 
-    int out = *((int *) dequeue(pq));
+    job_info out = dequeue(pq);
 
-    printf("%d\n", out);
+    printf("valore: %d\n", out.job_type);
 
     print_queue(pq);
 

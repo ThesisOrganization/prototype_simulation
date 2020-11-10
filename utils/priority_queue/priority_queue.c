@@ -1,5 +1,3 @@
-#include "heap/heap.h"
-#include "heap/_heap.h"
 #include "priority_queue.h"
 
 #define CAPACITY 50
@@ -11,13 +9,12 @@ priority_queue* create_queue(void){
 
 }
 
-void enqueue(priority_queue * pq, double timestamp, void * payload){
+void enqueue(priority_queue * pq, double timestamp, job_info payload){
 
     heap_add(pq, timestamp, payload);
 
 }
-
-void * dequeue(priority_queue * pq){
+job_info dequeue(priority_queue * pq){
 
     return heap_poll(pq);
 

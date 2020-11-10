@@ -4,10 +4,12 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+	
+#include "../../application_datatypes.h"
 
 typedef struct _heap_entry{
 	double key;
-    void * payload;
+	job_info payload;
 	int position;
 } _heap_entry;
 

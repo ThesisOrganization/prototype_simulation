@@ -20,6 +20,7 @@ typedef enum {
 } prio_type;
 
 typedef enum {
+	INVALID_JOB = -1,
 	TELEMETRY = 0,
 	TRANSITION,
 	COMMAND,
@@ -33,7 +34,7 @@ typedef struct _job_info {
 	prio_type type; ///< The type of job.
 	double arrived_in_node_timestamp;
 	double deadline; ///< The deadline at which the job must be completed.
-	void* payload; ///< The actual job data. (can't be sent on rootsim)
+	//void* payload; ///< The actual job data. (can't be sent on rootsim)
 	job_type job_type;
 	int lp_sender; //used for the reply
 	double busy_time_transition; //used with the reply and transition
