@@ -113,7 +113,7 @@ job_info** schedule_out(priority_scheduler* sched){
 					(sched->output_queues[output_index]->enqueue)(sched->output_queues[output_index]->queue,sched->scheduler_timestamp,job);
 				} else {
 					//we add it to the job array if we have no output queues configured
-					jobs[sched->scheduler_timestamp]=job;
+					jobs[job_index]=job;
 				}
 				//we increment the timestamp of the scheduler since we have scheduled one more job
 				sched->scheduler_timestamp++;
