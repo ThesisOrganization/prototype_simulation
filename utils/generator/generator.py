@@ -25,8 +25,8 @@ with open("../../"+txt_path) as f:
     service_time_disks =lines[15][36:-1]+"\n"
     service_time_commands_act =lines[16][36:-1]+"\n"
     rate_trans_act = lines[17][36:-1]+","
-    sens_tele_type1 = lines[18][36:-1]+","
-    sens_trans_type2 = lines[19][36:-1]+","
+    sens_tele_type1 = lines[18][36:-1]
+    sens_trans_type2 = lines[19][36:-1]
     service_tele = lines[20][36:-1]
     service_trans = lines[21][36:-1]
     service_command = lines[22][36:-1]
