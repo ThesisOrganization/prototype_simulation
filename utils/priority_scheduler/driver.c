@@ -61,19 +61,21 @@ int main(int argc, char** argv) {
 	printf("put queues into an array\n");
 
 	//priority_scheduler* sched=new_prio_scheduler(arr, &o, 3, 1, 2, UPGRADE_PRIO);
-	priority_scheduler* sched=new_prio_scheduler(arr, NULL, 3, 0, 2, UPGRADE_PRIO);
+	priority_scheduler* sched=new_prio_scheduler(arr, NULL, 3, 0, 1, UPGRADE_PRIO);
 
-	int i=0,j;
-	job_info *tmp=NULL;
+	int i=0,j,res;
+	job_info tmp;
+	tmp.job_type=INVALID_JOB;
 
 	printf("scheduling jobs on the input queues\n");
 	for(i=0;i<10;i++){
-		tmp=malloc(sizeof(job_info));
-		tmp->type=rand() % 3; // we choose a random priority between REAL_TIME, LOSSY and BATCH
-		tmp->deadline=drand48()*9+1;
-		tmp->payload=NULL;
-		schedule_in(sched,tmp);
+		tmp.type=rand() % 3; // we choose a random priority between REAL_TIME, LOSSY and BATCH
+		tmp.deadline=drand48()*9+1;
+		tmp.job_type=lrand48()%NUM_OF_JOB_TYPE;
+		res=schedule_in(sched,tmp);
+		printf("schedule result: %d ",res);
 	}
+	printf("\n");
 	printf("queues before scheduling\n");
 	for(i=0;i<3;i++){
 		printf("input queue %d\n type: %d, items: %d\n contents:\n",i,arr[i]->type,(arr[i]->check_presence)(arr[i]->queue));
@@ -84,20 +86,21 @@ int main(int argc, char** argv) {
 
 	printf("elements in o %d\n",o->check_presence(o->queue));
 
-	job_info** job;
+	job_info* jobs=malloc(sizeof(job_info)*1);
+	memset(jobs,0,sizeof(job_info)*1);
+	int num_jobs=1;
 	printf("scheduling out jobs\n");
 	for(i=0;i<10;i++){
-		job=schedule_out(sched,i);
+		res=schedule_out(sched,jobs,num_jobs);
 		printf("time: %d\n",i);
-		if(job!=NULL){
-		for(j=0;job[j]!=NULL;j++){
-			printf("job type: %d, deadline %f\n",job[j]->type,job[j]->deadline);
-			free(job[j]);
-		}
-			free(job);
+		if(jobs!=NULL){
+			for(j=0;j<num_jobs;j++){
+				printf("job type: %d, deadline %f, result:%d\n",jobs[j].type,jobs[j].deadline,res);
+			}
 		}
 		printf("time++\n");
 	}
+	free(jobs);
 
 	printf("input queues after scheduling\n");
 	for(i=0;i<3;i++){
@@ -110,8 +113,7 @@ int main(int argc, char** argv) {
 		printf("output queue \n type: %d, items: %d\n contents:\n",o->type,(o->check_presence)(o->queue));
 		print_queue(o->queue);
 		tmp=dequeue(o->queue);
-		printf("job type: %d, deadline %f\n",tmp->type,tmp->deadline);
-		free(tmp);
+		printf("job type: %d, deadline %f\n",tmp.type,tmp.deadline);
 	}
 	printf("output queue \n type: %d, items: %d\n contents:\n",o->type,(o->check_presence)(o->queue));
 	print_queue(o->queue);
@@ -123,5 +125,6 @@ int main(int argc, char** argv) {
 	free(arr);
 	delete_queue(o->queue);
 	free(o);
+	free(sched);
 	return EXIT_SUCCESS;
 }

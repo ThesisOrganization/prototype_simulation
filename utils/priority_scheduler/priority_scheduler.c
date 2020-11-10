@@ -60,18 +60,27 @@ int check_queues(queue_conf* queue){
  * Real time jobs that don't meet the deadline are scheduled regardless (they shoul always meet the deadline).
  * If there were no output queues supplied, the function will return up to `events_to_schedule` jobs, according to the scheduler configuration.
  */
-job_info** schedule_out(priority_scheduler* sched){
-	int i,output_index=0,output_empty=1,job_index=0;
-	job_info *job, **jobs=NULL;
-
+int schedule_out(priority_scheduler* sched,job_info* jobs,int num_jobs){
+	int i,output_index=0,output_empty=1,job_index=0,events_to_schedule=0,res=SCHEDULE_FAIL;
+	job_info job;
+	job.job_type=INVALID_JOB;
+	//we determine the number of events to be scheduled out
+	if(sched->events_to_schedule==0){
+		events_to_schedule=1;
+	} else{
+		events_to_schedule=sched->events_to_schedule;
+	}
+	//some sanity checks
 	if(sched->num_output_queues>0){
 		// we check if all output queues are empty
 		for(i=0;i<sched->num_output_queues && output_empty;i++){
 			output_empty= output_empty && (sched->output_queues[i]->check_presence)(sched->output_queues[i]->queue)==0;
 		}
 	} else{
-		jobs=malloc(sizeof(job_info*)*(sched->events_to_schedule+1));
-		memset(jobs,0,sizeof(job_info*)*(sched->events_to_schedule+1));
+		if(jobs==NULL || num_jobs<events_to_schedule){
+			printf("invalid parameters for the scheduler\n");
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	//if all output queues are empty we can reset the scheduler timestamp
@@ -80,9 +89,9 @@ job_info** schedule_out(priority_scheduler* sched){
 	}
 
 	// we schedule events from the input queues (sorted by type and priority) to the output queues (sorted by type and priority)
-	for(i=0;i<sched->num_input_queues && (job_index<sched->events_to_schedule || sched->events_to_schedule==0);i++){
+	for(i=0;i<sched->num_input_queues && job_index<events_to_schedule;i++){
 		//we schedule jobs from the input queue to the output queues, according to the configured number of events to be scheduled
-		for(;(job_index<sched->events_to_schedule || sched->events_to_schedule==0) && (sched->input_queues[i]->check_presence)(sched->input_queues[i]->queue)>0;job_index++){
+		for(;job_index<events_to_schedule && (sched->input_queues[i]->check_presence)(sched->input_queues[i]->queue)>0;job_index++){
 			if(sched->num_output_queues>0){
 				//we find a suitable output queue
 				if(sched->mix_prio==UPGRADE_PRIO){
@@ -91,7 +100,7 @@ job_info** schedule_out(priority_scheduler* sched){
 						output_index++;
 						//if we don't have any other output queues we cannot schedule jobs
 						if(output_index>=sched->num_output_queues){
-							return jobs;
+							return res;
 						}
 					}
 				} else {
@@ -107,6 +116,9 @@ job_info** schedule_out(priority_scheduler* sched){
 			//we can now schedule the job from the ith input queue to a suitable output queue
 			//we dequeue the job from the ith input queue
 			job=(sched->input_queues[i]->dequeue)(sched->input_queues[i]->queue);
+			if(job.job_type!=INVALID_JOB || res==SCHEDULE_DONE){
+				res=SCHEDULE_DONE;
+			}
 
 				if(sched->num_output_queues>0){
 					//we enqueue the job on the chosen output queue
@@ -119,19 +131,19 @@ job_info** schedule_out(priority_scheduler* sched){
 				sched->scheduler_timestamp++;
 		}
 	}
-	return jobs;
+	return res;
 }
 
 /**
  * Schedule a new event in the first appropriate queue which has free space.
  */
-int schedule_in(priority_scheduler* sched, job_info* job){
+int schedule_in(priority_scheduler* sched, job_info job){
 	int i, done=SCHEDULE_FAIL;
 	//we find a suitable queue
-	for(i=0;i<sched->num_input_queues && !done;i++){
-		if(sched->input_queues[i]->type==job->type && check_queues(sched->input_queues[i])){
+	for(i=0;i<sched->num_input_queues && done==SCHEDULE_FAIL;i++){
+		if(sched->input_queues[i]->type==job.type && check_queues(sched->input_queues[i])){
 			//the queue has the same type of the event and is not full so we can add the job in it
-			(sched->input_queues[i]->enqueue)(sched->input_queues[i]->queue,job->deadline,job);
+			(sched->input_queues[i]->enqueue)(sched->input_queues[i]->queue,job.deadline,job);
 			done=SCHEDULE_DONE;
 		}
 	}

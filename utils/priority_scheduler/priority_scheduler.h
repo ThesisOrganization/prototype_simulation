@@ -1,9 +1,9 @@
 #ifndef PRIORITY_SCHEDULER_H
 #define PRIORITY_SCHEDULER_H
-/// We failed to schedule in a job
-#define SCHEDULE_FAIL 0
-/// We have scheduled a job in successfully
-#define SCHEDULE_DONE 1
+/// We failed to schedule a job
+#define SCHEDULE_FAIL -1
+/// We have scheduled a job successfully
+#define SCHEDULE_DONE 0
 
 /** \file priority_scheduler.h
  * \brief APIs for the usage of a priority scheduler.
@@ -52,14 +52,16 @@ priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, 
 
 /** \brief Schedules events from the input queues to the output queues.
  * \param[in] sched The scheduler which must be used to schedule events.
- * \returns `NULL` if there is at least one output queue, an array of `events_to_schedule` elements if there are no output queues. The returned array can also have less than `events_to_schedule` elements depending on the input queue status, its last element is always NULL.
+ * \param[in] jobs The arrat where the jobs scheduled out will returned if there are no output queues.
+ * \param[in] num_jobs The length of the jobs array that will be filled.
+ * \returns `NULL` if there is at least one output queue, an array of `events_to_schedule` elements if there are no output queues. The returned array can also have less than `events_to_schedule` elements depending on the input queue status, its length will be given by the num_jobs parameters.
  */
-job_info** schedule_out(priority_scheduler* sched);
+int schedule_out(priority_scheduler* sched,job_info* jobs,int num_jobs);
 
 /** \brief Schedules a job to one of the input queues.
  * \param[in] sched The scheduler which must be used to schedule events.
  * \param[in] job The event to be inserted in an input queue.
  * \returns ::SCHEDULE_FAIL if the job has been rejected or ::SCHEDULE_DONE otherwise.
  */
-int schedule_in(priority_scheduler* sched,job_info* job);
+int schedule_in(priority_scheduler* sched,job_info job);
 #endif

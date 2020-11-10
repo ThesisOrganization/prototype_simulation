@@ -12,14 +12,14 @@
  */
 
 /// Type of priority (Lower -> higher priority)
-typedef enum {
+typedef enum _prio_type {
 	REAL_TIME = 0, ///< Real time events
 	LOSSY, ///< Events with a non strict deadline (meaningless after the deadline has expired)
 	BATCH, ///< Events with no deadline
 	NUM_OF_PRIO_TYPES ///< this must be at the end of the enum because denote the number of types
 } prio_type;
 
-typedef enum {
+typedef enum _job_type {
 	INVALID_JOB = -1,
 	TELEMETRY = 0,
 	TRANSITION,
@@ -49,8 +49,8 @@ typedef struct _job_info {
 typedef struct queue_conf{
 	void* queue; ///< The queue object.
 	prio_type type; ///< The queue type, see `::QUEUE_BATCH`, `::QUEUE_LOSSY`, `::QUEUE_RT`.
-	void (*enqueue)(void*,double,void*); ///< The enqueue operation used for this queue.
-	void* (*dequeue)(void*); ///< The dequeue operation used for this queue.
+	void (*enqueue)(void*,double,job_info); ///< The enqueue operation used for this queue.
+	job_info (*dequeue)(void*); ///< The dequeue operation used for this queue.
 	int (*check_presence)(void*); ///< Check is the queue is empty.
 	int (*check_full)(void*); ///< Check if the queue is full, this function can be NULL if the queue is infinite.
 } queue_conf;
@@ -59,7 +59,7 @@ typedef struct queue_conf{
 //PARTOP DATA
 //#############################################
 
-typedef enum {
+typedef enum _state_type{
 	NODE = 0,
 	SENSOR,
 	ACTUATOR,
@@ -67,46 +67,46 @@ typedef enum {
 	LAN
 } state_type;
 
-typedef enum {
+typedef enum _scheduler_type{
 	SCHEDULER1 = 0,
 	SCHEDULER2,
 	SCHEDULER3
 } scheduler_type;
 
-typedef enum {
+typedef enum _sensor_type{
 	SENSOR_TYPE0 = 0,
 	SENSOR_TYPE1
 } sensor_type;
 
-typedef enum {
+typedef enum _actuator_type{
 	ACTUATOR_TYPE0 = 0,
 	ACTUATOR_TYPE1
 } actuator_type;
 
-typedef enum {
+typedef enum _node_type{
 	CENTRAL = 0,
 	REGIONAL,
 	LOCAL
 } node_type;
 
-typedef enum {
+typedef enum _measure_type{
 	MEASURE0 = 0,
 	MEASURE1,
 	MEASURE2
 } measure_type;
 
-typedef enum {
+typedef enum _wan_type{
 	WAN_TYPE0 = 0,
 	WAN_TYPE1
 } wan_type;
 
-typedef enum {
+typedef enum _lan_type{
 	LAN_TYPE0 = 0,
 	LAN_TYPE1,
 	LAN_TYPE2
 } lan_type;
 
-typedef enum {
+typedef enum _disk_type{
 	RAID1 = 0,
 	RAID2,
 	RAID3
@@ -250,7 +250,7 @@ typedef struct _total_topology{
 
 //#define NUM_QUEUES 3
 
-typedef enum { //INIT should be 0
+typedef enum _events_type{ //INIT should be 0
 	ARRIVE = 1,
 	ARRIVE_DISK,
 	FINISH,
@@ -267,7 +267,7 @@ typedef enum { //INIT should be 0
 /** These timestamp are used during the various phases of the setup.
  * The value of the timestamp is used as it is to send the struct the refer to, then every inner pointer is sent as a separate message using an increase of 0.01, to avoid overlapping of the messages for different structs.
  */
-typedef enum {
+typedef enum _ts_data{
 	TS_RECV_LP_STATE_INFO=1,
 	TS_RECV_GENERAL_TOPOLOGY,///< Timestamp used to start sending the general_topology.
 	TS_RECV_ELEMENT_INDEX_MAP, ///< Timestamp used to send the element_to_index idmap.
@@ -279,7 +279,7 @@ typedef enum {
 } ts_data;
 
 /// Used to determine the type of data received in a ::RECEIVE_SETUP_DATA event.
-typedef enum {
+typedef enum _setup_data_types{
 	SETUP_DATA_LP_STATE=0, ///< lp_state struct
 	SETUP_DATA_PINT, ///< int*
 	SETUP_DATA_PDOUBLE, ///< double*
@@ -346,7 +346,7 @@ typedef struct _actuator_state {
 } actuator_state;
 
 
-typedef enum { //INIT should be 0
+typedef enum _lan_direction{ //INIT should be 0
 	LAN_IN = 0,
 	LAN_OUT
 } lan_direction;
@@ -371,18 +371,18 @@ typedef union {
 } state_info;
 
 ///Used to determine is an LP is active or not
-typedef enum {
+typedef enum _lp_usage_types{
 	LP_DISABLED=0,
 	LP_SETUP,
 	LP_ENABLED
 } lp_usage_types;
 
-typedef enum {
+typedef enum _simulation_status{
 	SIMULATION_ACTIVE = 0,
 	SIMULATION_STOP
 } simulation_status; //to delete
 
-typedef enum {
+typedef enum _stability_value{
 	ELEMENT_UNSTABLE = 0,
 	ELEMENT_STABLE
 } stability_value;
