@@ -227,8 +227,6 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 	if(!( info->job_type == TRANSITION && (state->info.node->type == LOCAL || state->info.node->type == REGIONAL) ))
 		update_metrics(now, state->info.node->queue_state, info);
 
-	//Schedule the next job if present
-	job_info ** info_arr = schedule_next_job(id_device, now, state->info.node->queue_state, state->info.node->service_rates, 0, FINISH, id_lp);
 
 	double delay_up = state->info.node->up_delay;
 	double delay_down = state->info.node->down_delay;
@@ -259,6 +257,10 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 			//###################################################
 			//SEND BATCH_DATA
 			send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp);
+			
+			//###################################################
+			//UPDATE TRANSITION METRICS
+			update_metrics(now, state->info.node->queue_state, info);
 
 		}
 		else{
@@ -275,7 +277,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 				save_data_on_disk(id_device, now, TRANSITION, id_lp);
 			
 		}
-
+		
 	}
 	else if(info->job_type == COMMAND){
 
@@ -293,6 +295,9 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 		//printf("%f, %d, %d\n", now, me, info->lp_sender);
 
 	}
+	
+	//Schedule the next job if present
+	job_info ** info_arr = schedule_next_job(id_device, now, state->info.node->queue_state, state->info.node->service_rates, 0, FINISH, id_lp);
 
 	//free(info_arr); //liberi l'array dell'attuale job!
 	//free(info); //liberi il vecchio job
