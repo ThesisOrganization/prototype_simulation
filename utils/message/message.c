@@ -2,6 +2,7 @@
  * Implementation of the message functions.
  */
 #include "message.h"
+#include<string.h>
 
 void* create_setup_message(int device_id,setup_data_types container,setup_data_types data_type, void* data,size_t data_size,size_t *message_size){
 	void* message=NULL;

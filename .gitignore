@@ -1,6 +1,8 @@
 .*
 !.gitignore
 ROOT-Sim-*
+NeuRome-*
+Simulator
 *.o*
 driver
 *.kde*

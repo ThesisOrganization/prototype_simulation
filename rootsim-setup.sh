@@ -29,11 +29,11 @@ echo "The executable will be found in the ROOT-Sim-bin folder"
 echo -e "Argument list:\n \"debug\": enable debug symbols\n \"debug-extra\": extra checks during debug (kills performance)\n \"mpi\": enable mpi\n \"no-rebinding\": disable LP rebinding\n \"profile\": enable performance reports\n"
 
 sleep 2
-
+rm -fr Simulator
 git clone https://github.com/HPDCS/ROOT-Sim ROOT-Sim-source
-mkdir ROOT-Sim-bin
+mkdir Simulator
 cd ROOT-Sim-source
 sh autogen.sh
-./configure $ARGS --prefix=$PREFIX/ROOT-Sim-bin
+./configure $ARGS --prefix=$PREFIX/Simulator
 make install
 cd ..

@@ -1,4 +1,4 @@
-CC = ../ROOT-Sim-bin/bin/rootsim-cc
+CC = ../Simulator/bin/rootsim-cc
 CFLAGS = -Wall -Wextra
 TARGET = queues
 

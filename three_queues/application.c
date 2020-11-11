@@ -1,4 +1,4 @@
-#include "../ROOT-Sim-bin/include/ROOT-Sim.h"
+#include "../Simulator/include/ROOT-Sim.h"
 #include <stdio.h>
 #define EVENT 1
 #define ARRIVE 2

@@ -1,7 +1,7 @@
 #ifndef APPLICATION_DATATYPES_H
 #define APPLICATION_DATATYPES_H
 
-#include "../ROOT-Sim-bin/include/ROOT-Sim.h"
+#include "../Simulator/include/ROOT-Sim.h"
 #include "idmap/idmap.h"
 //#############################################
 //SCHEDULER DATA

@@ -3,6 +3,7 @@
  */
 
 #include "setup_recv_functions.h"
+#include<string.h>
 
 /** \brief Handling of inner pointer of node_topology struct
  * \param[in] state The device_state that matches the element_id of the setup message.

@@ -8,6 +8,7 @@
 #include "./simulation_functions/finish_event/finish_functions.h"
 #include "./simulation_functions/setup_protocol/setup_protocol.h"
 
+
 char topology_path[] = "./topology.txt";
 char file_name[] = "lp_data/lp";
 char end_file_name[] = ".json";
@@ -63,13 +64,13 @@ int check_metrics(queue_state * queue_state){
 }
 
 void update_stable_metrics(queue_state * queue_state){
-	
+
 	memcpy(queue_state->C_stable, queue_state->C, sizeof(int)*NUM_OF_JOB_TYPE);
 	memcpy(queue_state->A_stable, queue_state->A, sizeof(int)*NUM_OF_JOB_TYPE);
 	memcpy(queue_state->W_stable, queue_state->W, sizeof(double)*NUM_OF_JOB_TYPE);
 	memcpy(queue_state->B_stable, queue_state->B, sizeof(double)*NUM_OF_JOB_TYPE);
 	memcpy(queue_state->actual_timestamp_stable, queue_state->actual_timestamp, sizeof(double)*NUM_OF_JOB_TYPE);
-	
+
 }
 
 void broadcast_message(int number_lps_enabled, simtime_t ts_to_send, events_type event_to_broadcast){
@@ -93,6 +94,7 @@ void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_devi
 }
 
 
+#define n_prc_tot n_lps ///< use this macro when using NeuRome as compiler
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
 
@@ -390,7 +392,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						boolean_check = check_metrics(dev_state->info.node->queue_state);
 						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 							update_stable_metrics(dev_state->info.node->queue_state);
-							
+
 
 						if(dev_state->info.node->type == CENTRAL){
 							boolean_check = check_metrics(dev_state->info.node->disk_state);
@@ -429,7 +431,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						boolean_check = 1;
 						boolean_simulation_max = 1;
 					}
-					
+
 					if(dev_state->stability == ELEMENT_UNSTABLE && boolean_check && dev_state->simulation_completed == SIMULATION_ACTIVE){
 						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
 						if(!boolean_simulation_max)

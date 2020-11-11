@@ -60,7 +60,7 @@ def aux(begin_table,dict,string):
     to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
     f_out.write(to_print)
 
-    total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
+    total_u = "\\centering Total Utilization Factor = $" + f"{total:.3}" + "$\n"
     f_out.write(total_u)
 
     f_out.write(begin_table)
@@ -519,6 +519,7 @@ for element in ordered_id_list:
 
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
             f_out.write(table_string)
+            print(element)
             aux(begin_table,dict_model,'parameters')
             f_out.write("\\end{minipage}")
 

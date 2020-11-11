@@ -5,3 +5,6 @@ report.tex
 *.pdf
 *.tex
 *.json
+model_serial
+model_parallel
+lp_data
