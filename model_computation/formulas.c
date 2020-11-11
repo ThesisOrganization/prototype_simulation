@@ -25,6 +25,7 @@ typedef enum _data_classes {
 	CLASS_TRANSITION, ///< transition messages.
 	CLASS_COMMAND, ///< command messages.
 	CLASS_BATCH, ///< batch send messages.
+	CLASS_REPLY, ///< reply to transition messages
 	NUM_CLASSES
 } data_classes;
 
@@ -320,7 +321,7 @@ void print_parameters(node_data* node,node_splitting_classes split_class,node_st
 		number_visits=node->node_visits_per_class;
 	}
 	//we print parameters for each class
-	for(class=CLASS_TELEMETRY;found_params==1 && class<NUM_CLASSES;class++){
+	for(class=CLASS_TELEMETRY;found_params==1 && class<CLASS_REPLY;class++){
 		//print the class JSON object
 		switch(class){
 			case CLASS_TELEMETRY:
@@ -360,7 +361,7 @@ void print_parameters(node_data* node,node_splitting_classes split_class,node_st
 		}
 		fprintf(out,"\"number_of_visits\" : %d",number_visits[class]);
 		fprintf(out,"}");
-		if(class+1<NUM_CLASSES){
+		if(class+1<CLASS_REPLY){
 			fprintf(out,",");
 		}
 	}
@@ -615,7 +616,8 @@ void compute_data(node_data* node,graph_visit_type visit_type,double * probOfAct
 				}
 				node->service_times[CLASS_TELEMETRY]=getServiceTimesNodes(node->top)[TELEMETRY];
 				if(getNodeType(node->top)!=CENTRAL){
-					node->service_times[CLASS_TRANSITION]=getServiceTimesNodes(node->top)[TRANSITION]*getProbCommandResponse(node->top)+2*getServiceTimesNodes(node->top)[TRANSITION]*(1-getProbCommandResponse(node->top));
+					node->service_times[CLASS_TRANSITION]=getServiceTimesNodes(node->top)[TRANSITION];
+					node->service_times[CLASS_REPLY]=getServiceTimesNodes(node->top)[REPLY];
 				}
 				else{
 					node->service_times[CLASS_TRANSITION]=getServiceTimesNodes(node->top)[TRANSITION];
@@ -660,7 +662,12 @@ void compute_data(node_data* node,graph_visit_type visit_type,double * probOfAct
 		} else {
 			if(node->input_rates[class]>0){
 				//all the other elements use only one queue, so their parameters can be generalized
-				node->service_demands[class]= node->node_visits_per_class[class] * node->service_times[class];
+				//however regional and local nodes need to consider the replies in their transition service demand
+				if(class==CLASS_TRANSITION && getType(node->top)==NODE && getNodeType(node->top)!=CENTRAL){
+					node->service_demands[CLASS_TRANSITION]= node->node_visits_per_class[class] * (node->service_times[CLASS_TRANSITION] + ((1-getProbCommandResponse(node->top))*node->service_times[CLASS_REPLY]));
+				} else {
+					node->service_demands[class]= node->node_visits_per_class[class] * node->service_times[class];
+				}
 				node->utilization_factors[class]= node->input_rates[class] * node->service_demands[class];
 				node->total_utilization_factor+=node->utilization_factors[class];
 			}
