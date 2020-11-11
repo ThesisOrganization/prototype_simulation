@@ -341,7 +341,7 @@ print("END ACTUATORS ######################")
 
 f_out = open("complete_results.tex", "w")
 #title
-initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\n\\title{Results}\n\\begin{document}\n\\maketitle\n"
+initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\usepackage[margin=0.5in]{geometry}\n\\title{Results}\n\\begin{document}\n\\maketitle\n"
 f_out.write(initial_header);
 begin_table ="\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc@{}}\n\\toprule\n"
 complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc|cccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $aggr_t$ & $aggr_e$ & $aggr_c$ & $aggr_b$\\\\"

@@ -614,7 +614,12 @@ void compute_data(node_data* node,graph_visit_type visit_type,double * probOfAct
 					node->storage_input_rates[CLASS_BATCH]=node->output_rates[CLASS_BATCH];
 				}
 				node->service_times[CLASS_TELEMETRY]=getServiceTimesNodes(node->top)[TELEMETRY];
-				node->service_times[CLASS_TRANSITION]=getServiceTimesNodes(node->top)[TRANSITION];
+				if(getNodeType(node->top)!=CENTRAL){
+					node->service_times[CLASS_TRANSITION]=getServiceTimesNodes(node->top)[TRANSITION]*getProbCommandResponse(node->top)+2*getServiceTimesNodes(node->top)[TRANSITION]*(1-getProbCommandResponse(node->top));
+				}
+				else{
+					node->service_times[CLASS_TRANSITION]=getServiceTimesNodes(node->top)[TRANSITION];
+				}
 				node->service_times[CLASS_COMMAND]=getServiceTimesNodes(node->top)[COMMAND];
 				node->service_times[CLASS_BATCH]=getServiceTimesNodes(node->top)[BATCH_DATA];
 			}
@@ -787,12 +792,10 @@ void init_node_data(node_data *data,int node_id,node_data* father,Element_topolo
 			break;
 		case NODE:
 			//central node do not receive replies
-			if(getNodeType(elTop)==CENTRAL){
-				data->node_visits_per_class[CLASS_TRANSITION]=NODE_SINGLE_VISIT;
-			}else {
+			if(getNodeType(elTop)!=CENTRAL){
 				data->node_visits_per_class[CLASS_COMMAND]=NODE_SINGLE_VISIT;
-				data->node_visits_per_class[CLASS_TRANSITION]=NODE_DOUBLE_VISIT;
 			}
+			data->node_visits_per_class[CLASS_TRANSITION]=NODE_SINGLE_VISIT;
 			data->node_visits_per_class[CLASS_TELEMETRY]=NODE_SINGLE_VISIT;
 			data->node_visits_per_class[CLASS_BATCH]=NODE_SINGLE_VISIT;
 			snprintf(data->type,sizeof(char)*128,"node");
