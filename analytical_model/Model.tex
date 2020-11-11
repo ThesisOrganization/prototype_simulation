@@ -343,7 +343,7 @@ From the previous formulas and the open queue model we can compute the Service D
 \begin{equation}
     \begin{array}{l}
         D_{ln, t} = V_{ln, t} * S_{ln, t} \\
-        D_{ln, e} = V_{ln, e} *(S_{ln, er}*(1-p_{cmd,ln})+S_{ln, e}*p_{cmd,ln}) \\
+        D_{ln, e} = V_{ln, e} *(S_{ln, e}+(S_{ln, er}*(1-p_{cmd,ln}))) \\
         D_{ln, c} = V_{ln, c} * S_{ln, c} \\
         %D_{ln, b} = V_{ln, b} * S_{ln, b} \\
         U_{ln, t} = \lambda_{ln, t} * D_{ln, t} \\
@@ -393,7 +393,7 @@ From the previous formulas and the open queue model we can compute the Service D
 \begin{equation}
 	\begin{array}{l}
 		D_{rn, t} = V_{rn, t} * S_{rn, t} \\
-		D_{rn, e} = V_{rn, e} * (S_{rn, er}*(1-p_{cmd,ln})+S_{rn, e}*p_{cmd,ln}) \\
+		D_{rn, e} = V_{rn, e} * (S_{rn, e}+(S_{rn, er}*(1-p_{cmd,rn}))) \\
 		D_{rn, c} = V_{rn, c} * S_{rn, c} \\
 		D_{rn, b} = V_{rn, b} * S_{rn, b} \\
 		U_{rn, t} = \lambda_{rn, t} * D_{rn, t} \\
