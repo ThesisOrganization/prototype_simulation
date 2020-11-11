@@ -2,9 +2,9 @@
 
 static void start_device(unsigned int id_device, simtime_t now, queue_state * queue_state, double * service_rates, job_info * info, lan_direction direction, events_type event_to_trigger, unsigned int id_lp){
 
-	if(queue_state->current_job == NULL){
+	if(queue_state->current_job.job_type == INVALID_JOB){
 
-		queue_state->current_job = info;
+		queue_state->current_job = *info;
 		queue_state->start_processing_timestamp = now;
 
 		double rate = service_rates[info->job_type];
@@ -16,7 +16,7 @@ static void start_device(unsigned int id_device, simtime_t now, queue_state * qu
 
 	}
 	else
-		schedule_in(queue_state->queues, info);
+		schedule_in(queue_state->queues, *info);
 
 
 }
@@ -150,7 +150,7 @@ void arrive_wan(unsigned int id_device, simtime_t now, device_state * state, job
 
 	}
 
-    free(info);
+	//free(info);
 
 
 }

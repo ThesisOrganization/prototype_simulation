@@ -106,6 +106,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 	int up_node;
 	int up_lp;
 	job_info * info;
+	job_info copy_info;
 	double rate_generate;
 	device_state * dev_state;
 
@@ -207,7 +208,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				msg_arrive.info.type = REAL_TIME;
 				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
-				msg_arrive.info.payload = NULL;
 				msg_arrive.info.job_type = TRANSITION;
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
@@ -244,7 +244,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				msg_arrive.info.type = REAL_TIME;
 				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
-				msg_arrive.info.payload = NULL;
 				msg_arrive.info.job_type = TELEMETRY;
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
@@ -274,8 +273,10 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				dev_state->device_timestamp = now;
 
-				info = malloc(sizeof(job_info));
-				memcpy(info, &(((message_arrive*)content)->info), sizeof(job_info));
+				//info = malloc(sizeof(job_info));
+				//memcpy(info, &(((message_arrive*)content)->info), sizeof(job_info));
+				copy_info = ((message_arrive*)content)->info;
+				info = &copy_info;
 
 				info->arrived_in_node_timestamp = now;
 				info->deadline = now;
@@ -316,8 +317,10 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				dev_state->device_timestamp = now;
 
-				info = malloc(sizeof(job_info));
-				memcpy(info, &(((message_arrive*)content)->info), sizeof(job_info));
+				//info = malloc(sizeof(job_info));
+				//memcpy(info, &(((message_arrive*)content)->info), sizeof(job_info));
+				copy_info = ((message_arrive*)content)->info;
+				info = &copy_info;
 
 				info->arrived_in_node_timestamp = now;
 				info->deadline = now;

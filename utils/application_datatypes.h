@@ -298,7 +298,7 @@ typedef enum _setup_data_types{
 
 typedef struct _queue_state {
 	simtime_t start_processing_timestamp;
-	job_info * current_job;
+	job_info current_job;
 	int num_jobs_in_queue;
 	//METRICS, from slide 4, single queue modeling, CP
 	//note that these values are computed with the values after the last finish event before the termination

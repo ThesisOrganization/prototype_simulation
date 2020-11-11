@@ -29,8 +29,8 @@ static void get_random_actuator(int num_types, int * num_per_types, double * pro
 
 	int actuator = remain_random / prob_single_act;
 
-    if(actuator == num_per_types[type]) //if remain_random == prob_type_i (i.e. num_per_types[type] * prob_actuators[type]) you get an index that is too higher (rare)
-        actuator--;
+	if(actuator == num_per_types[type]) //if remain_random == prob_type_i (i.e. num_per_types[type] * prob_actuators[type]) you get an index that is too higher (rare)
+	    actuator--;
 
 	//printf("Final: %d, %d\n", type, actuator);
 	*pt_type = type;
@@ -41,7 +41,6 @@ static void get_random_actuator(int num_types, int * num_per_types, double * pro
 static void fill_info_to_send(job_info * info_to_send, job_type type, int sender, int destination){
 
 	info_to_send->type = REAL_TIME;
-	info_to_send->payload = NULL;
 	info_to_send->job_type = type;
 	info_to_send->lp_sender = sender; //-1 of not used
 	info_to_send->lp_destination = destination; //-1 of not used
@@ -146,11 +145,15 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 
 static job_info ** schedule_next_job(unsigned int id_device, simtime_t now, queue_state * queue_state, double * service_rates, lan_direction direction, events_type event_to_trigger, unsigned int id_lp){
 
-	job_info ** info_arr = schedule_out(queue_state->queues);
-	queue_state->current_job = info_arr[0];
-
-	if(queue_state->current_job != NULL){
-		double rate = service_rates[queue_state->current_job->job_type];
+	int num_job_in_array = 1;
+	job_info array_job_info[num_job_in_array];
+	int ret_schedule = schedule_out(queue_state->queues, array_job_info, num_job_in_array);
+	
+	queue_state->current_job.job_type = INVALID_JOB;
+	
+	if(ret_schedule == SCHEDULE_DONE){
+		queue_state->current_job = array_job_info[0];
+		double rate = service_rates[queue_state->current_job.job_type];
 		simtime_t ts_finish = now + Expent(rate);
 		queue_state->start_processing_timestamp = now;
 		message_finish msg;
@@ -160,7 +163,7 @@ static job_info ** schedule_next_job(unsigned int id_device, simtime_t now, queu
 		ScheduleNewEvent(id_lp, ts_finish, event_to_trigger, &msg, sizeof(message_finish));
 	}
 
-	return info_arr;
+	return NULL;
 
 }
 
@@ -213,7 +216,9 @@ static void send_aggregated_data(unsigned int id_device, simtime_t now, device_s
 
 void finish_node(unsigned int id_device, simtime_t now, device_state  * state, unsigned int id_lp){
 
-	job_info * info = state->info.node->queue_state->current_job;
+	//job_info * info = state->info.node->queue_state->current_job;
+	job_info current_job = state->info.node->queue_state->current_job;
+	job_info * info = &current_job;
 
 	double busy_time_transition = now - state->info.node->queue_state->start_processing_timestamp;
 	double waiting_time_transition = now - info->arrived_in_node_timestamp;
@@ -289,13 +294,14 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 
 	}
 
-	free(info_arr); //liberi l'array dell'attuale job!
-	free(info); //liberi il vecchio job
+	//free(info_arr); //liberi l'array dell'attuale job!
+	//free(info); //liberi il vecchio job
 }
 
 void finish_actuator(unsigned int id_device, simtime_t now, device_state  * state, unsigned int id_lp){
 
-	job_info * info = state->info.actuator->queue_state->current_job;
+	job_info current_job = state->info.actuator->queue_state->current_job;
+	job_info * info = &current_job;
 
 	//Update metrics
 	update_metrics(now, state->info.actuator->queue_state, info);
@@ -330,8 +336,8 @@ void finish_actuator(unsigned int id_device, simtime_t now, device_state  * stat
 		printf("WARNING: actuator received a reply data\n");
 	}
 
-	free(info_arr); //liberi l'array dell'attuale job!
-	free(info); //liberi il vecchio job
+	//free(info_arr); //liberi l'array dell'attuale job!
+	//free(info); //liberi il vecchio job
 }
 
 void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, lan_direction direction, unsigned int id_lp){
@@ -358,7 +364,8 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 
 	}
 
-	job_info * info = queue_state->current_job;
+	job_info current_job = queue_state->current_job;
+	job_info * info = &current_job;
 
 	//Update metrics
 	update_metrics(now, queue_state, info);
@@ -399,8 +406,8 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 		printf("WARNING: lan received a reply data\n");
 	}
 
-	free(info_arr); //liberi l'array dell'attuale job!
-	free(info); //liberi il vecchio job
+	//free(info_arr); //liberi l'array dell'attuale job!
+	//free(info); //liberi il vecchio job
 
 }
 
@@ -410,15 +417,16 @@ void finish_disk(unsigned int id_device, simtime_t now, device_state * state, un
 	//PRINT("Finish event in the disk");
 	//PRINT_VALUE(me);
 
-	job_info * info = state->info.node->disk_state->current_job;
+	job_info current_job = state->info.node->disk_state->current_job;
+	job_info * info = &current_job;
 
 	//Update metrics
 	update_metrics(now, state->info.node->disk_state, info);
 
 	job_info ** info_arr = schedule_next_job(id_device, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology), 0, FINISH_DISK, id_lp);
 
-	free(info_arr);
-	free(info);
+	//free(info_arr);
+	//free(info);
 
 }
 

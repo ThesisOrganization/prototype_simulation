@@ -73,7 +73,7 @@ void init_node(unsigned int id_device, device_state* state){
 
     state->info.node = malloc(sizeof(node_state));
     state->info.node->queue_state = malloc(sizeof(queue_state));
-    state->info.node->queue_state->current_job = NULL;
+		state->info.node->queue_state->current_job.job_type = INVALID_JOB;
     state->info.node->queue_state->num_jobs_in_queue = 0;
 
     init_metrics(state->info.node->queue_state);
@@ -106,7 +106,7 @@ void init_node(unsigned int id_device, device_state* state){
 
     if(GET_NODE_TYPE(state->topology) == CENTRAL){
         state->info.node->disk_state = malloc(sizeof(queue_state));
-        state->info.node->disk_state->current_job = NULL;
+        state->info.node->disk_state->current_job.job_type = INVALID_JOB;
         state->info.node->disk_state->num_jobs_in_queue = 0;
 
         init_metrics(state->info.node->disk_state);
@@ -144,7 +144,7 @@ void init_actuator(unsigned int id_device, simtime_t now, device_state * state, 
 
     state->info.actuator = malloc(sizeof(actuator_state));
     state->info.actuator->queue_state = malloc(sizeof(queue_state));
-    state->info.actuator->queue_state->current_job = NULL;
+    state->info.actuator->queue_state->current_job.job_type = INVALID_JOB;
     state->info.actuator->queue_state->num_jobs_in_queue = 0;
 
     init_metrics(state->info.actuator->queue_state);
@@ -169,8 +169,8 @@ void init_lan(unsigned int id_device, device_state * state){
     state->info.lan->queue_state_in = malloc(sizeof(queue_state));
     state->info.lan->queue_state_out = malloc(sizeof(queue_state));
 
-    state->info.lan->queue_state_in->current_job = NULL;
-    state->info.lan->queue_state_out->current_job = NULL;
+    state->info.lan->queue_state_in->current_job.job_type = INVALID_JOB;
+    state->info.lan->queue_state_out->current_job.job_type = INVALID_JOB;
 
     state->info.lan->queue_state_in->num_jobs_in_queue = 0;
     state->info.lan->queue_state_out->num_jobs_in_queue = 0;
