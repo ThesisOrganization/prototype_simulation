@@ -260,7 +260,8 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 			
 			//###################################################
 			//UPDATE TRANSITION METRICS
-			update_metrics(now, state->info.node->queue_state, info);
+			if(state->info.node->type == LOCAL || state->info.node->type == REGIONAL)
+				update_metrics(now, state->info.node->queue_state, info);
 
 		}
 		else{
