@@ -2,26 +2,44 @@ import json
 import numpy as np
 import os.path
 import argparse
-def result_string_calculation(dict,params, string1, string2):
+def result_string_calculation(dict,params, string1, string2, dict_similarity):
     ret = "$"
     flag = True
     for elem2 in params:
+        temp = dict[element][string1][elem2][string2]
+        count = 1
+        for dict_sim_element in dict_similarity:
+            temp+=dict[dict_sim_element][string1][elem2][string2]
+            count+=1
+        if count == 1:
+            total_to_return = temp
+        else:
+            total_to_return = f"{temp/count:.4}"
         if flag :
             flag = False
-            ret+= str(dict[element][string1][elem2][string2])
+            ret+= str(total_to_return)
         else:
             ret+="$ & $"
-            ret+= str(dict[element][string1][elem2][string2])
+            ret+= str(total_to_return)
     ret+="$"
     return ret
 
-def utilization_factor_total(dict,string1,params):
+def utilization_factor_total(dict,string1,params,dict_similarity):
     total = 0
     for elem2 in params:
-        total += dict[element][string1][elem2]['utilization_factor']
+        temp = dict[element][string1][elem2]['utilization_factor']
+        count = 1
+        for dict_sim_element in dict_similarity:
+            temp+=dict[dict_sim_element][string1][elem2]['utilization_factor']
+            count+=1
+        if count == 1:
+            total_to_return = temp
+        else:
+            total_to_return = temp/count
+        total += total_to_return
     return total
 
-def aux(begin_table,dict,string):
+def aux(begin_table,dict,string,dict_similarity):
     table_string = begin_table
     table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
     table_string+= "\\"
@@ -29,7 +47,7 @@ def aux(begin_table,dict,string):
     table_string+="\n"
     f_out.write(table_string)
 
-    lambdas_string = result_string_calculation(dict,params, string, 'lambda_in')
+    lambdas_string = result_string_calculation(dict,params, string, 'lambda_in',dict_similarity)
     lambdas_string+="\\\\"
     to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
     f_out.write(to_print)
@@ -41,7 +59,7 @@ def aux(begin_table,dict,string):
     to_print+="\n"
     f_out.write(to_print)
 
-    D_string = result_string_calculation(dict,params, string, 'service_demand')
+    D_string = result_string_calculation(dict,params, string, 'service_demand',dict_similarity)
 
     D_string+="\\\\"
     to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
@@ -53,14 +71,14 @@ def aux(begin_table,dict,string):
     to_print+="\\"
     to_print+="\n"
     f_out.write(to_print)
-    U_string = result_string_calculation(dict,params, string, 'utilization_factor')
-    total = utilization_factor_total(dict,string,params)
+    U_string = result_string_calculation(dict,params, string, 'utilization_factor',dict_similarity)
+    total = utilization_factor_total(dict,string,params,dict_similarity)
 
     U_string+="\\\\"
     to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
     f_out.write(to_print)
 
-    total_u = "\\centering Total Utlization Factor = $" + f"{total:.3}" + "$\n"
+    total_u = "\\centering Total Utlization Factor = $" + f"{total:.4}" + "$\n"
     f_out.write(total_u)
 
     f_out.write(begin_table)
@@ -70,7 +88,7 @@ def aux(begin_table,dict,string):
     to_print+="\n"
     f_out.write(to_print)
 
-    R_string = result_string_calculation(dict,params, string, 'response_time')
+    R_string = result_string_calculation(dict,params, string, 'response_time',dict_similarity)
     R_string+="\\\\"
     to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
     f_out.write(to_print)
@@ -79,6 +97,7 @@ with open('../tree_simulator/simulation_results.json') as f_simulator:
   data_simulator = json.load(f_simulator)
 with open('../model_computation/model_res.json') as f_model:
   data_model = json.load(f_model)
+
 
 flagStable = True
 count = 0;
@@ -108,6 +127,7 @@ ordered_id_list.sort()
 dict_res = {}
 list = ['lambda_in','service_demand','utilization_factor','response_time']
 params = ["telemetry","transition","command","batch"]
+
 ######NEW PART
 for element in ordered_id_list:
     dict_res[element] = {}
@@ -123,6 +143,36 @@ for element in ordered_id_list:
             else:
                 dict_res[element][i].append(dict_simulator[element]['parameters'][c][i])
     dict_res[element]["stable"] = dict_simulator[element]["stable"];
+#If you don't use generator.py comment this part and lines 38
+stringAdditionalInfo = ""
+with open("jsonAdditionalInfo.txt") as f:
+    lines = f.readlines()
+    stringAdditionalInfo+="There is one Central node, between the Central node and the Regional layer there is one WAN. Between each regional and its Locals there is a WAN.\\newline "
+    stringAdditionalInfo+="There are "+str(lines[0].strip())+" regional nodes, their local nodes are divided as such:"
+    regional_list_for_jsonMerge = str(lines[2])
+    stringAdditionalInfo+="\\begin{itemize}\n"
+    for element in regional_list_for_jsonMerge.split(";"):
+        el_list = element.split(",")
+        stringAdditionalInfo+="\\item "+str(el_list[0])+" regionals having "+str(el_list[1]).strip()+" local nodes below.\n"
+    stringAdditionalInfo+="\\end{itemize}\n"
+
+    stringAdditionalInfo+="In total "+lines[1]+" local nodes.\\\\"
+    stringAdditionalInfo+="Each local node has "+str(lines[3])+" LANs below. Each LAN has:"#LAN (è 1)
+    stringAdditionalInfo+="\\begin{itemize}\n"
+    stringAdditionalInfo+="\\item "+str(lines[7])+"sensors sending telemetries with rate: "+str(lines[11]).strip()+".\n"#sensori telemetry per ogni locale
+    stringAdditionalInfo+="\\item "+str(lines[8])+"sensors sending transitions with rate: "+str(lines[10]).strip()+".\n"#sensori trans per ogni locale
+    stringAdditionalInfo+="\\item "+str(lines[9])+"actuators sending trasitions with rate: "+str(lines[12]).strip()+".\n"#actuators per ogni locale
+    stringAdditionalInfo+="\\end{itemize}\n"
+    stringAdditionalInfo+="In total there are "+str(lines[5]).strip()+ "total sensors and "+str(lines[6]).strip()+" total actuators."
+    #stringAdditionalInfo+=lines[4]#WAN
+
+regional_list_for_jsonMerge = element.split(";")
+index = 1
+for element in regional_list_for_jsonMerge:
+    number_of_regionals=int(el_list[0])
+    for element in range(number_of_regionals):
+        dict_simulator[index]["number_of_locals"] = el_list[1]
+        index+=1
 
 list_regional = []
 list_local = []
@@ -252,7 +302,7 @@ for element in list_regional:
             for c in list:
                 allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],similarity_coefficient)
             allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
-
+            allclose_result=allclose_result and dict_simulator[element]["number_of_locals"] == dict_simulator[element2]["number_of_locals"]
             if(allclose_result):
                 if(element not in dict_regional_similar):
                     dict_regional_similar[element] = []
@@ -341,7 +391,7 @@ print("END ACTUATORS ######################")
 
 f_out = open("complete_results.tex", "w")
 #title
-initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\usepackage[margin=0.5in]{geometry}\n\\title{Results}\n\\begin{document}\n\\maketitle\n"
+initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\usepackage[margin=0.5in]{geometry}\n\\title{Results}\n\\author{Silvio Dei Giudici, Marco Morella, Mattia Nicolella}\n\\begin{document}\n\\maketitle\n"
 f_out.write(initial_header);
 begin_table ="\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc@{}}\n\\toprule\n"
 complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc|cccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $aggr_t$ & $aggr_e$ & $aggr_c$ & $aggr_b$\\\\"
@@ -382,48 +432,26 @@ else:
 			peak_mem = lines[49][29:].strip()
 f.close()
 
-#If you don't use generator.py comment this part and lines 38
-stringAdditionalInfo = ""
-with open("jsonAdditionalInfo.txt") as f:
-    lines = f.readlines()
-    stringAdditionalInfo+="There is one Central node, between the Central node and the Regional layer there is one WAN. Between each regional and its Locals there is a WAN.\\\\"
-    stringAdditionalInfo+="There are "+str(lines[0].strip())+" regional nodes, their local nodes are divided as such:\\\\"
-    regional_list_for_jsonMerge = str(lines[2])
-    stringAdditionalInfo+="\\begin{itemize}\n"
-    for element in regional_list_for_jsonMerge.split(";"):
-        el_list = element.split(",")
-        stringAdditionalInfo+="\\item "+str(el_list[0])+" regionals having "+str(el_list[1])+" local nodes below.\n"
-    stringAdditionalInfo+="\\end{itemize}\n"
-
-    stringAdditionalInfo+="In total "+lines[1]+" local nodes.\\\\"
-    stringAdditionalInfo+="Each local node has "+str(lines[3])+" LANs below. Each LAN has:"#LAN (è 1)
-    stringAdditionalInfo+="\\begin{itemize}\n"
-    stringAdditionalInfo+="\\item "+str(lines[7])+"sensors sending telemetries with rate: "+str(lines[11]).strip()+".\n"#sensori telemetry per ogni locale
-    stringAdditionalInfo+="\\item "+str(lines[8])+"sensors sending transitions with rate: "+str(lines[10]).strip()+".\n"#sensori trans per ogni locale
-    stringAdditionalInfo+="\\item "+str(lines[9])+"actuators sending trasitions with rate: "+str(lines[12]).strip()+".\n"#actuators per ogni locale
-    stringAdditionalInfo+="\\end{itemize}\n"
-    stringAdditionalInfo+="In total there are "+str(lines[5])+ "total sensors and "+str(lines[6])+" total actuators.\\\\"
-    #stringAdditionalInfo+=lines[4]#WAN
 
 
 to_write = "\\section{General Informations}"
-to_write+="Run type: "+run+".\\\\"
-to_write+= "Number of elements in the topology: "+elements+".\\\\"
-to_write+= "Number of LPs used in the simulation: "+LP+".\\\\"
-to_write+= "Simulation duration: "+time+".\\\\"
-to_write+= "Average memory usage: "+avg_mem+".\\\\"
-to_write+= "Peak memory usage: "+peak_mem+".\\\\"
+to_write+="Run type: "+run+".\\\\ "
+to_write+= "Number of elements in the topology: "+elements+".\\\\ "
+to_write+= "Number of LPs used in the simulation: "+LP+".\\\\ "
+to_write+= "Simulation duration: "+time+".\\\\ "
+to_write+= "Average memory usage: "+avg_mem+".\\\\ "
+to_write+= "Peak memory usage: "+peak_mem+".\\\\ "
 
 if(flagStable):
-    to_write+= "All elements reached stability in the simulation.\\\\"
+    to_write+= "All elements reached stability in the simulation. "
 else:
-    to_write+= "Not all elements reached stability, in their sections it will be highlited!\\\\"
+    to_write+= "Not all elements reached stability, in their sections it will be highlited! "
 
-to_write+="\\subsection{Topology Informations}"
+to_write+="\n\\subsection{Topology Informations}"
 to_write+=stringAdditionalInfo
 f_out.write(to_write)
 
-f_out.write("\\section{Detailed view}")
+f_out.write("\n\\section{Detailed view}\n")
 for element in ordered_id_list:
     if(element not in key_union):
         type = dict_model[element]['type']
@@ -433,9 +461,10 @@ for element in ordered_id_list:
             f_out.write(to_write);
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
-            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
-
+            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\n")
+            flagSimilarity = False
             if(element in dict_regional_similar.keys() or element in dict_local_similar.keys()):
+                flagSimilarity = True
                 to_write = "This node has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by " + str(similarity_coefficient*100) + "\% to these other nodes: \\textbf{"
                 if dict_model[element]['node_type'] == 'regional':
                     for similar in dict_regional_similar[element]:
@@ -449,14 +478,19 @@ for element in ordered_id_list:
                     to_write+="}"
 
                     f_out.write(to_write)
-
+            if(dict_model[element]['node_type'] == 'regional'):
+                f_out.write("\\\\This regional node")
+                if flagSimilarity:
+                    f_out.write(" and all its similar ones have "+dict_simulator[element]["number_of_locals"]+"local nodes below.\\\\")
+                else:
+                    f_out.write(" has "+dict_simulator[element]["number_of_locals"]+"local nodes below.\\\\")
             table_string = "\\subsubsection{Given parameters}\n"
             f_out.write(table_string)
             f_out.write(complete_table)
 
-            return1 = result_string_calculation(dict_model,params, 'parameters', 'service_time')
+            return1 = result_string_calculation(dict_model,params, 'parameters', 'service_time',[])
             return1 +=" & "
-            return1 += result_string_calculation(dict_model,params, 'parameters', 'aggregation_rate')
+            return1 += result_string_calculation(dict_model,params, 'parameters', 'aggregation_rate',[])
             return1 +="\\\\"
 
             to_print = "\n\\midrule\n"+return1+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
@@ -464,12 +498,26 @@ for element in ordered_id_list:
 
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
             f_out.write(table_string)
-            aux(begin_table,dict_model,'parameters')
+            if flagSimilarity:
+                if dict_model[element]['node_type'] == 'regional':
+                    aux(begin_table,dict_model,'parameters',dict_regional_similar[element])
+                elif dict_model[element]['node_type'] == 'local':
+                    aux(begin_table,dict_model,'parameters',dict_local_similar[element])
+            else:
+                aux(begin_table,dict_model,'parameters',[])
+
             f_out.write("\\end{minipage}")
 
             table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
             f_out.write(table_string)
-            aux(begin_table,dict_simulator,'parameters')
+            if flagSimilarity:
+                if dict_model[element]['node_type'] == 'regional':
+                    aux(begin_table,dict_simulator,'parameters',dict_regional_similar[element])
+                elif dict_model[element]['node_type'] == 'local':
+                    aux(begin_table,dict_simulator,'parameters',dict_local_similar[element])
+            else:
+                aux(begin_table,dict_simulator,'parameters',[])
+
             f_out.write("\\end{minipage}")
 
 
@@ -482,7 +530,7 @@ for element in ordered_id_list:
                 f_out.write(table_string)
                 f_out.write(semi_complete_table)
 
-                service_string = result_string_calculation(dict_model,params, 'storage', 'service_time')
+                service_string = result_string_calculation(dict_model,params, 'storage', 'service_time',[])
                 service_string+="\\\\"
 
                 to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
@@ -490,12 +538,12 @@ for element in ordered_id_list:
 
                 table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
                 f_out.write(table_string)
-                aux(begin_table,dict_model,'storage')
+                aux(begin_table,dict_model,'storage',[])
                 f_out.write("\\end{minipage}")
 
                 table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
                 f_out.write(table_string)
-                aux(begin_table,dict_simulator,'storage')
+                aux(begin_table,dict_simulator,'storage',[])
                 f_out.write("\\end{minipage}")
 
             f_out.write("\n\\newpage")
@@ -507,8 +555,9 @@ for element in ordered_id_list:
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
-
+            flagSimilarity = False
             if element in dict_actuator_similar.keys():
+                flagSimilarity = True
                 to_write = "This actuator has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by " + str(similarity_coefficient*100) + "\% to these other nodes: \\textbf{"
                 for similar in dict_actuator_similar[element]:
                     to_write+= str(similar)+"; "
@@ -519,7 +568,7 @@ for element in ordered_id_list:
             f_out.write(table_string)
             f_out.write(semi_complete_table)
 
-            service_string = result_string_calculation(dict_model,params, 'parameters', 'service_time')
+            service_string = result_string_calculation(dict_model,params, 'parameters', 'service_time',[])
             service_string+="\\\\"
 
             to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
@@ -527,12 +576,18 @@ for element in ordered_id_list:
 
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
             f_out.write(table_string)
-            aux(begin_table,dict_model,'parameters')
+            if flagSimilarity:
+                aux(begin_table,dict_model,'parameters',dict_actuator_similar[element])
+            else:
+                aux(begin_table,dict_model,'parameters',[])
             f_out.write("\\end{minipage}")
 
             table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
             f_out.write(table_string)
-            aux(begin_table,dict_simulator,'parameters')
+            if flagSimilarity:
+                aux(begin_table,dict_simulator,'parameters',dict_actuator_similar[element])
+            else:
+                aux(begin_table,dict_simulator,'parameters',[])
             f_out.write("\\end{minipage}")
             f_out.write("\n\\newpage")
 
@@ -544,8 +599,9 @@ for element in ordered_id_list:
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
-
+            flagSimilarity = False
             if element in dict_lan_similar.keys():
+                flagSimilarity = True
                 to_write = "This LAN has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by "+ str(similarity_coefficient*100) +"\% to these other nodes: \\textbf{"
                 for similar in dict_lan_similar[element]:
                     to_write+= str(similar)+"; "
@@ -556,7 +612,7 @@ for element in ordered_id_list:
             f_out.write(table_string)
             f_out.write(semi_complete_table)
 
-            service_string = result_string_calculation(dict_model,params, 'lan_in', 'service_time')
+            service_string = result_string_calculation(dict_model,params, 'lan_in', 'service_time',[])
             service_string+="\\\\"
 
             to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
@@ -565,12 +621,19 @@ for element in ordered_id_list:
 
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
             f_out.write(table_string)
-            aux(begin_table,dict_model,'lan_in')
+            if flagSimilarity:
+                aux(begin_table,dict_model,'lan_in',dict_lan_similar[element])
+            else:
+                aux(begin_table,dict_model,'lan_in',[])
+
             f_out.write("\\end{minipage}")
 
             table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
             f_out.write(table_string)
-            aux(begin_table,dict_simulator,'lan_in')
+            if flagSimilarity:
+                aux(begin_table,dict_simulator,'lan_in',dict_lan_similar[element])
+            else:
+                aux(begin_table,dict_simulator,'lan_in',[])
             f_out.write("\\end{minipage}")
 
             str_to_write = "Lan OUT "
@@ -581,7 +644,7 @@ for element in ordered_id_list:
             f_out.write(table_string)
             f_out.write(semi_complete_table)
 
-            service_string = result_string_calculation(dict_model,params, 'lan_out', 'service_time')
+            service_string = result_string_calculation(dict_model,params, 'lan_out', 'service_time',[])
             service_string+="\\\\"
 
             to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
@@ -589,12 +652,18 @@ for element in ordered_id_list:
 
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
             f_out.write(table_string)
-            aux(begin_table,dict_model,'lan_out')
+            if flagSimilarity:
+                aux(begin_table,dict_model,'lan_out',dict_lan_similar[element])
+            else:
+                aux(begin_table,dict_model,'lan_out',[])
             f_out.write("\\end{minipage}")
 
             table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
             f_out.write(table_string)
-            aux(begin_table,dict_simulator,'lan_out')
+            if flagSimilarity:
+                aux(begin_table,dict_simulator,'lan_out',dict_lan_similar[element])
+            else:
+                aux(begin_table,dict_simulator,'lan_out',[])
             f_out.write("\\end{minipage}")
             f_out.write("\n\\newpage")
 
