@@ -233,24 +233,6 @@ typedef struct _total_topology{
 //#############################################
 
 
-//#define TOTAL_NUMBER_OF_EVENTS 100
-//#define PROB_CMD 0.4
-//#define DELAY_MEAN 1
-//#define ARRIVE_RATE 50
-//#define FINISH_RATE 5
-//#define LEN_QUEUE 50
-#define RANDOM_START 500
-#define TRANSITION_TIME_LIMIT 300000
-#define MAX_SIMULATION_TIME 100000000
-
-#define NEXT_UPDATE_TIMESTAMP 100000
-#define THRESHOLD 3 ///percentage
-#define MIN_NUMBER_OF_EVENTS 20
-
-//#define RANGE_TIMESTAMP 10
-
-//#define NUM_QUEUES 3
-
 typedef enum _events_type{ //INIT should be 0
 	ARRIVE = 1,
 	ARRIVE_DISK,

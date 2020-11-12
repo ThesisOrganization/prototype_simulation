@@ -6,6 +6,7 @@
 #include "../../utils/priority_queue/priority_queue.h"
 #include "../../utils/application_datatypes.h"
 #include "../../utils/message/message.h"
+#include "../simulation.h"
 
 /*
 #define DEBUG

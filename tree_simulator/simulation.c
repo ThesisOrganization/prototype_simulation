@@ -3,10 +3,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "./simulation_functions/init_event/init_functions.h"
-#include "./simulation_functions/arrive_event/arrive_functions.h"
-#include "./simulation_functions/finish_event/finish_functions.h"
-#include "./simulation_functions/setup_protocol/setup_protocol.h"
+#include "./simulation.h"
 
 char topology_path[] = "./topology.txt";
 char file_name[] = "lp_data/lp";
