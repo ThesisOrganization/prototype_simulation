@@ -482,7 +482,7 @@ for element in ordered_id_list:
                 f_out.write(table_string)
                 f_out.write(semi_complete_table)
 
-                service_string = result_string_calculation(dict_model,params, 'parameters', 'service_time')
+                service_string = result_string_calculation(dict_model,params, 'storage', 'service_time')
                 service_string+="\\\\"
 
                 to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
@@ -490,12 +490,12 @@ for element in ordered_id_list:
 
                 table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
                 f_out.write(table_string)
-                aux(begin_table,dict_model,'parameters')
+                aux(begin_table,dict_model,'storage')
                 f_out.write("\\end{minipage}")
 
                 table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
                 f_out.write(table_string)
-                aux(begin_table,dict_simulator,'parameters')
+                aux(begin_table,dict_simulator,'storage')
                 f_out.write("\\end{minipage}")
 
             f_out.write("\n\\newpage")
