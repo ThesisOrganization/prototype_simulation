@@ -18,3 +18,5 @@ tree_simulator/report.tex
 jsonMerger/*.tex
 jsonMerger/*.pdf
 jsonMerger/*.json
+jsonMerger/jsonAdditionalInfo.txt
+tree_simulator/topology.txt
