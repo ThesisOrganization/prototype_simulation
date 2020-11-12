@@ -245,6 +245,7 @@ typedef struct _total_topology{
 
 #define NEXT_UPDATE_TIMESTAMP 100000
 #define THRESHOLD 3 ///percentage
+#define MIN_NUMBER_OF_EVENTS 20
 
 //#define RANGE_TIMESTAMP 10
 
