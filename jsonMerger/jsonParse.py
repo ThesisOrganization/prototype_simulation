@@ -391,8 +391,8 @@ with open("jsonAdditionalInfo.txt") as f:
     regional_list_for_jsonMerge = str(lines[2])
     stringAdditionalInfo+="\\begin{itemize}\n"
     for element in regional_list_for_jsonMerge.split(";"):
-        stringAdditionalInfo+="\\item "+str(element[0])+" regionals having "+str(element[2:].strip())+" local nodes below.\n"
-
+        el_list = element.split(",")
+        stringAdditionalInfo+="\\item "+str(el_list[0])+" regionals having "+str(el_list[1])+" local nodes below.\n"
     stringAdditionalInfo+="\\end{itemize}\n"
 
     stringAdditionalInfo+="In total "+lines[1]+" local nodes.\\\\"

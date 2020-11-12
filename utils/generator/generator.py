@@ -1,5 +1,4 @@
-# coding=u        print(element[2:])
-utf-8
+# coding=utf-8
 import numpy as np
 import sys
 f_out = open("../../tree_simulator/topology.txt", "w")
@@ -15,8 +14,9 @@ with open("../../"+txt_path) as f:
     number_of_regionals = 0
     number_of_locals = 0
     for element in regionals_list:
-        number_of_regionals+=int(element[0])
-        number_of_locals+=int(element[0]) * int(element[2:].strip())
+        el_list = element.split(",")
+        number_of_regionals+=int(el_list[0])
+        number_of_locals+=int(el_list[0]) * int(el_list[1])
 
     aggregation_rates = lines[4][36:-1]+","
     service_time_central = lines[5][36:-1]+","
@@ -71,8 +71,9 @@ num_sens_trans = 1
 
 reg_count = 0
 for element in regionals_list:
-    regionals_temp = int(element[0])
-    locals_temp = int(element[2:].strip())
+    el_list = element.split(",")
+    regionals_temp = int(el_list[0])
+    locals_temp = int(el_list[1])
     for i in range(regionals_temp):
         number_of_locals_with_x_sensors_y_actuators_per_regional[reg_count][num_sens_tel][num_sens_trans][num_act] = locals_temp #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
         reg_count+=1
