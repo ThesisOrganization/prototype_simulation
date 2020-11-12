@@ -251,7 +251,7 @@ typedef struct _total_topology{
 //#define NUM_QUEUES 3
 
 typedef enum _events_type{ //INIT should be 0
-	ARRIVE = 1,
+	ARRIVE = 10,
 	ARRIVE_DISK,
 	FINISH,
 	FINISH_DISK,

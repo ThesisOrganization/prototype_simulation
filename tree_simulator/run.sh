@@ -39,7 +39,7 @@ fi
 if [[ -n $options ]]; then
 
 if [ "$options" == "alone" ]; then
-		./queues --sequential --lp $number_lp
+		./simulation --sequential --lp $number_lp
 elif [ "$options" == "json" ]; then
 		python3 generate_json.py $file_json
 elif [ "$options" == "clean" ]; then
@@ -48,13 +48,13 @@ elif [ "$options" == "clean" ]; then
 elif [ "$options" == "parallel" ]; then
 		rm -r outputs
 		rm lp_data/*.json
-		$dbg_param ./queues --wt $working_threads --lp $number_lp
+		$dbg_param ./simulation --wt $working_threads --lp $number_lp
 		python3 generate_json.py $file_json
 		fi
 else
 		#./queues --sequential --lp $number_lp --simulation-time $simulation_time
 		rm lp_data/*.json
 		rm -r outputs
-		$dbg_param ./queues --sequential --lp $number_lp
+		$dbg_param ./simulation --sequential --lp $number_lp
 		python3 generate_json.py $file_json
 fi

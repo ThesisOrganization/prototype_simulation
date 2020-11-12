@@ -94,7 +94,6 @@ void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_devi
 }
 
 
-#define n_prc_tot n_lps ///< use this macro when using NeuRome as compiler
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
 

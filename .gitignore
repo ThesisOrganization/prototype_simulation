@@ -3,6 +3,7 @@
 ROOT-Sim-*
 NeuRome-*
 Simulator
+USE-*
 *.o*
 driver
 *.kde*

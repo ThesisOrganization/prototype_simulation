@@ -8,3 +8,5 @@ report.tex
 model_serial
 model_parallel
 lp_data
+USE-*
+simulation
