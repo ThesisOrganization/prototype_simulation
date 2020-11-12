@@ -143,7 +143,7 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 
 }
 
-static job_info ** schedule_next_job(unsigned int id_device, simtime_t now, queue_state * queue_state, double * service_rates, lan_direction direction, events_type event_to_trigger, unsigned int id_lp){
+static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state * queue_state, double * service_rates, lan_direction direction, events_type event_to_trigger, unsigned int id_lp){
 
 	int num_job_in_array = 1;
 	job_info array_job_info[num_job_in_array];
@@ -162,8 +162,6 @@ static job_info ** schedule_next_job(unsigned int id_device, simtime_t now, queu
 
 		ScheduleNewEvent(id_lp, ts_finish, event_to_trigger, &msg, sizeof(message_finish));
 	}
-
-	return NULL;
 
 }
 
@@ -231,7 +229,6 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 	double delay_up = state->info.node->up_delay;
 	double delay_down = state->info.node->down_delay;
 
-	//int up_node;
 
 	if(info->job_type == TELEMETRY){
 		//printf("TELEMETRY\n");
@@ -298,10 +295,8 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 	}
 	
 	//Schedule the next job if present
-	job_info ** info_arr = schedule_next_job(id_device, now, state->info.node->queue_state, state->info.node->service_rates, 0, FINISH, id_lp);
+	schedule_next_job(id_device, now, state->info.node->queue_state, state->info.node->service_rates, 0, FINISH, id_lp);
 
-	//free(info_arr); //liberi l'array dell'attuale job!
-	//free(info); //liberi il vecchio job
 }
 
 void finish_actuator(unsigned int id_device, simtime_t now, device_state  * state, unsigned int id_lp){
@@ -312,10 +307,6 @@ void finish_actuator(unsigned int id_device, simtime_t now, device_state  * stat
 	//Update metrics
 	update_metrics(now, state->info.actuator->queue_state, info);
 
-	//Schedule the next job if present
-	double service_rates[NUM_OF_JOB_TYPE]; //meh
-	service_rates[COMMAND] = state->info.actuator->service_rate_command;
-	job_info ** info_arr = schedule_next_job(id_device, now, state->info.actuator->queue_state, service_rates, 0, FINISH, id_lp);
 
 	if(info->job_type == TELEMETRY){
 		//printf("TELEMETRY\n");
@@ -342,8 +333,11 @@ void finish_actuator(unsigned int id_device, simtime_t now, device_state  * stat
 		printf("WARNING: actuator received a reply data\n");
 	}
 
-	//free(info_arr); //liberi l'array dell'attuale job!
-	//free(info); //liberi il vecchio job
+	//Schedule the next job if present
+	double service_rates[NUM_OF_JOB_TYPE]; //meh
+	service_rates[COMMAND] = state->info.actuator->service_rate_command;
+	schedule_next_job(id_device, now, state->info.actuator->queue_state, service_rates, 0, FINISH, id_lp);
+	
 }
 
 void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, lan_direction direction, unsigned int id_lp){
@@ -375,9 +369,6 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 
 	//Update metrics
 	update_metrics(now, queue_state, info);
-
-	//Schedule the next job if present
-	job_info ** info_arr = schedule_next_job(id_device, now, queue_state, service_rates, direction, FINISH, id_lp);
 
 
 	if(info->job_type == TELEMETRY){
@@ -412,16 +403,13 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 		printf("WARNING: lan received a reply data\n");
 	}
 
-	//free(info_arr); //liberi l'array dell'attuale job!
-	//free(info); //liberi il vecchio job
+	//Schedule the next job if present
+	schedule_next_job(id_device, now, queue_state, service_rates, direction, FINISH, id_lp);
 
 }
 
 
 void finish_disk(unsigned int id_device, simtime_t now, device_state * state, unsigned int id_lp){
-
-	//PRINT("Finish event in the disk");
-	//PRINT_VALUE(me);
 
 	job_info current_job = state->info.node->disk_state->current_job;
 	job_info * info = &current_job;
@@ -429,10 +417,8 @@ void finish_disk(unsigned int id_device, simtime_t now, device_state * state, un
 	//Update metrics
 	update_metrics(now, state->info.node->disk_state, info);
 
-	job_info ** info_arr = schedule_next_job(id_device, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology), 0, FINISH_DISK, id_lp);
-
-	//free(info_arr);
-	//free(info);
+	//Schedule the next job if present
+	schedule_next_job(id_device, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology), 0, FINISH_DISK, id_lp);
 
 }
 

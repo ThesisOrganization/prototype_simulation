@@ -6,7 +6,7 @@ SRCS = simulation.c ./simulation_functions/finish_event/finish_functions.c ./sim
 
 OBJS = $(SRCS:.c=.o)
 
-DEPS= ./simulation_functions/finish_event/finish_functions.h ./simulation_functions/arrive_event/arrive_functions.h ./simulation_functions/init_event/init_functions.h ../utils/priority_queue/priority_queue.h ../utils/priority_queue/heap/heap.h ../utils/priority_queue/heap/_heap.h ../utils/application_datatypes.h ../utils/priority_scheduler/priority_scheduler.h ../utils/priority_scheduler/queue_quick_sort.h ../utils/partop/header.h simulation_functions/setup_protocol/setup_datastructures.h simulation_functions/setup_protocol/setup_protocol.h simulation_functions/setup_protocol/setup_recv_functions.h simulation_functions/setup_protocol/setup_send_functions.h ../utils/idmap/idmap.h ../utils/idmap/idmap_quick_sort.h ../utils/message/message.h
+DEPS= ./simulation_functions/finish_event/finish_functions.h ./simulation_functions/arrive_event/arrive_functions.h ./simulation_functions/init_event/init_functions.h ../utils/priority_queue/priority_queue.h ../utils/priority_queue/heap/heap.h ../utils/priority_queue/heap/_heap.h ../utils/application_datatypes.h ../utils/priority_scheduler/priority_scheduler.h ../utils/priority_scheduler/queue_quick_sort.h ../utils/partop/header.h simulation_functions/setup_protocol/setup_datastructures.h simulation_functions/setup_protocol/setup_protocol.h simulation_functions/setup_protocol/setup_recv_functions.h simulation_functions/setup_protocol/setup_send_functions.h ../utils/idmap/idmap.h ../utils/idmap/idmap_quick_sort.h ../utils/message/message.h ./simulation.h ./simulation_functions/common_functions.h
 
 .PHONY: clean
 
