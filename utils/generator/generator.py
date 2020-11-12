@@ -1,4 +1,5 @@
-# coding=utf-8
+# coding=u        print(element[2:])
+utf-8
 import numpy as np
 import sys
 f_out = open("../../tree_simulator/topology.txt", "w")
@@ -9,8 +10,14 @@ numbersString = ""
 txt_path = sys.argv[1]
 with open("../../"+txt_path) as f:
     lines = f.readlines()
-    number_of_regionals = int(lines[2][36:-1])
-    number_of_locals = int(lines[3][36:-1])
+    regionals_list_for_jsonMerge = lines[3][36:-1]
+    regionals_list = lines[3][36:-1].split(";")
+    number_of_regionals = 0
+    number_of_locals = 0
+    for element in regionals_list:
+        number_of_regionals+=int(element[0])
+        number_of_locals+=int(element[0]) * int(element[2:].strip())
+
     aggregation_rates = lines[4][36:-1]+","
     service_time_central = lines[5][36:-1]+","
     service_time_regionals = lines[6][36:-1]+","
@@ -35,26 +42,9 @@ with open("../../"+txt_path) as f:
 types_of_sensors = 2
 types_of_actuators = 1
 
-#USER SHOULD CHANGE THESE
-####################################
-#aggregation_rates = "3/3/4/6,"
-#service_time_central = "1.5/1.0/1.0/0.5/1.0,"
-#service_time_regionals ="0.5/0.2/0.3/0.2/0.2,"
-#service_time_locals ="1.5/1.0/1.0/0.5/1.0,"
-#delay_upper_router = "0.3,"
-#delay_lower_router = "0.2,"
-#delay_lan = "0.3\n"
-#delay_wan = "0.5\n"
-#prob_command_generated_central = "0.1,"
-#prob_command_generated_regional = "0.1"
-#prob_command_generated_local = "0.1"
-#service_time_disks = "0.4/0.73/0.00/0.23\n"
-#service_time_commands_act = "0.6\n"
-#1 CENTRAL, implicit
-#number_of_regionals = 8
 f_out_txt.write(str(number_of_regionals)+"\n")
-#number_of_locals = 40
-f_out_txt.write(str(int(number_of_locals/number_of_regionals))+"\n")
+f_out_txt.write(str(int(number_of_locals))+"\n")
+f_out_txt.write(regionals_list_for_jsonMerge+"\n")
 sensors_start =1+number_of_regionals+number_of_locals
 number_of_lans = 1 #to change, future work
 f_out_txt.write(str(number_of_lans)+"\n")
@@ -78,8 +68,15 @@ number_of_locals_with_x_sensors_y_actuators_per_regional = np.zeros((number_of_r
 num_act = 1
 num_sens_tel = 5
 num_sens_trans = 1
-for i in range(number_of_regionals):
-    number_of_locals_with_x_sensors_y_actuators_per_regional[i][num_sens_tel][num_sens_trans][num_act] = number_of_locals/number_of_regionals #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
+
+reg_count = 0
+for element in regionals_list:
+    regionals_temp = int(element[0])
+    locals_temp = int(element[2:].strip())
+    for i in range(regionals_temp):
+        number_of_locals_with_x_sensors_y_actuators_per_regional[reg_count][num_sens_tel][num_sens_trans][num_act] = locals_temp #[id_regionale][#sensori tipo 1][#sensori_tipo2][#attuatori]
+        reg_count+=1
+
 ####################################
 total_sensors = 0
 total_actuators = 0

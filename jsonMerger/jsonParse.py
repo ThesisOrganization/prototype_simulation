@@ -387,15 +387,23 @@ stringAdditionalInfo = ""
 with open("jsonAdditionalInfo.txt") as f:
     lines = f.readlines()
     stringAdditionalInfo+="There is one Central node, between the Central node and the Regional layer there is one WAN. Between each regional and its Locals there is a WAN.\\\\"
-    stringAdditionalInfo+="There are "+str(lines[0])+" regional nodes, each of them has "+str(lines[1])+" local nodes. In total "+str(int(lines[0])*int(lines[1]))+" local nodes.\\\\"
-    stringAdditionalInfo+="Each local node has "+str(lines[2])+" LANs below. Each LAN has:"#LAN (è 1)
+    stringAdditionalInfo+="There are "+str(lines[0].strip())+" regional nodes, their local nodes are divided as such:\\\\"
+    regional_list_for_jsonMerge = str(lines[2])
     stringAdditionalInfo+="\\begin{itemize}\n"
-    stringAdditionalInfo+="\\item "+str(lines[6])+"sensors sending telemetries with rate: "+str(lines[10]).strip()+".\n"#sensori telemetry per ogni locale
-    stringAdditionalInfo+="\\item "+str(lines[7])+"sensors sending transitions with rate: "+str(lines[9]).strip()+".\n"#sensori trans per ogni locale
-    stringAdditionalInfo+="\\item "+str(lines[8])+"actuators sending trasitions with rate: "+str(lines[11]).strip()+".\n"#actuators per ogni locale
+    for element in regional_list_for_jsonMerge.split(";"):
+        stringAdditionalInfo+="\\item "+str(element[0])+" regionals having "+str(element[2:].strip())+" local nodes below.\n"
+
     stringAdditionalInfo+="\\end{itemize}\n"
-    stringAdditionalInfo+="In total there are "+str(lines[4])+ "total sensors and "+str(lines[5])+" total actuators.\\\\"
-    #stringAdditionalInfo+=lines[3]#WAN
+
+    stringAdditionalInfo+="In total "+lines[1]+" local nodes.\\\\"
+    stringAdditionalInfo+="Each local node has "+str(lines[3])+" LANs below. Each LAN has:"#LAN (è 1)
+    stringAdditionalInfo+="\\begin{itemize}\n"
+    stringAdditionalInfo+="\\item "+str(lines[7])+"sensors sending telemetries with rate: "+str(lines[11]).strip()+".\n"#sensori telemetry per ogni locale
+    stringAdditionalInfo+="\\item "+str(lines[8])+"sensors sending transitions with rate: "+str(lines[10]).strip()+".\n"#sensori trans per ogni locale
+    stringAdditionalInfo+="\\item "+str(lines[9])+"actuators sending trasitions with rate: "+str(lines[12]).strip()+".\n"#actuators per ogni locale
+    stringAdditionalInfo+="\\end{itemize}\n"
+    stringAdditionalInfo+="In total there are "+str(lines[5])+ "total sensors and "+str(lines[6])+" total actuators.\\\\"
+    #stringAdditionalInfo+=lines[4]#WAN
 
 
 to_write = "\\section{General Informations}"
