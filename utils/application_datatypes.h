@@ -235,7 +235,8 @@ typedef struct _total_topology{
 
 
 typedef enum _events_type{ //INIT should be 0
-	ARRIVE = 10,
+	DISABLE_UNUSED_LP=10,
+	ARRIVE,
 	ARRIVE_DISK,
 	FINISH,
 	FINISH_DISK,
@@ -252,7 +253,8 @@ typedef enum _events_type{ //INIT should be 0
  * The value of the timestamp is used as it is to send the struct the refer to, then every inner pointer is sent as a separate message using an increase of 0.01, to avoid overlapping of the messages for different structs.
  */
 typedef enum _ts_data{
-	TS_RECV_LP_STATE_INFO=1,
+	TS_DISABLE_UNUSED_LP=1,
+	TS_RECV_LP_STATE_INFO,
 	TS_RECV_GENERAL_TOPOLOGY,///< Timestamp used to start sending the general_topology.
 	TS_RECV_ELEMENT_INDEX_MAP, ///< Timestamp used to send the element_to_index idmap.
 	TS_RECV_DEVICES, ///< Timestamp used to start sending the info on the device_array.

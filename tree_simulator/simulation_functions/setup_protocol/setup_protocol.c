@@ -20,7 +20,10 @@ void setup_master(int n_prc_tot){
 		exit(EXIT_FAILURE);
 	}
 	if(num_required_lps<n_prc_tot){
-		printf("Warning: Too much LPs, simulation will continue, but %d LPs will not be actively used.\n",n_prc_tot-num_required_lps);
+		printf("Warning: Too much LPs, simulation will continue, but %d LPs will not be actively used, simulation could abruptly terminate during setup.\n",n_prc_tot-num_required_lps);
+		for(lp=num_required_lps;lp<n_prc_tot;lp++){
+			ScheduleNewEvent(lp,TS_DISABLE_UNUSED_LP,DISABLE_UNUSED_LP,NULL,0);
+		}
 	}
 	printf("sending topology information to other LPs\n");
 	//we send the topology data to each LP.

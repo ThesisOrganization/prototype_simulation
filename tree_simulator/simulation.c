@@ -39,10 +39,10 @@ void print_array_int(int * array, int num_el){
 #define CHECK_TT 3
 
 int get_flag_from_bitmap(unsigned int bitmap, int index){
-	
+
 	unsigned int shifted = bitmap >> index;
 	return shifted & 1;
-	
+
 }
 
 
@@ -128,14 +128,16 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			//a safe memset to obtain a clean starting state
 			memset(state,0,sizeof(lp_state));
 			SetState(state);
-			state->lp_enabled = LP_DISABLED;
+			state->lp_enabled = LP_SETUP;
 			if(me == 0){
 				//we enable the master LP to avoid terminating the simulation during the setup
-				state->lp_enabled= LP_SETUP;
 				//we setup the master node and the required LPs
 				setup_master(n_prc_tot);
 			}
 			break;
+
+		case DISABLE_UNUSED_LP:
+			state->lp_enabled=LP_DISABLED;
 
 		case RECEIVE_SETUP_MESSAGE:
 
@@ -215,7 +217,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				dev_state = state->devices_array[index_map];
 
 				dev_state->device_timestamp = now;
-				
+
 				//msg_arrive.info.type = REAL_TIME;
 				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
 				//msg_arrive.info.job_type = TRANSITION;
@@ -258,7 +260,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
 				//msg_arrive.info.job_type = TELEMETRY;
 				fill_job_info(&msg_arrive.info, -1.0, -1.0, TELEMETRY, -1, -1.0, -1.0, -1);
-				
+
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
@@ -400,14 +402,14 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					int boolean_check = 0;
 
 					if(dev_state->type == NODE){
-						
+
 						if(dev_state->info.node->type == CENTRAL)
 							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTB, MIN_NUMBER_OF_EVENTS_ALL);
 						else if(dev_state->info.node->type == REGIONAL)
 							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTCB, MIN_NUMBER_OF_EVENTS_ALL);
 						else if(dev_state->info.node->type == LOCAL)
 							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTC, MIN_NUMBER_OF_EVENTS_ALL);
-						
+
 						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 							update_stable_metrics(dev_state->info.node->queue_state);
 
@@ -530,9 +532,9 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 
 bool OnGVT(int me, lp_state *snapshot)
 {
-
-	if(snapshot->lp_enabled == LP_DISABLED)
+	if(snapshot->lp_enabled == LP_DISABLED){
 		return true;
+	}
 	if(snapshot->lp_enabled == LP_SETUP){
 		return false;
 	}
@@ -545,8 +547,7 @@ bool OnGVT(int me, lp_state *snapshot)
 
 	int total_number_of_elements = num_nodes + num_actuators + num_lans;
 
-	if(snapshot->num_stable_elements == total_number_of_elements){
-
+	if(snapshot->num_stable_elements >= total_number_of_elements){
 #ifdef PRINT_RESULTS
 		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
 		FILE * output_file = fopen(file_name_complete, "w");
