@@ -1,4 +1,5 @@
 # coding=utf-8
+import json
 import numpy as np
 import sys
 f_out = open("../../tree_simulator/topology.txt", "w")
@@ -18,28 +19,29 @@ with open("../../"+txt_path) as f:
         number_of_regionals+=int(el_list[0])
         number_of_locals+=int(el_list[0]) * int(el_list[1])
 
-    aggregation_rates = lines[4][36:-1]+","
-    service_time_central = lines[5][36:-1]+","
-    service_time_regionals = lines[6][36:-1]+","
-    service_time_locals = lines[7][36:-1]+","
-    delay_upper_router = lines[8][36:-1]+","
-    delay_lower_router = lines[9][36:-1]+","
-    delay_lan = lines[10][36:-1]+"\n"
-    delay_wan = lines[11][36:-1]+"\n"
-    prob_command_generated_central =lines[12][36:-1]+","
-    prob_command_generated_regional =lines[13][36:-1]
-    prob_command_generated_local =lines[14][36:-1]
-    service_time_disks =lines[15][36:-1]+"\n"
-    service_time_commands_act =lines[16][36:-1]+"\n"
-    rate_trans_act = lines[17][36:-1]+","
-    sens_tele_type1 = lines[18][36:-1]
-    sens_trans_type2 = lines[19][36:-1]
-    service_tele = lines[20][36:-1]
-    service_trans = lines[21][36:-1]
-    service_command = lines[22][36:-1]
-    weight = lines[23][36:-1]
-    types_of_lans = 1
-types_of_sensors = 2
+    cci = lines[5][36:-1].split(",")
+    central_type = cci[0]
+    delay_lower_router_central = cci[1]
+    disk_type = cci[2]
+
+    rci = lines[6][36:-1].split(",")
+    regional_type = rci[0]
+    delay_lower_router_regional = rci[1]
+    delay_upper_router_regional = rci[2]
+
+    lci = lines[7][36:-1].split(",")
+    local_type = lci[0]
+    delay_lower_router_local = lci[1]
+    delay_upper_router_local = lci[2]
+
+    delay_wan = lines[9][36:-1]+"\n"
+    act_type = lines[10][36:-1]
+    number_of_sensor_type = lines[11][36:-1]
+    number_of_lan_types = lines[12][36:-1]
+    weight = lines[13][36:-1]
+
+types_of_lans = number_of_lan_types
+types_of_sensors = number_of_sensor_type
 types_of_actuators = 1
 
 f_out_txt.write(str(number_of_regionals)+"\n")
@@ -108,33 +110,81 @@ f_out_LP.write(str(number_of_regionals)+"\n");
 #USER SHOULD CHANGE THESE
 ####################################
 #rate_trans_act = "0.0005,"
-f_out_txt.write(str(rate_trans_act[:-1])+"\n")
+list_sensors = []
+for i in range(int(number_of_sensor_type)):
+    with open("../../tests_topology/catalog/sensor/Type"+str(i)+".json") as sensor_infos:
+        sensor_inf = json.load(sensor_infos)
+        dict_sensors = {}
+        for element in sensor_inf:
+            dict_sensors[element] = sensor_inf[element]
+        list_sensors.append(dict_sensors)
+
+
+with open("../../tests_topology/catalog/actuator/"+act_type+".json") as actuator_infos:
+  actuator_inf = json.load(actuator_infos)
+for element in actuator_inf:
+    if element == "service_time_commands_act":
+        service_time_commands_act = actuator_inf[element]
+    elif element == "rate_trans_act":
+        rate_trans_act = actuator_inf[element]
+    elif element == "measure_type":
+        measure_type = actuator_inf[element]
+    elif element == "job_type":
+        job_type = actuator_inf[element]
+
+f_out_txt.write(str(rate_trans_act)+"\n")
 #sens_tele_type1 = "0.0002"
-f_out_txt.write(str(sens_tele_type1)+"\n")
-sens_trans_type1 = "0.0"
-sens_tele_type2 = "0.0"
-#sens_trans_type2 = "0.0005"
-f_out_txt.write(str(sens_trans_type2)+"\n")
-####################################
-sensor_rates_string1 = sens_tele_type1+","+sens_trans_type1+";" #in base al tipo fai più di ste string?
-sensor_rates_string2 = sens_tele_type2+","+sens_trans_type2 #in base al tipo fai più di ste string?
-sensor_rates_string = sensor_rates_string1+sensor_rates_string2
+sensor_rates_string = ""
+for i in range(int(number_of_sensor_type)):
+    if list_sensors[i]['rate_sensors_telemetry'] > 0:
+        f_out_txt.write(str(list_sensors[i]['rate_sensors_telemetry'])+"\n")
+
+    else:
+        if list_sensors[i]['rate_sensors_transition'] > 0:
+            f_out_txt.write(str(list_sensors[i]['rate_sensors_transition'])+"\n")
+
+    if sensor_rates_string == "" :
+        sensor_rates_string+=str(list_sensors[i]["rate_sensors_telemetry"])+","+str(list_sensors[i]["rate_sensors_transition"])
+    else:
+        sensor_rates_string+=";"+str(list_sensors[i]['rate_sensors_telemetry'])+","+str(list_sensors[i]['rate_sensors_transition'])
+
 f_out.write(sensor_rates_string+"\n")
 
 associated_wan_up = ""
-#lan
-#USER SHOULD CHANGE THESE
-####################################
-#service_tele = "0.2"
-#service_trans = "0.2"
-#service_command = "0.1"
+
 service_batch = "0.0"
 service_reply = "0.0"
 ####################################
-LAN_IN_services = service_tele +"," +service_trans+","+service_command+","+service_batch+","+service_reply
-f_out.write(LAN_IN_services+"\n")
+LAN_IN_services = ""
+
+LAN_OUT_services = ""
+delay_lan_list = []
+
+for i in range(int(number_of_lan_types)):
+    with open("../../tests_topology/catalog/lan/Type"+str(i)+".json") as lan_infos:
+      lan_inf = json.load(lan_infos)
+    aggregation_rates_lan = ""
+    service_time_lan = ""
+
+    for element in lan_inf:
+        if element == "delay":
+            delay_lan_list.append(lan_inf[element])
+        elif element == "service_times":
+            inner_count = 0
+            service_time_lan = ""
+            for element2 in lan_inf[element]:
+                if inner_count == 0:
+                    service_time_lan+=str(lan_inf[element][element2])
+                    inner_count+=1
+                else:
+                    service_time_lan+=","+str(lan_inf[element][element2])
+            if LAN_IN_services == "":
+                LAN_IN_services += service_time_lan+","+service_batch+","+service_reply
+            else:
+                LAN_IN_services +=";"+service_time_lan+","+service_batch+","+service_reply
 
 LAN_OUT_services = LAN_IN_services
+f_out.write(LAN_IN_services+"\n")
 f_out.write(LAN_OUT_services+"\n")
 #weight = "1"
 f_out.write(weight+"\n")
@@ -142,8 +192,53 @@ f_out.write(weight+"\n")
 #CENTRAL
 wan_id = number_of_elements
 id_wan_central = wan_id
-to_write ="0;-1;10;NODE,SCHEDULER1,CENTRAL,"+aggregation_rates+delay_lower_router+delay_lower_router
-to_write+=service_time_central+prob_command_generated_central+"RAID3,"+service_time_disks
+#Let's get the info from the catalog
+with open("../../tests_topology/catalog/central/"+central_type+".json") as central_infos:
+  central_inf = json.load(central_infos)
+aggregation_rates_central = ""
+service_time_central = ""
+for element in central_inf:
+    if element == 'prob_command_generated':
+        prob_command_generated_central = str(central_inf[element])
+    elif element == "scheduler_type":
+        central_scheduler = central_inf[element]
+    elif element == "service_times":
+        inner_count = 0
+        for element2 in central_inf[element]:
+            if inner_count == 0:
+                service_time_central+=str(central_inf[element][element2])
+                inner_count+=1
+            else:
+                service_time_central+="/"+str(central_inf[element][element2])
+    else:
+        inner_count = 0
+        for element2 in central_inf[element]:
+            if inner_count == 0:
+                aggregation_rates_central+=str(central_inf[element][element2])
+                inner_count+=1
+            else:
+                aggregation_rates_central+="/"+str(central_inf[element][element2])
+
+with open("../../tests_topology/catalog/disk/"+disk_type+".json") as disk_infos:
+  disk_inf = json.load(disk_infos)
+aggregation_rates_disk = ""
+service_time_disk = ""
+
+for element in disk_inf:
+    if element == "disk_type":
+        disk_type_string = disk_inf[element]
+    elif element == "service_times":
+        inner_count = 0
+        service_time_disk = ""
+        for element2 in disk_inf[element]:
+            if inner_count == 0:
+                service_time_disk+=str(disk_inf[element][element2])
+                inner_count+=1
+            else:
+                service_time_disk+="/"+str(disk_inf[element][element2])
+
+to_write ="0;-1;10;NODE,"+central_scheduler+",CENTRAL,"+aggregation_rates_central+",-1,"+delay_lower_router_central+","
+to_write+=service_time_central+","+prob_command_generated_central+","+disk_type_string+","+service_time_disk+"\n"
 associated_wan_down =str(id_wan_central)+";0;3;WAN,WAN_TYPE0,"+delay_wan
 f_out.write(to_write)
 LP_index = 0
@@ -159,10 +254,68 @@ sensor_actuator_string = ""
 flagCentral = True
 index = 1
 indexLocal = number_of_regionals+1
+
+with open("../../tests_topology/catalog/regional/"+regional_type+".json") as regional_infos:
+  regional_inf = json.load(regional_infos)
+aggregation_rates_regional = ""
+service_time_regional = ""
+
+for element in regional_inf:
+    if element == 'prob_command_generated':
+        prob_command_generated_regional = str(regional_inf[element])
+    elif element == "scheduler_type":
+        regional_scheduler = regional_inf[element]
+    elif element == "service_times":
+        inner_count = 0
+        for element2 in regional_inf[element]:
+            if inner_count == 0:
+                service_time_regional+=str(regional_inf[element][element2])
+                inner_count+=1
+            else:
+                service_time_regional+="/"+str(regional_inf[element][element2])
+    else:
+        inner_count = 0
+        for element2 in regional_inf[element]:
+            if inner_count == 0:
+                aggregation_rates_regional+=str(regional_inf[element][element2])
+                inner_count+=1
+            else:
+                aggregation_rates_regional+="/"+str(regional_inf[element][element2])
+
+with open("../../tests_topology/catalog/local/"+local_type+".json") as local_infos:
+  local_inf = json.load(local_infos)
+aggregation_rates_local = ""
+service_time_local = ""
+
+for element in local_inf:
+    if element == 'prob_command_generated':
+        prob_command_generated_local = str(local_inf[element])
+    elif element == "scheduler_type":
+        local_scheduler = local_inf[element]
+    elif element == "service_times":
+        inner_count = 0
+        for element2 in local_inf[element]:
+            if inner_count == 0:
+                service_time_local+=str(local_inf[element][element2])
+                inner_count+=1
+            else:
+                service_time_local+="/"+str(local_inf[element][element2])
+    else:
+        inner_count = 0
+        for element2 in local_inf[element]:
+            if inner_count == 0:
+                aggregation_rates_local+=str(local_inf[element][element2])
+                inner_count+=1
+            else:
+                aggregation_rates_local+="/"+str(local_inf[element][element2])
+
+
+
+
 while index < (1+number_of_regionals):
     upper_node = wan_id
-    to_write = str(index)+";"+str(id_wan_central)+";8;NODE,SCHEDULER2,REGIONAL,"+aggregation_rates+delay_lower_router+delay_lower_router
-    to_write+=service_time_regionals+prob_command_generated_regional+"\n"
+    to_write = str(index)+";"+str(id_wan_central)+";8;NODE,"+regional_scheduler+",REGIONAL,"+aggregation_rates_regional+","+delay_lower_router_regional+","+delay_upper_router_regional+","
+    to_write+=service_time_regional+","+prob_command_generated_regional+"\n"
     f_out.write(to_write)
 
     associated_wan_down +=str(wan_id)+";"+str(index)+";3;WAN,WAN_TYPE0,"+delay_wan
@@ -177,33 +330,35 @@ while index < (1+number_of_regionals):
         LP_start_list = str(index)+","+str(wan_id)
         LP_num_elements = 2
     tot = 0
+
     for j in range(different_amounts_sensors_type1) :
         for l in range(different_amounts_sensors_type2):
             for k in range(different_amounts_actuators):
                 if(number_of_locals_with_x_sensors_y_actuators_per_regional[index-1][j][l][k] != 0):
                     for last in range(number_of_locals_with_x_sensors_y_actuators_per_regional[index-1][j][l][k]):
                         counter_elements = 2
-                        to_write = str(indexLocal)+";"+str(count)+";8;NODE,SCHEDULER2,LOCAL,"+aggregation_rates+delay_lower_router+delay_lower_router
-                        to_write+=service_time_locals+prob_command_generated_local+"\n"
+
+                        to_write = str(indexLocal)+";"+str(count)+";8;NODE,"+local_scheduler+",LOCAL,"+aggregation_rates_local+","+delay_lower_router_local+","+delay_upper_router_local+","
+                        to_write+=service_time_local+","+prob_command_generated_local+"\n"
                         f_out.write(to_write)
 
                         LP_start_list+=","+str(indexLocal)+","+str(lan_id)
 
                         associated_lan_down+=str(lan_id)
                         upper_lan_node = indexLocal
-                        associated_lan_down+=";"+str(indexLocal)+";3;LAN,LAN_TYPE0,"+delay_lan
+                        associated_lan_down+=";"+str(indexLocal)+";3;LAN,LAN_TYPE0,"+str(delay_lan_list[0])+"\n" #here need type, delay_lan_list[type]
                         for sens in range(j):
-                            sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,BATCH,SENSOR_TYPE0,MEASURE0\n"
+                            sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,"+list_sensors[0]['job_type']+",SENSOR_TYPE"+str(0)+","+list_sensors[0]['measure_type']+"\n"
                             LP_start_list+=","+str(sensors_start)
                             counter_elements+=1
                             sensors_start+=1
                         for sens2 in range(l):
-                            sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,BATCH,SENSOR_TYPE1,MEASURE0\n"
+                            sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,"+list_sensors[1]['job_type']+",SENSOR_TYPE"+str(1)+","+list_sensors[1]['measure_type']+"\n"
                             LP_start_list+=","+str(sensors_start)
                             counter_elements+=1
                             sensors_start+=1
                         for act in range(k):
-                            sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,BATCH,ACTUATOR_TYPE0,MEASURE0,"+rate_trans_act+service_time_commands_act
+                            sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,"+job_type+",ACTUATOR_TYPE"+str(0)+","+measure_type+","+str(rate_trans_act)+","+str(service_time_commands_act)+"\n"
                             LP_start_list+=","+str(sensors_start)
                             counter_elements+=1
                             sensors_start+=1

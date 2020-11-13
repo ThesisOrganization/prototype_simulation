@@ -160,8 +160,8 @@ with open("jsonAdditionalInfo.txt") as f:
     stringAdditionalInfo+="Each local node has "+str(lines[3])+" LANs below. Each LAN has:"#LAN (è 1)
     stringAdditionalInfo+="\\begin{itemize}\n"
     stringAdditionalInfo+="\\item "+str(lines[7])+"sensors sending telemetries with rate: "+str(lines[11]).strip()+".\n"#sensori telemetry per ogni locale
-    stringAdditionalInfo+="\\item "+str(lines[8])+"sensors sending transitions with rate: "+str(lines[10]).strip()+".\n"#sensori trans per ogni locale
-    stringAdditionalInfo+="\\item "+str(lines[9])+"actuators sending trasitions with rate: "+str(lines[12]).strip()+".\n"#actuators per ogni locale
+    stringAdditionalInfo+="\\item "+str(lines[8])+"sensors sending transitions with rate: "+str(lines[12]).strip()+".\n"#sensori trans per ogni locale
+    stringAdditionalInfo+="\\item "+str(lines[9])+"actuators sending trasitions with rate: "+str(lines[10]).strip()+".\n"#actuators per ogni locale
     stringAdditionalInfo+="\\end{itemize}\n"
     stringAdditionalInfo+="In total there are "+str(lines[5]).strip()+ "total sensors and "+str(lines[6]).strip()+" total actuators."
     #stringAdditionalInfo+=lines[4]#WAN

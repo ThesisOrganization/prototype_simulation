@@ -1,0 +1,9 @@
+{
+        "service_times": {
+            "telemetry": 0.4,
+            "transition": 0.73,
+            "command": 0.00,
+            "batch": 0.23
+        },
+        "disk_type": "RAID3"
+}

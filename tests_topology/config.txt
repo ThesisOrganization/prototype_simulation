@@ -1,24 +1,14 @@
 PSA: where multiple values have to be added, they are in the following order:
 telemetry/transition/command/batch/reply
 x,y : there are x regionals with y locals
-regionals_with_tot_locals         = 8,5
-aggregation_rates                 = 80/3/4/30
-sevice_time_central               = 1.5/1.0/1.0/0.5/1.0
-service_time_regionals            = 0.5/0.2/0.3/0.2/0.2
-service_time_locals               = 1.5/1.0/1.0/0.5/1.0
-delay_upper_router                = 0.3
-delay_lower_router                = 0.2
-delay_lan                         = 0.3
+regionals_with_tot_locals         = 4,3
+In x_type_and_additional_info need to put type, delay_lower_router for x node
+central_type_and_additional_info  = Type0,0.3,Type0
+regional_type_and_additional_info = Type0,0.3,0.5
+local_type_and_additional_info    = Type0,0.2,0.6
+Central is the exception, having type, delay_lower, type of storage
 delay_wan                         = 0.5
-prob_command_generated_central    = 0.9
-prob_command_generated_regional   = 0.8
-prob_command_generated_local      = 0.8
-service_time_disks                = 0.4/0.73/0.00/0.23
-service_time_commands_act         = 0.6
-rate_trans_act                    = 0.0001
-rate_sensors_telemetry            = 0.003
-rate_sensors_transition           = 0.000025
-service_telemetry_LAN_OUT         = 0.2
-service_transition_LAN_OUT        = 0.2
-service_command_LAN_IN            = 0.1
+actuator_type                     = Type0
+number_of_sensor_type             = 2
+number_of_lan_types               = 2
 weight_actuators                  = 1
