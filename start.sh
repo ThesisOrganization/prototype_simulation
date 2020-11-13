@@ -39,8 +39,6 @@ for filename in tests_topology/*.txt; do
 	echo "Done."
 	echo "Starting simulation.."
 	cd ../tree_simulator
-	make clean
-	make
 	./run.sh $sim_options $number_lp $working_threads
 	echo "Done."
 	echo "Parsing jsons and merging them.."

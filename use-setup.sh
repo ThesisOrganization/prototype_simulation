@@ -7,3 +7,4 @@ git checkout iPiDES_new
 cd ..
 rm -rf Simulator
 cp -r USE-source Simulator
+echo "USE" > Simulator/simulator-name

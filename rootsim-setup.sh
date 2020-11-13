@@ -37,3 +37,4 @@ sh autogen.sh
 ./configure $ARGS --prefix=$PREFIX/Simulator
 make install
 cd ..
+echo "ROOT-Sim" > Simulator/simulator-name

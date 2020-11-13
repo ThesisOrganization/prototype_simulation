@@ -17,3 +17,4 @@ cd build
 ninja test
 ninja install
 cd ..
+echo "NeuRome" > Simulator/simulator-name
