@@ -36,10 +36,10 @@ typedef struct _job_info {
 	double deadline; ///< The deadline at which the job must be completed.
 	//void* payload; ///< The actual job data. (can't be sent on rootsim)
 	job_type job_type;
-	int lp_sender; //used for the reply
+	int device_sender; //used for the reply
 	double busy_time_transition; //used with the reply and transition
 	double waiting_time_transition; //used with the reply and transition
-	int lp_destination; //used for command
+	int device_destination; //used for command
 } job_info;
 
 /** \brief How a queue must be handled by the scheduler.
@@ -233,23 +233,6 @@ typedef struct _total_topology{
 //#############################################
 
 
-//#define TOTAL_NUMBER_OF_EVENTS 100
-//#define PROB_CMD 0.4
-//#define DELAY_MEAN 1
-//#define ARRIVE_RATE 50
-//#define FINISH_RATE 5
-//#define LEN_QUEUE 50
-#define RANDOM_START 500
-#define TRANSITION_TIME_LIMIT 300000
-#define MAX_SIMULATION_TIME 100000000
-
-#define NEXT_UPDATE_TIMESTAMP 100000
-#define THRESHOLD 3 ///percentage
-
-//#define RANGE_TIMESTAMP 10
-
-//#define NUM_QUEUES 3
-
 typedef enum _events_type{ //INIT should be 0
 	ARRIVE = 10,
 	ARRIVE_DISK,
@@ -319,7 +302,7 @@ typedef struct _queue_state {
 } queue_state;
 
 typedef struct _sensor_state {
-	prio_type job_generated;
+	//prio_type job_generated;
 	double rate_telemetry;
 	double rate_transition;
 } sensor_state;

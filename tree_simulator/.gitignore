@@ -1,7 +1,6 @@
 report.pdf
 report.tex
 *.txt
-!topology.txt
 *.pdf
 *.tex
 *.json
@@ -10,3 +9,4 @@ model_parallel
 lp_data
 USE-*
 simulation
+

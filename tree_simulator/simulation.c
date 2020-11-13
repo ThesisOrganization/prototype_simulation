@@ -3,10 +3,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "./simulation_functions/init_event/init_functions.h"
-#include "./simulation_functions/arrive_event/arrive_functions.h"
-#include "./simulation_functions/finish_event/finish_functions.h"
-#include "./simulation_functions/setup_protocol/setup_protocol.h"
+#include "./simulation.h"
 
 
 char topology_path[] = "./topology.txt";
@@ -35,19 +32,31 @@ void print_array_int(int * array, int num_el){
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
+#define CHECK_TTCB 15
+#define CHECK_C 4
+#define CHECK_TTB 11
+#define CHECK_TTC 7
+#define CHECK_TT 3
 
-int check_metrics(queue_state * queue_state){
+int get_flag_from_bitmap(unsigned int bitmap, int index){
+	
+	unsigned int shifted = bitmap >> index;
+	return shifted & 1;
+	
+}
+
+
+unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int min_number_of_events){
 
 	int return_bool = 1;
 	int i;
-	int sum_arrived = 0;
 
-	for(i=0; i < NUM_OF_JOB_TYPE; i++)
-		sum_arrived += queue_state->C[i];
-
-	if(sum_arrived == 0){
-		return_bool = 0;
-		return return_bool;
+	for(i=0; i < NUM_OF_JOB_TYPE; i++){
+		unsigned int flag = get_flag_from_bitmap(bitmap, i);
+		if(flag && queue_state->C[i] < min_number_of_events){
+			return_bool = 0;
+			return return_bool;
+		}
 	}
 
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
@@ -206,10 +215,12 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				dev_state = state->devices_array[index_map];
 
 				dev_state->device_timestamp = now;
-
-				msg_arrive.info.type = REAL_TIME;
+				
+				//msg_arrive.info.type = REAL_TIME;
 				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
-				msg_arrive.info.job_type = TRANSITION;
+				//msg_arrive.info.job_type = TRANSITION;
+				fill_job_info(&msg_arrive.info, -1.0, -1.0, TRANSITION, -1, -1.0, -1.0, -1);
+
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
@@ -243,9 +254,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				dev_state->device_timestamp = now;
 
-				msg_arrive.info.type = REAL_TIME;
+				//msg_arrive.info.type = REAL_TIME;
 				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
-				msg_arrive.info.job_type = TELEMETRY;
+				//msg_arrive.info.job_type = TELEMETRY;
+				fill_job_info(&msg_arrive.info, -1.0, -1.0, TELEMETRY, -1, -1.0, -1.0, -1);
+				
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
@@ -387,14 +400,20 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					int boolean_check = 0;
 
 					if(dev_state->type == NODE){
-
-						boolean_check = check_metrics(dev_state->info.node->queue_state);
+						
+						if(dev_state->info.node->type == CENTRAL)
+							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTB, MIN_NUMBER_OF_EVENTS_ALL);
+						else if(dev_state->info.node->type == REGIONAL)
+							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTCB, MIN_NUMBER_OF_EVENTS_ALL);
+						else if(dev_state->info.node->type == LOCAL)
+							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTC, MIN_NUMBER_OF_EVENTS_ALL);
+						
 						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 							update_stable_metrics(dev_state->info.node->queue_state);
 
 
 						if(dev_state->info.node->type == CENTRAL){
-							boolean_check = check_metrics(dev_state->info.node->disk_state);
+							boolean_check = check_metrics(dev_state->info.node->disk_state, CHECK_TTB, MIN_NUMBER_OF_EVENTS_DISK);
 							if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 								update_stable_metrics(dev_state->info.node->disk_state);
 						}
@@ -402,17 +421,17 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					}
 					else if(dev_state->type == ACTUATOR){
 
-						boolean_check = check_metrics(dev_state->info.actuator->queue_state);
+						boolean_check = check_metrics(dev_state->info.actuator->queue_state, CHECK_C, MIN_NUMBER_OF_EVENTS_ALL);
 						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 							update_stable_metrics(dev_state->info.actuator->queue_state);
 
 					}
 					else if(dev_state->type == LAN){
 
-						boolean_check = check_metrics(dev_state->info.lan->queue_state_in);
+						boolean_check = check_metrics(dev_state->info.lan->queue_state_in, CHECK_C, MIN_NUMBER_OF_EVENTS_ALL);
 						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 							update_stable_metrics(dev_state->info.lan->queue_state_in);
-						boolean_check = check_metrics(dev_state->info.lan->queue_state_out);
+						boolean_check = check_metrics(dev_state->info.lan->queue_state_out, CHECK_TT, MIN_NUMBER_OF_EVENTS_ALL);
 						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 							update_stable_metrics(dev_state->info.lan->queue_state_out);
 

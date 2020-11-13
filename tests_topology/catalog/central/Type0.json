@@ -1,0 +1,17 @@
+{
+        "aggregation_rates": {
+            "telemetry": 80,
+            "transition": 3,
+            "command": 4,
+            "batch": 30
+        },
+        "service_times": {
+            "telemetry": 1.5,
+            "transition": 1.0,
+            "command": 1.0,
+            "batch": 0.5,
+            "reply": 1.0
+        },
+        "prob_command_generated": 0.9,
+        "scheduler_type": "SCHEDULER1"
+}
