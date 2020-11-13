@@ -214,10 +214,12 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				dev_state = state->devices_array[index_map];
 
 				dev_state->device_timestamp = now;
-
-				msg_arrive.info.type = REAL_TIME;
+				
+				//msg_arrive.info.type = REAL_TIME;
 				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
-				msg_arrive.info.job_type = TRANSITION;
+				//msg_arrive.info.job_type = TRANSITION;
+				fill_job_info(&msg_arrive.info, -1.0, -1.0, TRANSITION, -1, -1.0, -1.0, -1);
+
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
@@ -251,9 +253,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				dev_state->device_timestamp = now;
 
-				msg_arrive.info.type = REAL_TIME;
+				//msg_arrive.info.type = REAL_TIME;
 				//info_to_send.deadline = now + (Random() * RANGE_TIMESTAMP);
-				msg_arrive.info.job_type = TELEMETRY;
+				//msg_arrive.info.job_type = TELEMETRY;
+				fill_job_info(&msg_arrive.info, -1.0, -1.0, TELEMETRY, -1, -1.0, -1.0, -1);
+				
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
