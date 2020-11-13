@@ -8,6 +8,8 @@
 #include "../../utils/message/message.h"
 #include "../simulation.h"
 
+void fill_job_info(job_info * info, double arrived_in_node_timestamp, double deadline, job_type job_type, int device_sender, double busy_time_transition, double waiting_time_transition, int device_destination);
+
 /*
 #define DEBUG
 #ifdef DEBUG

@@ -36,10 +36,10 @@ typedef struct _job_info {
 	double deadline; ///< The deadline at which the job must be completed.
 	//void* payload; ///< The actual job data. (can't be sent on rootsim)
 	job_type job_type;
-	int lp_sender; //used for the reply
+	int device_sender; //used for the reply
 	double busy_time_transition; //used with the reply and transition
 	double waiting_time_transition; //used with the reply and transition
-	int lp_destination; //used for command
+	int device_destination; //used for command
 } job_info;
 
 /** \brief How a queue must be handled by the scheduler.

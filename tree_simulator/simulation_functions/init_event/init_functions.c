@@ -122,7 +122,7 @@ void init_sensor(unsigned int id_device, simtime_t now, device_state * state, un
     //printf("sensor\n");
 
     state->info.sensor = malloc(sizeof(sensor_state));
-    int sensor_type = GET_SENSOR_TYPE(state->topology);
+    //int sensor_type = GET_SENSOR_TYPE(state->topology);
     //printf("%d\n", sensor_type);
     double * sensor_rate = GET_SENSOR_TYPE_RATES(state->topology);
     double rate_transition = sensor_rate[TRANSITION];
@@ -183,7 +183,7 @@ void init_lan(unsigned int id_device, device_state * state){
     state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
 
 
-    int lan_type = GET_LAN_TYPE(state->topology);
+    //int lan_type = GET_LAN_TYPE(state->topology);
     state->info.lan->service_rates_in = GET_LAN_IN_TYPE_SERVICE(state->topology);
     state->info.lan->service_rates_out = GET_LAN_OUT_TYPE_SERVICE(state->topology);
 

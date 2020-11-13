@@ -37,7 +37,7 @@ static void get_random_actuator(int num_types, int * num_per_types, double * pro
 	*pt_actuator = actuator;
 
 }
-
+/*
 static void fill_info_to_send(job_info * info_to_send, job_type type, int sender, int destination){
 
 	info_to_send->type = REAL_TIME;
@@ -47,14 +47,15 @@ static void fill_info_to_send(job_info * info_to_send, job_type type, int sender
 
 
 }
-
+*/
 static void send_reply(unsigned int id_device, simtime_t now, device_state * state, int sender, double delay, double busy_time_transition, double waiting_time_transition){
 
 	job_info info_to_send;
-	fill_info_to_send(&info_to_send, REPLY, sender, -1);
+	//fill_info_to_send(&info_to_send, REPLY, sender, -1);
+	fill_job_info(&info_to_send, -1.0, -1.0, REPLY, sender, busy_time_transition, waiting_time_transition, -1);
 
-	info_to_send.busy_time_transition = busy_time_transition;
-	info_to_send.waiting_time_transition = waiting_time_transition;
+	//info_to_send.busy_time_transition = busy_time_transition;
+	//info_to_send.waiting_time_transition = waiting_time_transition;
 
 	int destination = state->info.node->id_wan_down;
 	int next_lp = CONVERT_ELEMENT_TO_LP(state->topology, destination);
@@ -73,7 +74,8 @@ static void send_command(unsigned int id_device, simtime_t now, device_state  * 
 	int next_lp = CONVERT_ELEMENT_TO_LP(state->topology, next_hop);
 
 	job_info info_to_send;
-	fill_info_to_send(&info_to_send, COMMAND, -1, id_selected_actuator);
+	//fill_info_to_send(&info_to_send, COMMAND, -1, id_selected_actuator);
+	fill_job_info(&info_to_send, -1.0, -1.0, COMMAND, -1, -1.0, -1.0, id_selected_actuator);
 
 	message_arrive msg;
 	msg.header.element_id = next_hop;
@@ -182,7 +184,8 @@ static void send_to_up_node(unsigned int id_device, simtime_t now, device_state 
 static void save_data_on_disk(unsigned int id_device, simtime_t now, job_type type, unsigned int id_lp){
 
 	job_info info_to_send;
-	fill_info_to_send(&info_to_send, type, -1, -1);
+	//fill_info_to_send(&info_to_send, type, -1, -1);
+	fill_job_info(&info_to_send, -1.0, -1.0, type, -1, -1.0, -1.0, -1);
 
 	message_arrive msg;
 	msg.header.element_id = id_device;
@@ -199,7 +202,8 @@ static void send_aggregated_data(unsigned int id_device, simtime_t now, device_s
 	if(actual_aggr >= max_aggregated){
 
 		job_info info_to_send;
-		fill_info_to_send(&info_to_send, type, -1, -1);
+		//fill_info_to_send(&info_to_send, type, -1, -1);
+		fill_job_info(&info_to_send, -1.0, -1.0, type, -1, -1.0, -1.0, -1);
 
 		send_to_up_node(id_device, now, state, delay_up, &info_to_send);
 
@@ -240,8 +244,9 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 		//printf("TRANSITION\n");
 		//###################################################
 		//SEND REPLY
-		if(state->info.node->type != LOCAL)
-			send_reply(id_device, now, state, info->lp_sender, delay_down, info->busy_time_transition, info->waiting_time_transition);
+		if(state->info.node->type != LOCAL){
+			send_reply(id_device, now, state, info->device_sender, delay_down, info->busy_time_transition, info->waiting_time_transition);
+		}
 
 		//###################################################
 		//GENERATE COMMAND
@@ -264,10 +269,13 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 		else{
 			//###################################################
 			//FORWARD TRANSITION
-			info->busy_time_transition = busy_time_transition;
-			info->waiting_time_transition = waiting_time_transition;
-			info->lp_sender = id_device;
-			send_to_up_node(id_device, now, state, delay_up, info);
+			
+			job_info info_to_send; //this should be a copy of the transition that we are processing (in terms of payload). At least in the old implementation
+			fill_job_info(&info_to_send, -1.0, -1, info->job_type, id_device, busy_time_transition, waiting_time_transition, -1);
+			//info->busy_time_transition = busy_time_transition;
+			//info->waiting_time_transition = waiting_time_transition;
+			//info->device_sender = id_device;
+			send_to_up_node(id_device, now, state, delay_up, &info_to_send);
 			
 			//##################################################
 			//SAVE DATA TO DISK
@@ -279,7 +287,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 	}
 	else if(info->job_type == COMMAND){
 
-		send_command(id_device, now, state, info->lp_destination, delay_down);
+		send_command(id_device, now, state, info->device_destination, delay_down);
 
 	}
 	else if(info->job_type == BATCH_DATA){
@@ -383,7 +391,7 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 	}
 	else if(info->job_type == COMMAND){
 
-		int destination = info->lp_destination; //you should use the function of the topology
+		int destination = info->device_destination; //you should use the function of the topology
 		int next_lp = CONVERT_ELEMENT_TO_LP(state->topology, destination);
 
 		message_arrive msg;

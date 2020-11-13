@@ -12,6 +12,6 @@
 
 #define NEXT_UPDATE_TIMESTAMP 100000
 #define THRESHOLD 3 ///percentage
-#define MIN_NUMBER_OF_EVENTS 20
+#define MIN_NUMBER_OF_EVENTS 50
 
 #endif /* SIMULATION_H */

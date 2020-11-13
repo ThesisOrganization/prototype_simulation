@@ -1,7 +1,7 @@
 PSA: where multiple values have to be added, they are in the following order:
 telemetry/transition/command/batch/reply
 x,y : there are x regionals with y locals
-regionals_with_tot_locals         = 10,1
+regionals_with_tot_locals         = 8,5
 aggregation_rates                 = 80/3/4/30
 sevice_time_central               = 1.5/1.0/1.0/0.5/1.0
 service_time_regionals            = 0.5/0.2/0.3/0.2/0.2
