@@ -302,7 +302,7 @@ typedef struct _queue_state {
 } queue_state;
 
 typedef struct _sensor_state {
-	prio_type job_generated;
+	//prio_type job_generated;
 	double rate_telemetry;
 	double rate_transition;
 } sensor_state;
