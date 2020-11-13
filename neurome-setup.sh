@@ -17,4 +17,15 @@ cd build
 ninja test
 ninja install
 cd ..
+cd ..
+touch Simulator/simulator-name
 echo "NeuRome" > Simulator/simulator-name
+echo "writing the compatiblity header"
+echo "/** \file compatibility.h
+ * This file contains definition used to make the model agnostic to the simulator that is running them
+ * */
+#ifndef COMPATIBILITY_H
+#define COMPATIBILITY_H
+#define n_prc_tot n_lps
+#endif" > Simulator/compatibility.h
+echo "setup complete"

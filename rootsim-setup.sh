@@ -37,4 +37,13 @@ sh autogen.sh
 ./configure $ARGS --prefix=$PREFIX/Simulator
 make install
 cd ..
+touch Simulator/simulator-name
 echo "ROOT-Sim" > Simulator/simulator-name
+echo "writing the compatiblity header (blank for now)"
+echo "/** \file compatibility.h
+ * This file contains definition used to make the model agnostic to the simulator that is running them
+ * */
+#ifndef COMPATIBILITY_H
+#define COMPATIBILITY_H
+#endif" > Simulator/compatibility.h
+echo "setup complete"
