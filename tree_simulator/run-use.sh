@@ -11,7 +11,21 @@ sed -i -e '431 i\'"$srcs"'' -i -e '539 i\EDGE_OBJ= $(EDGE_SOURCES:.c=.o)' -i -e 
 
 cd USE-model-sources
 
-make MAX_ALLOCABLE_GIGAS=${MAX_GIGAS} NBC=1 MAX_SKIPPED_LP=${max_lp} REVERSIBLE=0 LOOKAHEAD=${lookahead} CHANNELS_PER_CELL=${channels_per_cell} PERC_USED_BUCKET=${pub} ELEM_PER_BUCKET=${epb} REPORT=1 DEBUG=0 SPERIMENTAL=1 CHECKPOINT_PERIOD=${ck} LINEAR_PINNING=1
+#we use the free command to get only the available memory in RAM
+MAX_GIGAS=$(free -h | sed -E -e '1d' -e '3d' -e 's:[GMK]i::g' -e 's/Mem:[ ]+//' -e 's/[0-9\.]+[ ]+//g')
+ck=10
+pub=0.33333
+epb=3
+nbc=1
+lookahead=0.0
+dbg=0
+sperimental=1
+lin_pin=1
+reversible=0
+#1=stampe dettagliate
+report=1
+
+make MAX_ALLOCABLE_GIGAS=${MAX_GIGAS} NBC=${nbc} MAX_SKIPPED_LP=${max_lp} REVERSIBLE=${reversible} LOOKAHEAD=${lookahead} PERC_USED_BUCKET=${pub} ELEM_PER_BUCKET=${epb} REPORT=${report} DEBUG=${dbg} SPERIMENTAL=${sperimental} CHECKPOINT_PERIOD=${ck} LINEAR_PINNING=${lin_pin}
 
 cp edge ../simulation
 cd ..
