@@ -45,14 +45,14 @@ int get_flag_from_bitmap(unsigned int bitmap, int index){
 }
 
 
-unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap){
+unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int min_number_of_events){
 
 	int return_bool = 1;
 	int i;
 
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
 		unsigned int flag = get_flag_from_bitmap(bitmap, i);
-		if(flag && queue_state->C[i] < MIN_NUMBER_OF_EVENTS){
+		if(flag && queue_state->C[i] < min_number_of_events){
 			return_bool = 0;
 			return return_bool;
 		}
@@ -401,18 +401,18 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					if(dev_state->type == NODE){
 						
 						if(dev_state->info.node->type == CENTRAL)
-							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTB);
+							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTB, MIN_NUMBER_OF_EVENTS_ALL);
 						else if(dev_state->info.node->type == REGIONAL)
-							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTCB);
+							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTCB, MIN_NUMBER_OF_EVENTS_ALL);
 						else if(dev_state->info.node->type == LOCAL)
-							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTC);
+							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTC, MIN_NUMBER_OF_EVENTS_ALL);
 						
 						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 							update_stable_metrics(dev_state->info.node->queue_state);
 							
 
 						if(dev_state->info.node->type == CENTRAL){
-							boolean_check = check_metrics(dev_state->info.node->disk_state, CHECK_TTB);
+							boolean_check = check_metrics(dev_state->info.node->disk_state, CHECK_TTB, MIN_NUMBER_OF_EVENTS_DISK);
 							if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 								update_stable_metrics(dev_state->info.node->disk_state);
 						}
@@ -420,17 +420,17 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					}
 					else if(dev_state->type == ACTUATOR){
 
-						boolean_check = check_metrics(dev_state->info.actuator->queue_state, CHECK_C);
+						boolean_check = check_metrics(dev_state->info.actuator->queue_state, CHECK_C, MIN_NUMBER_OF_EVENTS_ALL);
 						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 							update_stable_metrics(dev_state->info.actuator->queue_state);
 
 					}
 					else if(dev_state->type == LAN){
 
-						boolean_check = check_metrics(dev_state->info.lan->queue_state_in, CHECK_C);
+						boolean_check = check_metrics(dev_state->info.lan->queue_state_in, CHECK_C, MIN_NUMBER_OF_EVENTS_ALL);
 						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 							update_stable_metrics(dev_state->info.lan->queue_state_in);
-						boolean_check = check_metrics(dev_state->info.lan->queue_state_out, CHECK_TT);
+						boolean_check = check_metrics(dev_state->info.lan->queue_state_out, CHECK_TT, MIN_NUMBER_OF_EVENTS_ALL);
 						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
 							update_stable_metrics(dev_state->info.lan->queue_state_out);
 
