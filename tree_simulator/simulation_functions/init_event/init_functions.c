@@ -29,7 +29,7 @@ static void init_metrics(queue_state * queue_state){
     queue_state->start_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
     queue_state->actual_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
     queue_state->old_response_times = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
-    
+
 		queue_state->C_stable = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
     queue_state->A_stable = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
     queue_state->W_stable = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
@@ -46,7 +46,7 @@ static void init_metrics(queue_state * queue_state){
         queue_state->start_timestamp[i] = 0.0;
         queue_state->actual_timestamp[i] = 0.0;
         queue_state->old_response_times[i] = -1.0;
-        
+
 				queue_state->C_stable[i] = -1;
         queue_state->A_stable[i] = -1;
         queue_state->W_stable[i] = -1.0;
@@ -58,13 +58,14 @@ static void init_metrics(queue_state * queue_state){
 }
 
 void generate_next_job(unsigned int id_device, simtime_t now, double rate_transition, double random_value, events_type type, unsigned int id_lp){
-
-    double time_between_arrivals = 1/rate_transition;
-    //simtime_t ts_generate = now + Expent(time_between_arrivals);
-    simtime_t ts_generate = now + random_value + Expent(time_between_arrivals);
-		message_generate msg;
-		msg.header.element_id = id_device;
-    ScheduleNewEvent(id_lp, ts_generate, type, &msg, sizeof(message_generate));
+		if(rate_transition>0){
+			double time_between_arrivals = 1/rate_transition;
+			//simtime_t ts_generate = now + Expent(time_between_arrivals);
+			simtime_t ts_generate = now + random_value + Expent(time_between_arrivals);
+			message_generate msg;
+			msg.header.element_id = id_device;
+			ScheduleNewEvent(id_lp, ts_generate, type, &msg, sizeof(message_generate));
+		}
 
 }
 
@@ -132,9 +133,12 @@ void init_sensor(unsigned int id_device, simtime_t now, device_state * state, un
     state->info.sensor->rate_telemetry = rate_telemetry;
 
     //schedule generate for all sensors
-    generate_next_job(id_device, now, rate_transition, Random()*RANDOM_START, GENERATE_TRANSITION, id_lp);
-
-    generate_next_job(id_device, now, rate_telemetry, Random()*RANDOM_START, GENERATE_TELEMETRY, id_lp);
+    if(rate_transition>0){
+			generate_next_job(id_device, now, rate_transition, Random()*RANDOM_START, GENERATE_TRANSITION, id_lp);
+		}
+    if(rate_telemetry>0){
+			generate_next_job(id_device, now, rate_telemetry, Random()*RANDOM_START, GENERATE_TELEMETRY, id_lp);
+		}
 
 }
 
@@ -158,7 +162,9 @@ void init_actuator(unsigned int id_device, simtime_t now, device_state * state, 
     state->info.actuator->rate_transition = rate_transition;
 
     //schedule generate for all actuators
-    generate_next_job(id_device, now, rate_transition, Random()*RANDOM_START, GENERATE_TRANSITION, id_lp);
+		if(rate_transition>0){
+			generate_next_job(id_device, now, rate_transition, Random()*RANDOM_START, GENERATE_TRANSITION, id_lp);
+		}
 }
 
 void init_lan(unsigned int id_device, device_state * state){

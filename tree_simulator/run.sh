@@ -16,9 +16,13 @@ echo "Compiling and running model with $sim_name"
 		number_lp=$(sed -n 1p topology.txt)
 	fi
 
+if [[ $working_threads > $number_lp ]]; then
+	working_threads=$number_lp
+fi
+
 for arg
 do
-	if [[ $arg == "alone" || $arg == "json" || $arg == "clean" || $arg == "parallel" ]]; then
+	if [[ $arg == "json" || $arg == "clean" || $arg == "parallel" ]]; then
 			options=$arg
 	fi
 	if [[ $arg == "valgrind" || $arg == "gdb" ]]; then
@@ -49,19 +53,19 @@ elif [ "$options" == "clean" ]; then
 		rm *.json
 elif [[ $sim_name == "ROOT-Sim" ]]; then
 	make
+	rm -r outputs
+	rm lp_data/*.json
 	if [[ -n $options ]]; then
 		if [ "$options" == "parallel" ]; then
-			rm -r outputs
-			rm lp_data/*.json
 			$dbg_param ./simulation --wt $working_threads --lp $number_lp
 			fi
 		else
 			#./queues --sequential --lp $number_lp --simulation-time $simulation_time
-			rm lp_data/*.json
-			rm -r outputs
 			$dbg_param ./simulation --sequential --lp $number_lp
 		fi
 elif [[ $sim_name == "USE" ]]; then
+	rm -r outputs
+	rm lp_data/*.json
 	echo "copiyng USE-sources in simulator-sources"
 	rm -rf USE-model-sources
 	cp -r ../USE-source USE-model-sources
@@ -91,6 +95,7 @@ elif [[ $sim_name == "USE" ]]; then
 	#1=stampe dettagliate
 	report=1
 	queue_len=1204
+	max_lp=0
 
 	make THR_POOL_SIZE=${queue_len} MAX_ALLOCABLE_GIGAS=${MAX_GIGAS} NBC=${nbc} MAX_SKIPPED_LP=${max_lp} REVERSIBLE=0 LOOKAHEAD=${lookahead} PERC_USED_BUCKET=${pub} ELEM_PER_BUCKET=${epb} REPORT=${report} DEBUG=${dbg} SPERIMENTAL=${sperimental} CHECKPOINT_PERIOD=${ck} LINEAR_PINNING=${lin_pin}
 
@@ -98,6 +103,8 @@ elif [[ $sim_name == "USE" ]]; then
 	cd ..
 	$dbg_param ./simulation $working_threads $number_lp
 elif [[ $sim_name == "NeuRome" ]]; then
+	rm -r outputs
+	rm lp_data/*.json
 	make
 	if [[ -n $options ]]; then
 	if [ "$options" == "parallel" ]; then
@@ -106,7 +113,6 @@ elif [[ $sim_name == "NeuRome" ]]; then
 		$dbg_param ./model_parallel
 		fi
 		else
-			#./queues --sequential --lp $number_lp --simulation-time $simulation_time
 			rm lp_data/*.json
 			rm -r outputs
 			$dbg_param ./model_serial
