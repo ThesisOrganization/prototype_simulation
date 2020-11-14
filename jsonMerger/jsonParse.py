@@ -148,31 +148,12 @@ stringAdditionalInfo = ""
 with open("jsonAdditionalInfo.txt") as f:
     lines = f.readlines()
     stringAdditionalInfo+="There is one Central node, between the Central node and the Regional layer there is one WAN. Between each regional and its Locals there is a WAN.\\newline "
-    stringAdditionalInfo+="There are "+str(lines[0].strip())+" regional nodes, their local nodes are divided as such:"
-    regional_list_for_jsonMerge = str(lines[2])
-    stringAdditionalInfo+="\\begin{itemize}\n"
-    for element in regional_list_for_jsonMerge.split(";"):
-        el_list = element.split(",")
-        stringAdditionalInfo+="\\item "+str(el_list[0])+" regionals having "+str(el_list[1]).strip()+" local nodes below.\n"
-    stringAdditionalInfo+="\\end{itemize}\n"
-
+    stringAdditionalInfo+="There are "+str(lines[0].strip())+" regional nodes."
     stringAdditionalInfo+="In total "+lines[1]+" local nodes.\\\\"
-    stringAdditionalInfo+="Each local node has "+str(lines[3])+" LANs below. Each LAN has:"#LAN (è 1)
-    stringAdditionalInfo+="\\begin{itemize}\n"
-    stringAdditionalInfo+="\\item "+str(lines[7])+"sensors sending telemetries with rate: "+str(lines[11]).strip()+".\n"#sensori telemetry per ogni locale
-    stringAdditionalInfo+="\\item "+str(lines[8])+"sensors sending transitions with rate: "+str(lines[12]).strip()+".\n"#sensori trans per ogni locale
-    stringAdditionalInfo+="\\item "+str(lines[9])+"actuators sending trasitions with rate: "+str(lines[10]).strip()+".\n"#actuators per ogni locale
-    stringAdditionalInfo+="\\end{itemize}\n"
-    stringAdditionalInfo+="In total there are "+str(lines[5]).strip()+ "total sensors and "+str(lines[6]).strip()+" total actuators."
+    stringAdditionalInfo+="In total there are "+str(lines[2]).strip()+ "total sensors and "+str(lines[3]).strip()+" total actuators."
     #stringAdditionalInfo+=lines[4]#WAN
 
-regional_list_for_jsonMerge = element.split(";")
-index = 1
-for element in regional_list_for_jsonMerge:
-    number_of_regionals=int(el_list[0])
-    for element in range(number_of_regionals):
-        dict_simulator[index]["number_of_locals"] = el_list[1]
-        index+=1
+
 
 list_regional = []
 list_local = []
@@ -302,7 +283,6 @@ for element in list_regional:
             for c in list:
                 allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],similarity_coefficient)
             allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
-            allclose_result=allclose_result and dict_simulator[element]["number_of_locals"] == dict_simulator[element2]["number_of_locals"]
             if(allclose_result):
                 if(element not in dict_regional_similar):
                     dict_regional_similar[element] = []
@@ -478,12 +458,6 @@ for element in ordered_id_list:
                     to_write+="}"
 
                     f_out.write(to_write)
-            if(dict_model[element]['node_type'] == 'regional'):
-                f_out.write("\\\\This regional node")
-                if flagSimilarity:
-                    f_out.write(" and all its similar ones have "+dict_simulator[element]["number_of_locals"]+"local nodes below.\\\\")
-                else:
-                    f_out.write(" has "+dict_simulator[element]["number_of_locals"]+"local nodes below.\\\\")
             table_string = "\\subsubsection{Given parameters}\n"
             f_out.write(table_string)
             f_out.write(complete_table)

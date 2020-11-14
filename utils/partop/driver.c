@@ -5,7 +5,7 @@
 
 int main()
 {
-  /*
+
   lp_topology * lptopo =  getLPtopoogy("../../tree_simulator/LP.txt");
   int nlp = getNumLP(lptopo);
   printf("Number of LPs: %d.\n",nlp);
@@ -21,12 +21,11 @@ int main()
     x+=1;
   }
   x = 0;
-  while(x < nel){
+  while(x < 120){
     int res = getElementToLPMappingOneElement(lptopo,x);
     printf("Element %d maps to LP %d\n",x,res);
     x+=1;
   }
-*/
 
   //We retrieve the topology, answer the question of who needs to receive for each sender node in the data
   printf("Main starting, retrieving topology..\n");
@@ -148,14 +147,13 @@ int main()
           }
           printf(".\n");
         }
-        free(ListActuatorsByType);
 
       }
 
       int numberOfBelowSensors = getNumberOfBelowSensors(temp_lpt);
       printf("Node %d has %d sensors below(undirectly).\n",i,numberOfBelowSensors);
       int * sensorsTypesBelow = getSensorsTypesBelowList(temp_lpt);
-      for(int k = 0;k < at;k++){
+      for(int k = 0;k < st;k++){
         int * ListSensorsByType = getListSensorsByType(temp_lpt, k);
         if(sensorsTypesBelow[k] != 0){
           printf("Node %d has %d sensors of type %d: %d",i,sensorsTypesBelow[k],k,ListSensorsByType[0]);
@@ -164,7 +162,6 @@ int main()
           }
           printf(".\n");
         }
-        free(ListSensorsByType);
 
       }
 
@@ -251,7 +248,6 @@ int main()
           }
           printf(".\n");
         }
-        free(ListActuatorsByType);
 
       }
 
@@ -267,7 +263,6 @@ int main()
           }
           printf(".\n");
         }
-        free(ListSensorsByType);
 
       }
 
@@ -302,7 +297,6 @@ int main()
           }
           printf(".\n");
         }
-        free(ListActuatorsByType);
       }
 
       int numberOfBelowSensors = getNumberOfBelowSensors(temp_lpt);
@@ -317,7 +311,6 @@ int main()
           }
           printf(".\n");
         }
-        free(ListSensorsByType);
 
       }
 
