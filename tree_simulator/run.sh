@@ -10,8 +10,6 @@ dbg_arg=""
 dbg_param=""
 sim_name=$(sed -n 1p ../Simulator/simulator-name)
 
-echo "THREADS1 $working_threads"
-
 for arg
 do
 	if [[ $arg == "json" || $arg == "clean" ]]; then
@@ -32,16 +30,12 @@ do
 	fi
 done
 
-		echo "THREADS2 $working_threads"
-
-
-		echo "THREADS3 $working_threads"
 if [ "$dbg_arg" == "valgrind" ]; then
 		dbg_param="valgrind --leak-check=full"
 elif [ "$dbg_arg" == "gdb" ]; then
 		dbg_param="gdb --args"
 fi
-echo "THREADS $working_threads"
+
 if [ "$options" == "json" ]; then
 		python3 generate_json.py $file_json
 elif [ "$options" == "clean" ]; then
