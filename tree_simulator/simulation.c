@@ -1,8 +1,3 @@
-//#include <ROOT-Sim.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
 #include "./simulation.h"
 
 
@@ -137,7 +132,10 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			break;
 
 		case DISABLE_UNUSED_LP:
+			
 			state->lp_enabled=LP_DISABLED;
+			
+			break;
 
 		case RECEIVE_SETUP_MESSAGE:
 
@@ -547,18 +545,31 @@ bool OnGVT(int me, lp_state *snapshot)
 
 	int total_number_of_elements = num_nodes + num_actuators + num_lans;
 
-	if(snapshot->num_stable_elements >= total_number_of_elements){
+	int index;
+	int index_map;
+	int id_device;
+	idmap map;
+	device_state * dev_state;
+	/*
+		for(index = 0; index < snapshot->num_devices; index++){
+
+			map = snapshot->element_to_index[index];
+			id_device = map.id;
+			index_map = map.content;
+			dev_state = snapshot->devices_array[index_map];
+			
+			//printf("%f\n", dev_state->device_timestamp);
+			break;
+		}
+	*/
+		
+	if(snapshot->num_stable_elements == total_number_of_elements){
 #ifdef PRINT_RESULTS
 		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
 		FILE * output_file = fopen(file_name_complete, "w");
 
 		fprintf(output_file, "[");
 
-		int index;
-		int index_map;
-		int id_device;
-		idmap map;
-		device_state * dev_state;
 
 		for(index = 0; index < snapshot->num_devices; index++){
 
@@ -624,6 +635,7 @@ bool OnGVT(int me, lp_state *snapshot)
 
 		}
 		fprintf(output_file, "]");
+		fflush(output_file);
 		fclose(output_file);
 #endif
 
