@@ -553,7 +553,9 @@ total_topology * getTopology(char * path, char * path1){
           infoArray = malloc(sizeof(char *)*numberOfInfos);
         }
         else{//infos
-          char * tempString = strdup(ptr2);
+					//we include the terminator character
+					char * tempString = malloc(sizeof(char)*strlen(ptr2)+1);
+					strncpy(tempString,ptr2,strlen(ptr2)+1);
           if(counter == 0){
             //check which type of element, increase the counter for that type
             if(!strcmp(tempString,"NODE")){
@@ -591,8 +593,8 @@ total_topology * getTopology(char * path, char * path1){
     parse_strings(infoArray,lpt[temp], upperNode);
     lpt[temp]->upperNode = upperNode;
 
-    for(i=0;i<counter;i++){
-				free(infoArray[i]);
+    for(i=0;i<numberOfInfos && i<counter;i++){
+			//	free(infoArray[i]);
 		}
 		free(infoArray);
   }
