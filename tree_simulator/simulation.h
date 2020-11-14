@@ -6,6 +6,8 @@
 #include "./simulation_functions/finish_event/finish_functions.h"
 #include "./simulation_functions/setup_protocol/setup_protocol.h"
 
+#include <math.h>
+
 #define RANDOM_START 500
 #define TRANSITION_TIME_LIMIT 300000
 #define MAX_SIMULATION_TIME 100000000

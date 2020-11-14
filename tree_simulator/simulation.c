@@ -1,8 +1,3 @@
-//#include <ROOT-Sim.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
 #include "./simulation.h"
 
 
