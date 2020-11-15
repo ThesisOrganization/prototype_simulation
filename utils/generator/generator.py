@@ -355,7 +355,11 @@ flagCentral = True
 index = 1
 indexLocal = number_of_regionals+1
 
-
+f_out_txt.write("REGIONALS\n")
+locals_string_start = "LOCALS\n"
+locals_string = ""
+actuator_start = "ACTUATORS\n"
+act_string = ""
 for i in range(countReg):
     upper_node = wan_id
     amount_same_regionals = dict_total[i][0]
@@ -367,6 +371,8 @@ for i in range(countReg):
         to_write = str(index)+";"+str(id_wan_central)+";8;NODE,"+dict_regional[regional_type_now]['scheduler_type']+",REGIONAL,"+dict_regional[regional_type_now]['aggregation_rates']+","+str(dict_regional[regional_type_now]['delay_lower_router'])+","+str(dict_regional[regional_type_now]['delay_upper_router'])+","
         to_write+=dict_regional[regional_type_now]['service_time']+","+dict_regional[regional_type_now]['prob_command_generated']+"\n"
         f_out.write(to_write)
+
+        regional_string = str(index)+";"+regional_type_now#regional id, type, #below local of each type
 
         associated_wan_down +=str(wan_id)+";"+str(index)+";3;WAN,WAN_TYPE0,"+delay_wan
         #to_write = str(LP_index)+";"+str(2)+";"+str(index)+","+str(wan_id)+"\n"counter_elements
@@ -380,9 +386,14 @@ for i in range(countReg):
             LP_start_list = str(index)+","+str(wan_id)
             LP_num_elements = 2
         tot = 0
-
+        local_string_for_regional = ''
         for local_types in dict_total[i][2]:
+
             local_amounts_this_iteration = dict_total[i][2][local_types]
+
+            regional_string+=";"+local_types+","+local_amounts_this_iteration
+
+
             same_locals = 0
             prob_command_generated_local = local_infos_dict[local_types]['prob_command_generated']
             local_scheduler = local_infos_dict[local_types]['scheduler_type']
@@ -396,6 +407,11 @@ for i in range(countReg):
                 to_write = str(indexLocal)+";"+str(count)+";8;NODE,"+local_scheduler+",LOCAL,"+aggregation_rates_local+","+delay_lower_router_local+","+delay_upper_router_local+","
                 to_write+=service_time_local+","+prob_command_generated_local+"\n"
                 f_out.write(to_write)
+                if locals_string == "":
+                    locals_string+=str(indexLocal)+","+str(local_types)
+                else:
+                    locals_string+=";"+str(indexLocal)+","+str(local_types)
+
 
                 LP_start_list+=","+str(indexLocal)
                 counter_elements = 1
@@ -425,6 +441,10 @@ for i in range(countReg):
                                 inner_act_count = 0
                                 while inner_act_count < local_infos_dict[local_types]['lan'][lans]['actuator'][act_type]:
                                     sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,"+dict_actuators[act_type]['job_type']+",ACTUATOR_"+str(act_type).upper()+","+dict_actuators[act_type]['measure_type']+","+str(dict_actuators[act_type]['rate_trans_act'])+","+str(dict_actuators[act_type]['service_time_commands_act'])+"\n"
+                                    if act_string == "":
+                                        act_string+=str(sensors_start)+","+str(act_type)
+                                    else:
+                                        act_string+=";"+str(sensors_start)+","+str(act_type)
                                     LP_start_list+=","+str(sensors_start)
                                     counter_elements+=1
                                     sensors_start+=1
@@ -436,7 +456,7 @@ for i in range(countReg):
                 tot +=counter_elements
                 indexLocal+=1
                 same_locals+=1
-
+        f_out_txt.write(regional_string+"\n")
         count+=1
         regional_count+=1
 
@@ -447,6 +467,8 @@ for i in range(countReg):
         wan_id+=1
         index+=1
 
+f_out_txt.write(locals_string_start+locals_string+"\n")
+f_out_txt.write(actuator_start+act_string)
 f_out.write(sensor_actuator_string)
 f_out.write(associated_wan_down)
 f_out.write(associated_lan_down)
