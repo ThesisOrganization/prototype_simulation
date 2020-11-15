@@ -131,6 +131,6 @@ else
 	fi
 	#creating the json file with stats
 		echo "{ \"run_type\": \"$run_type\", \"num_threads\": \"$working_threads\", \"used_mem\": \"$stat_used_mem\", \"duration\": \"$stat_duration seconds\", \"platform\":\"$sim_name\" }" > $stat_json
-	# merging lpl jsons
+	# merging lp jsons
 	python3 generate_json.py $file_json
 fi

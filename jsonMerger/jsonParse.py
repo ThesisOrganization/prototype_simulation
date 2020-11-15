@@ -416,31 +416,25 @@ with open('../tree_simulator/LP.txt') as f:
     LP = lines[1].strip() #Lp
 f.close()
 
-if os.path.isfile('../tree_simulator/outputs/sequential_stats'):
-	with open("../tree_simulator/outputs/sequential_stats") as f:
-			run="sequential"
-			lines = f.readlines()
-			time = lines[6][29:].strip()
-			avg_mem = lines[15][29:].strip()
-			peak_mem = lines[16][29:].strip()
-else:
-	with open("../tree_simulator/outputs/execution_stats") as f:
-			lines = f.readlines()
-			run="parallel with "+lines[4][21:-5].strip()+" cores and "+lines[28][29:].strip()+" working threads"
-			time = lines[23][29:].strip()
-			avg_mem = lines[48][29:].strip()
-			peak_mem = lines[49][29:].strip()
-f.close()
-
+#we read the simulator statistics from the json file
+with open('../tree_simulator/simulation_stats.json') as f_stats:
+  stats_simulator = json.load(f_stats)
+  run_type=stats_simulator['run_type']
+  sim_duration=stats_simulator['duration']
+  used_mem=stats_simulator['used_mem']
+  num_threads=stats_simulator['num_threads']
+  platform=stats_simulator['platform']
 
 
 to_write = "\\section{General Informations}"
-to_write+="Run type: "+run+".\\\\ "
-to_write+= "Number of elements in the topology: "+elements+".\\\\ "
-to_write+= "Number of LPs used in the simulation: "+LP+".\\\\ "
-to_write+= "Simulation duration: "+time+".\\\\ "
-to_write+= "Average memory usage: "+avg_mem+".\\\\ "
-to_write+= "Peak memory usage: "+peak_mem+".\\\\ "
+to_write += "Platform: "+platform+".\\\\"
+to_write += "Run type: "+run_type+".\\\\ "
+if run_type == 'parallel':
+	to_write += "Number of used threads: "+num_threads+".\\\\"
+to_write += "Number of elements in the topology: "+elements+".\\\\ "
+to_write += "Number of LPs used in the simulation: "+LP+".\\\\ "
+to_write += "Simulation duration: "+sim_duration+".\\\\ "
+to_write += "Memory usage: "+used_mem+".\\\\ "
 
 if(flagStable):
     to_write+= "All elements reached stability in the simulation. "
