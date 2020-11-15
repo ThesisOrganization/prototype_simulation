@@ -148,6 +148,7 @@ stringAdditionalInfo = ""
 dict_ids_regional = {}
 dict_ids_local = {}
 dict_ids_acts = {}
+dict_ids_lans = {}
 with open("jsonAdditionalInfo.txt") as f:
     lines = f.readlines()
     stringAdditionalInfo+="There is one Central node, between the Central node and the Regional layer there is one WAN. Between each regional and its Locals there is a WAN.\\newline "
@@ -172,14 +173,42 @@ with open("jsonAdditionalInfo.txt") as f:
 
             line_counter+=1
     for line_element in lines[line_counter+1].split(";"):
-        id_local = int(line_element.split(",")[0].strip())
-        type = line_element.split(",")[1].strip()
-        dict_ids_local[id_local] = type
+        id_father = int(line_element.split(",")[0].strip())
+        id_local = int(line_element.split(",")[1].strip())
+        type = line_element.split(",")[2].strip()
+        dict_ids_local[id_local] = {}
+        dict_ids_local[id_local]['id_father'] = id_father
+        dict_ids_local[id_local]['type'] = type
 
     for line_element in lines[line_counter+3].split(";"):
-        id_actuator = int(line_element.split(",")[0].strip())
-        type = line_element.split(",")[1].strip()
-        dict_ids_acts[id_actuator] = type
+        id_father = int(line_element.split(",")[0].strip())
+        id_actuator = int(line_element.split(",")[1].strip())
+        type = line_element.split(",")[2].strip()
+        dict_ids_acts[id_actuator] = {}
+        dict_ids_acts[id_actuator]['id_father'] = id_father
+        dict_ids_acts[id_actuator]['type'] = type
+
+    for line_element in lines[line_counter+5].split(";"):
+        #print(line_element)
+        id_father = int(line_element.split(",")[0].strip())
+        id_lan = int(line_element.split(",")[1].strip())
+        type = line_element.split(",")[2].strip()
+        dict_ids_lans[id_lan] = {}
+        dict_ids_lans[id_lan]['id_father'] = id_father
+        dict_ids_lans[id_lan]['type'] = type
+        #print("ID",id_lan)
+        dict_ids_lans[id_lan]['sensors'] = {}
+        dict_ids_lans[id_lan]['actuators'] = {}
+        sen = line_element.split(",")[3]
+        for element in sen.split("."):
+            type = element.split("/")[0]
+            amount = element.split("/")[1]
+            dict_ids_lans[id_lan]['sensors'][type] = amount
+        act = line_element.split(",")[4]
+        for element in act.split("."):
+            type = element.split("/")[0]
+            amount = element.split("/")[1]
+            dict_ids_lans[id_lan]['actuators'][type] = amount
 
 list_regional = []
 list_local = []
@@ -457,31 +486,64 @@ to_write+="\n\\subsection{Topology Informations}"
 to_write+=stringAdditionalInfo
 f_out.write(to_write)
 
-#key_union = []
-#for element in dict_ids_regional:
-#    dict_regional_similar[element] = []
-#    for element2 in dict_ids_regional:
-#        if(element < element2):
-#            #print(element, element2)
-#            if dict_ids_regional[element] == dict_ids_regional[element2]:
-#                key_union.append(element2)
-#                dict_regional_similar[element].append(element2)
-#for element in dict_ids_local:
-#    dict_local_similar[element] = []
-#    for element2 in dict_ids_local:
-#        if(element < element2):
-            #print(element, element2)
-#            if dict_ids_local[element] == dict_ids_local[element2]:
-#                key_union.append(element2)
-#                dict_local_similar[element].append(element2)
-#for element in dict_ids_acts:
-#    dict_actuator_similar[element] = []
-#    for element2 in dict_ids_acts:
-#        if(element < element2):
-#            #print(element, element2)
-#            if dict_ids_acts[element] == dict_ids_acts[element2]:
-#                key_union.append(element2)
-#                dict_actuator_similar[element].append(element2)
+key_union = []
+for element in dict_ids_regional:
+    dict_regional_similar[element] = []
+    for element2 in dict_ids_regional:
+        if(element < element2):
+            if dict_ids_regional[element] == dict_ids_regional[element2]:
+                key_union.append(element2)
+                dict_regional_similar[element].append(element2)
+
+for element in dict_ids_local:
+    dict_local_similar[element] = []
+    for element2 in dict_ids_local:
+        if(element < element2):
+            if dict_ids_local[element] == dict_ids_local[element2]:
+                key_union.append(element2)
+                dict_local_similar[element].append(element2)
+
+for element in dict_ids_acts:
+    dict_actuator_similar[element] = []
+    for element2 in dict_ids_acts:
+        if(element < element2):
+            if dict_ids_acts[element] == dict_ids_acts[element2]:
+                key_union.append(element2)
+                dict_actuator_similar[element].append(element2)
+
+
+for element in dict_ids_lans:
+    dict_lan_similar[element] = []
+    for element2 in dict_ids_lans:
+        if(element < element2):
+            if dict_ids_lans[element] == dict_ids_lans[element2]:
+                key_union.append(element2)
+                dict_lan_similar[element].append(element2)
+
+pop_list = []
+for element in dict_regional_similar:
+    if len(dict_regional_similar[element]) == 0:
+        pop_list.append(element)
+for element in pop_list:
+    dict_regional_similar.pop(element,None)
+pop_list = []
+for element in dict_local_similar:
+    if len(dict_local_similar[element]) == 0:
+        pop_list.append(element)
+for element in pop_list:
+    dict_local_similar.pop(element,None)
+pop_list = []
+for element in dict_actuator_similar:
+    if len(dict_actuator_similar[element]) == 0:
+        pop_list.append(element)
+for element in pop_list:
+    dict_actuator_similar.pop(element,None)
+
+for element in dict_lan_similar:
+    if len(dict_lan_similar[element]) == 0:
+        pop_list.append(element)
+for element in pop_list:
+    dict_lan_similar.pop(element,None)
 
 f_out.write("\n\\section{Detailed view}\n")
 for element in ordered_id_list:
@@ -505,7 +567,7 @@ for element in ordered_id_list:
 
 
             if dict_model[element]['node_type'] == 'local':
-                f_out.write("This node is of : "+dict_ids_local[element]+"\\\\"+"\n")
+                f_out.write("This node is of : "+dict_ids_local[element]['type']+"\\\\"+"\n")
 
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\n")
             flagSimilarity = False
@@ -594,7 +656,7 @@ for element in ordered_id_list:
             f_out.write(to_write);
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
-            f_out.write("This actuator is of "+dict_ids_acts[element]+"\\\\"+"\n")
+            f_out.write("This actuator is of "+dict_ids_acts[element]['type']+"\\\\"+"\n")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
             flagSimilarity = False
             if element in dict_actuator_similar.keys():
