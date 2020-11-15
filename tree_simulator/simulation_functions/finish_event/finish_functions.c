@@ -70,7 +70,14 @@ static void send_reply(unsigned int id_device, simtime_t now, device_state * sta
 
 static void send_command(unsigned int id_device, simtime_t now, device_state  * state, int id_selected_actuator, double delay_down){
 
+	//if id_selected_actuator == -1, exit?
+	if(id_selected_actuator == -1)
+		return;
 	int next_hop = GET_ACTUATOR_PATHS_INDEX(state->topology,id_selected_actuator);
+	if(next_hop == -1){
+		printf("WARNING: Actuator not found\n");
+		return;
+	}
 	int next_lp = CONVERT_ELEMENT_TO_LP(state->topology, next_hop);
 
 	job_info info_to_send;
@@ -91,6 +98,8 @@ static void send_command(unsigned int id_device, simtime_t now, device_state  * 
 static int get_id_random_actuator(unsigned int id_device, device_state  * state){
 
 	int num_types = state->num_acts_types;
+	if(num_types == 0)
+		return -1; ///actuator can't be selected
 
 	int * num_per_types = GET_ACT_TYPE_BELOW_LIST(state->topology);
 	//for(int i = 0; i < num_types; i++)
@@ -392,6 +401,10 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 	else if(info->job_type == COMMAND){
 
 		int destination = info->device_destination; //you should use the function of the topology
+		if(destination == -1){
+			printf("WARNING: command destination not present\n");
+			return;
+		}
 		int next_lp = CONVERT_ELEMENT_TO_LP(state->topology, destination);
 
 		message_arrive msg;
