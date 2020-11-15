@@ -302,8 +302,8 @@ void upwardSearchActuatorPaths(Element_topology ** lpt, int index, int destinati
 lp_topology * getLPtopoogy(char * path){
   FILE * fp;
   char * line = NULL;
-  char * temp = NULL;
-  size_t len = 0;
+  char * temp = malloc(sizeof(char)*MAX_LINE_LEN);
+  size_t len = MAX_LINE_LEN;
   ssize_t read;
   char *ptr;
 
@@ -368,8 +368,8 @@ lp_topology * getLPtopoogy(char * path){
 total_topology * getTopology(char * path, char * path1){
   FILE * fp;
   char * line = NULL;
-  char * temp = NULL;
-  size_t len = 0;
+	char * temp = malloc(sizeof(char)*MAX_LINE_LEN);
+	size_t len = MAX_LINE_LEN;
   ssize_t read;
   char * end_ptr;
   char *end_str;

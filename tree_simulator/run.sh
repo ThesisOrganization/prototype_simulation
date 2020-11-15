@@ -63,10 +63,29 @@ elif [ "$options" == "clean" ]; then
 		rm *.json
 else
 	echo "Compiling and running model with $sim_name"
+	#we read the LP.txt to get the number of lps and we search for the longest line in LP.txt and topology.txt, since we don't want a realloc by libc when parsing these files.
 	if [[ -e "LP.txt" && -r "LP.txt" ]]; then
 		number_lp=$(sed -n 2p LP.txt)
+		max_len_lp=$(python -c "print(len(max(open('LP.txt', 'r'),key=len)))")
 	else
-		number_lp=$(sed -n 1p topology.txt)
+		echo "ERROR: no topology.txt"
+		exit -1
+	fi
+	if [[ -e "topology.txt" && -r "topology.txt" ]]; then
+		max_len_top=$(python -c "print(len(max(open('topology.txt', 'r'),key=len)))")
+	else
+		echo "ERROR: no topology.txt"
+		exit -1
+	fi
+	#we need to modify the compatibility header to make sure that the longest line read can fit into the buffer
+	if [[ $max_len_lp -gt $max_len_top ]]; then
+		req_buf_len=$max_len_lp
+	else
+		req_buf_len=$max_len_top
+	fi
+	line_len_now=$(sed -n 's/#define MAX_LINE_LEN //p' ../Simulator/compatibility.h)
+	if [[ $line_len_now -lt $req_buf_len  ]]; then
+		sed -i '/#define MAX_LINE_LEN/ c\#define MAX_LINE_LEN '"$req_buf_len"'' ../Simulator/compatibility.h
 	fi
 	if [[ $working_threads -gt $number_lp ]]; then
 		echo "number of working threads grater than number of lp, matching number of lp"

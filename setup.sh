@@ -58,13 +58,7 @@ if [[ $sim_name == "ROOT-Sim" ]]; then
 	./configure $ARGS --prefix=$PREFIX/Simulator
 	make install
 	cd ..
-	echo "writing the compatiblity header (blank for now)"
-	echo "/** \file compatibility.h
-	* This file contains definition used to make the model agnostic to the simulator that is running them
-	* */
-	#ifndef COMPATIBILITY_H
-	#define COMPATIBILITY_H
-	#endif" > Simulator/compatibility.h
+
 elif [[ $sim_name == "USE" ]]; then
 	echo "Needed dependencies: libcap2, libcap-dev, g++, gcc, gdb, make, libnuma-dev, git, time, linux-tools-`uname -r`, linux-cloud-tools-`uname -r`"
 
@@ -73,14 +67,6 @@ elif [[ $sim_name == "USE" ]]; then
 	git checkout iPiDES_new
 	cd ..
 	cp -r USE-source Simulator
-
-	echo "writing the compatiblity header (blank for now)"
-	echo "/** \file compatibility.h
-	* This file contains definition used to make the model agnostic to the simulator that is running them
-	* */
-	#ifndef COMPATIBILITY_H
-	#define COMPATIBILITY_H
-	#endif" > Simulator/compatibility.h
 
 elif [[ $sim_name == "NeuRome" ]]; then
 
@@ -96,16 +82,18 @@ elif [[ $sim_name == "NeuRome" ]]; then
 	ninja install
 	cd ..
 	cd ..
-	echo "writing the compatiblity header"
-	echo "/** \file compatibility.h
-	* This file contains definition used to make the model agnostic to the simulator that is running them
-	* */
-	#ifndef COMPATIBILITY_H
-	#define COMPATIBILITY_H
-	#define n_prc_tot n_lps
-	#endif" > Simulator/compatibility.h
 
 fi
+echo "writing the compatiblity header in \"Simulator/compatibility.h\""
+header="#ifndef COMPATIBILITY_H\n
+#define COMPATIBILITY_H\n
+///Max len of for the topology.txt and LP.txt file, to avoid having external library functions that allocate memory. (eg. getline)\n
+#define MAX_LINE_LEN 128\n"
+if [[ $sim_name == "NeuRome" ]]; then
+	header+="#define n_prc_tot n_lps\n"
+fi
+header+="#endif"
+echo -e $header > Simulator/compatibility.h
 echo "Writing the simulator name in \"Simulator/simulator-name\""
 echo $sim_name > Simulator/simulator-name
 echo "setup complete"

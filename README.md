@@ -37,6 +37,15 @@ Second parameter should be either empty or "aggregated"
 #### Utils
 - `python >= 3.6`
 - `numpy`
+- `sed`
+- `make`
+- `git`
+- `pdflatex`
+
+##### LATEX packages
+- `booktabs`
+- `float`
+- `margin`
 
 #### ROOT-Sim
 - `git`
