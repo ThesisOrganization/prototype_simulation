@@ -8,10 +8,14 @@ working_threads=1
 options=""
 dbg_arg=""
 dbg_param=""
+quiet="no"
 sim_name=$(sed -n 1p ../Simulator/simulator-name)
 
 for arg
 do
+	if [[ $arg == "-q" || $arg == "--quiet" ]]; then
+		quiet="yes"
+	fi
 	if [[ $arg == "json" || $arg == "clean" ]]; then
 			options=$arg
 	fi
@@ -21,6 +25,12 @@ do
 	fi
 	if [[ $arg == "valgrind" || $arg == "gdb" ]]; then
 		dbg_arg=$arg
+		# we need to add -g to the makefile so we make a backup
+		cp Makefile Makefile.bak
+		#we add the -g flag
+		sed -i 's/CFLAGS =/& -g /' Makefile
+		#we remove any optimization if present
+		sed -i 's/-O[0-9]*//' Makefile
 	fi
 	if [[ ${arg:0:5} == "--lp=" ]]; then
 		number_lp=${arg#"--lp="}
@@ -34,6 +44,12 @@ if [ "$dbg_arg" == "valgrind" ]; then
 		dbg_param="valgrind --leak-check=full"
 elif [ "$dbg_arg" == "gdb" ]; then
 		dbg_param="gdb --args"
+fi
+if [[ $quiet == "no" ]]; then
+	echo -e "This script will compile and run the model, using the configured simulator\n It will provide two json files:\n \"$file_json\": which will contain the data of all the model elements (sensors excluded), that is also available in a per LP fashion in the \"lp_data\" folder\n \"$stat_json\": which contains general statistics on the executed simulation\n"
+	echo -e "To run the model at least two files are required in this folder:\n \"topology.txt\", which will contain the topology and the characteristics of the elements in the model\n \"LP.txt\", which will contain the association between model elements and LPs.\n"
+	echo -e "The execution can be customized with some arguments:\n \"-q --quiet\": disable this message\n \"json\": only merge the json files in \"lp_data\"\n \"clean\": remove all products of compilation and execution, leaving only the source files\n \"gdb\" run the program under gdb (this will make a temporary modification to the makefile, adding -g to the compiler oprions)\n \"valgrind\": run the program under valgrind (this will make a temporary modification to the makefile, adding -g to the compiler options)\n \"--lp=\": specify the number of LPs, if this argument is not provided the number of LPs will be determined from \"LP.txt\"\n \"serial\": run with only one thread (used by default)\n \"parallel\": run with multiple threads\n \"--wt=\": specify the number of threads to use (if not given the minimum between the number of CPUs and the number of LP will be used in a parallel run)"
+	read -n1 -r -p "Press any key to continue or CTRL+C to exit" key
 fi
 
 if [ "$options" == "json" ]; then
@@ -128,6 +144,11 @@ else
 				rm -r outputs
 				$dbg_param ./model_serial
 				fi
+	fi
+	#if we modified the Makefile we restore it
+	if [[ $dbg_arg != "" ]]; then
+		cp Makefile.bak Makefile
+		rm Makefile.bak
 	fi
 	#creating the json file with stats
 		echo "{ \"run_type\": \"$run_type\", \"num_threads\": \"$working_threads\", \"used_mem\": \"$stat_used_mem\", \"duration\": \"$stat_duration seconds\", \"platform\":\"$sim_name\" }" > $stat_json

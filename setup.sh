@@ -1,18 +1,15 @@
 #! /bin/sh
-echo "This script will download and setup the chosen simulator for the current machine"
-echo "In addition this script will remove objects files from all the model folders, to prevent issues when changing simulators"
-echo "The simulator can be chosen by passing its name (ROOT-Sim, USE or NeuRome/ROOT-Sim3) as an argument, by default this script will setup ROOT-Sim."
-echo "The simulato will be found in the \"./Simulator\" folder."
-echo -e "When setting up ROOT-Sim some arguments can be used to customize the installation:\n \"debug\": enable debug symbols\n \"debug-extra\": extra checks during debug (kills performance)\n \"mpi\": enable mpi\n \"no-rebinding\": disable LP rebinding\n \"profile\": enable performance reports\n"
-sleep 2
-
+quiet="no"
 PREFIX=$PWD
 ROOTSIM_ARGS=""
 sim_name="ROOT-Sim"
 
 for arg
 do
-		if [[ $arg == "debug" || $arg == "debug-extra" ]]; then
+	if [[ $arg == "-q" || $arg == "--quiet" ]]; then
+		quiet="yes"
+	fi
+	if [[ $arg == "debug" || $arg == "debug-extra" ]]; then
 		ROOTSIM_ARGS+=" --enable-debug"
 	fi
 	if [[ $arg == "debug-extra" ]]; then
@@ -38,6 +35,16 @@ do
 		sim_name="NeuRome"
 	fi
 done
+
+if [[ $quiet == "no" ]]; then
+	echo "This script will download and setup the chosen simulator for the current machine"
+	echo "In addition this script will remove objects files from all the model folders, to prevent issues when changing simulators"
+	echo "The simulator can be chosen by passing its name (ROOT-Sim, USE or NeuRome/ROOT-Sim3) as an argument, by default this script will setup ROOT-Sim."
+	echo "The simulator will be found in the \"./Simulator\" folder."
+	echo -e "When setting up ROOT-Sim some arguments can be used to customize the installation:\n \"debug\": enable debug symbols\n \"debug-extra\": extra checks during debug (kills performance)\n \"mpi\": enable mpi\n \"no-rebinding\": disable LP rebinding\n \"profile\": enable performance reports\n"
+	echo "To disable this message run the script with -q or --quiet"
+	read -n1 -r -p "Press any key to continue or CTRL+C to exit" key
+fi
 
 echo "Starting $sim_name setup and installation in the Simulator folder."
 rm -fr Simulator

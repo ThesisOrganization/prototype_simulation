@@ -9,4 +9,5 @@ model_parallel
 lp_data
 USE-*
 simulation
-
+Makefile
+*.bak

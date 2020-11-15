@@ -1,5 +1,5 @@
 CC = ../Simulator/bin/rootsim-cc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra
 TARGET = simulation
 
 SRCS = simulation.c ./simulation_functions/finish_event/finish_functions.c ./simulation_functions/arrive_event/arrive_functions.c ./simulation_functions/init_event/init_functions.c ../utils/priority_queue/priority_queue.c ../utils/priority_queue/heap/heap.c ../utils/partop/parser.c ../utils/partop/topology.c ../utils/priority_scheduler/priority_scheduler.c ../utils/priority_scheduler/queue_quick_sort.c simulation_functions/setup_protocol/setup_protocol.c simulation_functions/setup_protocol/setup_recv_functions.c simulation_functions/setup_protocol/setup_send_functions.c ../utils/idmap/idmap.c ../utils/idmap/idmap_quick_sort.c ../utils/message/message.c ./simulation_functions/common_functions.c
