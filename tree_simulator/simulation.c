@@ -45,13 +45,20 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 
 	int return_bool = 1;
 	int i;
+	int sum_arrived = 0;
 
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
+		sum_arrived += queue_state->C[i];
 		unsigned int flag = get_flag_from_bitmap(bitmap, i);
-		if(flag && queue_state->C[i] < min_number_of_events){
+		if(flag && queue_state->C[i] < min_number_of_events && queue_state->C[i] > 0){
 			return_bool = 0;
 			return return_bool;
 		}
+	}
+	
+	if(sum_arrived == 0){
+		return_bool = 0;
+		return return_bool;
 	}
 
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
