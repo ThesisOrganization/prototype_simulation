@@ -145,34 +145,70 @@ for element in ordered_id_list:
     dict_res[element]["stable"] = dict_simulator[element]["stable"];
 #If you don't use generator.py comment this part and lines 38
 stringAdditionalInfo = ""
+dict_ids_regional = {}
+dict_ids_local = {}
+dict_ids_acts = {}
+dict_ids_lans = {}
 with open("jsonAdditionalInfo.txt") as f:
     lines = f.readlines()
     stringAdditionalInfo+="There is one Central node, between the Central node and the Regional layer there is one WAN. Between each regional and its Locals there is a WAN.\\newline "
-    stringAdditionalInfo+="There are "+str(lines[0].strip())+" regional nodes, their local nodes are divided as such:"
-    regional_list_for_jsonMerge = str(lines[2])
-    stringAdditionalInfo+="\\begin{itemize}\n"
-    for element in regional_list_for_jsonMerge.split(";"):
-        el_list = element.split(",")
-        stringAdditionalInfo+="\\item "+str(el_list[0])+" regionals having "+str(el_list[1]).strip()+" local nodes below.\n"
-    stringAdditionalInfo+="\\end{itemize}\n"
-
+    stringAdditionalInfo+="There are "+str(lines[0].strip())+" regional nodes."
     stringAdditionalInfo+="In total "+lines[1]+" local nodes.\\\\"
-    stringAdditionalInfo+="Each local node has "+str(lines[3])+" LANs below. Each LAN has:"#LAN (è 1)
-    stringAdditionalInfo+="\\begin{itemize}\n"
-    stringAdditionalInfo+="\\item "+str(lines[7])+"sensors sending telemetries with rate: "+str(lines[11]).strip()+".\n"#sensori telemetry per ogni locale
-    stringAdditionalInfo+="\\item "+str(lines[8])+"sensors sending transitions with rate: "+str(lines[12]).strip()+".\n"#sensori trans per ogni locale
-    stringAdditionalInfo+="\\item "+str(lines[9])+"actuators sending trasitions with rate: "+str(lines[10]).strip()+".\n"#actuators per ogni locale
-    stringAdditionalInfo+="\\end{itemize}\n"
-    stringAdditionalInfo+="In total there are "+str(lines[5]).strip()+ "total sensors and "+str(lines[6]).strip()+" total actuators."
+    stringAdditionalInfo+="In total there are "+str(lines[2]).strip()+ "total sensors and "+str(lines[3]).strip()+" total actuators."
     #stringAdditionalInfo+=lines[4]#WAN
+    if lines[4].strip() == "REGIONALS":
+        line_counter = 5
+        while lines[line_counter].strip() != "LOCALS":
+            line_list = lines[line_counter].split(";")
+            id_regional = int(line_list[0])
+            type_regional = line_list[1]
+            dict_ids_regional[id_regional] = {}
+            dict_ids_regional[id_regional]['type'] = type_regional
+            for line_list_element in line_list[2:]:
+                type = line_list_element.split(",")[0].strip()
+                dict_ids_regional[id_regional]['type_local'] = {}
+                amount = line_list_element.split(",")[1].strip()
 
-regional_list_for_jsonMerge = element.split(";")
-index = 1
-for element in regional_list_for_jsonMerge:
-    number_of_regionals=int(el_list[0])
-    for element in range(number_of_regionals):
-        dict_simulator[index]["number_of_locals"] = el_list[1]
-        index+=1
+                dict_ids_regional[id_regional]['type_local'][type] = amount
+
+            line_counter+=1
+    for line_element in lines[line_counter+1].split(";"):
+        id_father = int(line_element.split(",")[0].strip())
+        id_local = int(line_element.split(",")[1].strip())
+        type = line_element.split(",")[2].strip()
+        dict_ids_local[id_local] = {}
+        dict_ids_local[id_local]['id_father'] = id_father
+        dict_ids_local[id_local]['type'] = type
+
+    for line_element in lines[line_counter+3].split(";"):
+        id_father = int(line_element.split(",")[0].strip())
+        id_actuator = int(line_element.split(",")[1].strip())
+        type = line_element.split(",")[2].strip()
+        dict_ids_acts[id_actuator] = {}
+        dict_ids_acts[id_actuator]['id_father'] = id_father
+        dict_ids_acts[id_actuator]['type'] = type
+
+    for line_element in lines[line_counter+5].split(";"):
+        #print(line_element)
+        id_father = int(line_element.split(",")[0].strip())
+        id_lan = int(line_element.split(",")[1].strip())
+        type = line_element.split(",")[2].strip()
+        dict_ids_lans[id_lan] = {}
+        dict_ids_lans[id_lan]['id_father'] = id_father
+        dict_ids_lans[id_lan]['type'] = type
+        #print("ID",id_lan)
+        dict_ids_lans[id_lan]['sensors'] = {}
+        dict_ids_lans[id_lan]['actuators'] = {}
+        sen = line_element.split(",")[3]
+        for element in sen.split("."):
+            type = element.split("/")[0]
+            amount = element.split("/")[1]
+            dict_ids_lans[id_lan]['sensors'][type] = amount
+        act = line_element.split(",")[4]
+        for element in act.split("."):
+            type = element.split("/")[0]
+            amount = element.split("/")[1]
+            dict_ids_lans[id_lan]['actuators'][type] = amount
 
 list_regional = []
 list_local = []
@@ -302,7 +338,6 @@ for element in list_regional:
             for c in list:
                 allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],similarity_coefficient)
             allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
-            allclose_result=allclose_result and dict_simulator[element]["number_of_locals"] == dict_simulator[element2]["number_of_locals"]
             if(allclose_result):
                 if(element not in dict_regional_similar):
                     dict_regional_similar[element] = []
@@ -391,7 +426,7 @@ print("END ACTUATORS ######################")
 
 f_out = open("complete_results.tex", "w")
 #title
-initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\usepackage[margin=0.5in]{geometry}\n\\title{Results}\n\\author{Silvio Dei Giudici, Marco Morella, Mattia Nicolella}\n\\begin{document}\n\\maketitle\n"
+initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\n\\usepackage[margin=0.5in]{geometry}\n\\title{Results}\n\\author{Silvio Dei Giudici, Marco Morella, Mattia Nicolella}\n\\begin{document}\n\\maketitle\n"
 f_out.write(initial_header);
 begin_table ="\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc@{}}\n\\toprule\n"
 complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc|cccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $aggr_t$ & $aggr_e$ & $aggr_c$ & $aggr_b$\\\\"
@@ -445,6 +480,65 @@ to_write+="\n\\subsection{Topology Informations}"
 to_write+=stringAdditionalInfo
 f_out.write(to_write)
 
+key_union = []
+for element in dict_ids_regional:
+    dict_regional_similar[element] = []
+    for element2 in dict_ids_regional:
+        if(element < element2):
+            if dict_ids_regional[element] == dict_ids_regional[element2]:
+                key_union.append(element2)
+                dict_regional_similar[element].append(element2)
+
+for element in dict_ids_local:
+    dict_local_similar[element] = []
+    for element2 in dict_ids_local:
+        if(element < element2):
+            if dict_ids_local[element] == dict_ids_local[element2]:
+                key_union.append(element2)
+                dict_local_similar[element].append(element2)
+
+for element in dict_ids_acts:
+    dict_actuator_similar[element] = []
+    for element2 in dict_ids_acts:
+        if(element < element2):
+            if dict_ids_acts[element] == dict_ids_acts[element2]:
+                key_union.append(element2)
+                dict_actuator_similar[element].append(element2)
+
+
+for element in dict_ids_lans:
+    dict_lan_similar[element] = []
+    for element2 in dict_ids_lans:
+        if(element < element2):
+            if dict_ids_lans[element] == dict_ids_lans[element2]:
+                key_union.append(element2)
+                dict_lan_similar[element].append(element2)
+
+pop_list = []
+for element in dict_regional_similar:
+    if len(dict_regional_similar[element]) == 0:
+        pop_list.append(element)
+for element in pop_list:
+    dict_regional_similar.pop(element,None)
+pop_list = []
+for element in dict_local_similar:
+    if len(dict_local_similar[element]) == 0:
+        pop_list.append(element)
+for element in pop_list:
+    dict_local_similar.pop(element,None)
+pop_list = []
+for element in dict_actuator_similar:
+    if len(dict_actuator_similar[element]) == 0:
+        pop_list.append(element)
+for element in pop_list:
+    dict_actuator_similar.pop(element,None)
+
+for element in dict_lan_similar:
+    if len(dict_lan_similar[element]) == 0:
+        pop_list.append(element)
+for element in pop_list:
+    dict_lan_similar.pop(element,None)
+
 f_out.write("\n\\section{Detailed view}\n")
 for element in ordered_id_list:
     if(element not in key_union):
@@ -455,11 +549,25 @@ for element in ordered_id_list:
             f_out.write(to_write);
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
+
+
+            if dict_model[element]['node_type'] == 'regional':
+                f_out.write("This regional node of "+dict_ids_regional[element]['type']+" has in its subtree: \\begin{itemize}\n")
+
+                for type_local_dict_ids in dict_ids_regional[element]['type_local']:
+                    amount = dict_ids_regional[element]['type_local'][type_local_dict_ids]
+                    f_out.write("\\item "+amount+" local nodes of type "+type_local_dict_ids+"\n")
+                f_out.write("\\end{itemize}\n")
+
+
+            if dict_model[element]['node_type'] == 'local':
+                f_out.write("This node is of : "+dict_ids_local[element]['type']+"\\\\"+"\n")
+
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\n")
             flagSimilarity = False
             if(element in dict_regional_similar.keys() or element in dict_local_similar.keys()):
                 flagSimilarity = True
-                to_write = "This node has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by " + str(similarity_coefficient*100) + "\% to these other nodes: \\textbf{"
+                to_write = "This node has its computed parameters $\\lambda$, utilization factor, service demand, response time similar by " + str(similarity_coefficient*100) + "\% and identical subtree to these other nodes: \\textbf{"
                 if dict_model[element]['node_type'] == 'regional':
                     for similar in dict_regional_similar[element]:
                         to_write+= str(similar)+"; "
@@ -472,12 +580,6 @@ for element in ordered_id_list:
                     to_write+="}"
 
                     f_out.write(to_write)
-            if(dict_model[element]['node_type'] == 'regional'):
-                f_out.write("\\\\This regional node")
-                if flagSimilarity:
-                    f_out.write(" and all its similar ones have "+dict_simulator[element]["number_of_locals"]+"local nodes below.\\\\")
-                else:
-                    f_out.write(" has "+dict_simulator[element]["number_of_locals"]+"local nodes below.\\\\")
             table_string = "\\subsubsection{Given parameters}\n"
             f_out.write(table_string)
             f_out.write(complete_table)
@@ -548,6 +650,7 @@ for element in ordered_id_list:
             f_out.write(to_write);
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
+            f_out.write("This actuator is of "+dict_ids_acts[element]['type']+"\\\\"+"\n")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
             flagSimilarity = False
             if element in dict_actuator_similar.keys():
