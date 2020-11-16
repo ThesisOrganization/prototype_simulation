@@ -413,8 +413,17 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				int total_number_of_elements = num_nodes + num_actuators + num_lans;
 				
-				if(state->num_stable_elements == total_number_of_elements) //it means that also me send a broadcast_message
+				
+				if(state->num_stable_elements == total_number_of_elements || dev_state->simulation_completed == SIMULATION_STOP) //it means that also me send a broadcast_message
 					break;
+				
+				if(dev_state->device_timestamp > MAX_SIMULATION_TIME){
+					if(dev_state->stability == ELEMENT_UNSTABLE){
+						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
+					}
+					dev_state->simulation_completed = SIMULATION_STOP;
+					break;
+				}
 				
 				//########################
 
@@ -432,32 +441,27 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						else if(dev_state->info.node->type == LOCAL)
 							boolean_check = check_metrics(dev_state->info.node->queue_state, CHECK_TTC, MIN_NUMBER_OF_EVENTS_ALL);
 
-						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
-							update_stable_metrics(dev_state->info.node->queue_state);
+						update_stable_metrics(dev_state->info.node->queue_state);
 
 
 						if(dev_state->info.node->type == CENTRAL){
 							boolean_check = check_metrics(dev_state->info.node->disk_state, CHECK_TTB, MIN_NUMBER_OF_EVENTS_DISK);
-							if(dev_state->simulation_completed == SIMULATION_ACTIVE)
-								update_stable_metrics(dev_state->info.node->disk_state);
+							update_stable_metrics(dev_state->info.node->disk_state);
 						}
 
 					}
 					else if(dev_state->type == ACTUATOR){
 
 						boolean_check = check_metrics(dev_state->info.actuator->queue_state, CHECK_C, MIN_NUMBER_OF_EVENTS_ALL);
-						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
-							update_stable_metrics(dev_state->info.actuator->queue_state);
+						update_stable_metrics(dev_state->info.actuator->queue_state);
 
 					}
 					else if(dev_state->type == LAN){
 
 						boolean_check = check_metrics(dev_state->info.lan->queue_state_in, CHECK_C, MIN_NUMBER_OF_EVENTS_ALL);
-						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
-							update_stable_metrics(dev_state->info.lan->queue_state_in);
+						update_stable_metrics(dev_state->info.lan->queue_state_in);
 						boolean_check = check_metrics(dev_state->info.lan->queue_state_out, CHECK_TT, MIN_NUMBER_OF_EVENTS_ALL);
-						if(dev_state->simulation_completed == SIMULATION_ACTIVE)
-							update_stable_metrics(dev_state->info.lan->queue_state_out);
+						update_stable_metrics(dev_state->info.lan->queue_state_out);
 
 					}
 					else{
@@ -467,25 +471,17 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 					}
 
-					int boolean_simulation_max = 0;
-
-					if(dev_state->device_timestamp > MAX_SIMULATION_TIME){
-						boolean_check = 1;
-						boolean_simulation_max = 1;
-					}
-
-					if(dev_state->stability == ELEMENT_UNSTABLE && boolean_check && dev_state->simulation_completed == SIMULATION_ACTIVE){
+					if(dev_state->stability == ELEMENT_UNSTABLE && boolean_check){
 						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
-						if(!boolean_simulation_max)
-							dev_state->stability = ELEMENT_STABLE;
-						else
-							dev_state->simulation_completed = SIMULATION_STOP;
+						dev_state->stability = ELEMENT_STABLE;
 					}
 
-					if(dev_state->stability == ELEMENT_STABLE && !boolean_check && dev_state->simulation_completed == SIMULATION_ACTIVE){
+					if(dev_state->stability == ELEMENT_STABLE && !boolean_check){
 						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
 						dev_state->stability = ELEMENT_UNSTABLE;
 					}
+					
+					//QUI
 
 				}
 
