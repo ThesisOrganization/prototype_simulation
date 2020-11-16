@@ -418,7 +418,6 @@ typedef struct _state {
 	lp_usage_types lp_enabled; //1 lp enabled, 0 lp disabled
 	int number_lps_enabled;
 	int num_stable_elements;
-	//simulation_status simulation_completed; //to delete
 	//general infos
 	device_state** devices_array;
 	int num_devices;
