@@ -53,7 +53,7 @@ for filename in tests_topology/*.txt; do
 	echo "Done."
 	echo "Starting simulation.."
 	cd ../tree_simulator
-	sh run.sh $sim_options
+	bash run.sh $sim_options
 	err=$?
 	if [[ $err != 0  ]]; then
 		echo "error during model simulation, aborting"
