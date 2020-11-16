@@ -118,7 +118,7 @@ else
 		sed -i -e '431 i\'"$srcs"'' -i -e '539 i\EDGE_OBJ= $(EDGE_SOURCES:.c=.o)' -i -e '/all: .*/ c\all: edge' -i -e '560 i\edge: TARGET=edge\nedge: _edge executable' -i -e '661 i\_edge: $(EDGE_OBJ)\n\t@ld -r -g $(EDGE_OBJ) -o model/__application.o' USE-model-sources/Makefile
 
 		# upping MAX_DATA_SIZE to 512
-		sed -i -e 's/MAX_DATA_SIZE\t\t128/MAX_DATA_SIZE\t\t512/' USE-model-sources/include/events.h
+		sed -i -e 's/MAX_DATA_SIZE\t\t128/MAX_DATA_SIZE\t\t4096/' USE-model-sources/include/events.h
 
 		cd USE-model-sources
 
@@ -135,7 +135,7 @@ else
 		reversible=0
 		#1=stampe dettagliate
 		report=1
-		queue_len=1204
+		queue_len=32768
 		max_lp=0
 
 		make THR_POOL_SIZE=${queue_len} MAX_ALLOCABLE_GIGAS=${MAX_GIGAS} NBC=${nbc} MAX_SKIPPED_LP=${max_lp} REVERSIBLE=0 LOOKAHEAD=${lookahead} PERC_USED_BUCKET=${pub} ELEM_PER_BUCKET=${epb} REPORT=${report} DEBUG=${dbg} SPERIMENTAL=${sperimental} CHECKPOINT_PERIOD=${ck} LINEAR_PINNING=${lin_pin}
