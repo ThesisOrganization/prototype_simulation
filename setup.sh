@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 quiet="no"
 PREFIX=$PWD
 ROOTSIM_ARGS=""
