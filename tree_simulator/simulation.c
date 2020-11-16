@@ -4,7 +4,6 @@
 char topology_path[] = "./topology.txt";
 char file_name[] = "lp_data/lp";
 char end_file_name[] = ".json";
-char file_name_complete[64];
 
 #ifdef DEBUG_INITIAL_VALUES
 void print_array_double(double * array, int num_el){
@@ -592,6 +591,7 @@ bool OnGVT(int me, lp_state *snapshot)
 		
 	if(snapshot->num_stable_elements == total_number_of_elements){
 #ifdef PRINT_RESULTS
+		char file_name_complete[64];
 		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
 		
 		FILE * output_file = fopen(file_name_complete, "r");
