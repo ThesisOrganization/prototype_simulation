@@ -32,12 +32,14 @@ do
 	fi
 	if [[ $arg == "valgrind" || $arg == "gdb" ]]; then
 		dbg_arg=$arg
-		# we need to add -g to the makefile so we make a backup
-		cp Makefile Makefile.bak
-		#we add the -g flag
-		sed -i 's/CFLAGS =/& -g /' Makefile
-		#we remove any optimization if present
-		sed -i 's/-O[0-9]*//' Makefile
+		if [[ $sim_name == "ROOT-Sim" || $sim_name == "NeuRome" ]]; then
+			# we need to add -g to the makefile so we make a backup
+			cp Makefile Makefile.bak
+			#we add the -g flag
+			sed -i 's/CFLAGS =/& -g /' Makefile
+			#we remove any optimization if present
+			sed -i 's/-O[0-9]*//' Makefile
+		fi
 	fi
 	if [[ ${arg:0:5} == "--lp=" ]]; then
 		number_lp=${arg#"--lp="}
