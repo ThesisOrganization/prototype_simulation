@@ -41,6 +41,7 @@ Second parameter should be either empty or "aggregated"
 - `make`
 - `git`
 - `pdflatex`
+- `script`
 
 ##### LATEX packages
 - `booktabs`

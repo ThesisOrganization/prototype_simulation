@@ -35,15 +35,30 @@ for filename in tests_topology/*.txt; do
 	echo "Starting generator.."
 	cd utils/generator
 	python3 generator.py "$filename"
+	err=$?
+	if [[ $err != 0  ]]; then
+		echo "error during topology generation, aborting"
+		exit $err
+	fi
 	echo "Done."
 	echo "Starting analytical model computation.."
 	cd ../../model_computation
 	make
 	./formulas
+	err=$?
+	if [[ $err != 0  ]]; then
+		echo "error during analytical model computation, aborting"
+		exit $err
+	fi
 	echo "Done."
 	echo "Starting simulation.."
 	cd ../tree_simulator
 	sh run.sh $sim_options
+	err=$?
+	if [[ $err != 0  ]]; then
+		echo "error during model simulation, aborting"
+		exit $err
+	fi
 	echo "Done."
 	echo "Parsing jsons and merging them.."
 	cd ../jsonMerger
@@ -54,12 +69,26 @@ for filename in tests_topology/*.txt; do
 	  echo "...standard."
 	  python3 jsonParse.py
 	fi
+	err=$?
+	if [[ $err != 0  ]]; then
+		echo "error during data parsing, aborting"
+		exit $err
+	fi
 	echo "Done."
 	echo "Creating pdf.."
 	pdflatex complete_results.tex
+	err=$?
+	if [[ $err != 0  ]]; then
+		echo "error during document creation, aborting"
+		exit $err
+	fi
 	echo "Done."
 	echo "Moving and renaming pdf.."
 	mv complete_results.pdf ../pdf_results/$(date +%H_%M_%S)-$platform-complete_results.pdf
+	if [[ $err != 0  ]]; then
+		echo "error during document rename, aborting"
+		exit $err
+	fi
 	echo "Done."
 	cd ..
 done

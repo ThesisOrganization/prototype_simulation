@@ -102,8 +102,15 @@ else
 				$dbg_param ./simulation --sequential --lp $number_lp
 				stat_source="outputs/sequential_stats"
 			fi
-			stat_used_mem=$(sed -n 's/PEAK MEMORY USAGE.......... : //p' $stat_source)
-			stat_duration=$(sed -n 's/TOTAL SIMULATION TIME ..... : //p' $stat_source)
+
+		err=$?
+		if [[ $err != 0  ]]; then
+			echo "ROOT-Sim has raised an error, aborting"
+			exit $err
+		fi
+
+		stat_used_mem=$(sed -n 's/PEAK MEMORY USAGE.......... : //p' $stat_source)
+		stat_duration=$(sed -n 's/TOTAL SIMULATION TIME ..... : //p' $stat_source)
 	elif [[ $sim_name == "USE" ]]; then
 		rm -r outputs
 		rm lp_data/*.json
@@ -117,8 +124,9 @@ else
 		#adding sources (first 3 expressions), adding list of .o files (4th expression), change the all target to 'edge' (5th expression), add the edge target (6th expression) and finally add the _edge target (7th expression)
 		sed -i -e '431 i\'"$srcs"'' -i -e '539 i\EDGE_OBJ= $(EDGE_SOURCES:.c=.o)' -i -e '/all: .*/ c\all: edge' -i -e '560 i\edge: TARGET=edge\nedge: _edge executable' -i -e '661 i\_edge: $(EDGE_OBJ)\n\t@ld -r -g $(EDGE_OBJ) -o model/__application.o' USE-model-sources/Makefile
 
+		max_data_size=512
 		# upping MAX_DATA_SIZE to 512
-		sed -i -e 's/MAX_DATA_SIZE\t\t128/MAX_DATA_SIZE\t\t512/' USE-model-sources/include/events.h
+		sed -i -e 's/MAX_DATA_SIZE\t\t128/MAX_DATA_SIZE\t\t'$max_data_size'/' USE-model-sources/include/events.h
 
 		cd USE-model-sources
 
@@ -135,15 +143,20 @@ else
 		reversible=0
 		#1=stampe dettagliate
 		report=1
-		queue_len=1204
+		queue_len=4096
 		max_lp=0
 
 		make THR_POOL_SIZE=${queue_len} MAX_ALLOCABLE_GIGAS=${MAX_GIGAS} NBC=${nbc} MAX_SKIPPED_LP=${max_lp} REVERSIBLE=0 LOOKAHEAD=${lookahead} PERC_USED_BUCKET=${pub} ELEM_PER_BUCKET=${epb} REPORT=${report} DEBUG=${dbg} SPERIMENTAL=${sperimental} CHECKPOINT_PERIOD=${ck} LINEAR_PINNING=${lin_pin}
 
 		cp edge ../simulation
 		cd ..
-		# we save the output so we can grab the stats whithout redirecting output
-		$dbg_param ./simulation $working_threads $number_lp | tee $stat_source
+		# we save the output so we can grab the stats without redirecting output
+		script -e -m advanced -c $dbg_param' ./simulation '$working_threads' '$number_lp $stat_source
+		err=$?
+		if [[ $err != 0  ]]; then
+			echo "USE has raised an error, aborting"
+			exit $err
+		fi
 
 		stat_used_mem=$(sed -E -n -e 's/Total allocated space\.+: //p' $stat_source)
 		stat_duration=$(sed -E -n -e 's/Simulation ended \(seconds\):[ ]+//p' $stat_source)
@@ -164,6 +177,11 @@ else
 				$dbg_param ./model_serial
 				fi
 	fi
+	err=$?
+		if [[ $err != 0  ]]; then
+			echo "NeuRome has raised an error, aborting"
+			exit $err
+		fi
 	#if we modified the Makefile we restore it
 	if [[ $dbg_arg != "" ]]; then
 		cp Makefile.bak Makefile
