@@ -1,7 +1,7 @@
 PSA: where multiple values have to be added, they are in the following order:
 telemetry/transition/command/batch/reply
 x,y : there are x regionals with y locals
-regionals_with_tot_locals         = 4,3
+regionals_with_tot_locals         = 80,5
 In x_type_and_additional_info need to put type, delay_lower_router for x node
 central_type_and_additional_info  = Type0,0.3,Type0
 regional_type_and_additional_info = Type0,0.3,0.5
