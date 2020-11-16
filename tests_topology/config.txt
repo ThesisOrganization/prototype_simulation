@@ -1,7 +1,8 @@
 central_type_and_additional_info  = Type0,0.3,Type0
-different_regionals_trees         = 3
-2 Type0: 1 Type0, 2 Type1
-1 Type1: 2 Type0
-1 Type1: 1 Type0, 1 Type2
+different_regionals_trees         = 4
+1 Type0: 2 Type0
+1 Type0: 4 Type0
+2 Type0: 4 Type0
+4 Type0: 4 Type0
 delay_wan                         = 0.5
 weight_actuators                  = 1

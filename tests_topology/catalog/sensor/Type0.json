@@ -1,5 +1,5 @@
 {
-        "rate_sensors_telemetry": 0.003,
+        "rate_sensors_telemetry": 0.084,
         "rate_sensors_transition": 0.0,
         "measure_type": "MEASURE0",
         "job_type": "BATCH"

@@ -350,7 +350,6 @@ if aggregation_flag:
 f_out.write("\n\\section{Detailed view}\n")
 for element in ordered_id_list:
     if(element not in key_union):
-        print(element)
         type = dict_model[element]['type']
         if type == 'node':
             str_to_write = dict_model[element]['node_type'].capitalize()
