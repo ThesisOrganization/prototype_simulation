@@ -401,6 +401,24 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				dev_state = state->devices_array[index_map];
 
 				dev_state->device_timestamp = now;
+								
+				//########################
+				//check if we return in UPDATE_TIMESTAMP after returning true
+				//########################
+				
+				unsigned int num_nodes = GET_TOTAL_NODES(state->general_topology);
+				//unsigned int num_sensors = GET_SENSOR_NODES(snapshot->general_topology);
+				unsigned int num_actuators = GET_ACTUATOR_NODES(state->general_topology);
+				//unsigned int num_wans = GET_NUMBER_OF_WANS(snapshot->general_topology);
+				unsigned int num_lans = GET_NUMBER_OF_LANS(state->general_topology);
+
+				int total_number_of_elements = num_nodes + num_actuators + num_lans;
+				
+				if(state->num_stable_elements == total_number_of_elements) //it means that also me send a broadcast_message
+					break;
+				
+				//########################
+
 
 				if(dev_state->device_timestamp > TRANSITION_TIME_LIMIT){
 
@@ -557,23 +575,34 @@ bool OnGVT(int me, lp_state *snapshot)
 	int id_device;
 	idmap map;
 	device_state * dev_state;
-	/*
-		for(index = 0; index < snapshot->num_devices; index++){
+	
+	//for(index = 0; index < snapshot->num_devices; index++){
 
-			map = snapshot->element_to_index[index];
-			id_device = map.id;
-			index_map = map.content;
-			dev_state = snapshot->devices_array[index_map];
-			
-			//printf("%f\n", dev_state->device_timestamp);
-			break;
-		}
-	*/
+		map = snapshot->element_to_index[0];
+		id_device = map.id;
+		index_map = map.content;
+		dev_state = snapshot->devices_array[index_map];
+		if((((long int)dev_state->device_timestamp/100) % 500) == 20)
+			printf("LP: %d -> %f\n", me, dev_state->device_timestamp);
+	
+		//printf("%f\n", dev_state->device_timestamp);
+		//break;
+	//}
+	
 		
 	if(snapshot->num_stable_elements == total_number_of_elements){
 #ifdef PRINT_RESULTS
 		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
-		FILE * output_file = fopen(file_name_complete, "w");
+		
+		FILE * output_file = fopen(file_name_complete, "r");
+		if(output_file != NULL){
+			fclose(output_file);
+			return true;
+		}
+		
+		output_file = fopen(file_name_complete, "w");
+
+		//FILE * output_file = fopen(file_name_complete, "w");
 
 		fprintf(output_file, "[");
 
