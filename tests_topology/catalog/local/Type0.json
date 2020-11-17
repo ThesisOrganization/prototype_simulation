@@ -1,33 +1,27 @@
 {
         "aggregation_rates": {
-            "telemetry": 80,
+            "telemetry": 5,
             "transition": 3,
             "command": 4,
-            "batch": 30
+            "batch": 2
         },
         "service_times": {
-            "telemetry": 0.5,
-            "transition": 0.2,
-            "command": 0.3,
-            "batch": 0.2,
-            "reply": 0.2
+          "telemetry": 1.65,
+          "transition": 8.15,
+          "command": 0.815,
+          "batch": 3.3,
+          "reply": 8.15
         },
-        "cores": 1,
-        "prob_command_generated": 0.8,
+        "cores":1,
+        "prob_command_generated": 0.1,
         "scheduler_type": "SCHEDULER1",
         "delay_upper_router": 0.3,
         "delay_lower_router": 0.1,
         "lan0":{
-          "type_lan":"1",
-          "amount": 1,
-          "sensor_Type0":3,
-          "sensor_Type1":1,
-          "actuator_Type0":2
-        },
-        "lan1":{
           "type_lan":"0",
           "amount": 1,
-          "sensor_Type0":1,
+          "sensor_Type0":5,
+          "sensor_Type1":1,
           "actuator_Type0":1
         }
 }

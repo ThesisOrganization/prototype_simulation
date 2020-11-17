@@ -577,8 +577,8 @@ bool OnGVT(int me, lp_state *snapshot)
 		id_device = map.id;
 		index_map = map.content;
 		dev_state = snapshot->devices_array[index_map];
-		if((((long int)dev_state->device_timestamp/100) % 500) == 20)
-			printf("LP: %d -> %f\n", me, dev_state->device_timestamp);
+		//if((((long int)dev_state->device_timestamp/100) % 500) == 20)
+		//	printf("LP: %d -> %f\n", me, dev_state->device_timestamp);
 	
 		//printf("%f\n", dev_state->device_timestamp);
 		//break;

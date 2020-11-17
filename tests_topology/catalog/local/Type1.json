@@ -12,7 +12,7 @@
             "batch": 0.2,
             "reply": 0.2
         },
-        "cores" : 1,
+        "cores":1,
         "prob_command_generated": 0.8,
         "scheduler_type": "SCHEDULER1",
         "delay_upper_router": 0.3,
