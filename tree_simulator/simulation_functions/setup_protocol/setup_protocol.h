@@ -6,6 +6,8 @@
 #ifndef SETUP_PROTOCOL_H
 #define SETUP_PROTOCOL_H
 
+#define SETUP_INDEPENDENT
+
 /// This macro is used to switch setup with minimal code changes. If you use the "setup" symbol by default it will use the setup_master function. If you define the SETUP_INDEPENDENT symbol it will use the setup_independent function.
 #ifdef SETUP_INDEPENDENT
 	#define setup(me,state,n_prc_tot) setup_independent(me,state,n_prc_tot)
