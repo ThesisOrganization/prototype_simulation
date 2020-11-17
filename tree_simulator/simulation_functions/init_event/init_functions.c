@@ -19,41 +19,44 @@ static queue_conf** create_new_queues(int num_queues){
 
 }
 
-static void init_metrics(queue_state * queue_state){
-
-    queue_state->C = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
-    queue_state->A = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
-    queue_state->A_post = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
-    queue_state->W = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
-    queue_state->B = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
-    queue_state->start_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
-    queue_state->actual_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
-    queue_state->old_response_times = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
-
-		queue_state->C_stable = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
-    queue_state->A_stable = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
-    queue_state->W_stable = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
-    queue_state->B_stable = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
-    queue_state->actual_timestamp_stable = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
-
-    for(int i=0; i < NUM_OF_JOB_TYPE; i++){
-
-        queue_state->C[i] = 0;
-        queue_state->A[i] = 0;
-        queue_state->A_post[i] = 0;
-        queue_state->W[i] = 0.0;
-        queue_state->B[i] = 0.0;
-        queue_state->start_timestamp[i] = 0.0;
-        queue_state->actual_timestamp[i] = 0.0;
-        queue_state->old_response_times[i] = -1.0;
-
-				queue_state->C_stable[i] = -1;
-        queue_state->A_stable[i] = -1;
-        queue_state->W_stable[i] = -1.0;
-        queue_state->B_stable[i] = -1.0;
-        queue_state->actual_timestamp_stable[i] = -1.0;
-
-    }
+static void init_metrics(queue_state * queue_state, int num_cores){
+	
+	queue_state->current_jobs = malloc(sizeof(job_info)*num_cores);
+	queue_state->start_processing_timestamp = malloc(sizeof(simtime_t)*num_cores);
+	
+	queue_state->C = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
+	queue_state->A = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
+	queue_state->A_post = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
+	queue_state->W = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
+	queue_state->B = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
+	queue_state->start_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
+	queue_state->actual_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
+	queue_state->old_response_times = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
+	
+	queue_state->C_stable = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
+	queue_state->A_stable = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
+	queue_state->W_stable = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
+	queue_state->B_stable = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
+	queue_state->actual_timestamp_stable = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
+	
+	for(int i=0; i < NUM_OF_JOB_TYPE; i++){
+	
+	    queue_state->C[i] = 0;
+	    queue_state->A[i] = 0;
+	    queue_state->A_post[i] = 0;
+	    queue_state->W[i] = 0.0;
+	    queue_state->B[i] = 0.0;
+	    queue_state->start_timestamp[i] = 0.0;
+	    queue_state->actual_timestamp[i] = 0.0;
+	    queue_state->old_response_times[i] = -1.0;
+	
+			queue_state->C_stable[i] = -1;
+	    queue_state->A_stable[i] = -1;
+	    queue_state->W_stable[i] = -1.0;
+	    queue_state->B_stable[i] = -1.0;
+	    queue_state->actual_timestamp_stable[i] = -1.0;
+	
+	}
 
 }
 
@@ -74,10 +77,13 @@ void init_node(unsigned int id_device, device_state* state){
 
     state->info.node = malloc(sizeof(node_state));
     state->info.node->queue_state = malloc(sizeof(queue_state));
-		state->info.node->queue_state->current_job.job_type = INVALID_JOB;
+		//state->info.node->queue_state->current_job.job_type = INVALID_JOB;
     state->info.node->queue_state->num_jobs_in_queue = 0;
+		
+		state->info.node->queue_state->num_running_jobs = 0;
+		state->info.node->queue_state->num_cores = GET_NUMBER_OF_CORES(state->topology);
 
-    init_metrics(state->info.node->queue_state);
+    init_metrics(state->info.node->queue_state, state->info.node->queue_state->num_cores);
 
     int num_queues = 1;
     state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
@@ -107,10 +113,14 @@ void init_node(unsigned int id_device, device_state* state){
 
     if(GET_NODE_TYPE(state->topology) == CENTRAL){
         state->info.node->disk_state = malloc(sizeof(queue_state));
-        state->info.node->disk_state->current_job.job_type = INVALID_JOB;
+        //state->info.node->disk_state->current_job.job_type = INVALID_JOB;
         state->info.node->disk_state->num_jobs_in_queue = 0;
+				
+				state->info.node->disk_state->num_running_jobs = 0;
+				state->info.node->disk_state->num_cores = 1;
+				
 
-        init_metrics(state->info.node->disk_state);
+        init_metrics(state->info.node->disk_state, state->info.node->disk_state->num_cores);
 
         num_queues = 1;
         state->info.node->disk_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
@@ -148,10 +158,13 @@ void init_actuator(unsigned int id_device, simtime_t now, device_state * state, 
 
     state->info.actuator = malloc(sizeof(actuator_state));
     state->info.actuator->queue_state = malloc(sizeof(queue_state));
-    state->info.actuator->queue_state->current_job.job_type = INVALID_JOB;
+    //state->info.actuator->queue_state->current_job.job_type = INVALID_JOB;
     state->info.actuator->queue_state->num_jobs_in_queue = 0;
 
-    init_metrics(state->info.actuator->queue_state);
+		state->info.actuator->queue_state->num_running_jobs = 0;
+		state->info.actuator->queue_state->num_cores = 1;
+		
+    init_metrics(state->info.actuator->queue_state, state->info.actuator->queue_state->num_cores);
 
     int num_queues = 1;
     state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
@@ -175,14 +188,19 @@ void init_lan(unsigned int id_device, device_state * state){
     state->info.lan->queue_state_in = malloc(sizeof(queue_state));
     state->info.lan->queue_state_out = malloc(sizeof(queue_state));
 
-    state->info.lan->queue_state_in->current_job.job_type = INVALID_JOB;
-    state->info.lan->queue_state_out->current_job.job_type = INVALID_JOB;
+    //state->info.lan->queue_state_in->current_job.job_type = INVALID_JOB;
+    //state->info.lan->queue_state_out->current_job.job_type = INVALID_JOB;
 
     state->info.lan->queue_state_in->num_jobs_in_queue = 0;
     state->info.lan->queue_state_out->num_jobs_in_queue = 0;
 
-    init_metrics(state->info.lan->queue_state_in);
-    init_metrics(state->info.lan->queue_state_out);
+		state->info.lan->queue_state_in->num_running_jobs = 0;
+		state->info.lan->queue_state_in->num_cores = 1;
+		state->info.lan->queue_state_out->num_running_jobs = 0;
+		state->info.lan->queue_state_out->num_cores = 1;
+		
+    init_metrics(state->info.lan->queue_state_in, state->info.lan->queue_state_in->num_cores);
+    init_metrics(state->info.lan->queue_state_out, state->info.lan->queue_state_out->num_cores);
 
     int num_queues = 1;
     state->info.lan->queue_state_in->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);

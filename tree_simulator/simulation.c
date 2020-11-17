@@ -360,17 +360,17 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				if(dev_state->type == NODE){
 
-					finish_node(id_device, now, dev_state, me);
+					finish_node(id_device, now, dev_state, me, ((message_finish*)content)->core);
 
 				}
 				else if(dev_state->type == ACTUATOR){
 
-					finish_actuator(id_device, now, dev_state, me);
+					finish_actuator(id_device, now, dev_state, me, ((message_finish*)content)->core);
 
 				}
 				else if(dev_state->type == LAN){
 
-					finish_lan(id_device, now, dev_state, ((message_finish*)content)->direction, me);
+					finish_lan(id_device, now, dev_state, ((message_finish*)content)->direction, me, ((message_finish*)content)->core);
 
 				}
 				else{
@@ -389,7 +389,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				dev_state->device_timestamp = now;
 
-				finish_disk(id_device, now, dev_state, me);
+				finish_disk(id_device, now, dev_state, me, ((message_finish*)content)->core);
 
 				break;
 

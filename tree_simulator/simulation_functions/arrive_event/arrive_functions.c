@@ -2,17 +2,21 @@
 
 static void start_device(unsigned int id_device, simtime_t now, queue_state * queue_state, double * service_rates, job_info * info, lan_direction direction, events_type event_to_trigger, unsigned int id_lp){
 
-	if(queue_state->current_job.job_type == INVALID_JOB){
+	if(queue_state->num_running_jobs < queue_state->num_cores){
+	//if(queue_state->current_job.job_type == INVALID_JOB){
 
-		queue_state->current_job = *info;
-		queue_state->start_processing_timestamp = now;
+		queue_state->current_jobs[queue_state->num_running_jobs] = *info; //usa indice num_current_jobs
+		queue_state->start_processing_timestamp[queue_state->num_running_jobs] = now; //usa indice num_current_jobs
 
 		double rate = service_rates[info->job_type];
 		simtime_t ts_finish = now + Expent(rate);
 		message_finish msg;
 		msg.header.element_id = id_device;
+		msg.core = queue_state->num_running_jobs;
 		msg.direction = direction;
 		ScheduleNewEvent(id_lp, ts_finish, event_to_trigger, &msg, sizeof(message_finish));
+		
+		queue_state->num_running_jobs++;
 
 	}
 	else

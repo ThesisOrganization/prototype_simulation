@@ -284,8 +284,10 @@ typedef enum _setup_data_types{
 
 
 typedef struct _queue_state {
-	simtime_t start_processing_timestamp;
-	job_info current_job;
+	simtime_t * start_processing_timestamp;
+	job_info * current_jobs;
+	int num_cores; ///max number of current jobs running
+	int num_running_jobs; ///number of the current jobs that are handled by the multi core
 	int num_jobs_in_queue;
 	//METRICS, from slide 4, single queue modeling, CP
 	//note that these values are computed with the values after the last finish event before the termination
@@ -393,6 +395,7 @@ typedef struct{
 
 typedef struct{
 	message_header header;
+	int core; ///the core that is handling the job
 	lan_direction direction;
 } message_finish;
 

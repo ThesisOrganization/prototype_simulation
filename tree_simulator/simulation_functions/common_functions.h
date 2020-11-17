@@ -63,6 +63,7 @@ if (! (x)) {\
 #define GET_DELAY_LOWER_ROUTER(a) getDelayLowerRouter(a)
 #define GET_WAN_DOWN(a) getWanDown(a)
 #define GET_PROB_COMMAND(a) getProbCommandResponse(a)
+#define GET_NUMBER_OF_CORES(a) getNumberOfCores(a)
 
 //SENSORS
 #define GET_SENSOR_TYPE_RATES(a) getSensorRates(a)
