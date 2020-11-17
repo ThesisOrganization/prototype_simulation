@@ -93,6 +93,10 @@ else
 		rm lp_data/*.json
 		rm *.json
 	fi
+	if [[ $target == "all" || $target == "compile" ]]; then
+		echo "removing old object files and executables"
+		make clean
+	fi
 	#we need to modify the compatibility header to make sure that the longest line read can fit into the buffer
 	if [[ $max_len_lp -gt $max_len_top ]]; then
 		req_buf_len=$max_len_lp
@@ -173,7 +177,6 @@ else
 				echo "done"
 				max_data_size=4096
 				echo "tuning events.h to send payloads up to $max_data_size..."
-				# upping MAX_DATA_SIZE to 512
 				sed -i -e 's/MAX_DATA_SIZE\t\t128/MAX_DATA_SIZE\t\t'$max_data_size'/' USE-model-sources/include/events.h
 				echo "done"
 			fi
@@ -195,6 +198,7 @@ else
 			report=1
 			queue_len=32768
 			max_lp=0
+			sim_max_duration=60
 
 			make THR_POOL_SIZE=${queue_len} MAX_ALLOCABLE_GIGAS=${MAX_GIGAS} NBC=${nbc} MAX_SKIPPED_LP=${max_lp} REVERSIBLE=0 LOOKAHEAD=${lookahead} PERC_USED_BUCKET=${pub} ELEM_PER_BUCKET=${epb} REPORT=${report} DEBUG=${dbg} SPERIMENTAL=${sperimental} CHECKPOINT_PERIOD=${ck} LINEAR_PINNING=${lin_pin}
 
@@ -208,7 +212,7 @@ else
 			# we save the output so we can grab the stats without redirecting output
 			# TODO: find a way to grab simulator statistics
 			#script -e -m -c $dbg_param' ./simulation '$working_threads' '$number_lp $stat_source
-			$dbg_param ./simulation $working_threads $number_lp
+			$dbg_param ./simulation $working_threads $number_lp $sim_max_duration
 			err=$?
 			if [[ $err != 0  ]]; then
 				echo "USE has raised an error, aborting"

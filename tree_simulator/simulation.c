@@ -1,6 +1,5 @@
 #include "./simulation.h"
 
-
 char topology_path[] = "./topology.txt";
 char file_name[] = "lp_data/lp";
 char end_file_name[] = ".json";
@@ -54,7 +53,7 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 			return return_bool;
 		}
 	}
-	
+
 	if(sum_arrived == 0){
 		return_bool = 0;
 		return return_bool;
@@ -130,17 +129,13 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			memset(state,0,sizeof(lp_state));
 			SetState(state);
 			state->lp_enabled = LP_SETUP;
-			if(me == 0){
-				//we enable the master LP to avoid terminating the simulation during the setup
-				//we setup the master node and the required LPs
-				setup_master(n_prc_tot);
-			}
+			setup(me,state,n_prc_tot);
 			break;
 
 		case DISABLE_UNUSED_LP:
-			
+
 			state->lp_enabled=LP_DISABLED;
-			
+
 			break;
 
 		case RECEIVE_SETUP_MESSAGE:
@@ -400,11 +395,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				dev_state = state->devices_array[index_map];
 
 				dev_state->device_timestamp = now;
-								
+
 				//########################
 				//check if we return in UPDATE_TIMESTAMP after returning true
 				//########################
-				
+
 				unsigned int num_nodes = GET_TOTAL_NODES(state->general_topology);
 				//unsigned int num_sensors = GET_SENSOR_NODES(snapshot->general_topology);
 				unsigned int num_actuators = GET_ACTUATOR_NODES(state->general_topology);
@@ -412,11 +407,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				unsigned int num_lans = GET_NUMBER_OF_LANS(state->general_topology);
 
 				int total_number_of_elements = num_nodes + num_actuators + num_lans;
-				
-				
+
+
 				if(state->num_stable_elements == total_number_of_elements || dev_state->simulation_completed == SIMULATION_STOP) //it means that also me send a broadcast_message
 					break;
-				
+
 				if(dev_state->device_timestamp > MAX_SIMULATION_TIME){
 					if(dev_state->stability == ELEMENT_UNSTABLE){
 						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
@@ -424,7 +419,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					dev_state->simulation_completed = SIMULATION_STOP;
 					break;
 				}
-				
+
 				//########################
 
 
@@ -480,7 +475,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
 						dev_state->stability = ELEMENT_UNSTABLE;
 					}
-					
+
 					//QUI
 
 				}
@@ -570,7 +565,7 @@ bool OnGVT(int me, lp_state *snapshot)
 	int id_device;
 	idmap map;
 	device_state * dev_state;
-	
+
 	//for(index = 0; index < snapshot->num_devices; index++){
 
 		map = snapshot->element_to_index[0];
@@ -579,23 +574,23 @@ bool OnGVT(int me, lp_state *snapshot)
 		dev_state = snapshot->devices_array[index_map];
 		if((((long int)dev_state->device_timestamp/100) % 500) == 20)
 			printf("LP: %d -> %f\n", me, dev_state->device_timestamp);
-	
+
 		//printf("%f\n", dev_state->device_timestamp);
 		//break;
 	//}
-	
-		
+
+
 	if(snapshot->num_stable_elements == total_number_of_elements){
 #ifdef PRINT_RESULTS
 		char file_name_complete[64];
 		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
-		
+
 		FILE * output_file = fopen(file_name_complete, "r");
 		if(output_file != NULL){
 			fclose(output_file);
 			return true;
 		}
-		
+
 		output_file = fopen(file_name_complete, "w");
 
 		//FILE * output_file = fopen(file_name_complete, "w");
