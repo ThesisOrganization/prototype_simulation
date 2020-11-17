@@ -12,6 +12,7 @@
             "batch": 0.5,
             "reply": 1.0
         },
+        "cores": 1,
         "delay_upper_router": 0.3,
         "delay_lower_router": 0.1,
         "prob_command_generated": 0.9,

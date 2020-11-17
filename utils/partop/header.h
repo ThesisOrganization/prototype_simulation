@@ -64,6 +64,7 @@ int getWanDown(Element_topology * lpt);
 int getNumberOfBelowSensors(Element_topology * lpt);
 int * getSensType(Element_topology * lpt);
 int * getSensorsTypesBelowList(Element_topology * lpt);
+int getNumberOfCores(Element_topology * lpt);
 int * getAggregationRate(Element_topology * lpt);
 float getDelayUpperRouter(Element_topology * lpt);
 float getDelayLowerRouter(Element_topology * lpt);

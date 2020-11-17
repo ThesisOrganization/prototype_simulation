@@ -217,6 +217,9 @@ int * getSensorsTypesBelowList(Element_topology * lpt){
   }
 
 }
+int getNumberOfCores(Element_topology * lpt){
+  return(lpt->spec_top.node->cores);
+}
 int * getAggregationRate(Element_topology * lpt){
   return(lpt->spec_top.node->aggregation_rate);
 }

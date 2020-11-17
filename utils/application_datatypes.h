@@ -117,6 +117,7 @@ typedef struct _node_topology{
 	int node_type;
 	int scheduler;
 	int disk_type;
+	int cores;
 	double * diskServices;
 	int * aggregation_rate;
 	float delay_upper_router;

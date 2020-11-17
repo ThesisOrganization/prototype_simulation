@@ -30,14 +30,14 @@ void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
             nodeTop->node_type = CENTRAL;
             if( !strcmp(strings[9], "RAID1") )
                 nodeTop->disk_type = RAID1;
-            else if( !strcmp(strings[8], "RAID2") )
+            else if( !strcmp(strings[9], "RAID2") )
                 nodeTop->disk_type = RAID2;
-            else if( !strcmp(strings[8], "RAID3") )
+            else if( !strcmp(strings[9], "RAID3") )
                 nodeTop->disk_type = RAID3;
             else
                 exit(EXIT_FAILURE);
 
-            char * ptr = strtok_r(strings[9], "/", &end_str);
+            char * ptr = strtok_r(strings[10], "/", &end_str);
             double * diskServiceArray = malloc((sizeof(double)) * 4); //fixed, 4 type of data.
             counter = 0;
             while(ptr){
@@ -56,7 +56,10 @@ void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
         else
             exit(EXIT_FAILURE);
 
-        ptr = strtok_r(strings[3], "/", &end_str);
+        int cores = atoi(strings[3]);
+        nodeTop->cores = cores;
+
+        ptr = strtok_r(strings[4], "/", &end_str);
         int * aggregation_rates = malloc(sizeof(int) * 4);
         counter = 0;
         while(ptr){
@@ -66,13 +69,13 @@ void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
         }
 
         nodeTop->aggregation_rate = aggregation_rates;
-        float delayUP = strtod(strings[4],&ptr);
+        float delayUP = strtod(strings[5],&ptr);
         nodeTop->delay_upper_router = delayUP;
 
-        float delayDOWN = atof(strings[5]);
+        float delayDOWN = atof(strings[6]);
         nodeTop->delay_lower_router = delayDOWN;
 
-        ptr = strtok_r(strings[6], "/", &end_str);
+        ptr = strtok_r(strings[7], "/", &end_str);
         double * serviceArray = malloc((sizeof(double)) * 5); //fixed, 5 type of data.
         counter = 0;
         while(ptr){
@@ -82,7 +85,7 @@ void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
         }
         nodeTop->service_time = serviceArray;
 
-        float probCommand = strtod(strings[7],&ptr);
+        float probCommand = strtod(strings[8],&ptr);
         nodeTop->probCommandResponse = probCommand;
         this_lpt->spec_top.node = nodeTop;
     }
