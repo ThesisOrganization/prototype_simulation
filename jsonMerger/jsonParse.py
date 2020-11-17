@@ -77,8 +77,9 @@ def aux(begin_table,dict,string,dict_similarity):
     U_string+="\\\\"
     to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
     f_out.write(to_print)
-
-    total_u = "\\centering Total Utlization Factor = $" + f"{total:.4}" + "$\n"
+    
+    total_u = "\\centering Total Utlization Factor = $" +str(total) + "$\n"
+    #total_u = "\\centering Total Utlization Factor = $" + f"{total:.4}" + "$\n"
     f_out.write(total_u)
 
     f_out.write(begin_table)

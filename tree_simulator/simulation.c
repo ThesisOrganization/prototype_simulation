@@ -54,12 +54,12 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 			return return_bool;
 		}
 	}
-	
+/*	
 	if(sum_arrived == 0){
 		return_bool = 0;
 		return return_bool;
 	}
-
+*/
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
 		double R = queue_state->W[i] / queue_state->C[i];
 		double normalization = MAX(R, queue_state->old_response_times[i]);
@@ -577,8 +577,8 @@ bool OnGVT(int me, lp_state *snapshot)
 		id_device = map.id;
 		index_map = map.content;
 		dev_state = snapshot->devices_array[index_map];
-		if((((long int)dev_state->device_timestamp/100) % 500) == 20)
-			printf("LP: %d -> %f\n", me, dev_state->device_timestamp);
+		//if((((long int)dev_state->device_timestamp/100) % 500) == 20)
+		//	printf("LP: %d -> %f\n", me, dev_state->device_timestamp);
 	
 		//printf("%f\n", dev_state->device_timestamp);
 		//break;

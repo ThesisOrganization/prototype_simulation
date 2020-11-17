@@ -1,19 +1,19 @@
 {
         "aggregation_rates": {
-            "telemetry": 80,
-            "transition": 3,
-            "command": 4,
-            "batch": 30
+            "telemetry": 1,
+            "transition": 1,
+            "command": 1,
+            "batch": 1
         },
         "service_times": {
-            "telemetry": 1.5,
-            "transition": 1.0,
-            "command": 1.0,
-            "batch": 0.5,
-            "reply": 1.0
+          "telemetry": 0.033,
+          "transition": 0.165,
+          "command": 0.0165,
+          "batch": 0.066,
+          "reply": 0.165
         },
         "delay_upper_router": 0.3,
         "delay_lower_router": 0.1,
-        "prob_command_generated": 0.9,
+        "prob_command_generated": 0.1,
         "scheduler_type": "SCHEDULER1"
 }
