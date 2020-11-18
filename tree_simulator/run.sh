@@ -50,7 +50,7 @@ do
 done
 
 if [ "$dbg_arg" == "valgrind" ]; then
-		dbg_param="valgrind --leak-check=full"
+	dbg_param="valgrind --leak-check=full -s"
 elif [ "$dbg_arg" == "gdb" ]; then
 		dbg_param="gdb --args"
 fi
@@ -58,6 +58,7 @@ if [[ $quiet == "no" ]]; then
 	echo -e "This script will compile and run the model, using the configured simulator\n It will provide two json files:\n \"$file_json\": which will contain the data of all the model elements (sensors excluded), that is also available in a per LP fashion in the \"lp_data\" folder\n \"$stat_json\": which contains general statistics on the executed simulation\n"
 	echo -e "To run the model at least two files are required in this folder:\n \"topology.txt\", which will contain the topology and the characteristics of the elements in the model\n \"LP.txt\", which will contain the association between model elements and LPs.\n The default beahviour is resetting the model folder to a clean state, compiling and executing."
 	echo -e "The execution can be customized with some arguments:\n \"-q --quiet\": disable this message\n \"json\": only merge the json files in \"lp_data\"\n \"clean\": remove all products of compilation and execution, leaving only the source files\n \"gdb\" run the program under gdb (this will make a temporary modification to the makefile, adding -g to the compiler oprions)\n \"valgrind\": run the program under valgrind (this will make a temporary modification to the makefile, adding -g to the compiler options)\n \"--lp=\": specify the number of LPs, if this argument is not provided the number of LPs will be determined from \"LP.txt\"\n \"serial\": run with only one thread (used by default)\n \"parallel\": run with multiple threads\n \"--wt=\": specify the number of threads to use (if not given the minimum between the number of CPUs and the number of LP will be used in a parallel run)\n \"-c --compile-only\": compiles only the model. When the platform is USE the folder \"USE-model-sources\" is left untouched if it already exists\n \"-e --execute-only\": only executes the model passing parameters according to the type of simulator defined in \"Simulator/simulator-name\""
+	echo -e "\nUnrecognized arguments will be ignored."
 	read -n1 -r -p "Press any key to continue or CTRL+C to exit" key
 fi
 
@@ -98,14 +99,15 @@ else
 		make clean
 	fi
 	#we need to modify the compatibility header to make sure that the longest line read can fit into the buffer
-	if [[ $max_len_lp -gt $max_len_top ]]; then
-		req_buf_len=$max_len_lp
-	else
-		req_buf_len=$max_len_top
-	fi
 	line_len_now=$(sed -n 's/#define MAX_LINE_LEN //p' ../Simulator/compatibility.h)
+	if [[ $max_len_lp -gt $max_len_top ]]; then
+		req_buf_len=$(($max_len_lp+128))
+	else
+		req_buf_len=$(($max_len_top+128))
+	fi
 	if [[ $line_len_now -lt $req_buf_len  ]]; then
-		echo "adjusting MAX_LINE_LEN in ../Simulator/compatibility.h to avoid reallocs"
+		max_line_len_modified="yes"
+		echo "adjusting MAX_LINE_LEN from $line_len_now to $req_buf_len in ../Simulator/compatibility.h to avoid reallocs"
 		sed -i '/#define MAX_LINE_LEN/ c\#define MAX_LINE_LEN '"$req_buf_len"'' ../Simulator/compatibility.h
 	fi
 
@@ -147,6 +149,7 @@ else
 			echo "done"
 		fi
 	elif [[ $sim_name == "USE" ]]; then
+		stat_source="USE_output.txt"
 		USE_tuning="no"
 		if [[ $target == "all" ]];then
 			USE_tuning="yes"
@@ -166,19 +169,18 @@ else
 			echo "done"
 		fi
 		if [[ $target == "all" || $target == "compile" ]]; then
-		# we don't do any modification of source files if they are more recent than the ones in ../USE-sources
+			# we don't do any modification of source files if they are more recent than the ones in ../USE-sources
 			if [[ $USE_tuning == "yes" ]]; then
 				echo "tuning USE makefile to compile our model..."
-				stat_source="USE_output.txt"
 				#getting sources from model makefile and adjusting their path and variable for the USE makefile in the USE-model-sources
 				srcs=$(sed -E -e 's:SRCS:EDGE_SOURCES:' -n -e 's:[A-Za-z0-9_\./]+\.c:../&:gp' Makefile)
 				#adding sources (first 3 expressions), adding list of .o files (4th expression), change the all target to 'edge' (5th expression), add the edge target (6th expression) and finally add the _edge target (7th expression)
 				sed -i -e '431 i\'"$srcs"'' -i -e '539 i\EDGE_OBJ= $(EDGE_SOURCES:.c=.o)' -i -e '/all: .*/ c\all: edge' -i -e '560 i\edge: TARGET=edge\nedge: clean _edge executable' -i -e '661 i\_edge: $(EDGE_OBJ)\n\t@ld -r -g $(EDGE_OBJ) -o model/__application.o' USE-model-sources/Makefile
 				echo "done"
-				max_data_size=4096
-				echo "tuning events.h to send payloads up to $max_data_size..."
-				sed -i -e 's/MAX_DATA_SIZE\t\t128/MAX_DATA_SIZE\t\t'$max_data_size'/' USE-model-sources/include/events.h
-				echo "done"
+				#max_data_size=4096
+				#echo "tuning events.h to send payloads up to $max_data_size..."
+				#sed -i -e 's/MAX_DATA_SIZE\t\t128/MAX_DATA_SIZE\t\t'$max_data_size'/' USE-model-sources/include/events.h
+				#echo "done"
 			fi
 			echo "compiling model..."
 			cd USE-model-sources
@@ -196,7 +198,7 @@ else
 			reversible=0
 			#1=stampe dettagliate
 			report=1
-			queue_len=32768
+			queue_len=128
 			max_lp=0
 			sim_max_duration=60
 
@@ -209,10 +211,19 @@ else
 		if [[ $target == "all" || $target == "execute" ]]; then
 			echo "executing model"
 			echo "parallel execution with $working_threads threads"
-			# we save the output so we can grab the stats without redirecting output
-			# TODO: find a way to grab simulator statistics
-			#script -e -m -c $dbg_param' ./simulation '$working_threads' '$number_lp $stat_source
-			$dbg_param ./simulation $working_threads $number_lp $sim_max_duration
+			# during debug we don't save the stats
+			if [[ -z $dbg_arg ]]; then
+				# we save the output so we can grab the stats without redirecting output
+				# starting process in background and redirecting output to file
+				./simulation $working_threads $number_lp > $stat_source &
+				use_pid=$!
+				#Ctrl+C will kill USE process
+				trap "kill -s KILL $use_pid" INT
+				tail --pid=$use_pid -F $stat_source
+				wait $use_pid
+			else
+				$dbg_param ./simulation $working_threads $number_lp
+			fi
 			err=$?
 			if [[ $err != 0  ]]; then
 				echo "USE has raised an error, aborting"
@@ -250,11 +261,15 @@ else
 			fi
 		fi
 	#if we modified the Makefile we restore it
-	if [[ $dbg_arg != "" ]]; then
+	if [[ $dbg_arg != "" ]] && [[ $sim_name == "ROOT-Sim" || $sim_name == "NeuRome" ]]; then
 		echo "rolling back the -g addition on the makefile..."
 		cp Makefile.bak Makefile
 		rm Makefile.bak
 		echo "done"
+	fi
+	if [[ $max_line_len_modified == "yes" ]];then
+		echo "restoring MAX_LINE_LEN to $line_len_now in ../Simulator/compatibility.h"
+		sed -i '/#define MAX_LINE_LEN/ c\#define MAX_LINE_LEN '"$line_len_now"'' ../Simulator/compatibility.h
 	fi
 	if [[ $target == "all" ]]; then
 		echo "exporting simulation statistics to $stat_json..."

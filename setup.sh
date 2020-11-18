@@ -43,6 +43,7 @@ if [[ $quiet == "no" ]]; then
 	echo "The simulator will be found in the \"./Simulator\" folder."
 	echo -e "When setting up ROOT-Sim some arguments can be used to customize the installation:\n \"debug\": enable debug symbols\n \"debug-extra\": extra checks during debug (kills performance)\n \"mpi\": enable mpi\n \"no-rebinding\": disable LP rebinding\n \"profile\": enable performance reports\n"
 	echo "To disable this message run the script with -q or --quiet"
+	echo -e "\nUnrecognized arguments will be ignored."
 	read -n1 -r -p "Press any key to continue or CTRL+C to exit" key
 fi
 

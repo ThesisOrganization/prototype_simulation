@@ -64,6 +64,7 @@ void setup_independent(int lp,lp_state* state, int n_prc_tot){
 		state->number_lps_enabled=GET_NUM_LPS(tot_top->lp_topology);
 		//we allocate the devices array
 		int num_devices=GET_NUM_LP_DEVICES(tot_top->lp_topology,lp);
+		state->num_devices=num_devices;
 		state->devices_array=malloc(sizeof(device_state*)*num_devices);
 		memset(state->devices_array,0,sizeof(device_state*)*num_devices);
 		//we initialize the idmap
@@ -82,8 +83,6 @@ void setup_independent(int lp,lp_state* state, int n_prc_tot){
 			state->devices_array[i]->topology=GET_ELEMENT_TOPOLOGY(tot_top,devices[i]);
 		}
 		/// All the element in the topology that are not needed for the LP are then freed.
-		destroyLPTopology(tot_top->lp_topology);
-		free(tot_top->lp_topology);
 		Element_topology** lpt=getLPTopologyComplete(tot_top);
 		int to_be_destroyed;
 		for(i=0;i<total_elements;i++){
@@ -138,6 +137,8 @@ void setup_independent(int lp,lp_state* state, int n_prc_tot){
 				free(lpt[i]);
 			}
 		}
+		destroyLPTopology(tot_top->lp_topology);
+		free(tot_top->lp_topology);
 		free(lpt);
 		free(tot_top);
 	}
