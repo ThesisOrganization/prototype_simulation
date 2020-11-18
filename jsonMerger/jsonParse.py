@@ -155,7 +155,7 @@ with open("jsonAdditionalInfo.txt") as f:
     stringAdditionalInfo+="There is one Central node, between the Central node and the Regional layer there is one WAN. Between each regional and its Locals there is a WAN.\\newline "
     stringAdditionalInfo+="There are "+str(lines[0].strip())+" regional nodes."
     stringAdditionalInfo+="In total "+lines[1]+" local nodes.\\\\"
-    stringAdditionalInfo+="In total there are "+str(lines[2]).strip()+ "total sensors and "+str(lines[3]).strip()+" total actuators."
+    stringAdditionalInfo+="In total there are "+str(lines[2]).strip()+ " sensors and "+str(lines[3]).strip()+" actuators."
     #stringAdditionalInfo+=lines[4]#WAN
     if lines[4].strip() == "REGIONALS":
         line_counter = 5
@@ -165,9 +165,10 @@ with open("jsonAdditionalInfo.txt") as f:
             type_regional = line_list[1]
             dict_ids_regional[id_regional] = {}
             dict_ids_regional[id_regional]['type'] = type_regional
+            dict_ids_regional[id_regional]['type_local'] = {}
+
             for line_list_element in line_list[2:]:
                 type = line_list_element.split(",")[0].strip()
-                dict_ids_regional[id_regional]['type_local'] = {}
                 amount = line_list_element.split(",")[1].strip()
 
                 dict_ids_regional[id_regional]['type_local'][type] = amount
@@ -227,203 +228,16 @@ for element in ordered_id_list:
         list_lan.append(element)
     elif(type == 'actuator'):
         list_actuators.append(element)
-#######################
-#print("#######15%!########")
-flag = False
-if(flag):
-    baseline_coefficient = 0.15
-    dict_regional_similar = {}
-    for element in list_regional:
-        for element2 in list_regional:
-            if(element < element2):
-                allclose_result = True
-                for c in list:
-                    allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],baseline_coefficient)
-                allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
-                if(allclose_result):
-                    if(element not in dict_regional_similar):
-                        dict_regional_similar[element] = []
-                    dict_regional_similar[element].append(element2)
-    to_pop_list = []
-    for element in dict_regional_similar.keys():
-        for element2 in dict_regional_similar.keys():
-            if element in dict_regional_similar[element2]:
-                to_pop_list.append(element)
-    for element in to_pop_list:
-        dict_regional_similar.pop(element,None)
-    print(dict_regional_similar)
-    print("END REGIONAL##############")
-    dict_local_similar = {}
-    for element in list_local:
-        for element2 in list_local:
-            if(element < element2):
-                allclose_result = True
-                for c in list:
-                    allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],baseline_coefficient)
-                allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
-                if(allclose_result):
-                    if(element not in dict_local_similar):
-                        dict_local_similar[element] = []
-                    dict_local_similar[element].append(element2)
-    to_pop_list = []
-    for element in dict_local_similar.keys():
-        for element2 in dict_local_similar.keys():
-            if element in dict_local_similar[element2]:
-                to_pop_list.append(element)
-    for element in to_pop_list:
-        dict_local_similar.pop(element,None)
-    print(dict_local_similar)
-    print("END LOCAL##############")
-    dict_lan_similar = {}
 
-    for element in list_lan:
-        for element2 in list_lan:
-            if(element < element2):
-                allclose_result = True
-                for c in list:
-                    allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],baseline_coefficient)
-                allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
-
-                if(allclose_result):
-                    if(element not in dict_lan_similar):
-                        dict_lan_similar[element] = []
-                    dict_lan_similar[element].append(element2)
-
-    to_pop_list = []
-    for element in dict_lan_similar.keys():
-        for element2 in dict_lan_similar.keys():
-            if element in dict_lan_similar[element2]:
-                to_pop_list.append(element)
-    for element in to_pop_list:
-        dict_lan_similar.pop(element,None)
-    print(dict_lan_similar)
-    print("END LAN ######################")
-    dict_actuator_similar = {}
-
-    for element in list_actuators:
-        for element2 in list_actuators:
-            if(element < element2):
-                allclose_result = True
-                for c in list:
-                    allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],baseline_coefficient)
-                allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
-                if(allclose_result):
-                    if(element not in dict_actuator_similar):
-                        dict_actuator_similar[element] = []
-                    dict_actuator_similar[element].append(element2)
-
-    to_pop_list = []
-    for element in dict_actuator_similar.keys():
-        for element2 in dict_actuator_similar.keys():
-            if element in dict_actuator_similar[element2]:
-                to_pop_list.append(element)
-    for element in to_pop_list:
-        dict_actuator_similar.pop(element,None)
-    print(dict_actuator_similar)
-    print("END ACTUATORS ######################")
-#####################
 parser=argparse.ArgumentParser(description="Parse JSONs from the simulation and the analytical model and merge them in LaTeX.")
 parser.add_argument("-a","--aggregation",help="if node results should be aggregated, default is no aggregation",action="store_true",default=False)
 parser.add_argument("-sim_coef","--similarity_coefficient",help="the similarity coefficient, in percentage, to use when aggregating nodes  default is 0.2",default=0.2,type=float)
 args=parser.parse_args()
 if args.aggregation:
-	similarity_coefficient=args.similarity_coefficient
+	aggregation_flag = True
 else:
-	similarity_coefficient=0.0
-print("#####20%!#####")
-dict_regional_similar = {}
-for element in list_regional:
-    for element2 in list_regional:
-        if(element < element2):
-            allclose_result = True
-            for c in list:
-                allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],similarity_coefficient)
-            allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
-            if(allclose_result):
-                if(element not in dict_regional_similar):
-                    dict_regional_similar[element] = []
-                dict_regional_similar[element].append(element2)
-to_pop_list = []
-for element in dict_regional_similar.keys():
-    for element2 in dict_regional_similar.keys():
-        if element in dict_regional_similar[element2]:
-            to_pop_list.append(element)
-for element in to_pop_list:
-    dict_regional_similar.pop(element,None)
-print(dict_regional_similar)
-print("END REGIONAL##############")
-dict_local_similar = {}
-for element in list_local:
-    for element2 in list_local:
-        if(element < element2):
-            allclose_result = True
-            for c in list:
-                allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],similarity_coefficient)
-            allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
+	aggregation_flag = False
 
-            if(allclose_result):
-                if(element not in dict_local_similar):
-                    dict_local_similar[element] = []
-                dict_local_similar[element].append(element2)
-to_pop_list = []
-for element in dict_local_similar.keys():
-    for element2 in dict_local_similar.keys():
-        if element in dict_local_similar[element2]:
-            to_pop_list.append(element)
-for element in to_pop_list:
-    dict_local_similar.pop(element,None)
-print(dict_local_similar)
-print("END LOCAL##############")
-dict_lan_similar = {}
-
-for element in list_lan:
-    for element2 in list_lan:
-        if(element < element2):
-            allclose_result = True
-            for c in list:
-                allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],similarity_coefficient)
-            allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
-
-            if(allclose_result):
-                if(element not in dict_lan_similar):
-                    dict_lan_similar[element] = []
-                dict_lan_similar[element].append(element2)
-
-to_pop_list = []
-for element in dict_lan_similar.keys():
-    for element2 in dict_lan_similar.keys():
-        if element in dict_lan_similar[element2]:
-            to_pop_list.append(element)
-for element in to_pop_list:
-    dict_lan_similar.pop(element,None)
-print(dict_lan_similar)
-print("END LAN ######################")
-dict_actuator_similar = {}
-
-for element in list_actuators:
-    for element2 in list_actuators:
-        if(element < element2):
-            allclose_result = True
-            for c in list:
-                allclose_result=allclose_result and np.allclose(dict_res[element][c],dict_res[element2][c],similarity_coefficient)
-            allclose_result=allclose_result and dict_res[element]["stable"] == dict_res[element2]["stable"]
-
-            if(allclose_result):
-                if(element not in dict_actuator_similar):
-                    dict_actuator_similar[element] = []
-                dict_actuator_similar[element].append(element2)
-
-to_pop_list = []
-for element in dict_actuator_similar.keys():
-    for element2 in dict_actuator_similar.keys():
-        if element in dict_actuator_similar[element2]:
-            to_pop_list.append(element)
-for element in to_pop_list:
-    dict_actuator_similar.pop(element,None)
-print(dict_actuator_similar)
-print("END ACTUATORS ######################")
-
-############END NEW PART
 
 f_out = open("complete_results.tex", "w")
 #title
@@ -433,18 +247,6 @@ begin_table ="\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc@{}}\n\\to
 complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc|cccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $aggr_t$ & $aggr_e$ & $aggr_c$ & $aggr_b$\\\\"
 semi_complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$\\\\"
 key_union = [];
-for element in dict_regional_similar.keys():
-    for element2 in dict_regional_similar[element]:
-        key_union.append(element2)
-for element in dict_local_similar.keys():
-    for element2 in dict_local_similar[element]:
-        key_union.append(element2)
-for element in dict_lan_similar.keys():
-    for element2 in dict_lan_similar[element]:
-        key_union.append(element2)
-for element in dict_actuator_similar.keys():
-    for element2 in dict_actuator_similar[element]:
-        key_union.append(element2)
 
 with open('../tree_simulator/LP.txt') as f:
     lines = f.readlines()
@@ -481,64 +283,70 @@ to_write+="\n\\subsection{Topology Informations}"
 to_write+=stringAdditionalInfo
 f_out.write(to_write)
 
+dict_regional_similar = {}
+dict_local_similar = {}
+dict_actuator_similar = {}
+dict_lan_similar = {}
 key_union = []
-for element in dict_ids_regional:
-    dict_regional_similar[element] = []
-    for element2 in dict_ids_regional:
-        if(element < element2):
-            if dict_ids_regional[element] == dict_ids_regional[element2]:
-                key_union.append(element2)
-                dict_regional_similar[element].append(element2)
 
-for element in dict_ids_local:
-    dict_local_similar[element] = []
-    for element2 in dict_ids_local:
-        if(element < element2):
-            if dict_ids_local[element] == dict_ids_local[element2]:
-                key_union.append(element2)
-                dict_local_similar[element].append(element2)
+if aggregation_flag:
+    for element in list_regional:
+        dict_regional_similar[element] = []
+        for element2 in dict_ids_regional:
+            if(element < element2):
+                if dict_ids_regional[element] == dict_ids_regional[element2] and dict_res[element]["stable"] == dict_res[element2]["stable"]:
+                    key_union.append(element2)
+                    dict_regional_similar[element].append(element2)
 
-for element in dict_ids_acts:
-    dict_actuator_similar[element] = []
-    for element2 in dict_ids_acts:
-        if(element < element2):
-            if dict_ids_acts[element] == dict_ids_acts[element2]:
-                key_union.append(element2)
-                dict_actuator_similar[element].append(element2)
+    for element in list_local:
+        dict_local_similar[element] = []
+        for element2 in dict_ids_local:
+            if(element < element2):
+                if dict_ids_local[element] == dict_ids_local[element2] and dict_res[element]["stable"] == dict_res[element2]["stable"]:
+                    key_union.append(element2)
+                    dict_local_similar[element].append(element2)
+
+    for element in list_actuators:
+        dict_actuator_similar[element] = []
+        for element2 in dict_ids_acts:
+            if(element < element2):
+                if dict_ids_acts[element] == dict_ids_acts[element2] and dict_res[element]["stable"] == dict_res[element2]["stable"]:
+                    key_union.append(element2)
+                    dict_actuator_similar[element].append(element2)
 
 
-for element in dict_ids_lans:
-    dict_lan_similar[element] = []
-    for element2 in dict_ids_lans:
-        if(element < element2):
-            if dict_ids_lans[element] == dict_ids_lans[element2]:
-                key_union.append(element2)
-                dict_lan_similar[element].append(element2)
+    for element in list_lan:
+        dict_lan_similar[element] = []
+        for element2 in dict_ids_lans:
+            if(element < element2):
+                if dict_ids_lans[element] == dict_ids_lans[element2] and dict_res[element]["stable"] == dict_res[element2]["stable"]:
+                    key_union.append(element2)
+                    dict_lan_similar[element].append(element2)
 
-pop_list = []
-for element in dict_regional_similar:
-    if len(dict_regional_similar[element]) == 0:
-        pop_list.append(element)
-for element in pop_list:
-    dict_regional_similar.pop(element,None)
-pop_list = []
-for element in dict_local_similar:
-    if len(dict_local_similar[element]) == 0:
-        pop_list.append(element)
-for element in pop_list:
-    dict_local_similar.pop(element,None)
-pop_list = []
-for element in dict_actuator_similar:
-    if len(dict_actuator_similar[element]) == 0:
-        pop_list.append(element)
-for element in pop_list:
-    dict_actuator_similar.pop(element,None)
+    pop_list = []
+    for element in dict_regional_similar:
+        if len(dict_regional_similar[element]) == 0:
+            pop_list.append(element)
+    for element in pop_list:
+        dict_regional_similar.pop(element,None)
+    pop_list = []
+    for element in dict_local_similar:
+        if len(dict_local_similar[element]) == 0:
+            pop_list.append(element)
+    for element in pop_list:
+        dict_local_similar.pop(element,None)
+    pop_list = []
+    for element in dict_actuator_similar:
+        if len(dict_actuator_similar[element]) == 0:
+            pop_list.append(element)
+    for element in pop_list:
+        dict_actuator_similar.pop(element,None)
 
-for element in dict_lan_similar:
-    if len(dict_lan_similar[element]) == 0:
-        pop_list.append(element)
-for element in pop_list:
-    dict_lan_similar.pop(element,None)
+    for element in dict_lan_similar:
+        if len(dict_lan_similar[element]) == 0:
+            pop_list.append(element)
+    for element in pop_list:
+        dict_lan_similar.pop(element,None)
 
 f_out.write("\n\\section{Detailed view}\n")
 for element in ordered_id_list:
@@ -564,11 +372,11 @@ for element in ordered_id_list:
             if dict_model[element]['node_type'] == 'local':
                 f_out.write("This node is of : "+dict_ids_local[element]['type']+"\\\\"+"\n")
 
-            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\n")
+            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\\n")
             flagSimilarity = False
             if(element in dict_regional_similar.keys() or element in dict_local_similar.keys()):
                 flagSimilarity = True
-                to_write = "This node has its computed parameters $\\lambda$, utilization factor, service demand, response time similar by " + str(similarity_coefficient*100) + "\% and identical subtree to these other nodes: \\textbf{"
+                to_write = "This node has the same defining characteristics as these other nodes: \\textbf{"
                 if dict_model[element]['node_type'] == 'regional':
                     for similar in dict_regional_similar[element]:
                         to_write+= str(similar)+"; "
@@ -652,11 +460,11 @@ for element in ordered_id_list:
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
             f_out.write("This actuator is of "+dict_ids_acts[element]['type']+"\\\\"+"\n")
-            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
+            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\\n")
             flagSimilarity = False
             if element in dict_actuator_similar.keys():
                 flagSimilarity = True
-                to_write = "This actuator has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by " + str(similarity_coefficient*100) + "\% to these other nodes: \\textbf{"
+                to_write = "This actuator has the same defining characteristics as these other actuators: \\textbf{"
                 for similar in dict_actuator_similar[element]:
                     to_write+= str(similar)+"; "
                 to_write+="}"
@@ -698,11 +506,11 @@ for element in ordered_id_list:
             f_out.write(to_write)
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
-            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\")
+            f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\\n")
             flagSimilarity = False
             if element in dict_lan_similar.keys():
                 flagSimilarity = True
-                to_write = "This LAN has its computed parameters $\\lambda$, utilization factor, service demand and response time similar by "+ str(similarity_coefficient*100) +"\% to these other nodes: \\textbf{"
+                to_write = "This LAN has the same defining characteristics as these other LANs: \\textbf{"
                 for similar in dict_lan_similar[element]:
                     to_write+= str(similar)+"; "
                 to_write+="}"
