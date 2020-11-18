@@ -365,8 +365,8 @@ void print_parameters(node_data* node,node_splitting_classes split_class,node_st
 		fprintf(out,"\"lambda_in\" : %f,",lambda_ins[class]);
 		fprintf(out,"\"service_demand\" : %f,",service_demands[class]);
 		fprintf(out,"\"utilization_factor\" : %f,",utilization_factors[class]);
-		fprintf(out,"\"response_time\" : %f,",response_times_A[class]);
-		fprintf(out,"\"response_time_b\" : %f,",response_times_B[class]);
+		fprintf(out,"\"response_time_a\" : %f,",response_times_A[class]);
+		fprintf(out,"\"response_time\" : %f,",response_times_B[class]);
 		fprintf(out,"\"number_mean_queue\" : %f,",num_mean_events_in_queue[class]);
 		fprintf(out,"\"service_time\" : %f,",service_times[class]);
 		fprintf(out,"\"number_of_visits\" : %d",number_visits[class]);
