@@ -2,6 +2,31 @@ import json
 import numpy as np
 import os.path
 import argparse
+
+def compute_RA_mean(dict, params, string1, dict_similarity):
+  ret = "$"
+  D_string = "service_demand"
+  N_string = "number_mean_queue"
+  flag = True
+  for elem2 in params:
+      temp = dict[element][string1][elem2][D_string] * ( dict[element][string1][elem2][N_string] + 1 )
+      count = 1
+      for dict_sim_element in dict_similarity:
+          temp += dict[dict_sim_element][string1][elem2][D_string] * ( dict[dict_sim_element][string1][elem2][N_string] + 1 )
+          #temp+=dict[dict_sim_element][string1][elem2][string2]
+          count+=1
+
+      total_to_return = f"{temp/count:.4g}"
+      if flag :
+          flag = False
+          ret+= str(total_to_return)
+      else:
+          ret+="$ & $"
+          ret+= str(total_to_return)
+
+  ret+="$"
+  return ret
+
 def result_string_calculation(dict,params, string1, string2, dict_similarity):
     ret = "$"
     flag = True
@@ -11,10 +36,7 @@ def result_string_calculation(dict,params, string1, string2, dict_similarity):
         for dict_sim_element in dict_similarity:
             temp+=dict[dict_sim_element][string1][elem2][string2]
             count+=1
-        if count == 1:
-            total_to_return = temp
-        else:
-            total_to_return = f"{temp/count:.2g}"
+        total_to_return = f"{temp/count:.4g}"
         if flag :
             flag = False
             ret+= str(total_to_return)
@@ -39,7 +61,7 @@ def utilization_factor_total(dict,string1,params,dict_similarity):
         total += total_to_return
     return total
 
-def aux(begin_table,dict,string,dict_similarity):
+def aux(begin_table,dict,string,dict_similarity, flag_simulator):
     table_string = begin_table
     table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
     table_string+= "\\"
@@ -79,11 +101,41 @@ def aux(begin_table,dict,string,dict_similarity):
     f_out.write(to_print)
     
     #total_u = "\\centering Total Utlization Factor = $" +str(total) + "$\n"
-    total_u = "\\centering Total Utilization Factor = $" + f"{total:.2g}" + "$\n"
+    total_u = "\\centering Total Utilization Factor = $" + f"{total:.4g}" + "$\n"
     f_out.write(total_u)
+    
+    
+    f_out.write(begin_table)
+    to_print="$N_t$ & $N_e$ & $N_c$ & $N_b$"
+    to_print+= "\\"
+    to_print+= "\\"
+    to_print+="\n"
+    f_out.write(to_print)
+
+    N_string = result_string_calculation(dict,params, string, 'number_mean_queue',dict_similarity)
+    N_string+="\\\\"
+    to_print = "\\midrule\n"+ N_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
+    f_out.write(to_print)
+    
 
     f_out.write(begin_table)
-    to_print="$R_t$ & $R_e$ & $R_c$ & $R_b$"
+    to_print="$RA_t$ & $RA_e$ & $RA_c$ & $RA_b$"
+    to_print+= "\\"
+    to_print+= "\\"
+    to_print+="\n"
+    f_out.write(to_print)
+
+    if flag_simulator:
+        R_string = compute_RA_mean(dict, params, string, dict_similarity)
+    else:
+        R_string = result_string_calculation(dict,params, string, 'response_time_a',dict_similarity)
+
+    R_string+="\\\\"
+    to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
+    f_out.write(to_print)
+    
+    f_out.write(begin_table)
+    to_print="$RB_t$ & $RB_e$ & $RB_c$ & $RB_b$"
     to_print+= "\\"
     to_print+= "\\"
     to_print+="\n"
@@ -402,26 +454,31 @@ for element in ordered_id_list:
             f_out.write(to_print)
 
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
+
+            flag_simulator = False
+
             f_out.write(table_string)
             if flagSimilarity:
                 if dict_model[element]['node_type'] == 'regional':
-                    aux(begin_table,dict_model,'parameters',dict_regional_similar[element])
+                    aux(begin_table,dict_model,'parameters',dict_regional_similar[element], flag_simulator)
                 elif dict_model[element]['node_type'] == 'local':
-                    aux(begin_table,dict_model,'parameters',dict_local_similar[element])
+                    aux(begin_table,dict_model,'parameters',dict_local_similar[element], flag_simulator)
             else:
-                aux(begin_table,dict_model,'parameters',[])
+                aux(begin_table,dict_model,'parameters',[], flag_simulator)
 
             f_out.write("\\end{minipage}")
 
             table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
+
+            flag_simulator = True
             f_out.write(table_string)
             if flagSimilarity:
                 if dict_model[element]['node_type'] == 'regional':
-                    aux(begin_table,dict_simulator,'parameters',dict_regional_similar[element])
+                    aux(begin_table,dict_simulator,'parameters',dict_regional_similar[element], flag_simulator)
                 elif dict_model[element]['node_type'] == 'local':
-                    aux(begin_table,dict_simulator,'parameters',dict_local_similar[element])
+                    aux(begin_table,dict_simulator,'parameters',dict_local_similar[element], flag_simulator)
             else:
-                aux(begin_table,dict_simulator,'parameters',[])
+                aux(begin_table,dict_simulator,'parameters',[], flag_simulator)
 
             f_out.write("\\end{minipage}")
 
@@ -442,13 +499,15 @@ for element in ordered_id_list:
                 f_out.write(to_print)
 
                 table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
+                flag_simulator = False
                 f_out.write(table_string)
-                aux(begin_table,dict_model,'storage',[])
+                aux(begin_table,dict_model,'storage',[], flag_simulator)
                 f_out.write("\\end{minipage}")
 
                 table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
+                flag_simulator = True
                 f_out.write(table_string)
-                aux(begin_table,dict_simulator,'storage',[])
+                aux(begin_table,dict_simulator,'storage',[], flag_simulator)
                 f_out.write("\\end{minipage}")
 
             f_out.write("\n\\newpage")
@@ -483,19 +542,24 @@ for element in ordered_id_list:
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
             f_out.write(table_string)
 
+            flag_simulator = False
+
             if flagSimilarity:
-                aux(begin_table,dict_model,'parameters',dict_actuator_similar[element])
+                aux(begin_table,dict_model,'parameters',dict_actuator_similar[element], flag_simulator)
             else:
-                aux(begin_table,dict_model,'parameters',[])
+                aux(begin_table,dict_model,'parameters',[], flag_simulator)
 
             f_out.write("\\end{minipage}")
 
             table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
             f_out.write(table_string)
+
+            flag_simulator = True
+
             if flagSimilarity:
-                aux(begin_table,dict_simulator,'parameters',dict_actuator_similar[element])
+                aux(begin_table,dict_simulator,'parameters',dict_actuator_similar[element], flag_simulator)
             else:
-                aux(begin_table,dict_simulator,'parameters',[])
+                aux(begin_table,dict_simulator,'parameters',[], flag_simulator)
             f_out.write("\\end{minipage}")
             f_out.write("\n\\newpage")
 
@@ -529,19 +593,25 @@ for element in ordered_id_list:
 
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
             f_out.write(table_string)
+
+            flag_simulator = False
+
             if flagSimilarity:
-                aux(begin_table,dict_model,'lan_in',dict_lan_similar[element])
+                aux(begin_table,dict_model,'lan_in',dict_lan_similar[element], flag_simulator)
             else:
-                aux(begin_table,dict_model,'lan_in',[])
+                aux(begin_table,dict_model,'lan_in',[], flag_simulator)
 
             f_out.write("\\end{minipage}")
 
             table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
             f_out.write(table_string)
+
+            flag_simulator = True
+
             if flagSimilarity:
-                aux(begin_table,dict_simulator,'lan_in',dict_lan_similar[element])
+                aux(begin_table,dict_simulator,'lan_in',dict_lan_similar[element], flag_simulator)
             else:
-                aux(begin_table,dict_simulator,'lan_in',[])
+                aux(begin_table,dict_simulator,'lan_in',[], flag_simulator)
             f_out.write("\\end{minipage}")
 
             str_to_write = "Lan OUT "
@@ -560,18 +630,24 @@ for element in ordered_id_list:
 
             table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
             f_out.write(table_string)
+
+            flag_simulator = False
+
             if flagSimilarity:
-                aux(begin_table,dict_model,'lan_out',dict_lan_similar[element])
+                aux(begin_table,dict_model,'lan_out',dict_lan_similar[element]), flag_simulator
             else:
-                aux(begin_table,dict_model,'lan_out',[])
+                aux(begin_table,dict_model,'lan_out',[], flag_simulator)
             f_out.write("\\end{minipage}")
 
             table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
             f_out.write(table_string)
+
+            flag_simulator = True
+
             if flagSimilarity:
-                aux(begin_table,dict_simulator,'lan_out',dict_lan_similar[element])
+                aux(begin_table,dict_simulator,'lan_out',dict_lan_similar[element], flag_simulator)
             else:
-                aux(begin_table,dict_simulator,'lan_out',[])
+                aux(begin_table,dict_simulator,'lan_out',[], flag_simulator)
             f_out.write("\\end{minipage}")
             f_out.write("\n\\newpage")
 

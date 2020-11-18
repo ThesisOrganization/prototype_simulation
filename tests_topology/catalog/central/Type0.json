@@ -1,9 +1,9 @@
 {
         "aggregation_rates": {
-            "telemetry": 1,
-            "transition": 1,
-            "command": 1,
-            "batch": 1
+            "telemetry": 5,
+            "transition": 3,
+            "command": 4,
+            "batch": 2
         },
         "service_times": {
           "telemetry": 0.033,

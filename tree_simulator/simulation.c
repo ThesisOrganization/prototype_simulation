@@ -46,6 +46,9 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 	int i;
 	int sum_arrived = 0;
 
+	//uncomment this to use a simulation time max decided a prior
+	//return 0;
+	
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
 		sum_arrived += queue_state->C[i];
 		unsigned int flag = get_flag_from_bitmap(bitmap, i);
@@ -54,12 +57,17 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 			return return_bool;
 		}
 	}
-/*	
+
+	//##############
+	//comment the following to have have elements without elements
+	/*
 	if(sum_arrived == 0){
 		return_bool = 0;
 		return return_bool;
 	}
-*/
+	*/
+	//##############
+
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
 		double R = queue_state->W[i] / queue_state->C[i];
 		double normalization = MAX(R, queue_state->old_response_times[i]);
@@ -511,7 +519,7 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 	double T = queue_state->actual_timestamp_stable[i] - queue_state->start_timestamp[i];
 	double S = queue_state->B_stable[i] / queue_state->C_stable[i];
 	double R = queue_state->W_stable[i] / queue_state->C_stable[i];
-	//double N = queue_state->W_stable[i] / T;
+	double N = queue_state->W_stable[i] / T;
 	double U = queue_state->B_stable[i] / T;
 	double lambda = queue_state->A_stable[i] / T;
 	//double X = queue_state->C_stable[i] / T;
@@ -524,9 +532,12 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 		U = 0.0;
 	if (isnan(-lambda))
 		lambda = 0.0;
+	if (isnan(-N))
+		N = 0.0;
 	fprintf(output_file, "\"service_demand\": %f,", S);
 	fprintf(output_file, "\"response_time\": %f,", R);
 	fprintf(output_file, "\"utilization_factor\": %f,", U);
+	fprintf(output_file, "\"number_mean_queue\": %f,", N);
 	fprintf(output_file, "\"lambda_in\": %f", lambda);
 
 }
@@ -577,6 +588,8 @@ bool OnGVT(int me, lp_state *snapshot)
 		id_device = map.id;
 		index_map = map.content;
 		dev_state = snapshot->devices_array[index_map];
+		
+		//comment the following to avoid printing
 		//if((((long int)dev_state->device_timestamp/100) % 500) == 20)
 		//	printf("LP: %d -> %f\n", me, dev_state->device_timestamp);
 	
