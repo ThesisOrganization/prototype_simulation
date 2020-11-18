@@ -524,10 +524,10 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 		U = 0.0;
 	if (isnan(-lambda))
 		lambda = 0.0;
-	fprintf(output_file, "\"service_demand\": %.3g,", S);
-	fprintf(output_file, "\"response_time\": %.3g,", R);
-	fprintf(output_file, "\"utilization_factor\": %.3g,", U);
-	fprintf(output_file, "\"lambda_in\": %.3g", lambda);
+	fprintf(output_file, "\"service_demand\": %f,", S);
+	fprintf(output_file, "\"response_time\": %f,", R);
+	fprintf(output_file, "\"utilization_factor\": %f,", U);
+	fprintf(output_file, "\"lambda_in\": %f", lambda);
 
 }
 

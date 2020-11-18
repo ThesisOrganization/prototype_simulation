@@ -14,7 +14,7 @@ def result_string_calculation(dict,params, string1, string2, dict_similarity):
         if count == 1:
             total_to_return = temp
         else:
-            total_to_return = f"{temp/count:.4}"
+            total_to_return = f"{temp/count:.2g}"
         if flag :
             flag = False
             ret+= str(total_to_return)
@@ -78,8 +78,8 @@ def aux(begin_table,dict,string,dict_similarity):
     to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
     f_out.write(to_print)
     
-    total_u = "\\centering Total Utlization Factor = $" +str(total) + "$\n"
-    #total_u = "\\centering Total Utlization Factor = $" + f"{total:.4}" + "$\n"
+    #total_u = "\\centering Total Utlization Factor = $" +str(total) + "$\n"
+    total_u = "\\centering Total Utilization Factor = $" + f"{total:.2g}" + "$\n"
     f_out.write(total_u)
 
     f_out.write(begin_table)

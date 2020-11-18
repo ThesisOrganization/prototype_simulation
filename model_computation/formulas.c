@@ -105,11 +105,11 @@ void print_results_in_table(char* elem,int node_id,char* table_type,char* table_
 	//we print the table header
 	print_table_header(num_results,table_header,out);
 	//we print the row of the table (see https://en.wikipedia.org/wiki/Printf_format_string for info on the format)
-	fprintf(out,"$%.3g$",results[0]);
+	fprintf(out,"$%f$",results[0]);
 	for(i=1;i<num_results-1;i++){
-		fprintf(out,"& $%.3g$",results[i]);
+		fprintf(out,"& $%f$",results[i]);
 	}
-	fprintf(out,"& $%.3g$ \\\\\n",results[num_results-1]);
+	fprintf(out,"& $%f$ \\\\\n",results[num_results-1]);
 	fprintf(out,"\\bottomrule\n\\end{tabular}\n\\caption{%s %d %s}\n\\label{tab:%s-%d}\n\\end{table}\n\n",elem,node_id,table_type,elem,node_id);
 }
 
@@ -161,7 +161,7 @@ void print_results(node_data* node,FILE* out){
 		snprintf(table_type,sizeof(char)*128,"utilization factors");
 		snprintf(table_header,sizeof(char)*512,"$U_t$ & $U_e$ & $U_c$ & $U_b$\\\\\n\\midrule\n");
 		print_results_in_table(node->type,node->node_id,table_type,table_header,node->utilization_factors,node->classes,out);
-		fprintf(out,"Total utilization factor: %.3g\\\\\n",node->total_utilization_factor);
+		fprintf(out,"Total utilization factor: %f\\\\\n",node->total_utilization_factor);
 		//we print the response times
 		snprintf(table_type,sizeof(char)*128,"response times");
 		snprintf(table_header,sizeof(char)*512,"$R_t$ & $R_e$ & $R_c$ & $R_b$\\\\\n\\midrule\n");
@@ -169,7 +169,7 @@ void print_results(node_data* node,FILE* out){
 	} else{
 
 		if(getType(node->top)==WAN ){
-			//	fprintf(out,"Delay: $%.3g$",((lp_infos*)getInfo(node->top,node->node_id))->delay);
+			//	fprintf(out,"Delay: $%f$",((lp_infos*)getInfo(node->top,node->node_id))->delay);
 		} else{
 			if(getType(node->top)==SENSOR){
 				//	snprintf(table_type,sizeof(char)*128,"output rates");
@@ -199,7 +199,7 @@ void print_results(node_data* node,FILE* out){
 				snprintf(table_type,sizeof(char)*128,"Lan in utilization factors");
 				snprintf(table_header,sizeof(char)*512,"$U_t$ & $U_e$ & $U_c$ & $U_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->type,node->node_id,table_type,table_header,node->input_utilization_factors,node->classes,out);
-				fprintf(out,"Lan in Total utilization factor: $%.3g$\\\\\n",node->input_total_utilization_factor);
+				fprintf(out,"Lan in Total utilization factor: $%f$\\\\\n",node->input_total_utilization_factor);
 				//we print the response times
 				snprintf(table_type,sizeof(char)*128,"Lan in response times");
 				snprintf(table_header,sizeof(char)*512,"$R_t$ & $R_e$ & $R_c$ & $R_b$\\\\\n\\midrule\n");
@@ -224,7 +224,7 @@ void print_results(node_data* node,FILE* out){
 				snprintf(table_header,sizeof(char)*512,"$U_t$ & $U_e$ & $U_c$ & $U_b$\\\\\n\\midrule\n");
 				snprintf(table_type,sizeof(char)*128,"Lan out utilization factors");
 				print_results_in_table(node->type,node->node_id,table_type,table_header,node->output_utilization_factors,node->classes,out);
-				fprintf(out,"Lan out Total utilization factor: $%.3g$\\\\\n",node->output_total_utilization_factor);
+				fprintf(out,"Lan out Total utilization factor: $%f$\\\\\n",node->output_total_utilization_factor);
 				snprintf(table_type,sizeof(char)*128,"Lan out response times");
 				snprintf(table_header,sizeof(char)*512,"$R_t$ & $R_e$ & $R_c$ & $R_b$\\\\\n\\midrule\n");
 				print_results_in_table(node->type,node->node_id,table_type,table_header,node->output_response_times,node->classes,out);
@@ -255,7 +255,7 @@ void print_results(node_data* node,FILE* out){
 		snprintf(table_type,sizeof(char)*128,"utilization factors");
 		snprintf(table_header,sizeof(char)*512,"$U_t$ & $U_e$ & $U_c$ & $U_b$\\\\\n\\midrule\n");
 		print_results_in_table("Central node storage system ",node->node_id,table_type,table_header,node->storage_utilization_factors,node->classes,out);
-		fprintf(out,"Total utilization factor: %.3g\\\\\n",node->storage_total_utilization_factor);
+		fprintf(out,"Total utilization factor: %f\\\\\n",node->storage_total_utilization_factor);
 		//we print the response times
 		snprintf(table_type,sizeof(char)*128,"response times");
 		snprintf(table_header,sizeof(char)*512,"$R_t$ & $R_e$ & $R_c$ & $R_b$\\\\\n\\midrule\n");
@@ -352,12 +352,12 @@ void print_parameters(node_data* node,node_splitting_classes split_class,node_st
 				break;
 		}
 		//print parameters for that class
-		fprintf(out,"\"lambda_in\" : %.3g,",lambda_ins[class]);
-		fprintf(out,"\"service_demand\" : %.3g,",service_demands[class]);
-		fprintf(out,"\"utilization_factor\" : %.3g,",utilization_factors[class]);
-		fprintf(out,"\"response_time\" : %.3g,",response_times[class]);
+		fprintf(out,"\"lambda_in\" : %f,",lambda_ins[class]);
+		fprintf(out,"\"service_demand\" : %f,",service_demands[class]);
+		fprintf(out,"\"utilization_factor\" : %f,",utilization_factors[class]);
+		fprintf(out,"\"response_time\" : %f,",response_times[class]);
 		if(getType(node->top)!=SENSOR){
-			fprintf(out,"\"service_time\" : %.3g,",service_times[class]);
+			fprintf(out,"\"service_time\" : %f,",service_times[class]);
 		}
 		fprintf(out,"\"number_of_visits\" : %d",number_visits[class]);
 		fprintf(out,"}");
