@@ -273,7 +273,6 @@ def aggr_line(dict,params,string1):
     aggrs['total'] = 0
     for elem2 in params:
         temp = dict[element][string1][elem2][string2]
-        print("TEMP:",temp)
         count = 1
         aggrs[elem2]= f"{temp/count:.4g}"
         aggrs['total']+=temp/count
