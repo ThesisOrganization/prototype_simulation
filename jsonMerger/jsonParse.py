@@ -111,7 +111,7 @@ def aux(dict,dict2,string,dict_similarity):
 
     f_out.write("RB & "+R_string+"& RB\\\\")
 
-    f_out.write("\n\\bottomrule\n\\end{tabular}\n\\end{table}\n")
+    f_out.write("\n\\bottomrule\n\\end{tabular}\n\\end{table}\n\\filbreak\n")
 
 
 
