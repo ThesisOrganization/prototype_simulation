@@ -8,11 +8,20 @@ def compute_RA_mean(dict, params, string1, dict_similarity):
   D_string = "service_demand"
   N_string = "number_mean_queue"
   flag = True
+  total_N = 0
   for elem2 in params:
-      temp = dict[element][string1][elem2][D_string] * ( dict[element][string1][elem2][N_string] + 1 )
+      temp_N = dict[element][string1][elem2][N_string]
       count = 1
       for dict_sim_element in dict_similarity:
-          temp += dict[dict_sim_element][string1][elem2][D_string] * ( dict[dict_sim_element][string1][elem2][N_string] + 1 )
+          temp_N+= dict[dict_sim_element][string1][elem2][N_string]
+          count+=1
+      total_N+=temp_N/count
+
+  for elem2 in params:
+      temp = dict[element][string1][elem2][D_string] * ( total_N + 1 )
+      count = 1
+      for dict_sim_element in dict_similarity:
+          temp += dict[dict_sim_element][string1][elem2][D_string] * ( total_N + 1 )
           #temp+=dict[dict_sim_element][string1][elem2][string2]
           count+=1
 
@@ -99,12 +108,12 @@ def aux(begin_table,dict,string,dict_similarity, flag_simulator):
     U_string+="\\\\"
     to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
     f_out.write(to_print)
-    
+
     #total_u = "\\centering Total Utlization Factor = $" +str(total) + "$\n"
     total_u = "\\centering Total Utilization Factor = $" + f"{total:.4g}" + "$\n"
     f_out.write(total_u)
-    
-    
+
+
     f_out.write(begin_table)
     to_print="$N_t$ & $N_e$ & $N_c$ & $N_b$"
     to_print+= "\\"
@@ -116,7 +125,7 @@ def aux(begin_table,dict,string,dict_similarity, flag_simulator):
     N_string+="\\\\"
     to_print = "\\midrule\n"+ N_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
     f_out.write(to_print)
-    
+
 
     f_out.write(begin_table)
     to_print="$RA_t$ & $RA_e$ & $RA_c$ & $RA_b$"
@@ -133,7 +142,7 @@ def aux(begin_table,dict,string,dict_similarity, flag_simulator):
     R_string+="\\\\"
     to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
     f_out.write(to_print)
-    
+
     f_out.write(begin_table)
     to_print="$RB_t$ & $RB_e$ & $RB_c$ & $RB_b$"
     to_print+= "\\"

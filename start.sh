@@ -10,7 +10,7 @@ quiet="no"
 for arg
 do
 	if [[ $arg == "--aggregated" || $arg == "-a" ]]; then
-			pdf_options=$arg
+			pdf_options="-a"
 	fi
 	if [[ ${arg:0:11} == "--sim_coef=" ]]; then
 		aggr_coeff="-sim_coef "+${arg#"--sim_coef="}
@@ -47,9 +47,9 @@ for filename in tests_topology/*.txt; do
 	echo "Done."
 	echo "Parsing jsons and merging them.."
 	cd ../jsonMerger
-	if [[ $pdf_options == "aggregated" ]]; then
+	if [[ $pdf_options == "-a" ]]; then
 	  echo "...aggregated results."
-	  python3 jsonParse.py -a $aggr_coeff
+	  python3 jsonParse.py -a
 	else
 	  echo "...standard."
 	  python3 jsonParse.py
