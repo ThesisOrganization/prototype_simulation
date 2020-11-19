@@ -460,7 +460,7 @@ for element in ordered_id_list:
                 f_out.write(to_write);
 
                 f_out.write(begin_table)
-                f_out.write(aggr_line(dict_model,params,'parameters'))
+                f_out.write(service_line(dict_model,params,'storage'))
 
                 aux(dict_model,dict_simulator,'storage',[])
 
