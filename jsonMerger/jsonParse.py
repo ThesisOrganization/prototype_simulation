@@ -76,90 +76,44 @@ def utilization_factor_total(dict,string1,params,dict_similarity):
         total += total_to_return
     return total
 
-def aux(begin_table,dict,string,dict_similarity, flag_simulator):
-    table_string = begin_table
-    table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$ & $total$"
-    table_string+= "\\"
-    table_string+= "\\"
-    table_string+="\n"
-    f_out.write(table_string)
+def aux(dict,dict2,string,dict_similarity):
+
+    f_out.write(" \\midrule\\midrule\\multicolumn{12}{c}{\\textbf{Computed Parameters}}\\\\ \\midrule")
+    f_out.write("\\multicolumn{6}{c||}{Analytical Model} & \\multicolumn{6}{c}{Simulated Model}\\\\ \n \\midrule & t & e & c & b & total & t & e & c & b & total &  \\\\ \\midrule")
 
     lambdas_string = result_string_calculation(dict,params, string, 'lambda_in',dict_similarity)
-    lambdas_string+="\\\\"
-    to_print = "\\midrule\n"+ lambdas_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-    f_out.write(to_print)
+    lambdas_string+=" & "+ result_string_calculation(dict2,params, string, 'lambda_in',dict_similarity)
 
-    to_print= begin_table
-    to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$ & $total$"
-    to_print+= "\\"
-    to_print+= "\\"
-    to_print+="\n"
-    f_out.write(to_print)
+    f_out.write("$\\lambda$ &" +lambdas_string+"& $\\lambda$ \\\\")
 
-    D_string = result_string_calculation(dict,params, string, 'service_demand',dict_similarity)
+    D_string_model = result_string_calculation(dict,params, string, 'service_demand',dict_similarity)
+    D_string_simulator =" & "+ result_string_calculation(dict2,params, string, 'service_demand',dict_similarity)
+    D_string = D_string_model + D_string_simulator
+    f_out.write("D & "+D_string+"& D\\\\")
 
-    D_string+="\\\\"
-    to_print = "\\midrule\n"+ D_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-    f_out.write(to_print)
-
-    to_print = begin_table
-    to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$ & $total$"
-    to_print+="\\"
-    to_print+="\\"
-    to_print+="\n"
-    f_out.write(to_print)
-    U_string = result_string_calculation(dict,params, string, 'utilization_factor',dict_similarity)
-    total = utilization_factor_total(dict,string,params,dict_similarity)
-
-    U_string+="\\\\"
-    to_print = "\\midrule\n"+ U_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-    f_out.write(to_print)
-
-    #total_u = "\\centering Total Utlization Factor = $" +str(total) + "$\n"
-    total_u = "\\centering Total Utilization Factor = $" + f"{total:.4g}" + "$\n"
-    f_out.write(total_u)
-
-
-    f_out.write(begin_table)
-    to_print="$N_t$ & $N_e$ & $N_c$ & $N_b$ & $total$"
-    to_print+= "\\"
-    to_print+= "\\"
-    to_print+="\n"
-    f_out.write(to_print)
 
     N_string = result_string_calculation(dict,params, string, 'number_mean_queue',dict_similarity)
-    N_string+="\\\\"
-    to_print = "\\midrule\n"+ N_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-    f_out.write(to_print)
+    N_string+=" & "+ result_string_calculation(dict2,params, string, 'number_mean_queue',dict_similarity)
+    f_out.write("N & "+N_string+"& N\\\\")
 
+    U_string = result_string_calculation(dict,params, string, 'utilization_factor',dict_similarity)
+    U_string+=" & "+ result_string_calculation(dict2,params, string, 'utilization_factor',dict_similarity)
 
-    f_out.write(begin_table)
-    to_print="$RA_t$ & $RA_e$ & $RA_c$ & $RA_b$ & $total$"
-    to_print+= "\\"
-    to_print+= "\\"
-    to_print+="\n"
-    f_out.write(to_print)
+    f_out.write("U & "+U_string+"& U\\\\")
 
-    if flag_simulator:
-        R_string = compute_RA_mean(dict, params, string, dict_similarity)
-    else:
-        R_string = result_string_calculation(dict,params, string, 'response_time_a',dict_similarity)
+    R_string = result_string_calculation(dict,params, string, 'response_time_a',dict_similarity)
+    R_string +=" & "+ compute_RA_mean(dict2, params, string, dict_similarity)
 
-    R_string+="\\\\"
-    to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-    f_out.write(to_print)
-
-    f_out.write(begin_table)
-    to_print="$RB_t$ & $RB_e$ & $RB_c$ & $RB_b$ & $total$"
-    to_print+= "\\"
-    to_print+= "\\"
-    to_print+="\n"
-    f_out.write(to_print)
+    f_out.write("RA & "+R_string+"& \\textcolor{teal}{RA}\\\\")
 
     R_string = result_string_calculation(dict,params, string, 'response_time',dict_similarity)
-    R_string+="\\\\"
-    to_print = "\\midrule\n"+ R_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-    f_out.write(to_print)
+    R_string +=" & "+ result_string_calculation(dict2,params, string, 'response_time',dict_similarity)
+
+    f_out.write("RB & "+R_string+"& RB\\\\")
+
+    f_out.write("\n\\bottomrule\n\\end{tabular}\n\\end{table}\n")
+
+
 
 with open('../tree_simulator/simulation_results.json') as f_simulator:
   data_simulator = json.load(f_simulator)
@@ -308,12 +262,42 @@ else:
 
 f_out = open("complete_results.tex", "w")
 #title
-initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\n\\usepackage[margin=0.5in]{geometry}\n\\title{Results}\n\\author{Silvio Dei Giudici, Marco Morella, Mattia Nicolella}\n\\begin{document}\n\\maketitle\n"
+initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{xcolor}\n\\usepackage{float}\n\\usepackage[margin=0.5in]{geometry}\n\\title{Results}\n\\author{Silvio Dei Giudici, Marco Morella, Mattia Nicolella}\n\\begin{document}\n\\maketitle\n"
 f_out.write(initial_header);
-begin_table ="\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}ccccc@{}}\n\\toprule\n"
-complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}ccccc|ccccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $total$ & $aggr_t$ & $aggr_e$ & $aggr_c$ & $aggr_b$  & $total$\\\\"
-semi_complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}ccccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $total$\\\\"
+
+begin_table = "\\begin{table}[H]\\centering\\begin{tabular}{@{}c|cccc|c||cccc|c|c@{}}\\toprule\\multicolumn{12}{c}{\\textbf{Given Parameters}}\\\\\\midrule\\multicolumn{2}{c|}{ } & \\multicolumn{2}{c}{t} & \\multicolumn{2}{c}{e} & \\multicolumn{2}{c}{c} & \\multicolumn{2}{c}{b} & \\multicolumn{2}{|c}{total} \\\\"
+
+def aggr_line(dict,params,string1):
+    string2 = 'aggregation_rate'
+    aggrs = {}
+    aggrs['total'] = 0
+    for elem2 in params:
+        temp = dict[element][string1][elem2][string2]
+        count = 1
+        aggrs[elem2]= f"{temp/count:.4g}"
+        aggrs['total']+=temp/count
+    aggrs['total'] = f"{aggrs['total']:.4g}"
+    return("\\midrule\\multicolumn{2}{c|}{aggr} & \\multicolumn{2}{c}{"+aggrs['telemetry']+"} & \\multicolumn{2}{c}{"+aggrs['transition']+"} & \\multicolumn{2}{c}{"+aggrs['command']+"} & \\multicolumn{"+aggrs['batch']+"}{c}{2} & \\multicolumn{2}{|c}{"+aggrs['total']+"} \\\\"+service_line(dict,params,string1))
+
+def service_line(dict,params,string1):
+    string2 = 'service_time'
+    serv = {}
+    serv['total'] = 0
+    for elem2 in params:
+        #print(element,string1,elem2,string2)
+        #print(dict[element])
+        temp = dict[element][string1][elem2][string2]
+        count = 1
+        serv[elem2]= f"{temp/count:.4g}"
+        serv['total']+=temp/count
+    serv['total'] = f"{serv['total']:.4g}"
+
+    return(" \\midrule\\multicolumn{2}{c|}{S} & \\multicolumn{2}{c}{"+serv['telemetry']+"} & \\multicolumn{2}{c}{"+serv['transition']+"} & \\multicolumn{2}{c}{"+serv['command']+"} & \\multicolumn{2}{c}{"+serv['batch']+"} & \\multicolumn{2}{|c}{"+serv['total']+"}\\\\")
+
+
+
 key_union = [];
+
 
 with open('../tree_simulator/LP.txt') as f:
     lines = f.readlines()
@@ -456,46 +440,18 @@ for element in ordered_id_list:
                     to_write+="}"
 
                     f_out.write(to_write)
-            table_string = "\\subsubsection{Given parameters}\n"
-            f_out.write(table_string)
-            f_out.write(complete_table)
 
-            return1 = result_string_calculation(dict_model,params, 'parameters', 'service_time',[])
-            return1 +=" & "
-            return1 += result_string_calculation(dict_model,params, 'parameters', 'aggregation_rate',[])
-            return1 +="\\\\"
+            f_out.write(begin_table)
+            f_out.write(aggr_line(dict_model,params,'parameters'))
 
-            to_print = "\n\\midrule\n"+return1+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-            f_out.write(to_print)
-
-            table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-
-            flag_simulator = False
-
-            f_out.write(table_string)
             if flagSimilarity:
                 if dict_model[element]['node_type'] == 'regional':
-                    aux(begin_table,dict_model,'parameters',dict_regional_similar[element], flag_simulator)
+                    print(element)
+                    aux(dict_model,dict_simulator,'parameters',dict_regional_similar[element])
                 elif dict_model[element]['node_type'] == 'local':
-                    aux(begin_table,dict_model,'parameters',dict_local_similar[element], flag_simulator)
+                    aux(dict_model,dict_simulator,'parameters',dict_local_similar[element])
             else:
-                aux(begin_table,dict_model,'parameters',[], flag_simulator)
-
-            f_out.write("\\end{minipage}")
-
-            table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
-
-            flag_simulator = True
-            f_out.write(table_string)
-            if flagSimilarity:
-                if dict_model[element]['node_type'] == 'regional':
-                    aux(begin_table,dict_simulator,'parameters',dict_regional_similar[element], flag_simulator)
-                elif dict_model[element]['node_type'] == 'local':
-                    aux(begin_table,dict_simulator,'parameters',dict_local_similar[element], flag_simulator)
-            else:
-                aux(begin_table,dict_simulator,'parameters',[], flag_simulator)
-
-            f_out.write("\\end{minipage}")
+                aux(dict_model,dict_simulator,'parameters',[])
 
 
             if dict_simulator[element]['node_type'] == 'central' :
@@ -503,27 +459,10 @@ for element in ordered_id_list:
                 to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
                 f_out.write(to_write);
 
-                table_string = "\\subsubsection{Given parameters}\n"
-                f_out.write(table_string)
-                f_out.write(semi_complete_table)
+                f_out.write(begin_table)
+                f_out.write(aggr_line(dict_model,params,'parameters'))
 
-                service_string = result_string_calculation(dict_model,params, 'storage', 'service_time',[])
-                service_string+="\\\\"
-
-                to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-                f_out.write(to_print)
-
-                table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-                flag_simulator = False
-                f_out.write(table_string)
-                aux(begin_table,dict_model,'storage',[], flag_simulator)
-                f_out.write("\\end{minipage}")
-
-                table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
-                flag_simulator = True
-                f_out.write(table_string)
-                aux(begin_table,dict_simulator,'storage',[], flag_simulator)
-                f_out.write("\\end{minipage}")
+                aux(dict_model,dict_simulator,'storage',[])
 
             f_out.write("\n\\newpage")
 
@@ -544,38 +483,13 @@ for element in ordered_id_list:
                 to_write+="}"
                 f_out.write(to_write)
 
-            table_string = "\\subsubsection{Given parameters}\n"
-            f_out.write(table_string)
-            f_out.write(semi_complete_table)
-
-            service_string = result_string_calculation(dict_model,params, 'parameters', 'service_time',[])
-            service_string+="\\\\"
-
-            to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-            f_out.write(to_print)
-
-            table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-            f_out.write(table_string)
-
-            flag_simulator = False
-
+            f_out.write(begin_table)
+            f_out.write(service_line(dict_model,params,'parameters'))
             if flagSimilarity:
-                aux(begin_table,dict_model,'parameters',dict_actuator_similar[element], flag_simulator)
+                aux(dict_model,dict_simulator,'parameters',dict_actuator_similar[element])
             else:
-                aux(begin_table,dict_model,'parameters',[], flag_simulator)
+                aux(dict_model,dict_simulator,'parameters',[])
 
-            f_out.write("\\end{minipage}")
-
-            table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
-            f_out.write(table_string)
-
-            flag_simulator = True
-
-            if flagSimilarity:
-                aux(begin_table,dict_simulator,'parameters',dict_actuator_similar[element], flag_simulator)
-            else:
-                aux(begin_table,dict_simulator,'parameters',[], flag_simulator)
-            f_out.write("\\end{minipage}")
             f_out.write("\n\\newpage")
 
         elif type == 'lan':
@@ -595,75 +509,26 @@ for element in ordered_id_list:
                 to_write+="}"
                 f_out.write(to_write)
 
-            table_string = "\\subsubsection{Given parameters}\n"
-            f_out.write(table_string)
-            f_out.write(semi_complete_table)
-
-            service_string = result_string_calculation(dict_model,params, 'lan_in', 'service_time',[])
-            service_string+="\\\\"
-
-            to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}"
-            to_print+="\n"
-            f_out.write(to_print)
-
-            table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-            f_out.write(table_string)
-
-            flag_simulator = False
-
+            f_out.write(begin_table)
+            f_out.write(service_line(dict_model,params,'lan_in'))
             if flagSimilarity:
-                aux(begin_table,dict_model,'lan_in',dict_lan_similar[element], flag_simulator)
+                aux(dict_model,dict_simulator,'lan_in',dict_lan_similar[element])
             else:
-                aux(begin_table,dict_model,'lan_in',[], flag_simulator)
+                aux(dict_model,dict_simulator,'lan_in',[])
 
-            f_out.write("\\end{minipage}")
-
-            table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
-            f_out.write(table_string)
-
-            flag_simulator = True
-
-            if flagSimilarity:
-                aux(begin_table,dict_simulator,'lan_in',dict_lan_similar[element], flag_simulator)
-            else:
-                aux(begin_table,dict_simulator,'lan_in',[], flag_simulator)
-            f_out.write("\\end{minipage}")
 
             str_to_write = "Lan OUT "
             to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
             f_out.write(to_write);
 
-            table_string = "\\subsubsection{Given parameters}\n"
-            f_out.write(table_string)
-            f_out.write(semi_complete_table)
-
-            service_string = result_string_calculation(dict_model,params, 'lan_out', 'service_time',[])
-            service_string+="\\\\"
-
-            to_print = "\n\\midrule\n"+service_string+ "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n"
-            f_out.write(to_print)
-
-            table_string = "\\subsubsection{Computed parameters}\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Analytical Model}\n"
-            f_out.write(table_string)
-
-            flag_simulator = False
+            f_out.write(begin_table)
+            f_out.write(service_line(dict_model,params,'lan_out'))
 
             if flagSimilarity:
-                aux(begin_table,dict_model,'lan_out',dict_lan_similar[element]), flag_simulator
+                aux(dict_model,dict_simulator,'lan_out',dict_lan_similar[element])
             else:
-                aux(begin_table,dict_model,'lan_out',[], flag_simulator)
-            f_out.write("\\end{minipage}")
+                aux(dict_model,dict_simulator,'lan_out',[])
 
-            table_string = "\n\\begin{minipage}{0.5\\textwidth}\n\\centering	\\textbf{Simulated Model}\n"
-            f_out.write(table_string)
-
-            flag_simulator = True
-
-            if flagSimilarity:
-                aux(begin_table,dict_simulator,'lan_out',dict_lan_similar[element], flag_simulator)
-            else:
-                aux(begin_table,dict_simulator,'lan_out',[], flag_simulator)
-            f_out.write("\\end{minipage}")
             f_out.write("\n\\newpage")
 
 
