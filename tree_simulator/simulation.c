@@ -83,6 +83,7 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 
 void update_stable_metrics(queue_state * queue_state){
 
+	queue_state->W2_stable = queue_state->W2;
 	memcpy(queue_state->C_stable, queue_state->C, sizeof(int)*NUM_OF_JOB_TYPE);
 	memcpy(queue_state->A_stable, queue_state->A, sizeof(int)*NUM_OF_JOB_TYPE);
 	memcpy(queue_state->W_stable, queue_state->W, sizeof(double)*NUM_OF_JOB_TYPE);
@@ -555,7 +556,19 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 	fprintf(output_file, "},");
 	fprintf(output_file, "\"batch\": {");
 	print_class_metrics(queue_state, output_file, BATCH_DATA);
-	fprintf(output_file, "}");
+	//fprintf(output_file, "}");
+	fprintf(output_file, "},");
+	
+	double T = queue_state->actual_timestamp_stable[0] - queue_state->start_timestamp[0];
+	double N_new = queue_state->W2 / T;
+	double N_new_stable = queue_state->W2_stable / T;
+	//fprintf(output_file, "\"N_new\": {%f, %f}", N_new, N_new_stable);
+	if(isinf(N_new))
+		N_new = 0.0;
+	if(isinf(N_new_stable))
+		N_new_stable = 0.0;
+	fprintf(output_file, "\"N_new\": %f,", N_new);
+	fprintf(output_file, "\"N_new_stable\": %f", N_new_stable);
 
 }
 

@@ -22,8 +22,7 @@ static void start_device(unsigned int id_device, simtime_t now, queue_state * qu
 }
 
 static void update_metrics(simtime_t now, queue_state * queue_state, job_info * info){
-
-	queue_state->num_jobs_in_queue++;
+	
 
 	//queue_state->A[info->job_type]++;
 
@@ -36,8 +35,11 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 	if(queue_state->start_timestamp[type] > TRANSITION_TIME_LIMIT){
 
 		queue_state->A_post[type]++;
+		queue_state->W2 += (now - queue_state->last_update_ts) * queue_state->num_jobs_in_queue;
 
 	}
+	queue_state->num_jobs_in_queue++;
+	queue_state->last_update_ts = now;
 }
 
 void arrive_node(unsigned int id_device, simtime_t now, device_state* state, job_info * info, unsigned int id_lp){
