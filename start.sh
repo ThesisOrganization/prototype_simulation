@@ -1,6 +1,7 @@
 #!/bin/bash
 
 platform=$(sed -n '1 p' Simulator/simulator-name)
+run_type="serial"
 sim_options="-q "
 pdf_options=""
 aggr_coeff=""
@@ -22,6 +23,9 @@ do
 		quiet="yes"
 	fi
 	sim_options+=$arg" "
+	if [[ $arg == "parallel" ]]; then
+		run_type="parallel"
+	fi
 done
 
 if [[ $quiet == "no" ]]; then
@@ -59,7 +63,7 @@ for filename in tests_topology/*.txt; do
 	pdflatex complete_results.tex
 	echo "Done."
 	echo "Moving and renaming pdf.."
-	mv complete_results.pdf ../pdf_results/$(date +%H_%M_%S)-$platform-complete_results.pdf
+	mv complete_results.pdf ../pdf_results/$(date +%H_%M_%S)-$platform-$run_type-complete_results.pdf
 	echo "Done."
 	cd ..
 done
