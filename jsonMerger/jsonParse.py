@@ -9,6 +9,7 @@ def compute_RA_mean(dict, params, string1, dict_similarity):
   N_string = "number_mean_queue"
   flag = True
   total_N = 0
+  total=0
   for elem2 in params:
       temp_N = dict[element][string1][elem2][N_string]
       count = 1
@@ -32,13 +33,16 @@ def compute_RA_mean(dict, params, string1, dict_similarity):
       else:
           ret+="$ & $"
           ret+= str(total_to_return)
+      total+=temp/count
 
-  ret+="$"
+  total = f"{total:.4g}"
+  ret+="$ & $"+total+"$"
   return ret
 
 def result_string_calculation(dict,params, string1, string2, dict_similarity):
     ret = "$"
     flag = True
+    total = 0
     for elem2 in params:
         temp = dict[element][string1][elem2][string2]
         count = 1
@@ -52,7 +56,9 @@ def result_string_calculation(dict,params, string1, string2, dict_similarity):
         else:
             ret+="$ & $"
             ret+= str(total_to_return)
-    ret+="$"
+        total+=temp/count
+    total = f"{total:.4g}"
+    ret+="$ & $"+total+"$"
     return ret
 
 def utilization_factor_total(dict,string1,params,dict_similarity):
@@ -72,7 +78,7 @@ def utilization_factor_total(dict,string1,params,dict_similarity):
 
 def aux(begin_table,dict,string,dict_similarity, flag_simulator):
     table_string = begin_table
-    table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$"
+    table_string+="$\\lambda_t$ & $\\lambda_e$ & $\\lambda_c$ & $\\lambda_b$ & $total$"
     table_string+= "\\"
     table_string+= "\\"
     table_string+="\n"
@@ -84,7 +90,7 @@ def aux(begin_table,dict,string,dict_similarity, flag_simulator):
     f_out.write(to_print)
 
     to_print= begin_table
-    to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$"
+    to_print+="$D_t$ & $D_e$ & $D_c$ & $D_b$ & $total$"
     to_print+= "\\"
     to_print+= "\\"
     to_print+="\n"
@@ -97,7 +103,7 @@ def aux(begin_table,dict,string,dict_similarity, flag_simulator):
     f_out.write(to_print)
 
     to_print = begin_table
-    to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$"
+    to_print+="$U_t$ & $U_e$ & $U_c$ & $U_b$ & $total$"
     to_print+="\\"
     to_print+="\\"
     to_print+="\n"
@@ -115,7 +121,7 @@ def aux(begin_table,dict,string,dict_similarity, flag_simulator):
 
 
     f_out.write(begin_table)
-    to_print="$N_t$ & $N_e$ & $N_c$ & $N_b$"
+    to_print="$N_t$ & $N_e$ & $N_c$ & $N_b$ & $total$"
     to_print+= "\\"
     to_print+= "\\"
     to_print+="\n"
@@ -128,7 +134,7 @@ def aux(begin_table,dict,string,dict_similarity, flag_simulator):
 
 
     f_out.write(begin_table)
-    to_print="$RA_t$ & $RA_e$ & $RA_c$ & $RA_b$"
+    to_print="$RA_t$ & $RA_e$ & $RA_c$ & $RA_b$ & $total$"
     to_print+= "\\"
     to_print+= "\\"
     to_print+="\n"
@@ -144,7 +150,7 @@ def aux(begin_table,dict,string,dict_similarity, flag_simulator):
     f_out.write(to_print)
 
     f_out.write(begin_table)
-    to_print="$RB_t$ & $RB_e$ & $RB_c$ & $RB_b$"
+    to_print="$RB_t$ & $RB_e$ & $RB_c$ & $RB_b$ & $total$"
     to_print+= "\\"
     to_print+= "\\"
     to_print+="\n"
@@ -304,9 +310,9 @@ f_out = open("complete_results.tex", "w")
 #title
 initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\n\\usepackage[margin=0.5in]{geometry}\n\\title{Results}\n\\author{Silvio Dei Giudici, Marco Morella, Mattia Nicolella}\n\\begin{document}\n\\maketitle\n"
 f_out.write(initial_header);
-begin_table ="\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc@{}}\n\\toprule\n"
-complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc|cccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $aggr_t$ & $aggr_e$ & $aggr_c$ & $aggr_b$\\\\"
-semi_complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}cccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$\\\\"
+begin_table ="\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}ccccc@{}}\n\\toprule\n"
+complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}ccccc|ccccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $total$ & $aggr_t$ & $aggr_e$ & $aggr_c$ & $aggr_b$  & $total$\\\\"
+semi_complete_table = "\\begin{table}[H]\n\\centering\n\\begin{tabular}{@{}ccccc@{}}\n\\toprule\n$S_t$ & $S_e$ & $S_c$ & $S_b$ & $total$\\\\"
 key_union = [];
 
 with open('../tree_simulator/LP.txt') as f:
