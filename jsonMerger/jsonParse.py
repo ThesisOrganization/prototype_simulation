@@ -464,7 +464,7 @@ for element in ordered_id_list:
 
                 aux(dict_model,dict_simulator,'storage',[])
 
-            f_out.write("\n\\newpage")
+            #f_out.write("\n\\newpage")
 
         elif type == 'actuator':
             str_to_write = "Actuator "
@@ -490,7 +490,7 @@ for element in ordered_id_list:
             else:
                 aux(dict_model,dict_simulator,'parameters',[])
 
-            f_out.write("\n\\newpage")
+           # f_out.write("\n\\newpage")
 
         elif type == 'lan':
 
@@ -529,7 +529,7 @@ for element in ordered_id_list:
             else:
                 aux(dict_model,dict_simulator,'lan_out',[])
 
-            f_out.write("\n\\newpage")
+           # f_out.write("\n\\newpage")
 
 
 f_out.write("\n\\end{document}")
