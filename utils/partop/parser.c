@@ -17,25 +17,11 @@ void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
         char * end_str;
         char * end_ptr;
 
-        if( !strcmp(strings[1], "SCHEDULER1") )
-            nodeTop->scheduler = SCHEDULER1;
-        else if( !strcmp(strings[1], "SCHEDULER2") )
-            nodeTop->scheduler = SCHEDULER2;
-        else if( !strcmp(strings[1], "SCHEDULER3") )
-            nodeTop->scheduler = SCHEDULER3;
-        else
-            exit(EXIT_FAILURE);
-
+        nodeTop->scheduler = atoi(strings[1]);
         if( !strcmp(strings[2], "CENTRAL") ){
             nodeTop->node_type = CENTRAL;
-            if( !strcmp(strings[9], "RAID1") )
-                nodeTop->disk_type = RAID1;
-            else if( !strcmp(strings[8], "RAID2") )
-                nodeTop->disk_type = RAID2;
-            else if( !strcmp(strings[8], "RAID3") )
-                nodeTop->disk_type = RAID3;
-            else
-                exit(EXIT_FAILURE);
+
+            nodeTop->disk_type = atoi(strings[8]);
 
             char * ptr = strtok_r(strings[9], "/", &end_str);
             double * diskServiceArray = malloc((sizeof(double)) * 4); //fixed, 4 type of data.
@@ -101,21 +87,8 @@ void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
         else
             exit(EXIT_FAILURE);
 
-        if( !strcmp(strings[2], "SENSOR_TYPE0") )
-            sensorTop->sensor_type = SENSOR_TYPE0;
-        else if( !strcmp(strings[2], "SENSOR_TYPE1") )
-            sensorTop->sensor_type = SENSOR_TYPE1;
-        else
-            exit(EXIT_FAILURE);
-        if( !strcmp(strings[3], "MEASURE0") ){
-          sensorTop->measure_type = MEASURE0;
-        }
-        else if( !strcmp(strings[3], "MEASURE1") )
-          sensorTop->measure_type = MEASURE1;
-        else if( !strcmp(strings[3], "MEASURE2") )
-          sensorTop->measure_type = MEASURE2;
-        else
-          exit(EXIT_FAILURE);
+        sensorTop->sensor_type = atoi(strings[2]);
+        sensorTop->measure_type = atoi(strings[3]);
 
         sensorTop->id_LAN_up = upperNode;
         this_lpt->spec_top.sensor = sensorTop;
@@ -134,22 +107,9 @@ void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
             actuatorTop->type_job = LOSSY;
         else
             exit(EXIT_FAILURE);
-        if( !strcmp(strings[2], "ACTUATOR_TYPE0") )
-            actuatorTop->actuator_type = ACTUATOR_TYPE0;
-        else if( !strcmp(strings[2], "ACTUATOR_TYPE1") )
-            actuatorTop->actuator_type = ACTUATOR_TYPE1;
-        else
-            exit(EXIT_FAILURE);
 
-        if( !strcmp(strings[3], "MEASURE0") ){
-          actuatorTop->measure_type = MEASURE0;
-        }
-        else if( !strcmp(strings[3], "MEASURE1") )
-            actuatorTop->measure_type = MEASURE1;
-        else if( !strcmp(strings[3], "MEASURE2") )
-            actuatorTop->measure_type = MEASURE2;
-        else
-          exit(EXIT_FAILURE);
+        actuatorTop->actuator_type = atoi(strings[2]);
+        actuatorTop->measure_type = atoi(strings[3]);
 
         actuatorTop->id_LAN_up = upperNode;
 
@@ -166,12 +126,7 @@ void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
 
         this_lpt->lp_type = WAN;
 
-        if( !strcmp(strings[1], "WAN_TYPE0") )
-            actuatorWan->wan_type = WAN_TYPE0;
-        else if( !strcmp(strings[1], "WAN_TYPE1") )
-            actuatorWan->wan_type = WAN_TYPE1;
-        else
-            exit(EXIT_FAILURE);
+        actuatorWan->wan_type = atoi(strings[1]);
 
         double delay = strtod(strings[2], &ptr);
         actuatorWan->delay = delay;
@@ -183,15 +138,8 @@ void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
         lan_topology * actuatorLan = malloc(sizeof(lan_topology));
 
         this_lpt->lp_type = LAN;
-        if( !strcmp(strings[1], "LAN_TYPE0") )
-            actuatorLan->lan_type = LAN_TYPE0;
-        else if( !strcmp(strings[1], "LAN_TYPE1") )
-            actuatorLan->lan_type = LAN_TYPE1;
-        else if( !strcmp(strings[1], "LAN_TYPE2") )
-            actuatorLan->lan_type = LAN_TYPE2;
-        else
-            exit(EXIT_FAILURE);
 
+        actuatorLan->lan_type = atoi(strings[1]);
         double delay = strtod(strings[2], &ptr);
         actuatorLan->delay = delay;
         this_lpt->spec_top.lan = actuatorLan;

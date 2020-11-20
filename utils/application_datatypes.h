@@ -68,50 +68,11 @@ typedef enum _state_type{
 	LAN
 } state_type;
 
-typedef enum _scheduler_type{
-	SCHEDULER1 = 0,
-	SCHEDULER2,
-	SCHEDULER3
-} scheduler_type;
-
-typedef enum _sensor_type{
-	SENSOR_TYPE0 = 0,
-	SENSOR_TYPE1
-} sensor_type;
-
-typedef enum _actuator_type{
-	ACTUATOR_TYPE0 = 0,
-	ACTUATOR_TYPE1
-} actuator_type;
-
 typedef enum _node_type{
 	CENTRAL = 0,
 	REGIONAL,
 	LOCAL
 } node_type;
-
-typedef enum _measure_type{
-	MEASURE0 = 0,
-	MEASURE1,
-	MEASURE2
-} measure_type;
-
-typedef enum _wan_type{
-	WAN_TYPE0 = 0,
-	WAN_TYPE1
-} wan_type;
-
-typedef enum _lan_type{
-	LAN_TYPE0 = 0,
-	LAN_TYPE1,
-	LAN_TYPE2
-} lan_type;
-
-typedef enum _disk_type{
-	RAID1 = 0,
-	RAID2,
-	RAID3
-} disk_type;
 
 typedef struct _node_topology{
 	int node_type;

@@ -16,5 +16,5 @@
         "delay_lower_router": 0.1,
         "prob_command_generated": 0.1,
         "delay_wan": 0.5,
-        "scheduler_type": "SCHEDULER1"
+        "scheduler_type": "1"
 }
