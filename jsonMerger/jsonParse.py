@@ -265,19 +265,16 @@ f_out = open("complete_results.tex", "w")
 initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{xcolor}\n\\usepackage{float}\n\\usepackage[margin=0.5in]{geometry}\n\\title{Results}\n\\author{Silvio Dei Giudici, Marco Morella, Mattia Nicolella}\n\\begin{document}\n\\maketitle\n"
 f_out.write(initial_header);
 
-begin_table = "\\begin{table}[H]\\centering\\begin{tabular}{@{}c|cccc|c||cccc|c|c@{}}\\toprule\\multicolumn{12}{c}{\\textbf{Given Parameters}}\\\\\\midrule\\multicolumn{2}{c|}{ } & \\multicolumn{2}{c}{t} & \\multicolumn{2}{c}{e} & \\multicolumn{2}{c}{c} & \\multicolumn{2}{c}{b} & \\multicolumn{2}{|c}{total} \\\\"
+begin_table = "\\begin{table}[H]\\centering\\begin{tabular}{@{}c|cccc|c||cccc|c|c@{}}\\toprule\\multicolumn{12}{c}{\\textbf{Given Parameters}}\\\\\\midrule\\multicolumn{2}{c|}{ } & \\multicolumn{2}{c}{t} & \\multicolumn{2}{c}{e} & \\multicolumn{2}{c}{c} & \\multicolumn{2}{c}{b} & \\multicolumn{2}{|c}{sum} \\\\"
 
 def aggr_line(dict,params,string1):
     string2 = 'aggregation_rate'
     aggrs = {}
-    aggrs['total'] = 0
     for elem2 in params:
         temp = dict[element][string1][elem2][string2]
         count = 1
         aggrs[elem2]= f"{temp/count:.4g}"
-        aggrs['total']+=temp/count
-    aggrs['total'] = f"{aggrs['total']:.4g}"
-    return("\\midrule\\multicolumn{2}{c|}{aggr} & \\multicolumn{2}{c}{"+aggrs['telemetry']+"} & \\multicolumn{2}{c}{"+aggrs['transition']+"} & \\multicolumn{2}{c}{"+aggrs['command']+"} & \\multicolumn{2}{c}{"+aggrs['batch']+"} & \\multicolumn{2}{|c}{"+aggrs['total']+"} \\\\"+service_line(dict,params,string1))
+    return("\\midrule\\multicolumn{2}{c|}{aggr} & \\multicolumn{2}{c}{"+aggrs['telemetry']+"} & \\multicolumn{2}{c}{"+aggrs['transition']+"} & \\multicolumn{2}{c}{"+aggrs['command']+"} & \\multicolumn{2}{c}{"+aggrs['batch']+"} & \\multicolumn{2}{|c}{ } \\\\"+service_line(dict,params,string1))
 
 def service_line(dict,params,string1):
     string2 = 'service_time'
