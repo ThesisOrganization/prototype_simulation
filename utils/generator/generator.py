@@ -22,15 +22,19 @@ with open("../../"+txt_path) as f:
     central_type = cci[0]
     delay_lower_router_central = cci[1]
     disk_type = cci[2]
+
     dict_amounts_regionals_one_type = {}
     number_of_regionals_amount = lines[1][36:-1]
     number_of_regionals = 0
     number_of_locals = 0
     countReg=0
     dict_total = {}
-    for i in range(int(number_of_regionals_amount)):
+    for i in range(len(lines)-1):
+        if len(lines[i+1]) <= 1:
+            break
         dict_regional_local_amount = {}
-        temp = lines[2+i]
+        temp = lines[i+1]
+        #print(temp)
         reg = temp.split(":")[0].strip()
         loc = temp.split(":")[1].strip()
         reg_type = reg.split(" ")[1].strip() #TypeN
@@ -48,10 +52,6 @@ with open("../../"+txt_path) as f:
             dict_regional_local_amount[splitting[1]] = splitting[0]
         dict_total[countReg] = [reg_amount,reg_type,dict_regional_local_amount]
         countReg+=1
-
-
-    delay_wan = lines[2+int(number_of_regionals_amount)][36:-1]+"\n"
-    weight = lines[3+int(number_of_regionals_amount)][36:-1]
 
 
 f_out_txt.write(str(number_of_regionals)+"\n")
@@ -135,6 +135,14 @@ for i in type_dict['local']:
     local_infos_dict[i]['service_times'] = service_time_local
     local_infos_dict[i]['aggregation_rates'] = aggregation_rates_local
 
+weight = ""
+for type in type_dict['actuator']:
+    with open("../../tests_topology/catalog/actuator/"+type.capitalize()+".json") as act_infos:
+        act_inf = json.load(act_infos)
+        if weight == "":
+            weight+=str(act_inf["weight"])
+        else:
+            weight+=";"+str(act_inf["weight"])
 
 total_sensors = 0
 total_actuators = 0
@@ -274,6 +282,8 @@ for element in central_inf:
         delay_upper_router_central = str(central_inf[element])
     elif element == "delay_lower_router":
         delay_lower_router_central = str(central_inf[element])
+    elif element == "delay_wan":
+        delay_wan_central = str(central_inf[element])
     else:
         inner_count = 0
         for element2 in central_inf[element]:
@@ -325,7 +335,8 @@ for i in type_dict['regional']:
             dict_regional[i][element] = str(regional_inf[element])
         elif element == "delay_lower_router":
             dict_regional[i][element] = str(regional_inf[element])
-
+        elif element == "delay_wan":
+            dict_regional[i][element] = str(regional_inf[element])
         else:
             inner_count = 0
             for element2 in regional_inf[element]:
@@ -340,7 +351,7 @@ for i in type_dict['regional']:
 
 to_write ="0;-1;10;NODE,"+central_scheduler+",CENTRAL,"+aggregation_rates_central+","+delay_upper_router_central+","+delay_lower_router_central+","
 to_write+=service_time_central+","+prob_command_generated_central+","+disk_type_string+","+service_time_disk+"\n"
-associated_wan_down =str(id_wan_central)+";0;3;WAN,WAN_TYPE0,"+delay_wan
+associated_wan_down =str(id_wan_central)+";0;3;WAN,WAN_TYPE0,"+delay_wan_central+"\n"
 f_out.write(to_write)
 LP_index = 0
 LP_start_list="0"+","+str(id_wan_central)+","
@@ -376,7 +387,7 @@ for i in range(countReg):
 
         regional_string = str(index)+";"+regional_type_now#regional id, type, #below local of each type
 
-        associated_wan_down +=str(wan_id)+";"+str(index)+";3;WAN,WAN_TYPE0,"+delay_wan
+        associated_wan_down +=str(wan_id)+";"+str(index)+";3;WAN,WAN_TYPE0,"+dict_regional[regional_type_now]['delay_wan']+"\n"
         #to_write = str(LP_index)+";"+str(2)+";"+str(index)+","+str(wan_id)+"\n"counter_elements
         #f_out_LP.write(to_write)
 
