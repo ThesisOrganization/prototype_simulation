@@ -79,7 +79,7 @@ def utilization_factor_total(dict,string1,params,dict_similarity):
 def aux(dict,dict2,string,dict_similarity):
 
     f_out.write(" \\midrule\\midrule\\multicolumn{12}{c}{\\textbf{Computed Parameters}}\\\\ \\midrule")
-    f_out.write("\\multicolumn{6}{c||}{Analytical Model} & \\multicolumn{6}{c}{Simulated Model}\\\\ \n \\midrule & t & e & c & b & total & t & e & c & b & total &  \\\\ \\midrule")
+    f_out.write("\\multicolumn{6}{c||}{Analytical Model} & \\multicolumn{6}{c}{Simulated Model}\\\\ \n \\midrule & t & e & c & b & sum & t & e & c & b & sum &  \\\\ \\midrule")
 
     lambdas_string = result_string_calculation(dict,params, string, 'lambda_in',dict_similarity)
     lambdas_string+=" & "+ result_string_calculation(dict2,params, string, 'lambda_in',dict_similarity)
