@@ -68,50 +68,11 @@ typedef enum _state_type{
 	LAN
 } state_type;
 
-typedef enum _scheduler_type{
-	SCHEDULER1 = 0,
-	SCHEDULER2,
-	SCHEDULER3
-} scheduler_type;
-
-typedef enum _sensor_type{
-	SENSOR_TYPE0 = 0,
-	SENSOR_TYPE1
-} sensor_type;
-
-typedef enum _actuator_type{
-	ACTUATOR_TYPE0 = 0,
-	ACTUATOR_TYPE1
-} actuator_type;
-
 typedef enum _node_type{
 	CENTRAL = 0,
 	REGIONAL,
 	LOCAL
 } node_type;
-
-typedef enum _measure_type{
-	MEASURE0 = 0,
-	MEASURE1,
-	MEASURE2
-} measure_type;
-
-typedef enum _wan_type{
-	WAN_TYPE0 = 0,
-	WAN_TYPE1
-} wan_type;
-
-typedef enum _lan_type{
-	LAN_TYPE0 = 0,
-	LAN_TYPE1,
-	LAN_TYPE2
-} lan_type;
-
-typedef enum _disk_type{
-	RAID1 = 0,
-	RAID2,
-	RAID3
-} disk_type;
 
 typedef struct _node_topology{
 	int node_type;
@@ -289,6 +250,9 @@ typedef struct _queue_state {
 	int num_cores; ///max number of current jobs running
 	int num_running_jobs; ///number of the current jobs that are handled by the multi core
 	int num_jobs_in_queue;
+	simtime_t last_update_ts;
+	double W2;
+	double W2_stable;
 	//METRICS, from slide 4, single queue modeling, CP
 	//note that these values are computed with the values after the last finish event before the termination
 	int * A; //number of jobs arrived (arrivals)

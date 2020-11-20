@@ -122,7 +122,6 @@ static int get_id_random_actuator(unsigned int id_device, device_state  * state)
 
 static void update_metrics(simtime_t now, queue_state * queue_state, job_info * info, int core){
 
-	queue_state->num_jobs_in_queue--;
 
 	//printf("%d\n", queue_state->C);
 	//printf("%d\n", info->job_type);
@@ -132,6 +131,8 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 
 	if(queue_state->start_timestamp[type] > TRANSITION_TIME_LIMIT){
 
+		queue_state->W2 += (now - queue_state->last_update_ts) * queue_state->num_jobs_in_queue;
+		
 		queue_state->C[type]++;
 		queue_state->B[type] += now - queue_state->start_processing_timestamp[core];
 		queue_state->W[type] += now - info->arrived_in_node_timestamp;
@@ -140,17 +141,19 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 
 		if(type == REPLY){
 
-			queue_state->C[TRANSITION]++;
-			queue_state->B[TRANSITION] += info->busy_time_transition;
-			queue_state->W[TRANSITION] += info->waiting_time_transition;
+			//queue_state->C[TRANSITION]++; //(TO USE FOR REPLY UPDATE ALTERNATIVE)
+			//queue_state->B[TRANSITION] += info->busy_time_transition; //(TO USE FOR REPLY UPDATE ALTERNATIVE)
+			//queue_state->W[TRANSITION] += info->waiting_time_transition; //(TO USE FOR REPLY UPDATE ALTERNATIVE)
 			queue_state->B[TRANSITION] += now - queue_state->start_processing_timestamp[core];
 			queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
-			queue_state->A[TRANSITION] = queue_state->A_post[TRANSITION];
+			//queue_state->A[TRANSITION] = queue_state->A_post[TRANSITION]; //(TO USE FOR REPLY UPDATE ALTERNATIVE)
 			queue_state->actual_timestamp[TRANSITION] = now;
 
 		}
 
 	}
+	queue_state->num_jobs_in_queue--;
+	queue_state->last_update_ts = now;
 
 }
 
@@ -239,7 +242,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 	double waiting_time_transition = now - info->arrived_in_node_timestamp;
 
 	//Update metrics
-	if(!( info->job_type == TRANSITION && (state->info.node->type == LOCAL || state->info.node->type == REGIONAL) ))
+	//if(!( info->job_type == TRANSITION && (state->info.node->type == LOCAL || state->info.node->type == REGIONAL) )) //(TO USE FOR REPLY UPDATE ALTERNATIVE)
 		update_metrics(now, state->info.node->queue_state, info, core);
 
 
@@ -274,9 +277,9 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 			send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp);
 			
 			//###################################################
-			//UPDATE TRANSITION METRICS
-			if(state->info.node->type == LOCAL || state->info.node->type == REGIONAL)
-				update_metrics(now, state->info.node->queue_state, info, core);
+			//UPDATE TRANSITION METRICS (TO USE FOR REPLY UPDATE ALTERNATIVE)
+			//if(state->info.node->type == LOCAL || state->info.node->type == REGIONAL) //(TO USE FOR REPLY UPDATE ALTERNATIVE)
+			//	update_metrics(now, state->info.node->queue_state, info,core); //(TO USE FOR REPLY UPDATE ALTERNATIVE)
 
 		}
 		else{

@@ -39,6 +39,7 @@ static void init_metrics(queue_state * queue_state, int num_cores){
 	queue_state->B_stable = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
 	queue_state->actual_timestamp_stable = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
 	
+	queue_state->W2 = 0.0;
 	for(int i=0; i < NUM_OF_JOB_TYPE; i++){
 	
 	    queue_state->C[i] = 0;
