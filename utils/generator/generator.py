@@ -351,7 +351,7 @@ for i in type_dict['regional']:
 
 to_write ="0;-1;10;NODE,"+central_scheduler+",CENTRAL,"+aggregation_rates_central+","+delay_upper_router_central+","+delay_lower_router_central+","
 to_write+=service_time_central+","+prob_command_generated_central+","+disk_type_string+","+service_time_disk+"\n"
-associated_wan_down =str(id_wan_central)+";0;3;WAN,WAN_TYPE0,"+delay_wan_central+"\n"
+associated_wan_down =str(id_wan_central)+";0;3;WAN,0,"+delay_wan_central+"\n"
 f_out.write(to_write)
 LP_index = 0
 LP_start_list="0"+","+str(id_wan_central)+","
@@ -387,7 +387,7 @@ for i in range(countReg):
 
         regional_string = str(index)+";"+regional_type_now#regional id, type, #below local of each type
 
-        associated_wan_down +=str(wan_id)+";"+str(index)+";3;WAN,WAN_TYPE0,"+dict_regional[regional_type_now]['delay_wan']+"\n"
+        associated_wan_down +=str(wan_id)+";"+str(index)+";3;WAN,0,"+dict_regional[regional_type_now]['delay_wan']+"\n"
         #to_write = str(LP_index)+";"+str(2)+";"+str(index)+","+str(wan_id)+"\n"counter_elements
         #f_out_LP.write(to_write)
 
@@ -435,7 +435,7 @@ for i in range(countReg):
                     amount_count = 0
                     while amount_count < amount:
                         associated_lan_down+=str(lan_id)
-                        associated_lan_down+=";"+str(indexLocal)+";3;LAN,LAN_TYPE"+type_lan+","+str(dict_lan_delay[type_lan])+"\n" #here need type, delay_lan_list[type]
+                        associated_lan_down+=";"+str(indexLocal)+";3;LAN,"+type_lan+","+str(dict_lan_delay[type_lan])+"\n" #here need type, delay_lan_list[type]
                         LP_start_list+=","+str(lan_id)
                         if lan_string == "":
                             lan_string+=str(indexLocal)+","+str(lan_id)+",Type"+type_lan
@@ -455,7 +455,7 @@ for i in range(countReg):
 
                                 while inner_sens_count < local_infos_dict[local_types]['lan'][lans]['sensor'][sens_type]:
                                     inner_sensor_count = 0
-                                    sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,"+dict_sensors[sens_type]['job_type']+",SENSOR_"+str(sens_type).upper()+","+dict_sensors[sens_type]['measure_type']+"\n"
+                                    sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,"+dict_sensors[sens_type]['job_type']+","+str(sens_type)[4:]+","+dict_sensors[sens_type]['measure_type']+"\n"
                                     LP_start_list+=","+str(sensors_start)
 
                                     counter_elements+=1
@@ -472,7 +472,7 @@ for i in range(countReg):
                                     son_list+="."+act_type+"/"+str(local_infos_dict[local_types]['lan'][lans]['actuator'][act_type])
 
                                 while inner_act_count < local_infos_dict[local_types]['lan'][lans]['actuator'][act_type]:
-                                    sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,"+dict_actuators[act_type]['job_type']+",ACTUATOR_"+str(act_type).upper()+","+dict_actuators[act_type]['measure_type']+","+str(dict_actuators[act_type]['rate_trans_act'])+","+str(dict_actuators[act_type]['service_time_commands_act'])+"\n"
+                                    sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,"+dict_actuators[act_type]['job_type']+","+str(act_type)[4:]+","+dict_actuators[act_type]['measure_type']+","+str(dict_actuators[act_type]['rate_trans_act'])+","+str(dict_actuators[act_type]['service_time_commands_act'])+"\n"
                                     if act_string == "":
                                         act_string+=str(lan_id)+","+str(sensors_start)+","+str(act_type)
                                     else:
