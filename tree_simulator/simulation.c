@@ -520,15 +520,15 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 	double lambda = queue_state->A_stable[i] / T;
 	//double X = queue_state->C_stable[i] / T;
 
-	if (isnan(-S))
+	if (isnan(S))
 		S = 0.0;
-	if (isnan(-R))
+	if (isnan(R))
 		R = 0.0;
-	if (isnan(-U))
+	if (isnan(U))
 		U = 0.0;
-	if (isnan(-lambda))
+	if (isnan(lambda))
 		lambda = 0.0;
-	if (isnan(-N))
+	if (isnan(N))
 		N = 0.0;
 	fprintf(output_file, "\"service_demand\": %f,", S);
 	fprintf(output_file, "\"response_time\": %f,", R);
@@ -558,9 +558,9 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 	double N_new = queue_state->W2 / T;
 	double N_new_stable = queue_state->W2_stable / T;
 	//fprintf(output_file, "\"N_new\": {%f, %f}", N_new, N_new_stable);
-	if(isinf(N_new))
+	if(isinf(N_new) || isnan(N_new))
 		N_new = 0.0;
-	if(isinf(N_new_stable))
+	if(isinf(N_new_stable) || isnan(N_new_stable))
 		N_new_stable = 0.0;
 	fprintf(output_file, "\"N_new\": %f,", N_new);
 	fprintf(output_file, "\"N_new_stable\": %f", N_new_stable);
