@@ -19,4 +19,4 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	$(RM) *.o *.o.rs $(TARGET)
+	$(RM) $(SRCS:.c=.o) $(SRCS:.c=.o.rs) $(TARGET)
