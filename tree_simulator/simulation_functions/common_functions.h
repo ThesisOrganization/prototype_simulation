@@ -8,7 +8,11 @@
 #include "../../utils/message/message.h"
 #include "../simulation.h"
 
+#define FREEJOB_NOTFOUND -1
+
 void fill_job_info(job_info * info, double arrived_in_node_timestamp, double deadline, job_type job_type, int device_sender, double busy_time_transition, double waiting_time_transition, int device_destination);
+
+int get_free_core(job_info * current_jobs, int num_cores);
 
 /*
 #define DEBUG

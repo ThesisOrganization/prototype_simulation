@@ -163,7 +163,7 @@ static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state
 	job_info array_job_info[num_job_in_array];
 	int ret_schedule = schedule_out(queue_state->queues, array_job_info, num_job_in_array);
 	
-	//queue_state->current_job.job_type = INVALID_JOB; //adesso diventa num_current_job--;
+	queue_state->current_jobs[core].job_type = INVALID_JOB; ///set the actual core to free. It will be overwrite if there is a job in queue that can be served
 	queue_state->num_running_jobs--;
 	
 	if(ret_schedule == SCHEDULE_DONE){

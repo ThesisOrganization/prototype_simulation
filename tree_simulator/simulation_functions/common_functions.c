@@ -12,3 +12,17 @@ void fill_job_info(job_info * info, double arrived_in_node_timestamp, double dea
 	info->device_destination = device_destination;
 	
 }
+
+
+int get_free_core(job_info * current_jobs, int num_cores){
+	
+	for(int i = 0; i < num_cores; i++){
+		
+		if(current_jobs[i].job_type == INVALID_JOB)
+			return i;
+		
+	}
+	
+	return FREEJOB_NOTFOUND; //free job not found
+	
+}

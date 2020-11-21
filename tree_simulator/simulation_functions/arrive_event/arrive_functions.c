@@ -5,14 +5,20 @@ static void start_device(unsigned int id_device, simtime_t now, queue_state * qu
 	if(queue_state->num_running_jobs < queue_state->num_cores){
 	//if(queue_state->current_job.job_type == INVALID_JOB){
 
-		queue_state->current_jobs[queue_state->num_running_jobs] = *info; //usa indice num_current_jobs
-		queue_state->start_processing_timestamp[queue_state->num_running_jobs] = now; //usa indice num_current_jobs
+		int free_core = get_free_core(queue_state->current_jobs, queue_state->num_cores);
+		if(free_core == FREEJOB_NOTFOUND){
+			printf("WARNING: free job found but the num_running_jobs is lower\n");
+			exit(EXIT_FAILURE);
+		}
+		
+		queue_state->current_jobs[free_core] = *info; 
+		queue_state->start_processing_timestamp[free_core] = now;
 
 		double rate = service_rates[info->job_type];
 		simtime_t ts_finish = now + Expent(rate);
 		message_finish msg;
 		msg.header.element_id = id_device;
-		msg.core = queue_state->num_running_jobs;
+		msg.core = free_core;
 		msg.direction = direction;
 		ScheduleNewEvent(id_lp, ts_finish, event_to_trigger, &msg, sizeof(message_finish));
 		
