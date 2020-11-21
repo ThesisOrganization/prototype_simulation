@@ -588,7 +588,7 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 		N_new_stable = 0.0;
 	
 	//T = get_minmax_ts(queue_state->actual_timestamp_stable, NUM_OF_JOB_TYPE - 1, GET_MAX) - get_minmax_ts(queue_state->start_timestamp, NUM_OF_JOB_TYPE - 1, GET_MIN);
-	double U_global = queue_state->B_global_stable / T;
+	double U_global = queue_state->B_global_stable / (T * queue_state->num_cores);
 	if(isinf(U_global) || isnan(U_global))
 		U_global = 0.0;
 	
