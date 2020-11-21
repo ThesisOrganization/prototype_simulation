@@ -575,7 +575,7 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 	print_class_metrics(queue_state, output_file, BATCH_DATA);
 	//fprintf(output_file, "}");
 	fprintf(output_file, "},");
-	
+
 	double T = queue_state->global_actual_timestamp_stable - queue_state->global_start_timestamp;
 	
 	//double T = queue_state->actual_timestamp_stable[0] - queue_state->start_timestamp[0];

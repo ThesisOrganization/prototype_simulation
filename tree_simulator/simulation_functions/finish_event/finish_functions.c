@@ -130,6 +130,8 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 	job_type type = info->job_type;
 
 	if(queue_state->start_timestamp[type] > TRANSITION_TIME_LIMIT){
+		
+		queue_state->global_actual_timestamp = now;
 
 		queue_state->B_global += now - queue_state->last_timestamp_B_global;
 		queue_state->last_timestamp_B_global = now;

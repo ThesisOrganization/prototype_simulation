@@ -21,9 +21,9 @@ void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
         if( !strcmp(strings[2], "CENTRAL") ){
             nodeTop->node_type = CENTRAL;
 
-            nodeTop->disk_type = atoi(strings[8]);
+            nodeTop->disk_type = atoi(strings[9]);
 
-            char * ptr = strtok_r(strings[9], "/", &end_str);
+            char * ptr = strtok_r(strings[10], "/", &end_str);
             double * diskServiceArray = malloc((sizeof(double)) * 4); //fixed, 4 type of data.
             counter = 0;
             while(ptr){
