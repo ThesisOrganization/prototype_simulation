@@ -160,13 +160,13 @@ typedef struct _general_topology{
 } general_topology;
 
 typedef struct _Element_topology{
+	int id;
   state_type lp_type;
   int upperNode;
   int numberOfLowerElements;
   int * lowerElements;
   int numberOfLANS;
   int * connectedLans;
-  //int * actuatorPaths;
   int numValidActuatorPaths;
   idmap * actuatorPaths;
   int numValidElToLP;

@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -g -fsanitize=address
-SRCS = parser.c topology.c ../idmap/idmap_quick_sort.c ../idmap/idmap.c
+SRCS = parser.c topology.c ../idmap/idmap_quick_sort.c ../idmap/idmap.c binaryParse.c binaryGenerate.c
 OBJS = $(SRCS:.c=.o)
 HEADERS = header.h ../idmap/idmap.h
 MAIN = driver

@@ -21,6 +21,7 @@ int getNumLP(lp_topology * lptop);
 //for idmap Ele->LP
 int getNumValid(lp_topology * lptop);
 //returns how many elements the LP index has mapped into.
+int * getAmountsOfElements(lp_topology * lptop);
 int getAmountsOfElementsInOneLP(lp_topology * lptop,int index);
 //specific topology
 
@@ -135,6 +136,15 @@ void destroyGeneralTopology(general_topology * gn);
 void destroyElementTopologyArray(Element_topology ** lpt,int total_elements);
 void destroyTotalTopology(total_topology * totTop);
 
+//parseBin
+Element_topology ** parseBinaryElementTopology(int id, int numElements);
+general_topology * parseBinaryGeneralTopology();
+lp_topology * parseBinaryLpTopology();
+
+void generateBinaries_elementTopology(general_topology * genTop,total_topology * totTop, int * elonelp, int a, int num);
+void generateBinaries_generalTopology(total_topology * totTop);
+void generateBinaries_lpTopology(lp_topology * lpTop,int totalElements);
+void generateBinaries(general_topology * genTop,total_topology * totTop,int totalElements, lp_topology * lpTop);
 
 
 #endif /* HEADER_H */

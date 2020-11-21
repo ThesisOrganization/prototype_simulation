@@ -13,6 +13,9 @@ Element_topology ** getLPTopologyComplete(total_topology * totTop){
 Element_topology * getLPTopology(total_topology * totTop, int index){
   return(totTop->lpt[index]);
 }
+int * getAmountsOfElements(lp_topology * lptop){
+  return(lptop->amountsOfElementsInLP);
+}
 int  getAmountsOfElementsInOneLP(lp_topology * lptop,int index){
   return(lptop->amountsOfElementsInLP[index]);
 }

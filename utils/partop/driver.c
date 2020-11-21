@@ -86,6 +86,19 @@ int main()
       printf(".\n");
     }
     int lp_type = getType(temp_lpt);
+    //char topology_path[] = "./topology.txt";
+    char file_name[] = "bin/lp";
+    //char end_file_name[] = ".json";
+
+
+    char file_name_complete[64];
+    sprintf(file_name_complete, "%s%d" ,file_name,i);
+
+    FILE * output_file = fopen(file_name_complete, "w");
+    fwrite(&i, sizeof(int), 1, output_file);
+
+    fclose(output_file);
+
     if(lp_type == 0){//node
       int node_type = getNodeType(temp_lpt);
       printf("Node %d has this type: %d.\n",i,node_type);
@@ -346,5 +359,22 @@ int main()
   */
 
   destroyTotalTopology(totTop);
+
+  for(int i = 0; i < totalElements; i++){
+    int intero;
+    char file_name[] = "bin/lp";
+    //char end_file_name[] = ".json";
+
+    char file_name_complete[64];
+    sprintf(file_name_complete, "%s%d" ,file_name,i);
+    printf("file name %s\n",file_name_complete);
+    FILE * output_file = fopen(file_name_complete, "r");
+    fread(&intero, sizeof(Element_topology*), 1, output_file);
+
+    printf("Upper node %d\n",intero);
+    //int type = getType(temp_lpt);
+    //printf("%d \n",type);
+    fclose(output_file);
+  }
 
 }
