@@ -3,7 +3,9 @@
 static void start_device(unsigned int id_device, simtime_t now, queue_state * queue_state, double * service_rates, job_info * info, lan_direction direction, events_type event_to_trigger, unsigned int id_lp){
 
 	if(queue_state->num_running_jobs < queue_state->num_cores){
-	//if(queue_state->current_job.job_type == INVALID_JOB){
+		
+		if(queue_state->num_running_jobs == 0)
+			queue_state->last_timestamp_B_global = now;
 
 		int free_core = get_free_core(queue_state->current_jobs, queue_state->num_cores);
 		if(free_core == FREEJOB_NOTFOUND){
@@ -38,8 +40,11 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 
 	job_type type = info->job_type;
 
-	if(queue_state->start_timestamp[type] <= TRANSITION_TIME_LIMIT && now > TRANSITION_TIME_LIMIT)
+	if(queue_state->start_timestamp[type] <= TRANSITION_TIME_LIMIT && now > TRANSITION_TIME_LIMIT){
 		queue_state->start_timestamp[type] = now;
+		if(queue_state->global_start_timestamp == VALUE_NOT_SET)
+			queue_state->global_start_timestamp = now;
+	}
 
 
 	if(queue_state->start_timestamp[type] > TRANSITION_TIME_LIMIT){

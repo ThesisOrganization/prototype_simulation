@@ -12,6 +12,21 @@ def print_warning(a,b):
 
 PERCENTAGE_CHECK = 10.0
 
+def compare_U(a, b):
+    U_sum = 0.0
+    for k in ["telemetry", "transition", "command", "batch"]:
+        U_sum += b[k]["utilization_factor"]
+
+    percentage = (abs(a - U_sum) / max(a, U_sum) ) * 100.0
+    if(percentage > PERCENTAGE_CHECK):
+        print_warning(a, U_sum)
+        print("Percentage: ", end="")
+        print(percentage)
+        return True
+    return False
+
+
+
 def compare_values(a, b):
 
     warning_check = False
@@ -51,13 +66,16 @@ def compare_dicts(a, b):
         warning_check_final = warning_check
         return warning_check_final
 
-    if(len(a) != len(b)):
+    if((len(a) != len(b) and "U_global" not in a) or ((len(a) != len(b) + 1 and "U_global" in a))):
         print("ERROR: len(a) != len(b)!")
         warning_check = True
         return warning_check_final
 
     for k in a:
-        warning_check = compare_dicts(a[k], b[k])
+        if k == "U_global":
+            warning_check = compare_U(a[k], b)
+        else:
+            warning_check = compare_dicts(a[k], b[k])
         if warning_check:
             print(k, end="")
             print(", ", end="")

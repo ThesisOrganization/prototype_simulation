@@ -21,13 +21,20 @@ static queue_conf** create_new_queues(int num_queues){
 
 static void init_metrics(queue_state * queue_state, int num_cores){
 	
+	queue_state->global_actual_timestamp = VALUE_NOT_SET;
+	queue_state->global_actual_timestamp_stable = VALUE_NOT_SET;
+	queue_state->global_start_timestamp = VALUE_NOT_SET;
+	
 	queue_state->current_jobs = malloc(sizeof(job_info)*num_cores);
 	queue_state->start_processing_timestamp = malloc(sizeof(simtime_t)*num_cores);
 	
 	for(int j=0; j < num_cores; j++){
 		queue_state->current_jobs[j].job_type = INVALID_JOB;
-		queue_state->start_processing_timestamp[j] = -1.0;
+		queue_state->start_processing_timestamp[j] = VALUE_NOT_SET;
 	}
+	
+	queue_state->B_global = 0.0;
+	queue_state->B_global_stable = VALUE_NOT_SET;
 	
 	queue_state->C = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
 	queue_state->A = malloc(sizeof(int)*NUM_OF_JOB_TYPE);

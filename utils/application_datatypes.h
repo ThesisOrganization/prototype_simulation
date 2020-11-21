@@ -250,6 +250,15 @@ typedef struct _queue_state {
 	int num_cores; ///max number of current jobs running
 	int num_running_jobs; ///number of the current jobs that are handled by the multi core
 	int num_jobs_in_queue;
+	//global statistics
+	double global_actual_timestamp;
+	double global_actual_timestamp_stable;
+	double global_start_timestamp;
+	//multi-core metrics
+	double B_global;
+	double B_global_stable;
+	double last_timestamp_B_global;
+	//end
 	simtime_t last_update_ts;
 	double W2;
 	double W2_stable;
