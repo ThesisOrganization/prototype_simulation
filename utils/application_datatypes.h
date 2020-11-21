@@ -247,6 +247,11 @@ typedef struct _queue_state {
 	simtime_t start_processing_timestamp;
 	job_info current_job;
 	int num_jobs_in_queue;
+	//global statistics
+	double global_actual_timestamp;
+	double global_actual_timestamp_stable;
+	double global_start_timestamp;
+	//end
 	simtime_t last_update_ts;
 	double W2;
 	double W2_stable;
