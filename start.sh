@@ -49,6 +49,11 @@ for filename in tests_topology/*.txt; do
 	echo "Starting analytical model computation.."
 	cd ../../model_computation
 	make
+	err=$?
+	if [[ $err != 0  ]]; then
+		echo "error during compilation of analytical model, aborting"
+		exit $err
+	fi
 	./formulas
 	err=$?
 	if [[ $err != 0  ]]; then
@@ -56,8 +61,31 @@ for filename in tests_topology/*.txt; do
 		exit $err
 	fi
 	echo "Done."
+	cd ..
+	echo "Generating topology binary files"
+	make -C utils/partop driverBinaries
+	err=$?
+	echo $err
+	if [[ $err != 0  ]]; then
+		echo "error during compilation of topology binary files generator, aborting"
+		exit $err
+	fi
+	echo "setting up folders for binary files"
+	rm -r tree_simulator/bin
+	mkdir tree_simulator/bin
+	mkdir tree_simulator/bin/gentop
+	mkdir tree_simulator/bin/lptop
+	echo "Done"
+	echo "Creating binary files"
+	./utils/partop/driverBinaries tree_simulator/topology.txt tree_simulator/LP.txt tree_simulator
+	echo "Done"
+	err=$?
+	if [[ $err != 0  ]]; then
+		echo "error during generation of topology binary files, aborting"
+		exit $err
+	fi
 	echo "Starting simulation.."
-	cd ../tree_simulator
+	cd tree_simulator
 	bash run.sh $sim_options
 	err=$?
 	if [[ $err != 0  ]]; then

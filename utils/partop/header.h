@@ -144,10 +144,10 @@ lp_topology * parseBinaryLpTopology();
 lp_topology * parseBinaryLpTopologyOneLPStripped(int lp);
 void destroyBinaryLpTopologyOneLPStripped(lp_topology* lp_top);
 
-void generateBinaries_elementTopology(general_topology * genTop,total_topology * totTop, int * elonelp, int a, int num);
-void generateBinaries_generalTopology(total_topology * totTop);
-void generateBinaries_lpTopology(lp_topology * lpTop,int totalElements);
-void generateBinaries(general_topology * genTop,total_topology * totTop,int totalElements, lp_topology * lpTop);
+void generateBinaries_elementTopology(general_topology * genTop,total_topology * totTop, int * elonelp, int a, int num,char* path);
+void generateBinaries_generalTopology(total_topology * totTop,char* path);
+void generateBinaries_lpTopology(lp_topology * lpTop,int totalElements,char* path);
+void generateBinaries(general_topology * genTop,total_topology * totTop,int totalElements, lp_topology * lpTop,char* path);
 
 
 #endif /* HEADER_H */

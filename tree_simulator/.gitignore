@@ -8,6 +8,7 @@ model_serial
 model_parallel
 lp_data
 USE-*
+bin/*
 simulation
 Makefile
 *.bak

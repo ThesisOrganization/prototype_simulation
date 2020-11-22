@@ -1,12 +1,11 @@
 CC = gcc
 CFLAGS = -Wall -g -fsanitize=address
-SRCS = parser.c topology.c ../idmap/idmap_quick_sort.c ../idmap/idmap.c binaryParse.c binaryGenerate.c
+SRCS = parser.c topology.c ../idmap/idmap_quick_sort.c ../idmap/idmap.c binaryGenerate.c
 OBJS = $(SRCS:.c=.o)
 HEADERS = header.h ../idmap/idmap.h
-MAIN = driver
+MAIN = driverBinaries
 
-all:    $(MAIN)
-
+all:    $(MAIN) driver-test
 
 $(MAIN): $(OBJS) $(MAIN).c
 	$(CC) $(CFLAGS) -o $(MAIN) $(MAIN).c $(OBJS)
@@ -14,5 +13,9 @@ $(MAIN): $(OBJS) $(MAIN).c
 %.o: %.c %.h
 	gcc -c $(CFLAGS) $*.c -o $*.o
 
+driver-test :  parser.c topology.c ../idmap/idmap_quick_sort.c ../idmap/idmap.c
+	gcc -c $(CFLAGS) driver.c -o driver.o
+	gcc $(CFLAGS) -o driver driver.o parser.o topology.o ../idmap/idmap_quick_sort.o ../idmap/idmap.o
+
 clean:
-	$(RM) *.o $(MAIN)
+	$(RM) $(SRCS:.c=.o)  $(SRCS:.c=.o.rs)  driver driverBinaries $(MAIN)

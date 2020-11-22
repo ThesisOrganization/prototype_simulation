@@ -1,16 +1,19 @@
 #include "header.h"
 
-void generateBinaries_elementTopology(general_topology * genTop,total_topology * totTop, int * elonelp, int a, int num){
+void generateBinaries_elementTopology(general_topology * genTop,total_topology * totTop, int * elonelp, int a, int num,char* path){
 
   int at = getNumberOfActTypes(genTop);
   int st = getNumberOfSensTypes(genTop);
 
-
-  char file_name[] = "bin/lp";
+	int len=snprintf(NULL,0,"%s/bin/lp%d",path,a)+1;
+  char* file_name=malloc(sizeof(char)*len);
+	snprintf(file_name,len,"%s/bin/lp%d",path,a);
   char end_file_name[] = ".bin";
 
-  char file_name_complete[64];
-  sprintf(file_name_complete, "%s%d%s" ,file_name,a,end_file_name);
+	int len_complete=len+strlen(end_file_name);
+  char *file_name_complete=malloc(sizeof(char)*len_complete);
+  snprintf(file_name_complete,len_complete, "%s%s" ,file_name,end_file_name);
+	free(file_name);
 
   FILE * output_file = fopen(file_name_complete, "w");
     for(int id = 0; id < num; id++){
@@ -221,20 +224,26 @@ void generateBinaries_elementTopology(general_topology * genTop,total_topology *
       }
 
     }
+    free(file_name_complete);
     fclose(output_file);
 
 }
 
 
 
-void generateBinaries_generalTopology(total_topology * totTop){
+void generateBinaries_generalTopology(total_topology * totTop,char* path){
   general_topology * genTop = getGenTopology(totTop);
 
-  char file_name[] = "bin/gentop/";
-  char end_file_name[] = "gentopology.bin";
+	int len=snprintf(NULL,0,"%s/bin/gentop/",path)+1;
 
-  char file_name_complete[64];
-  sprintf(file_name_complete, "%s%s" ,file_name,end_file_name);
+	char* file_name=malloc(sizeof(char)*len);
+	snprintf(file_name,len,"%s/bin/gentop/",path);
+
+  char end_file_name[] = "gentopology.bin";
+	int len_complete=len+strlen(end_file_name);
+  char *file_name_complete=malloc(sizeof(char)*len_complete);
+  snprintf(file_name_complete,len_complete, "%s%s" ,file_name,end_file_name);
+	free(file_name);
 
   FILE * output_file = fopen(file_name_complete, "w");
 
@@ -265,17 +274,19 @@ void generateBinaries_generalTopology(total_topology * totTop){
   double * probAct = getProbOfActuators(genTop);
   fwrite(probAct,sizeof(double),at,output_file);
 
+	free(file_name_complete);
   fclose(output_file);
 }
 
-void generateBinaries_lpTopology(lp_topology * lpTop,int totalElements){
-
-  char file_name[] = "bin/lptop/";
+void generateBinaries_lpTopology(lp_topology * lpTop,int totalElements,char* path){
+	int len=snprintf(NULL,0,"%s/bin/lptop/",path)+1;
+	char* file_name=malloc(sizeof(char)*len);
+	snprintf(file_name,len,"%s/bin/lptop/",path);
   char end_file_name[] = "lptopology.bin";
-
-  char file_name_complete[64];
-  sprintf(file_name_complete, "%s%s" ,file_name,end_file_name);
-
+	int len_complete=len+strlen(end_file_name);
+  char *file_name_complete=malloc(sizeof(char)*len_complete);
+  snprintf(file_name_complete,len_complete,"%s%s" ,file_name,end_file_name);
+	free(file_name);
   FILE * output_file = fopen(file_name_complete, "w");
 
 
@@ -294,17 +305,18 @@ void generateBinaries_lpTopology(lp_topology * lpTop,int totalElements){
     fwrite(elementArray,sizeof(int),amount,output_file);
     x+=1;
   }
+  free(file_name_complete);
   fclose(output_file);
 }
 
-void generateBinaries(general_topology * genTop,total_topology * totTop,int totalElements, lp_topology * lpTop){
-  generateBinaries_generalTopology(totTop);
+void generateBinaries(general_topology * genTop,total_topology * totTop,int totalElements, lp_topology * lpTop,char* path){
+  generateBinaries_generalTopology(totTop,path);
   int LpNum = getNumLP(lpTop);
   int a = 0;
   while (a < LpNum){
     int * elonelp = getLPtoElementMappingOneLP(lpTop,a);
     int num = getAmountsOfElementsInOneLP(lpTop,a);
-    generateBinaries_elementTopology(genTop,totTop,elonelp,a, num);
+    generateBinaries_elementTopology(genTop,totTop,elonelp,a, num,path);
     a++;
   }
 

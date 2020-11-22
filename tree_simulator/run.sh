@@ -123,6 +123,11 @@ else
 		if [[ $target == "all" || $target == "compile" ]]; then
 			echo "compiling model..."
 			make
+			err=$?
+			if [[ $err != 0  ]]; then
+				echo "error during compilation of model, aborting"
+				exit $err
+			fi
 			echo "done, executable is called \"simulation\" and can be found in the current folder"
 		fi
 		if [[ $target == "all" || $target == "execute" ]]; then
@@ -203,6 +208,11 @@ else
 			sim_max_duration=60
 
 			make THR_POOL_SIZE=${queue_len} MAX_ALLOCABLE_GIGAS=${MAX_GIGAS} NBC=${nbc} MAX_SKIPPED_LP=${max_lp} REVERSIBLE=0 LOOKAHEAD=${lookahead} PERC_USED_BUCKET=${pub} ELEM_PER_BUCKET=${epb} REPORT=${report} DEBUG=${dbg} SPERIMENTAL=${sperimental} CHECKPOINT_PERIOD=${ck} LINEAR_PINNING=${lin_pin}
+			err=$?
+			if [[ $err != 0  ]]; then
+				echo "error during compilation of model, aborting"
+				exit $err
+			fi
 
 			cp edge ../simulation
 			cd ..
@@ -241,6 +251,11 @@ else
 		if [[ $target == "compile" || $target == "all" ]]; then
 			echo "compiling model..."
 			make
+			err=$?
+			if [[ $err != 0  ]]; then
+				echo "error during compilation of model, aborting"
+				exit $err
+			fi
 			echo "done, executable is called \"simulation\" and can be found in the current folder"
 		fi
 		if [[ $target == "execute" || $target == "all" ]]; then
