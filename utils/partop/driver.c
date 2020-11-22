@@ -104,7 +104,8 @@ int main()
       printf("Node %d has this type: %d.\n",i,node_type);
       int scheduler = getScheduler(temp_lpt);
       printf("Node %d has this scheduler: %d.\n",i,scheduler);
-
+      int cores = getNumberOfCores(temp_lpt);
+      printf("Node %d has this many cores: %d \n",i,cores);
       if(node_type == 0){//Central
         int disk_type = getDiskType(temp_lpt);
         printf("Node %d has this type of DISK: %d.\n",i,disk_type);

@@ -100,7 +100,8 @@ for i in type_dict['local']:
                 local_infos_dict[i][element] = str(local_inf[element])
             elif element == "delay_lower_router":
                 local_infos_dict[i][element] = str(local_inf[element])
-
+            elif element == "cores":
+                local_infos_dict[i][element] = str(local_inf[element])
             else:
                 #lan case
                 #element == lan0
@@ -278,6 +279,8 @@ for element in central_inf:
                 inner_count+=1
             else:
                 service_time_central+="/"+str(central_inf[element][element2])
+    elif element == "cores":
+        central_cores = str(central_inf[element])
     elif element == "delay_upper_router":
         delay_upper_router_central = str(central_inf[element])
     elif element == "delay_lower_router":
@@ -331,6 +334,8 @@ for i in type_dict['regional']:
                     inner_count+=1
                 else:
                     service_time+="/"+str(regional_inf[element][element2])
+        elif element == "cores":
+            dict_regional[i][element] = str(regional_inf[element])
         elif element == "delay_upper_router":
             dict_regional[i][element] = str(regional_inf[element])
         elif element == "delay_lower_router":
@@ -349,7 +354,7 @@ for i in type_dict['regional']:
     dict_regional[i]['aggregation_rates'] = aggregation_rates
     dict_regional[i]['service_time'] = service_time
 
-to_write ="0;-1;10;NODE,"+central_scheduler+",CENTRAL,"+aggregation_rates_central+","+delay_upper_router_central+","+delay_lower_router_central+","
+to_write ="0;-1;11;NODE,"+central_scheduler+",CENTRAL,"+central_cores+","+aggregation_rates_central+","+delay_upper_router_central+","+delay_lower_router_central+","
 to_write+=service_time_central+","+prob_command_generated_central+","+disk_type_string+","+service_time_disk+"\n"
 associated_wan_down =str(id_wan_central)+";0;3;WAN,0,"+delay_wan_central+"\n"
 f_out.write(to_write)
@@ -381,7 +386,7 @@ for i in range(countReg):
         regional_type_now = dict_total[i][1]
 
 
-        to_write = str(index)+";"+str(id_wan_central)+";8;NODE,"+dict_regional[regional_type_now]['scheduler_type']+",REGIONAL,"+dict_regional[regional_type_now]['aggregation_rates']+","+str(dict_regional[regional_type_now]['delay_lower_router'])+","+str(dict_regional[regional_type_now]['delay_upper_router'])+","
+        to_write = str(index)+";"+str(id_wan_central)+";9;NODE,"+dict_regional[regional_type_now]['scheduler_type']+",REGIONAL,"+dict_regional[regional_type_now]['cores']+","+dict_regional[regional_type_now]['aggregation_rates']+","+str(dict_regional[regional_type_now]['delay_lower_router'])+","+str(dict_regional[regional_type_now]['delay_upper_router'])+","
         to_write+=dict_regional[regional_type_now]['service_time']+","+dict_regional[regional_type_now]['prob_command_generated']+"\n"
         f_out.write(to_write)
 
@@ -410,6 +415,7 @@ for i in range(countReg):
             same_locals = 0
             prob_command_generated_local = local_infos_dict[local_types]['prob_command_generated']
             local_scheduler = local_infos_dict[local_types]['scheduler_type']
+            cores_local = local_infos_dict[local_types]['cores']
             service_time_local = local_infos_dict[local_types]['service_times']
             aggregation_rates_local = local_infos_dict[local_types]['aggregation_rates']
             delay_lower_router_local = str(local_infos_dict[local_types]['delay_lower_router'])
@@ -417,7 +423,7 @@ for i in range(countReg):
             while(same_locals < int(local_amounts_this_iteration)):
 
 
-                to_write = str(indexLocal)+";"+str(count)+";8;NODE,"+local_scheduler+",LOCAL,"+aggregation_rates_local+","+delay_lower_router_local+","+delay_upper_router_local+","
+                to_write = str(indexLocal)+";"+str(count)+";9;NODE,"+local_scheduler+",LOCAL,"+cores_local+","+aggregation_rates_local+","+delay_lower_router_local+","+delay_upper_router_local+","
                 to_write+=service_time_local+","+prob_command_generated_local+"\n"
                 f_out.write(to_write)
                 if locals_string == "":

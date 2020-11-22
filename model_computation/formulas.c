@@ -53,6 +53,7 @@ typedef enum _node_storage_classes{
 /// Struct used to hold the parameters computed for each element of the topology.
 typedef struct _node_data{
 	//we use the input_rates array for the lan in and the output_rates array for the lan out when the node is a lan
+	int num_cores;
 	double *input_rates,*service_demands,*utilization_factors, *num_mean_events_in_queue,*output_rates, total_utilization_factor,*service_times; ///< Parameters to be computed
 	double *response_times_A; ///< Response time for class j computed with D_j/(1-U) with j in ::NUM_CLASSES.
 	double *response_times_B; ///< Response time for class j computed with D_i + SUM_(N_j*D_j) with i,j in ::NUM_CLASSES.
@@ -661,13 +662,13 @@ void compute_data(node_data* node,graph_visit_type visit_type,double * probOfAct
 			//lan in
 			if(node->input_rates[class]>0){
 				node->input_service_demands[class]= node->input_node_visits_per_class[class] * node->input_service_times[class];
-				node->input_utilization_factors[class]= node->input_rates[class] * node->input_service_demands[class];
+				node->input_utilization_factors[class]= node->input_rates[class] * node->input_service_demands[class] / node->num_cores;
 				node->input_total_utilization_factor+=node->input_utilization_factors[class];
 			}
 			//lan out
 			if(node->output_rates[class]>0){
 				node->output_service_demands[class]= node->output_node_visits_per_class[class] * node->output_service_times[class];
-				node->output_utilization_factors[class]= node->output_rates[class] * node->output_service_demands[class];
+				node->output_utilization_factors[class]= node->output_rates[class] * node->output_service_demands[class] / node->num_cores;
 				node->output_total_utilization_factor+=node->output_utilization_factors[class];
 			}
 		} else {
@@ -679,7 +680,7 @@ void compute_data(node_data* node,graph_visit_type visit_type,double * probOfAct
 				} else {
 					node->service_demands[class]= node->node_visits_per_class[class] * node->service_times[class];
 				}
-				node->utilization_factors[class]= node->input_rates[class] * node->service_demands[class];
+				node->utilization_factors[class]= node->input_rates[class] * node->service_demands[class] / node->num_cores;
 				node->total_utilization_factor+=node->utilization_factors[class];
 			}
 
@@ -752,6 +753,7 @@ void init_node_data(node_data *data,int node_id,node_data* father,Element_topolo
 	data->top=elTop;
 	data->classes=NUM_CLASSES;
 	data->input_rates=calloc(NUM_CLASSES,sizeof(double));
+	data->num_cores = 1;
 	data->output_rates=calloc(NUM_CLASSES,sizeof(double));
 	//transition messages have two visits only between nodes
 	//we model a lan as a split queue
@@ -785,6 +787,7 @@ void init_node_data(node_data *data,int node_id,node_data* father,Element_topolo
 	// in this implementation only the central node has storage
 	if(type==NODE){
 		int node_type = getNodeType(elTop);
+		data->num_cores = getNumberOfCores(elTop);
 	 	if(node_type == CENTRAL){
 			data->node_storage_state=NODE_SIMPLE_STORAGE;
 			data->storage_input_rates=calloc(NUM_CLASSES,sizeof(double));

@@ -1,7 +1,5 @@
 central_type_and_additional_info  = Type0,0.3,Type0
 1 Type0: 2 Type0
 1 Type0: 4 Type0
-1 Type0: 8 Type0
-1 Type0: 16 Type0
-
-
+1 Type1: 8 Type0
+1 Type2: 16 Type0

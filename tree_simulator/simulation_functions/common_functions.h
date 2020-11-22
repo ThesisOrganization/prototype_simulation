@@ -8,7 +8,11 @@
 #include "../../utils/message/message.h"
 #include "../simulation.h"
 
+#define FREEJOB_NOTFOUND -1
+
 void fill_job_info(job_info * info, double arrived_in_node_timestamp, double deadline, job_type job_type, int device_sender, double busy_time_transition, double waiting_time_transition, int device_destination);
+
+int get_free_core(job_info * current_jobs, int num_cores);
 
 /*
 #define DEBUG
@@ -63,6 +67,7 @@ if (! (x)) {\
 #define GET_DELAY_LOWER_ROUTER(a) getDelayLowerRouter(a)
 #define GET_WAN_DOWN(a) getWanDown(a)
 #define GET_PROB_COMMAND(a) getProbCommandResponse(a)
+#define GET_NUMBER_OF_CORES(a) getNumberOfCores(a)
 
 //SENSORS
 #define GET_SENSOR_TYPE_RATES(a) getSensorRates(a)
