@@ -399,6 +399,7 @@ void print_json(node_data* node,FILE* out){
 			//we print node_type only for nodes
 			if(getType(node->top)==NODE){
 				fprintf(out,"\"node_type\" : \"%s\",",node->node_type);
+				fprintf(out,"\"num_cores\" : %d,",node->num_cores);
 			}
 			fprintf(out,"\"parameters\" : {");
 			print_parameters(node,NODE_NOT_SPLIT,NODE_NO_STORAGE,out);

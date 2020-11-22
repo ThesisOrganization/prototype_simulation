@@ -85,6 +85,8 @@ void generateBinaries_elementTopology(general_topology * genTop,total_topology *
             fwrite(&diskServices[k],sizeof(double),1,output_file);
             }
           }
+          int cores=getNumberOfCores(temp_lpt);
+          fwrite(&cores,sizeof(int),1,output_file);
 
           int * aggregation_rates = getAggregationRate(temp_lpt);
           for(int k = 0;k < 4;k++){

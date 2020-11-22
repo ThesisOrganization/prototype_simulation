@@ -79,6 +79,7 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
 
         }
 
+        fread(&(nodeTop->cores),sizeof(int),1,output_file);
 
         nodeTop->aggregation_rate = malloc(sizeof(int)*4);
         fread(nodeTop->aggregation_rate,sizeof(int),4,output_file);

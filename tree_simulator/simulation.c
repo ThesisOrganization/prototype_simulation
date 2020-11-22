@@ -26,12 +26,12 @@ void print_array_int(int * array, int num_el){
 typedef enum _scan_order{
 	GET_MIN = 0,
 	GET_MAX
-} scan_order; 
+} scan_order;
 
 double get_minmax_ts(double * timestamps, int num_ts, scan_order type_order){
 	if(num_ts < 1)
 		return -1.0;
-	
+
 	double return_value = timestamps[0];
 	for(int i = 1; i < num_ts; i++){
 		if(type_order == GET_MIN && return_value < timestamps[i])
@@ -39,7 +39,7 @@ double get_minmax_ts(double * timestamps, int num_ts, scan_order type_order){
 		else if(type_order == GET_MAX && return_value > timestamps[i])
 			return_value = timestamps[i];
 	}
-	
+
 	return return_value;
 }
 */
@@ -67,7 +67,7 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 
 	//uncomment this to use a simulation time max decided a prior
 	//return 0;
-	
+
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
 		sum_arrived += queue_state->C[i];
 		unsigned int flag = get_flag_from_bitmap(bitmap, i);
@@ -537,8 +537,9 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 	double T = queue_state->actual_timestamp_stable[i] - queue_state->start_timestamp[i];
 	double S = queue_state->B_stable[i] / queue_state->C_stable[i];
 	double R = queue_state->W_stable[i] / queue_state->C_stable[i];
-	double N = queue_state->W_stable[i] / T;
-	double U = (queue_state->B_stable[i] / T) / queue_state->num_cores;
+	//TODO: verify the N and U metrics with multiple cores
+	double N = (queue_state->W_stable[i] / queue_state->num_cores) / T;
+	double U = (queue_state->B_stable[i] / queue_state->num_cores) / T;
 	double lambda = queue_state->A_stable[i] / T;
 	//double X = queue_state->C_stable[i] / T;
 
@@ -577,7 +578,7 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 	fprintf(output_file, "},");
 
 	double T = queue_state->global_actual_timestamp_stable - queue_state->global_start_timestamp;
-	
+
 	//double T = queue_state->actual_timestamp_stable[0] - queue_state->start_timestamp[0];
 	double N_new = queue_state->W2 / T;
 	double N_new_stable = queue_state->W2_stable / T;
@@ -586,14 +587,14 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 		N_new = 0.0;
 	if(isinf(N_new_stable) || isnan(N_new_stable))
 		N_new_stable = 0.0;
-	
+
 	//T = get_minmax_ts(queue_state->actual_timestamp_stable, NUM_OF_JOB_TYPE - 1, GET_MAX) - get_minmax_ts(queue_state->start_timestamp, NUM_OF_JOB_TYPE - 1, GET_MIN);
 	/*
 	double U_global = queue_state->B_global_stable / (T * queue_state->num_cores);
 	if(isinf(U_global) || isnan(U_global))
 		U_global = 0.0;
 	*/
-	
+
 	fprintf(output_file, "\"N_new\": %f,", N_new);
 	fprintf(output_file, "\"N_new_stable\": %f", N_new_stable);
 	//fprintf(output_file, "\"N_new_stable\": %f,", N_new_stable);
@@ -630,7 +631,7 @@ bool OnGVT(int me, lp_state *snapshot)
 		id_device = map.id;
 		index_map = map.content;
 		dev_state = snapshot->devices_array[index_map];
-		
+
 		//comment the following to avoid printing
 		//if((((long int)dev_state->device_timestamp/100) % 500) == 20)
 		//	printf("LP: %d -> %f\n", me, dev_state->device_timestamp);

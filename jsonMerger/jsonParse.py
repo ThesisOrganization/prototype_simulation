@@ -407,7 +407,8 @@ for element in ordered_id_list:
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
 
-
+            if dict_model[element]['num_cores'] > 1:
+                f_out.write("This node has "+str(dict_model[element]['num_cores'])+" processing units.\\\\")
             if dict_model[element]['node_type'] == 'regional':
                 f_out.write("This regional node of "+dict_ids_regional[element]['type']+" has in its subtree: \\begin{itemize}\n")
 
