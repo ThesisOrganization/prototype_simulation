@@ -141,6 +141,8 @@ void destroyLPTopology(lp_topology * lptop);
 Element_topology ** parseBinaryElementTopology(int id, int numElements);
 general_topology * parseBinaryGeneralTopology();
 lp_topology * parseBinaryLpTopology();
+lp_topology * parseBinaryLpTopologyOneLPStripped(int lp);
+void destroyBinaryLpTopologyOneLPStripped(lp_topology* lp_top);
 
 void generateBinaries_elementTopology(general_topology * genTop,total_topology * totTop, int * elonelp, int a, int num);
 void generateBinaries_generalTopology(total_topology * totTop);

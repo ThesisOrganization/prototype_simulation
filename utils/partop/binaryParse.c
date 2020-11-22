@@ -261,3 +261,46 @@ lp_topology * parseBinaryLpTopology(){
   return(lpt);
 
 }
+
+lp_topology * parseBinaryLpTopologyOneLPStripped(int lp){
+	lp_topology * lpt = malloc(sizeof(lp_topology));
+	char file_name[] = "bin/lptop/";
+	char end_file_name[] = "lptopology.bin";
+	char file_name_complete[64];
+	sprintf(file_name_complete, "%s%s" ,file_name,end_file_name);
+
+	FILE * output_file = fopen(file_name_complete, "r");
+
+	int totalElements;
+	fread(&totalElements,sizeof(int),1,output_file);
+	fread(&lpt->numLP,sizeof(int),1,output_file);
+	fread(&lpt->numValid,sizeof(int),1,output_file);
+
+	lpt->amountsOfElementsInLP = malloc(sizeof(int)*lpt->numLP);
+	fread(lpt->amountsOfElementsInLP,sizeof(int),lpt->numLP,output_file);
+	//lpt->ElementToLPMapping = malloc(sizeof(idmap)*totalElements);
+	//fread(lpt->ElementToLPMapping,sizeof(idmap),totalElements,output_file);
+	lpt->ElementToLPMapping=NULL;
+	fseek(output_file,sizeof(idmap)*totalElements,SEEK_CUR);
+
+	lpt->LPtoElementMapping = malloc(sizeof(int*));
+
+	int x = 0;
+	while(x < lp){
+		fseek(output_file,sizeof(int)*lpt->amountsOfElementsInLP[x],SEEK_CUR);
+		x+=1;
+	}
+	lpt->LPtoElementMapping[0] = malloc(sizeof(int)*lpt->amountsOfElementsInLP[lp]);
+	fread(lpt->LPtoElementMapping[0],sizeof(int),lpt->amountsOfElementsInLP[lp],output_file);
+	fclose(output_file);
+
+	return(lpt);
+
+}
+
+void destroyBinaryLpTopologyOneLPStripped(lp_topology* lp_top){
+	free(lp_top->LPtoElementMapping[0]);
+	free(lp_top->LPtoElementMapping);
+	free(lp_top->amountsOfElementsInLP);
+	free(lp_top);
+}

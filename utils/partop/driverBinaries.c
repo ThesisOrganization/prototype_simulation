@@ -7,12 +7,13 @@ int main()
 {
   //We retrieve the topology, answer the question of who needs to receive for each sender node in the data
   //char * path = "topology.txt";
-  char * path = "../../tree_simulator/topology.txt";
-  char * path1 = "../../tree_simulator/LP.txt";
-  lp_topology * lptopo =  getLPtopoogy(path1);
+  char * path = "topology.txt";
+  char * path1 = "LP.txt";
+  lp_topology * lptopo =  NULL;
 
   total_topology * totTop = getTopology(path,path1);
   general_topology * genTop = getGenTopology(totTop);
+	lptopo=totTop->lp_topology;
 
   int nn = getTotalNodes(genTop);
   int ns = getSensorNodes(genTop);
