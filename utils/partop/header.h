@@ -135,6 +135,7 @@ void setSensorTypes(Element_topology * lpt, int * array, int nts,int size);
 void destroyGeneralTopology(general_topology * gn);
 void destroyElementTopologyArray(Element_topology ** lpt,int total_elements);
 void destroyTotalTopology(total_topology * totTop);
+void destroyLPTopology(lp_topology * lptop);
 
 //parseBin
 Element_topology ** parseBinaryElementTopology(int id, int numElements);

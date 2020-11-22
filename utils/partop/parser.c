@@ -249,7 +249,7 @@ void upwardSearchActuatorPaths(Element_topology ** lpt, int index, int destinati
 
 lp_topology * getLPtopoogy(char * path){
   FILE * fp;
-  char * line = NULL;
+  char * line = malloc(sizeof(char)*MAX_LINE_LEN);
   char * temp = malloc(sizeof(char)*MAX_LINE_LEN);
   size_t len = MAX_LINE_LEN;
   ssize_t read;
@@ -265,6 +265,7 @@ lp_topology * getLPtopoogy(char * path){
   int numberOfElements = atoi(temp);
   read = getline(&temp, &len, fp);
   int numberOfLPs = atoi(temp);
+	free(temp);
 
   int ** result = malloc(sizeof(int*)*numberOfLPs);
   int * EleToLP = malloc(sizeof(int)*numberOfElements);
@@ -292,6 +293,7 @@ lp_topology * getLPtopoogy(char * path){
       ptr = strtok_r(NULL,",",&end_str);
     }
   }
+  free(line);
   lp_topology * LPreturn = malloc(sizeof(lp_topology));
   LPreturn->numLP=numberOfLPs;
 
@@ -309,13 +311,14 @@ lp_topology * getLPtopoogy(char * path){
   LPreturn->amountsOfElementsInLP = amountsOfElementsInLP;
   LPreturn->ElementToLPMapping = ElementToLP;
   LPreturn->numValid = valid;
+	fclose(fp);
   return(LPreturn);
 
 }
 
 total_topology * getTopology(char * path, char * path1){
   FILE * fp;
-  char * line = NULL;
+  char * line = malloc(sizeof(char)*MAX_LINE_LEN);
 	char * temp = malloc(sizeof(char)*MAX_LINE_LEN);
 	size_t len = MAX_LINE_LEN;
   ssize_t read;
@@ -459,6 +462,7 @@ total_topology * getTopology(char * path, char * path1){
     ptr = strtok_r(NULL,";",&end_str);
     counter+=1;
   }
+  free(temp);
   double * probArray = malloc((sizeof(double)*nt));
   for(int i = 0; i < nt; i++){
     probArray[i] = weight[i]/sum;
@@ -541,11 +545,11 @@ total_topology * getTopology(char * path, char * path1){
     lpt[temp]->upperNode = upperNode;
     lpt[temp]->id = temp;
     for(i=0;i<numberOfInfos && i<counter;i++){
-			//	free(infoArray[i]);
+				free(infoArray[i]);
 		}
 		free(infoArray);
   }
-
+	free(line);
   fclose(fp);
 
   genTop->total_nodes = nn;
@@ -921,7 +925,6 @@ total_topology * getTopology(char * path, char * path1){
   }
   free(reachableSetLP);
   free(reachableSetElement);
-
   EST->lpt = lpt;
   EST->lp_topology = lp_element_topology;
   return EST;

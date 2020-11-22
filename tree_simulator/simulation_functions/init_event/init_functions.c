@@ -20,42 +20,46 @@ static queue_conf** create_new_queues(int num_queues){
 }
 
 static void init_metrics(queue_state * queue_state){
+	
+	queue_state->global_actual_timestamp = VALUE_NOT_SET;
+	queue_state->global_actual_timestamp_stable = VALUE_NOT_SET;
+	queue_state->global_start_timestamp = VALUE_NOT_SET;
 
-    queue_state->C = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
-    queue_state->A = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
-    queue_state->A_post = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
-    queue_state->W = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
-    queue_state->B = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
-    queue_state->start_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
-    queue_state->actual_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
-    queue_state->old_response_times = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
-
-		queue_state->C_stable = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
-    queue_state->A_stable = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
-    queue_state->W_stable = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
-    queue_state->B_stable = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
-    queue_state->actual_timestamp_stable = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
-		
-		queue_state->W2 = 0.0;
-
-    for(int i=0; i < NUM_OF_JOB_TYPE; i++){
-
-        queue_state->C[i] = 0;
-        queue_state->A[i] = 0;
-        queue_state->A_post[i] = 0;
-        queue_state->W[i] = 0.0;
-        queue_state->B[i] = 0.0;
-        queue_state->start_timestamp[i] = 0.0;
-        queue_state->actual_timestamp[i] = 0.0;
-        queue_state->old_response_times[i] = -1.0;
-
-				queue_state->C_stable[i] = -1;
-        queue_state->A_stable[i] = -1;
-        queue_state->W_stable[i] = -1.0;
-        queue_state->B_stable[i] = -1.0;
-        queue_state->actual_timestamp_stable[i] = -1.0;
-
-    }
+	queue_state->C = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
+	queue_state->A = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
+	queue_state->A_post = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
+	queue_state->W = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
+	queue_state->B = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
+	queue_state->start_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
+	queue_state->actual_timestamp = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
+	queue_state->old_response_times = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
+	
+	queue_state->C_stable = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
+	queue_state->A_stable = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
+	queue_state->W_stable = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
+	queue_state->B_stable = malloc(sizeof(double)*NUM_OF_JOB_TYPE);
+	queue_state->actual_timestamp_stable = malloc(sizeof(simtime_t)*NUM_OF_JOB_TYPE);
+	
+	queue_state->W2 = 0.0;
+	
+	for(int i=0; i < NUM_OF_JOB_TYPE; i++){
+	
+	    queue_state->C[i] = 0;
+	    queue_state->A[i] = 0;
+	    queue_state->A_post[i] = 0;
+	    queue_state->W[i] = 0.0;
+	    queue_state->B[i] = 0.0;
+	    queue_state->start_timestamp[i] = 0.0;
+	    queue_state->actual_timestamp[i] = 0.0;
+	    queue_state->old_response_times[i] = -1.0;
+	
+			queue_state->C_stable[i] = -1;
+	    queue_state->A_stable[i] = -1;
+	    queue_state->W_stable[i] = -1.0;
+	    queue_state->B_stable[i] = -1.0;
+	    queue_state->actual_timestamp_stable[i] = -1.0;
+	
+	}
 
 }
 

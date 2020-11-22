@@ -1,6 +1,5 @@
 #include "./simulation.h"
 
-
 char topology_path[] = "./topology.txt";
 char file_name[] = "lp_data/lp";
 char end_file_name[] = ".json";
@@ -83,6 +82,7 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 
 void update_stable_metrics(queue_state * queue_state){
 
+	queue_state->global_actual_timestamp_stable = queue_state->global_actual_timestamp;
 	queue_state->W2_stable = queue_state->W2;
 	memcpy(queue_state->C_stable, queue_state->C, sizeof(int)*NUM_OF_JOB_TYPE);
 	memcpy(queue_state->A_stable, queue_state->A, sizeof(int)*NUM_OF_JOB_TYPE);
@@ -139,17 +139,13 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			memset(state,0,sizeof(lp_state));
 			SetState(state);
 			state->lp_enabled = LP_SETUP;
-			if(me == 0){
-				//we enable the master LP to avoid terminating the simulation during the setup
-				//we setup the master node and the required LPs
-				setup_master(n_prc_tot);
-			}
+			setup(me,state,n_prc_tot);
 			break;
 
 		case DISABLE_UNUSED_LP:
-			
+
 			state->lp_enabled=LP_DISABLED;
-			
+
 			break;
 
 		case RECEIVE_SETUP_MESSAGE:
@@ -409,11 +405,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				dev_state = state->devices_array[index_map];
 
 				dev_state->device_timestamp = now;
-								
+
 				//########################
 				//check if we return in UPDATE_TIMESTAMP after returning true
 				//########################
-				
+
 				unsigned int num_nodes = GET_TOTAL_NODES(state->general_topology);
 				//unsigned int num_sensors = GET_SENSOR_NODES(snapshot->general_topology);
 				unsigned int num_actuators = GET_ACTUATOR_NODES(state->general_topology);
@@ -421,11 +417,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				unsigned int num_lans = GET_NUMBER_OF_LANS(state->general_topology);
 
 				int total_number_of_elements = num_nodes + num_actuators + num_lans;
-				
-				
+
+
 				if(state->num_stable_elements == total_number_of_elements || dev_state->simulation_completed == SIMULATION_STOP) //it means that also me send a broadcast_message
 					break;
-				
+
 				if(dev_state->device_timestamp > MAX_SIMULATION_TIME){
 					if(dev_state->stability == ELEMENT_UNSTABLE){
 						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
@@ -433,7 +429,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					dev_state->simulation_completed = SIMULATION_STOP;
 					break;
 				}
-				
+
 				//########################
 
 
@@ -489,7 +485,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
 						dev_state->stability = ELEMENT_UNSTABLE;
 					}
-					
+
 					//QUI
 
 				}
@@ -525,15 +521,15 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 	double lambda = queue_state->A_stable[i] / T;
 	//double X = queue_state->C_stable[i] / T;
 
-	if (isnan(-S))
+	if (isnan(S))
 		S = 0.0;
-	if (isnan(-R))
+	if (isnan(R))
 		R = 0.0;
-	if (isnan(-U))
+	if (isnan(U))
 		U = 0.0;
-	if (isnan(-lambda))
+	if (isnan(lambda))
 		lambda = 0.0;
-	if (isnan(-N))
+	if (isnan(N))
 		N = 0.0;
 	fprintf(output_file, "\"service_demand\": %f,", S);
 	fprintf(output_file, "\"response_time\": %f,", R);
@@ -558,14 +554,16 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 	print_class_metrics(queue_state, output_file, BATCH_DATA);
 	//fprintf(output_file, "}");
 	fprintf(output_file, "},");
+
+	double T = queue_state->global_actual_timestamp_stable - queue_state->global_start_timestamp;
 	
-	double T = queue_state->actual_timestamp_stable[0] - queue_state->start_timestamp[0];
+	//double T = queue_state->actual_timestamp_stable[0] - queue_state->start_timestamp[0];
 	double N_new = queue_state->W2 / T;
 	double N_new_stable = queue_state->W2_stable / T;
 	//fprintf(output_file, "\"N_new\": {%f, %f}", N_new, N_new_stable);
-	if(isinf(N_new))
+	if(isinf(N_new) || isnan(N_new))
 		N_new = 0.0;
-	if(isinf(N_new_stable))
+	if(isinf(N_new_stable) || isnan(N_new_stable))
 		N_new_stable = 0.0;
 	fprintf(output_file, "\"N_new\": %f,", N_new);
 	fprintf(output_file, "\"N_new_stable\": %f", N_new_stable);
@@ -594,7 +592,7 @@ bool OnGVT(int me, lp_state *snapshot)
 	int id_device;
 	idmap map;
 	device_state * dev_state;
-	
+
 	//for(index = 0; index < snapshot->num_devices; index++){
 
 		map = snapshot->element_to_index[0];
@@ -605,23 +603,23 @@ bool OnGVT(int me, lp_state *snapshot)
 		//comment the following to avoid printing
 		//if((((long int)dev_state->device_timestamp/100) % 500) == 20)
 		//	printf("LP: %d -> %f\n", me, dev_state->device_timestamp);
-	
+
 		//printf("%f\n", dev_state->device_timestamp);
 		//break;
 	//}
-	
-		
+
+
 	if(snapshot->num_stable_elements == total_number_of_elements){
 #ifdef PRINT_RESULTS
 		char file_name_complete[64];
 		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
-		
+
 		FILE * output_file = fopen(file_name_complete, "r");
 		if(output_file != NULL){
 			fclose(output_file);
 			return true;
 		}
-		
+
 		output_file = fopen(file_name_complete, "w");
 
 		//FILE * output_file = fopen(file_name_complete, "w");
