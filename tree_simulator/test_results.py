@@ -13,6 +13,7 @@ def print_warning(a,b):
 PERCENTAGE_CHECK = 10.0
 
 def compare_U(a, b):
+    print("I think that you don't want to go here")
     U_sum = 0.0
     for k in ["telemetry", "transition", "command", "batch"]:
         U_sum += b[k]["utilization_factor"]
@@ -73,6 +74,7 @@ def compare_dicts(a, b):
 
     for k in a:
         if k == "U_global":
+            print("I think that you don't want to go here")
             warning_check = compare_U(a[k], b)
         else:
             warning_check = compare_dicts(a[k], b[k])
