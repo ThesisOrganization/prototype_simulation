@@ -41,7 +41,7 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 		queue_state->start_timestamp[type] = now;
 		if(queue_state->global_start_timestamp == VALUE_NOT_SET){
 			queue_state->global_start_timestamp = now;
-			queue_state->last_timestamp_B_global = now;
+			//queue_state->last_timestamp_B_global = now;
 		}
 	}
 
@@ -51,11 +51,13 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 		queue_state->A_post[type]++;
 		queue_state->W2 += (now - queue_state->last_update_ts) * queue_state->num_jobs_in_queue;
 
+		/*
 		if(queue_state->num_running_jobs == 0)
 			queue_state->last_timestamp_B_global = now;
 
 		queue_state->B_global += (now - queue_state->last_timestamp_B_global) * queue_state->num_running_jobs;
 		queue_state->last_timestamp_B_global = now;
+		*/
 		
 	}
 	queue_state->num_jobs_in_queue++;

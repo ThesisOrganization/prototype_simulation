@@ -33,8 +33,8 @@ static void init_metrics(queue_state * queue_state, int num_cores){
 		queue_state->start_processing_timestamp[j] = VALUE_NOT_SET;
 	}
 	
-	queue_state->B_global = 0.0;
-	queue_state->B_global_stable = VALUE_NOT_SET;
+	//queue_state->B_global = 0.0;
+	//queue_state->B_global_stable = VALUE_NOT_SET;
 	
 	queue_state->C = malloc(sizeof(int)*NUM_OF_JOB_TYPE);
 	queue_state->A = malloc(sizeof(int)*NUM_OF_JOB_TYPE);

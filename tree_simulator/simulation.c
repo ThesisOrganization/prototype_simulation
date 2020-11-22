@@ -102,7 +102,7 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 
 void update_stable_metrics(queue_state * queue_state){
 
-	queue_state->B_global_stable = queue_state->B_global;
+	//queue_state->B_global_stable = queue_state->B_global;
 	queue_state->global_actual_timestamp_stable = queue_state->global_actual_timestamp;
 	queue_state->W2_stable = queue_state->W2;
 	memcpy(queue_state->C_stable, queue_state->C, sizeof(int)*NUM_OF_JOB_TYPE);
@@ -538,7 +538,7 @@ void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 	double S = queue_state->B_stable[i] / queue_state->C_stable[i];
 	double R = queue_state->W_stable[i] / queue_state->C_stable[i];
 	double N = queue_state->W_stable[i] / T;
-	double U = queue_state->B_stable[i] / T;
+	double U = (queue_state->B_stable[i] / T) / queue_state->num_cores;
 	double lambda = queue_state->A_stable[i] / T;
 	//double X = queue_state->C_stable[i] / T;
 
@@ -588,13 +588,16 @@ void print_metrics(queue_state * queue_state, FILE * output_file){
 		N_new_stable = 0.0;
 	
 	//T = get_minmax_ts(queue_state->actual_timestamp_stable, NUM_OF_JOB_TYPE - 1, GET_MAX) - get_minmax_ts(queue_state->start_timestamp, NUM_OF_JOB_TYPE - 1, GET_MIN);
+	/*
 	double U_global = queue_state->B_global_stable / (T * queue_state->num_cores);
 	if(isinf(U_global) || isnan(U_global))
 		U_global = 0.0;
+	*/
 	
 	fprintf(output_file, "\"N_new\": %f,", N_new);
-	fprintf(output_file, "\"N_new_stable\": %f,", N_new_stable);
-	fprintf(output_file, "\"U_global\": %f", U_global);
+	fprintf(output_file, "\"N_new_stable\": %f", N_new_stable);
+	//fprintf(output_file, "\"N_new_stable\": %f,", N_new_stable);
+	//fprintf(output_file, "\"U_global\": %f", U_global);
 
 }
 

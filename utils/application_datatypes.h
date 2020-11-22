@@ -254,10 +254,12 @@ typedef struct _queue_state {
 	double global_actual_timestamp;
 	double global_actual_timestamp_stable;
 	double global_start_timestamp;
+	/*
 	//multi-core metrics
 	double B_global;
 	double B_global_stable;
 	double last_timestamp_B_global;
+	*/
 	//end
 	simtime_t last_update_ts;
 	double W2;
