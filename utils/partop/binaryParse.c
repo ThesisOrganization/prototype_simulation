@@ -32,16 +32,22 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
       //printf("upp %d\n",temp_elem_top[c]->upperNode);
 
       fread(&temp_elem_top[c]->numberOfLowerElements, sizeof(int), 1, output_file);
+
       //printf("num low ele %d\n",temp_elem_top[c]->numberOfLowerElements);
 
-      temp_elem_top[c]->lowerElements = malloc(sizeof(int)*temp_elem_top[c]->numberOfLowerElements);
-      fread(temp_elem_top[c]->lowerElements, sizeof(int), temp_elem_top[c]->numberOfLowerElements, output_file);
+      //temp_elem_top[c]->lowerElements = malloc(sizeof(int)*temp_elem_top[c]->numberOfLowerElements);
+      //fread(temp_elem_top[c]->lowerElements, sizeof(int), temp_elem_top[c]->numberOfLowerElements, output_file);
+
+      temp_elem_top[c]->lowerElements = NULL;
+      fseek(output_file, sizeof(int)*temp_elem_top[c]->numberOfLowerElements, SEEK_CUR);
 
       fread(&temp_elem_top[c]->numberOfLANS, sizeof(int),1,output_file);
 
-      temp_elem_top[c]->connectedLans = malloc(sizeof(int)*temp_elem_top[c]->numberOfLANS);
+      //temp_elem_top[c]->connectedLans = malloc(sizeof(int)*temp_elem_top[c]->numberOfLANS);
+      //fread(temp_elem_top[c]->connectedLans, sizeof(int),temp_elem_top[c]->numberOfLANS,output_file);
 
-      fread(temp_elem_top[c]->connectedLans, sizeof(int),temp_elem_top[c]->numberOfLANS,output_file);
+      temp_elem_top[c]->connectedLans = NULL;
+      fseek(output_file, sizeof(int)*temp_elem_top[c]->numberOfLANS, SEEK_CUR);
 
 
       int val_act;
@@ -76,7 +82,6 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
 
           fread(nodeTop->diskServices,sizeof(double),4,output_file);
 
-
         }
 
         fread(&(nodeTop->cores),sizeof(int),1,output_file);
@@ -84,33 +89,32 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
         nodeTop->aggregation_rate = malloc(sizeof(int)*4);
         fread(nodeTop->aggregation_rate,sizeof(int),4,output_file);
 
-
         fread(&nodeTop->delay_upper_router,sizeof(float),1,output_file);
         fread(&nodeTop->delay_lower_router,sizeof(float),1,output_file);
 
         nodeTop->service_time = malloc(sizeof(double)*5);
-
         fread(nodeTop->service_time,sizeof(double),5,output_file);
-
 
         fread(&nodeTop->probCommandResponse,sizeof(float),1,output_file);
         fread(&nodeTop->id_WAN_up,sizeof(int),1,output_file);
         fread(&nodeTop->id_WAN_down,sizeof(int),1,output_file);
 
         fread(&nodeTop->numberOfBelowActuators,sizeof(int),1,output_file);
-
         nodeTop->actuatorsTypesBelow = malloc(sizeof(int)*at);
         fread(nodeTop->actuatorsTypesBelow,sizeof(int),at,output_file);
+
         fread(&nodeTop->numberOfBelowSensors,sizeof(int),1,output_file);
+        //nodeTop->sensorsTypesBelow = malloc(sizeof(int)*st);
+        //fread(nodeTop->sensorsTypesBelow,sizeof(int),st,output_file);
 
-        nodeTop->sensorsTypesBelow = malloc(sizeof(int)*st);
-        fread(nodeTop->sensorsTypesBelow,sizeof(int),st,output_file);
+        nodeTop->sensorsTypesBelow = NULL;
+        fseek(output_file,sizeof(int)*st,SEEK_CUR);
 
+        //nodeTop->ListSensorsByType = malloc(sizeof(int)*nodeTop->numberOfBelowSensors);
+        //fread(nodeTop->ListSensorsByType,sizeof(int),nodeTop->numberOfBelowSensors,output_file);
 
-        nodeTop->ListSensorsByType = malloc(sizeof(int)*nodeTop->numberOfBelowSensors);
-
-        fread(nodeTop->ListSensorsByType,sizeof(int),nodeTop->numberOfBelowSensors,output_file);
-
+        nodeTop->ListSensorsByType = NULL;
+        fseek(output_file,sizeof(int)*nodeTop->numberOfBelowSensors,SEEK_CUR);
 
         nodeTop->ListActuatorsByType = malloc(sizeof(int)*nodeTop->numberOfBelowActuators);
         fread(nodeTop->ListActuatorsByType,sizeof(int),nodeTop->numberOfBelowActuators,output_file);
@@ -155,13 +159,20 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
         fread(wanTop->actuatorsTypesBelow,sizeof(int),at,output_file);
         fread(&wanTop->numberOfBelowSensors,sizeof(int),1,output_file);
 
-        wanTop->sensorsTypesBelow = malloc(sizeof(int)*st);
-        fread(wanTop->sensorsTypesBelow,sizeof(int),st,output_file);
+        //wanTop->sensorsTypesBelow = malloc(sizeof(int)*st);
+        //fread(wanTop->sensorsTypesBelow,sizeof(int),st,output_file);
 
-        wanTop->ListSensorsByType = malloc(sizeof(int)*wanTop->numberOfBelowSensors);
+        //wanTop->ListSensorsByType = malloc(sizeof(int)*wanTop->numberOfBelowSensors);
+
+        wanTop->sensorsTypesBelow = NULL;
+        fseek(output_file,sizeof(int)*st,SEEK_CUR);
+
+        wanTop->ListSensorsByType = NULL;
+        fseek(output_file,sizeof(int)*wanTop->numberOfBelowSensors,SEEK_CUR);
+
         wanTop->ListActuatorsByType = malloc(sizeof(int)*wanTop->numberOfBelowActuators);
 
-        fread(wanTop->ListSensorsByType,sizeof(int),wanTop->numberOfBelowSensors,output_file);
+        //fread(wanTop->ListSensorsByType,sizeof(int),wanTop->numberOfBelowSensors,output_file);
         fread(wanTop->ListActuatorsByType,sizeof(int),wanTop->numberOfBelowActuators,output_file);
 
         temp_elem_top[c]->spec_top.wan = wanTop;
@@ -184,14 +195,17 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
         fread(lanTop->actuatorsTypesBelow,sizeof(int),at,output_file);
         fread(&lanTop->numberOfBelowSensors,sizeof(int),1,output_file);
 
-        lanTop->sensorsTypesBelow = malloc(sizeof(int)*st);
-        fread(lanTop->sensorsTypesBelow,sizeof(int),st,output_file);
+        //fread(lanTop->sensorsTypesBelow,sizeof(int),st,output_file);
 
+        lanTop->sensorsTypesBelow = NULL;
+        fseek(output_file,sizeof(int)*st,SEEK_CUR);
 
-        lanTop->ListSensorsByType = malloc(sizeof(int)*lanTop->numberOfBelowSensors);
+        lanTop->ListSensorsByType = NULL;
+        fseek(output_file,sizeof(int)*lanTop->numberOfBelowSensors,SEEK_CUR);
+
         lanTop->ListActuatorsByType = malloc(sizeof(int)*lanTop->numberOfBelowActuators);
 
-        fread(lanTop->ListSensorsByType,sizeof(int),lanTop->numberOfBelowSensors,output_file);
+        //fread(lanTop->ListSensorsByType,sizeof(int),lanTop->numberOfBelowSensors,output_file);
         fread(lanTop->ListActuatorsByType,sizeof(int),lanTop->numberOfBelowActuators,output_file);
 
         temp_elem_top[c]->spec_top.lan = lanTop;
