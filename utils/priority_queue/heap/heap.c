@@ -7,7 +7,7 @@ heap * heap_new(HEAP_TYPE is_min_heap, int capacity) {
 	_heap * h = malloc(sizeof(_heap));
 	h->size = capacity;
 	h->used = 0;
-	h->array = malloc(sizeof(_heap_entry *) * h->size);
+	h->array = malloc(sizeof(_heap_entry)*h->size);
 	h->is_min_heap = is_min_heap;
 
 	return h;
@@ -20,11 +20,11 @@ HEAP_TYPE heap_type(heap * hh) {
 
 int heap_peek(heap * hh) {
 	_heap * h = hh;
-	return h->array[0]->key;
+	return h->array[0].key;
 }
 
 static void heap_grow(_heap * h) {
-	h->array = realloc(h->array, sizeof(_heap_entry *) * h->size * 2);
+	h->array = realloc(h->array, sizeof(_heap_entry) * h->size * 2);
 	h->size = h->size * 2;
 }
 
@@ -51,21 +51,21 @@ static int is_leaf(_heap * h, int i) {
 static int compare(_heap * h, int i, int j) {
 
 	if (h->is_min_heap == MIN_HEAP)
-		return h->array[i]->key < h->array[j]->key;
+		return h->array[i].key < h->array[j].key;
 	else
-		return h->array[i]->key > h->array[j]->key;
+		return h->array[i].key > h->array[j].key;
 }
 
 static void exchange(_heap * h, int i, int j) {
 
 	//printf("Swap element index %d (%d) with index %d (%d)\n", i, h->array[i]->key, j, h->array[j]->key);
 
-	_heap_entry * temp = h->array[i];
+	_heap_entry temp = h->array[i];
 	h->array[i] = h->array[j];
 	h->array[j] = temp;
 
-	h->array[i]->position = i;
-	h->array[j]->position = j;
+	h->array[i].position = i;
+	h->array[j].position = j;
 }
 
 heap_entry * heap_add(heap * hh, double key, job_info payload) {
@@ -75,10 +75,10 @@ heap_entry * heap_add(heap * hh, double key, job_info payload) {
 	if(h->used >= h->size)
 		heap_grow(h);
 
-	_heap_entry * e = malloc(sizeof(_heap_entry));
-	e->key = key;
-    e->payload = payload;
-	e->position = h->used;
+	_heap_entry e;
+	e.key = key;
+  e.payload = payload;
+	e.position = h->used;
 	h->array[h->used] = e;
 
 	int i = h->used;
@@ -90,7 +90,7 @@ heap_entry * heap_add(heap * hh, double key, job_info payload) {
 	}
 
 	h->used += 1;
-	return e;
+	return &h->array[h->used - 1];
 }
 
 int get_key_entry(heap_entry * ee) {
@@ -148,15 +148,15 @@ job_info heap_poll(heap * hh) {
 	//int key = -1;
 	job_info payload;
 	payload.job_type = INVALID_JOB;
-	
+
 	if(h->used > 0) {
-		_heap_entry * e = h->array[0];
+		_heap_entry e = h->array[0];
 		h->array[0] = h->array[h->used - 1];
 		h->used -= 1;
 		heapify(h, 0);
 		//key = e->key;
-		payload = e->payload;
-		free(e);
+		payload = e.payload;
+		//free(e);
 	}
 
 	return payload;
@@ -166,16 +166,16 @@ void heap_delete(heap * hh) {
 
 	_heap * h = hh;
 
-	int i;
-	for (i = 0; i < h->used; i++)
-		free(h->array[i]);
+	//int i;
+	//for (i = 0; i < h->used; i++)
+		//free(h->array[i]);
 
 	free(h->array);
 	free(h);
 
 	return;
 }
-
+/*
 heap * array2heap(int * array, int size, HEAP_TYPE is_min_heap) {
 
 	_heap * h = heap_new(is_min_heap, size);
@@ -201,16 +201,16 @@ heap * array2heap(int * array, int size, HEAP_TYPE is_min_heap) {
 
 	return h;
 }
-
+*/
 void heap_print(heap * hh) {
 
 	_heap * h = hh;
 	int k;
 	for (k = 0; k < h->used; k++)
-		printf(" %lf", h->array[k]->key);
+		printf(" %lf", h->array[k].key);
 	printf("\n\n");
 }
-
+/*
 void heap_sort(int * array, int size) {
 
 	_heap * h = array2heap(array, size, 0);
@@ -230,7 +230,7 @@ void heap_sort(int * array, int size) {
 	h->used = size;
 	heap_delete(h);
 }
-
+*/
 static void sift_up(_heap * h, int i){
 
 	while (i > 0) {
@@ -275,4 +275,3 @@ void heap_update_key(heap * hh, heap_entry * ee, double key) {
 	}
 
 }
-
