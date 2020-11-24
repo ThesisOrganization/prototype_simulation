@@ -64,7 +64,7 @@ static void send_reply(unsigned int id_device, simtime_t now, device_state * sta
 	msg.header.element_id = destination;
 	msg.info = info_to_send;
 
-	ScheduleNewEvent(next_lp, now + delay, ARRIVE, &msg, sizeof(message_arrive));
+	ScheduleNewEvent(next_lp, SHIFT_EVENT + now + delay, ARRIVE, &msg, sizeof(message_arrive));
 
 }
 
@@ -89,9 +89,9 @@ static void send_command(unsigned int id_device, simtime_t now, device_state  * 
 	msg.info = info_to_send;
 
 	if(state->info.node->type != LOCAL)
-		ScheduleNewEvent(next_lp, now + delay_down, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(next_lp, SHIFT_EVENT + now + delay_down, ARRIVE, &msg, sizeof(message_arrive));
 	else
-		ScheduleNewEvent(next_lp, now, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(next_lp, SHIFT_EVENT + now, ARRIVE, &msg, sizeof(message_arrive));
 
 }
 
@@ -198,7 +198,7 @@ static void send_to_up_node(unsigned int id_device, simtime_t now, device_state 
 	msg.info = *info;
 
 	if(up_node != -1)
-		ScheduleNewEvent(up_lp, now + delay, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(up_lp, SHIFT_EVENT + now + delay, ARRIVE, &msg, sizeof(message_arrive));
 
 }
 
@@ -212,7 +212,7 @@ static void save_data_on_disk(unsigned int id_device, simtime_t now, job_type ty
 	msg.header.element_id = id_device;
 	msg.info = info_to_send;
 
-	ScheduleNewEvent(id_lp, now, ARRIVE_DISK, &msg, sizeof(message_arrive));
+	ScheduleNewEvent(id_lp, SHIFT_EVENT + now, ARRIVE_DISK, &msg, sizeof(message_arrive));
 
 }
 
@@ -423,7 +423,7 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 		msg.header.element_id = destination;
 		msg.info = *info;
 
-		ScheduleNewEvent(next_lp, now, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(next_lp, SHIFT_EVENT + now, ARRIVE, &msg, sizeof(message_arrive));
 
 	}
 	else if(info->job_type == BATCH_DATA){
