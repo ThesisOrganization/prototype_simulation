@@ -123,13 +123,19 @@ void broadcast_message(int number_lps_enabled, simtime_t ts_to_send, events_type
 
 }
 
-void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_device){
+void schedule_update_timestamp(unsigned int me, simtime_t now, int id_device, double shift){
 
 	message_update msg_update;
 	simtime_t ts_update_timestamp;
-	ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP + id_device;
+	ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP + shift;
 	msg_update.header.element_id = id_device;
 	ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
+
+}
+
+void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_device){
+	
+	schedule_update_timestamp(me, now, id_device, id_device);
 
 }
 
@@ -511,7 +517,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				}
 
-				schedule_first_update_timestamp(me, now, id_device);
+				schedule_update_timestamp(me, now, id_device, 0.0);
 
 				break;
 
