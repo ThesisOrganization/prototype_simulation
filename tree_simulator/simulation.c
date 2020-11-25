@@ -262,7 +262,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
-				ScheduleNewEvent(up_lp, SHIFT_EVENT + now, ARRIVE, &msg_arrive, sizeof(message_arrive));
+				ScheduleNewEvent(up_lp, SHIFT_EVENT*Random() + now, ARRIVE, &msg_arrive, sizeof(message_arrive));
 
 				if(dev_state->type == SENSOR){
 
@@ -300,7 +300,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
-				ScheduleNewEvent(up_lp, SHIFT_EVENT + now, ARRIVE, &msg_arrive, sizeof(message_arrive));
+				ScheduleNewEvent(up_lp, SHIFT_EVENT*Random() + now, ARRIVE, &msg_arrive, sizeof(message_arrive));
 
 				if(dev_state->type == SENSOR){
 

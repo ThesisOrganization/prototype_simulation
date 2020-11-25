@@ -18,6 +18,6 @@
 #define MIN_NUMBER_OF_EVENTS_ALL 50
 #define MIN_NUMBER_OF_EVENTS_DISK 20
 
-#define SHIFT_EVENT 0.1
+#define SHIFT_EVENT 1.0
 
 #endif /* SIMULATION_H */
