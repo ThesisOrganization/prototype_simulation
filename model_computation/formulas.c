@@ -9,6 +9,7 @@
 #include<string.h>
 #include<assert.h>
 #include"../utils/partop/header.h"
+#include "../utils/priority_scheduler/priority_scheduler_datatypes.h"
 #include"quick_sort.h"
 
 /// The visit type of the topology graph, since we need to visit it more than once.
@@ -1032,13 +1033,23 @@ void graph_visit(node_data* data,Element_topology ** elTop,graph_visit_type visi
 	// in the third visit we print the data and free the occupied memory
 	if(visit_type==GRAPH_PRINT_DATA){
 		if(getType(data->top)!=WAN && getType(data->top)!=SENSOR){
-			fprintf(order,"%d",data->node_id);
-			print_results(data,out_tex);
+			if(order!=NULL){
+				fprintf(order,"%d",data->node_id);
+			}
+			if(out_tex!=NULL){
+				print_results(data,out_tex);
+			}
 			//with this type of visit we will add the central node as last
-			print_json(data,out_json);
+			if(out_json!=NULL){
+				print_json(data,out_json);
+			}
 			if(data->node_id!=start_id){
-				fprintf(out_json,",");
-				fprintf(order,",");
+				if(out_json!=NULL){
+					fprintf(out_json,",");
+				}
+				if(order!=NULL){
+					fprintf(order,",");
+				}
 			}
 		}
 		free_node_data(data);
@@ -1049,20 +1060,39 @@ void graph_visit(node_data* data,Element_topology ** elTop,graph_visit_type visi
 int main(int argc, char** argv){
 	//assert(argc==2);
 	//get topology from file
+	printf("Argument Usage: analytical_model_computation [path_to_topology.txt] [path_to_LP.txt] [output_path] by default current folder will be used if any of these arguments is missing\n");
 	char* topology_path;
 	char* lp_path;
-	if(argc == 2){
+	char* output_path;
+	if(argc == 3){
+		printf("Using provided paths\n");
 		topology_path=argv[1];
 		lp_path = argv[2];
+		output_path=argv[3];
 	}
 	else{
-		topology_path= "../tree_simulator/topology.txt";
-		lp_path= "../tree_simulator/LP.txt";
+		printf("Using current folder\n");
+		topology_path= "topology.txt";
+		lp_path= "LP.txt";
+		output_path=".";
 	}
-	FILE *out_tex=fopen("results.tex","w"), *out_json=fopen("model_res.json","w"),*order=fopen("order.txt","w");
+	//int tex_filename_len=snprintf(NULL,0,"%s/results.tex",output_path)+1;
+	int json_filename_len=snprintf(NULL,0,"%s/model_res.json",output_path)+1;
+	//int order_filename_len=snprintf(NULL,0,"%s/order.txt",output_path)+1;
+	//char *tex_filename=malloc((sizeof(char)*tex_filename_len));
+	char *json_filename=malloc((sizeof(char)*json_filename_len));
+	//char *order_filename=malloc((sizeof(char)*order_filename_len));
+	//snprintf(tex_filename,tex_filename_len,"%s/results.tex",output_path);
+	snprintf(json_filename,json_filename_len,"%s/model_res.json",output_path);
+	//snprintf(order_filename,order_filename_len,"%s/order.txt",output_path);
+	FILE *out_json=NULL, *out_tex=NULL, *order=NULL;
+	//out_tex=fopen("results.tex","w");
+	out_json=fopen(json_filename,"w");
+	printf("out_json file filename:%s\n",json_filename);
+	// order=fopen("order.txt","w");
 	int central_id;
-	fprintf(out_tex,"\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\begin{document}\n");
-	fprintf(out_tex,"\\section{Computed Formulas Example}\n");
+	//fprintf(out_tex,"\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\begin{document}\n");
+	//fprintf(out_tex,"\\section{Computed Formulas Example}\n");
 	fprintf(out_json,"[");
 
 	total_topology * totTop = getTopology(topology_path,lp_path);
@@ -1084,14 +1114,17 @@ int main(int argc, char** argv){
 	//3rd visit, to print results
 	graph_visit(central,elTop,GRAPH_PRINT_DATA,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
 	free(central);
-	fprintf(out_tex,"\\end{document}");
+	//fprintf(out_tex,"\\end{document}");
 	fprintf(out_json,"]");
 	fflush(out_json);
-	fflush(out_tex);
-	fflush(order);
+	//fflush(out_tex);
+	//fflush(order);
 	fclose(out_json);
-	fclose(order);
-	fclose(out_tex);
+	//fclose(order);
+	//fclose(out_tex);
+	//free(tex_filename);
+	free(json_filename);
+	//free(order_filename);
 	destroyTotalTopology(totTop);
 	return 0;
 }

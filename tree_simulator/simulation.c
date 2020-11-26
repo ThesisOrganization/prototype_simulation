@@ -1,4 +1,5 @@
 #include "./simulation.h"
+#include <string.h>
 
 char topology_path[] = "./topology.txt";
 char file_name[] = "lp_data/lp";
@@ -154,6 +155,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 	switch(event_type) {
 
 		case INIT:
+			printf("starting setup\n");
 			//all nodes except the master node are disabled by default
 			state = malloc(sizeof(lp_state));
 			//a safe memset to obtain a clean starting state
@@ -176,10 +178,10 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			break;
 
 		case START_SIMULATION:
+			printf("initializing devices and starting simulation\n");
 			//we enable the LP
 			state->lp_enabled=LP_ENABLED;
 			state->num_stable_elements=0;
-
 			for(int index = 0; index < state->num_devices; index++){
 
 				idmap map = state->element_to_index[index];

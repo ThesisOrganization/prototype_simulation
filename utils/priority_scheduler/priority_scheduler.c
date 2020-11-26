@@ -6,6 +6,7 @@
 #include "queue_quick_sort.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 /** Allocates a new `::priority_scheduler` struct with the given parameters
  * If the order of the queue of the same type is meaningful (usually when `::UPDATE_PRIO` is not used) the array must be already sorted since the sorting algorithm will mess up the relative position of elements of the same type.

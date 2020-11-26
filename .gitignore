@@ -2,13 +2,16 @@
 !.gitignore
 ROOT-Sim-*
 NeuRome-*
-Simulator
+Simulators
 USE-*
 *.o*
 driver
 *.kde*
 *~
 queues
+simulation_*
+analytical_model_computation
+*_bin
 main
 */outputs*
 docs/latex/*

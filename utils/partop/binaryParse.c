@@ -1,4 +1,6 @@
 #include "header.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 Element_topology ** parseBinaryElementTopology(int id, int numElements){
     Element_topology ** temp_elem_top = malloc(sizeof(Element_topology*)*numElements);

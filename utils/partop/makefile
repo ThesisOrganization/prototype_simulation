@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g -fsanitize=address
+CFLAGS = -Wall
 SRCS = parser.c topology.c ../idmap/idmap_quick_sort.c ../idmap/idmap.c binaryGenerate.c
 OBJS = $(SRCS:.c=.o)
 HEADERS = header.h ../idmap/idmap.h

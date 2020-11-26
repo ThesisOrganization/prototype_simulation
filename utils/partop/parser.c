@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include "header.h"
 #include <string.h>
-#include "../application_datatypes.h"
 #include "../idmap/idmap.h"
+#include "../priority_scheduler/priority_scheduler_datatypes.h"
 
 void parse_strings(char ** strings,Element_topology * this_lpt, int upperNode){
     char * ptr;

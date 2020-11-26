@@ -4,6 +4,7 @@
 #include "setup_protocol.h"
 #include "setup_send_functions.h"
 #include "setup_recv_functions.h"
+#include <string.h>
 
 /// The master node will schedule topology messages for itself to minimize memory consuption.
 void setup_master(int n_prc_tot){
@@ -56,7 +57,7 @@ void setup_independent(int lp,lp_state* state, int n_prc_tot){
 	if(lp>=num_required_lps){
 		state->lp_enabled=LP_DISABLED;
 		destroyBinaryLpTopologyOneLPStripped(lp_top);
-		printf("Warning: Too much LPs, simulation will continue, but LP %d will not be actively used, simulation could abruptly terminate during setup.\n",n_prc_tot-num_required_lps);
+		printf("Warning: Too much LPs (%d more than necessary), simulation will continue, but LP %d will not be actively used.\n",n_prc_tot-num_required_lps,lp);
 	} else {
 		///Otherwise it will continue the setup.
 		//we need to get the general topology

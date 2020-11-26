@@ -3,6 +3,15 @@ import numpy as np
 import os.path
 import argparse
 
+parser=argparse.ArgumentParser(description="Parse JSONs from the simulation and the analytical model and merge them in LaTeX.")
+parser.add_argument("topology_path",help="folder where the topology.txt and LP.txt are located")
+parser.add_argument("simulation_path",help="folder where simulation the JSONs are located")
+parser.add_argument("model_path",help="folder where the analytical model JSONs are located")
+parser.add_argument("out_path",help="folder where the LaTeX file will be created")
+parser.add_argument("-a","--aggregation",help="if node results should be aggregated, default is no aggregation",action="store_true",default=False)
+parser.add_argument("-sim_coef","--similarity_coefficient",help="the similarity coefficient, in percentage, to use when aggregating nodes  default is 0.2",default=0.2,type=float)
+args=parser.parse_args()
+
 def compute_RA_mean(dict, params, string1, dict_similarity):
   ret = "$"
   D_string = "service_demand"
@@ -115,9 +124,9 @@ def aux(dict,dict2,string,dict_similarity):
 
 
 
-with open('../tree_simulator/simulation_results.json') as f_simulator:
+with open(args.simulation_path+'/simulation_results.json') as f_simulator:
   data_simulator = json.load(f_simulator)
-with open('../model_computation/model_res.json') as f_model:
+with open(args.model_path+'/model_res.json') as f_model:
   data_model = json.load(f_model)
 
 
@@ -171,7 +180,7 @@ dict_ids_regional = {}
 dict_ids_local = {}
 dict_ids_acts = {}
 dict_ids_lans = {}
-with open("jsonAdditionalInfo.txt") as f:
+with open(args.topology_path+"/jsonAdditionalInfo.txt") as f:
     lines = f.readlines()
     stringAdditionalInfo+="There is one Central node, between the Central node and the Regional layer there is one WAN. Between each regional and its Locals there is a WAN.\\newline "
     stringAdditionalInfo+="There are "+str(lines[0].strip())+" regional nodes."
@@ -250,17 +259,13 @@ for element in ordered_id_list:
     elif(type == 'actuator'):
         list_actuators.append(element)
 
-parser=argparse.ArgumentParser(description="Parse JSONs from the simulation and the analytical model and merge them in LaTeX.")
-parser.add_argument("-a","--aggregation",help="if node results should be aggregated, default is no aggregation",action="store_true",default=False)
-parser.add_argument("-sim_coef","--similarity_coefficient",help="the similarity coefficient, in percentage, to use when aggregating nodes  default is 0.2",default=0.2,type=float)
-args=parser.parse_args()
 if args.aggregation:
 	aggregation_flag = True
 else:
 	aggregation_flag = False
 
 
-f_out = open("complete_results.tex", "w")
+f_out = open(args.out_path+"/complete_results.tex", "w")
 #title
 initial_header = "\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{xcolor}\n\\usepackage{float}\n\\usepackage[margin=0.5in]{geometry}\n\\title{Results}\n\\author{Silvio Dei Giudici, Marco Morella, Mattia Nicolella}\n\\begin{document}\n\\maketitle\n"
 f_out.write(initial_header);
@@ -296,14 +301,14 @@ def service_line(dict,params,string1):
 key_union = [];
 
 
-with open('../tree_simulator/LP.txt') as f:
+with open(args.topology_path+'/LP.txt') as f:
     lines = f.readlines()
     elements = lines[0].strip() #elementi
     LP = lines[1].strip() #Lp
 f.close()
 
 #we read the simulator statistics from the json file
-with open('../tree_simulator/simulation_stats.json') as f_stats:
+with open(args.simulation_path+'/simulation_stats.json') as f_stats:
   stats_simulator = json.load(f_stats)
   run_type=stats_simulator['run_type']
   sim_duration=stats_simulator['duration']

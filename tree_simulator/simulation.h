@@ -5,12 +5,13 @@
 #include "./simulation_functions/arrive_event/arrive_functions.h"
 #include "./simulation_functions/finish_event/finish_functions.h"
 #include "./simulation_functions/setup_protocol/setup_protocol.h"
-
+#include "compatibility.h"
+#include "../utils/application_datatypes.h"
 #include <math.h>
 
 #define RANDOM_START 500
 #define TRANSITION_TIME_LIMIT 300000
-#define MAX_SIMULATION_TIME 100000000
+#define MAX_SIMULATION_TIME 10000000
 
 #define NEXT_UPDATE_TIMESTAMP 100000
 #define THRESHOLD 3 ///percentage

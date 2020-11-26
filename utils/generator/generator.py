@@ -1,15 +1,23 @@
 # coding=utf-8
+import argparse
 import json
 import numpy as np
 import sys
-f_out = open("../../tree_simulator/topology.txt", "w")
-f_out_LP = open("../../tree_simulator/LP.txt", "w")
 
-f_out_txt = open("../../jsonMerger/jsonAdditionalInfo.txt","w")
+parser=argparse.ArgumentParser(description="Generates topology.txt and LP.txt from the given topology configuration.")
+parser.add_argument("catalog_path",help="location of the catalog folder containing types referenced in the config")
+parser.add_argument("config_path",help="location of the topology configuration")
+parser.add_argument("out",help="location where topology.txt and LP.txt should be created")
+args=parser.parse_args()
+
+f_out = open(args.out+"/topology.txt", "w")
+f_out_LP = open(args.out+"/LP.txt", "w")
+
+f_out_txt = open(args.out+"/jsonAdditionalInfo.txt","w")
 
 numbersString = ""
-txt_path = sys.argv[1]
-with open("../../"+txt_path) as f:
+txt_path =args.config_path
+with open(txt_path) as f:
     lines = f.readlines()
     type_dict = {}
     type_dict['regional'] = []
@@ -68,7 +76,7 @@ number_of_lans = 0
 ####################################
 local_infos_dict = {}
 for i in type_dict['local']:
-    with open("../../tests_topology/catalog/local/"+i.capitalize()+".json") as local_infos:
+    with open(args.catalog_path+"/local/"+i.capitalize()+".json") as local_infos:
         local_inf = json.load(local_infos)
         local_infos_dict[i] = {}
         aggregation_rates_local = ""
@@ -138,7 +146,7 @@ for i in type_dict['local']:
 
 weight = ""
 for type in type_dict['actuator']:
-    with open("../../tests_topology/catalog/actuator/"+type.capitalize()+".json") as act_infos:
+    with open(args.catalog_path+"/actuator/"+type.capitalize()+".json") as act_infos:
         act_inf = json.load(act_infos)
         if weight == "":
             weight+=str(act_inf["weight"])
@@ -187,7 +195,7 @@ f_out_LP.write(str(number_of_regionals)+"\n");
 dict_sensors = {}
 
 for i in type_dict['sensor']:
-    with open("../../tests_topology/catalog/sensor/"+i+".json") as sensor_infos:
+    with open(args.catalog_path+"/sensor/"+i+".json") as sensor_infos:
         dict_sensors[i] = {}
         sensor_inf = json.load(sensor_infos)
         for element in sensor_inf:
@@ -195,7 +203,7 @@ for i in type_dict['sensor']:
 
 dict_actuators = {}
 for i in type_dict['actuator']:
-    with open("../../tests_topology/catalog/actuator/"+i+".json") as actuator_infos:
+    with open(args.catalog_path+"/actuator/"+i+".json") as actuator_infos:
       actuator_inf = json.load(actuator_infos)
     dict_actuators[i] = {}
 
@@ -229,7 +237,7 @@ LAN_IN_services = ""
 LAN_OUT_services = ""
 dict_lan_delay = {}
 for i in type_dict['lan']:
-    with open("../../tests_topology/catalog/lan/Type"+str(i)+".json") as lan_infos:
+    with open(args.catalog_path+"/lan/Type"+str(i)+".json") as lan_infos:
       lan_inf = json.load(lan_infos)
     dict_lan_delay[i] = 0
     aggregation_rates_lan = ""
@@ -262,7 +270,7 @@ f_out.write(weight+"\n")
 wan_id = number_of_elements
 id_wan_central = wan_id
 #Let's get the info from the catalog
-with open("../../tests_topology/catalog/central/"+central_type+".json") as central_infos:
+with open(args.catalog_path+"/central/"+central_type+".json") as central_infos:
   central_inf = json.load(central_infos)
 aggregation_rates_central = ""
 service_time_central = ""
@@ -296,7 +304,7 @@ for element in central_inf:
             else:
                 aggregation_rates_central+="/"+str(central_inf[element][element2])
 
-with open("../../tests_topology/catalog/disk/"+disk_type+".json") as disk_infos:
+with open(args.catalog_path+"/disk/"+disk_type+".json") as disk_infos:
   disk_inf = json.load(disk_infos)
 aggregation_rates_disk = ""
 service_time_disk = ""
@@ -316,7 +324,7 @@ for element in disk_inf:
 
 dict_regional = {}
 for i in type_dict['regional']:
-    with open("../../tests_topology/catalog/regional/"+i+".json") as regional_infos:
+    with open(args.catalog_path+"/regional/"+i+".json") as regional_infos:
         regional_inf = json.load(regional_infos)
     dict_regional[i] = {}
     aggregation_rates = ""
