@@ -123,7 +123,7 @@ static void schedule_wan(unsigned int next_lp, simtime_t now, double delay, job_
 	msg.header.element_id = next_device;
 	msg.info = *info;
 	
-	ScheduleNewEvent(next_lp, SHIFT_EVENT*Random() + now + delay, ARRIVE, &msg, sizeof(message_arrive));
+	ScheduleNewEvent(next_lp, SHIFT_EVENT_WAN + now + delay, ARRIVE, &msg, sizeof(message_arrive));
 
 }
 
