@@ -48,7 +48,7 @@ static void fill_info_to_send(job_info * info_to_send, job_type type, int sender
 
 }
 */
-static void send_reply(unsigned int id_device, simtime_t now, device_state * state, int sender, double delay, double busy_time_transition, double waiting_time_transition){
+static void send_reply(unsigned int id_device, simtime_t now, device_state * state, int sender, double delay, double busy_time_transition, double waiting_time_transition, double order_shift){
 
 	job_info info_to_send;
 	//fill_info_to_send(&info_to_send, REPLY, sender, -1);
@@ -64,11 +64,11 @@ static void send_reply(unsigned int id_device, simtime_t now, device_state * sta
 	msg.header.element_id = destination;
 	msg.info = info_to_send;
 
-	ScheduleNewEvent(next_lp, SHIFT_EVENT_REPLY + now + delay, ARRIVE, &msg, sizeof(message_arrive));
+	ScheduleNewEvent(next_lp, order_shift + now + delay, ARRIVE, &msg, sizeof(message_arrive));
 
 }
 
-static void send_command(unsigned int id_device, simtime_t now, device_state  * state, int id_selected_actuator, double delay_down){
+static void send_command(unsigned int id_device, simtime_t now, device_state  * state, int id_selected_actuator, double delay_down, double order_shift){
 
 	//if id_selected_actuator == -1, exit?
 	if(id_selected_actuator == -1)
@@ -89,9 +89,9 @@ static void send_command(unsigned int id_device, simtime_t now, device_state  * 
 	msg.info = info_to_send;
 
 	if(state->info.node->type != LOCAL)
-		ScheduleNewEvent(next_lp, SHIFT_EVENT_COMMAND + now + delay_down, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(next_lp, order_shift + now + delay_down, ARRIVE, &msg, sizeof(message_arrive));
 	else
-		ScheduleNewEvent(next_lp, SHIFT_EVENT_COMMAND + now, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(next_lp, order_shift + now, ARRIVE, &msg, sizeof(message_arrive));
 
 }
 
@@ -188,7 +188,7 @@ static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state
 
 }
 
-static void send_to_up_node(unsigned int id_device, simtime_t now, device_state  * state, double delay, job_info * info){
+static void send_to_up_node(unsigned int id_device, simtime_t now, device_state  * state, double delay, job_info * info, double order_shift){
 
 	int up_node = GET_UPPER_NODE(state->topology);
 	int up_lp = CONVERT_ELEMENT_TO_LP(state->topology, up_node);
@@ -198,7 +198,7 @@ static void send_to_up_node(unsigned int id_device, simtime_t now, device_state 
 	msg.info = *info;
 
 	if(up_node != -1)
-		ScheduleNewEvent(up_lp, now + delay, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(up_lp, order_shift + now + delay, ARRIVE, &msg, sizeof(message_arrive));
 
 }
 
@@ -216,7 +216,7 @@ static void save_data_on_disk(unsigned int id_device, simtime_t now, job_type ty
 
 }
 
-static void send_aggregated_data(unsigned int id_device, simtime_t now, device_state  * state, double delay_up, job_type type, int * num_aggregated, int max_aggregated, unsigned int id_lp, double shift){
+static void send_aggregated_data(unsigned int id_device, simtime_t now, device_state  * state, double delay_up, job_type type, int * num_aggregated, int max_aggregated, unsigned int id_lp, double order_shift){
 
 	int actual_aggr = ++(*num_aggregated);
 
@@ -226,7 +226,7 @@ static void send_aggregated_data(unsigned int id_device, simtime_t now, device_s
 		//fill_info_to_send(&info_to_send, type, -1, -1);
 		fill_job_info(&info_to_send, -1.0, -1.0, type, -1, -1.0, -1.0, -1);
 
-		send_to_up_node(id_device, now, state, delay_up + shift, &info_to_send);
+		send_to_up_node(id_device, now, state, delay_up, &info_to_send, order_shift);
 
 		*num_aggregated = 0;
 
@@ -257,7 +257,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 
 	if(info->job_type == TELEMETRY){
 		//printf("TELEMETRY\n");
-		send_aggregated_data(id_device, now, state, delay_up, TELEMETRY, &state->info.node->num_telemetry_aggregated, state->info.node->telemetry_aggregation, id_lp, SHIFT_EVENT_TELEMETRY);
+		send_aggregated_data(id_device, now, state, delay_up, TELEMETRY, &state->info.node->num_telemetry_aggregated, state->info.node->telemetry_aggregation, id_lp, SHIFT_EVENT_FIRST);
 
 
 	}
@@ -266,7 +266,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 		//###################################################
 		//SEND REPLY
 		if(state->info.node->type != LOCAL){
-			send_reply(id_device, now, state, info->device_sender, delay_down, info->busy_time_transition, info->waiting_time_transition);
+			send_reply(id_device, now, state, info->device_sender, delay_down, info->busy_time_transition, info->waiting_time_transition, SHIFT_EVENT_FIRST);
 		}
 
 		//###################################################
@@ -275,11 +275,11 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 		double prob_cmd = state->info.node->prob_cmd;
 		if (random_prob <= prob_cmd){
 			int id_selected_actuator = get_id_random_actuator(id_device, state);
-			send_command(id_device, now, state, id_selected_actuator, delay_down);
+			send_command(id_device, now, state, id_selected_actuator, delay_down, SHIFT_EVENT_SECOND);
 
 			//###################################################
 			//SEND BATCH_DATA
-			send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp, SHIFT_EVENT_BATCH);
+			send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp, SHIFT_EVENT_THIRD);
 			
 			//###################################################
 			//UPDATE TRANSITION METRICS (TO USE FOR REPLY UPDATE ALTERNATIVE)
@@ -296,7 +296,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 			//info->busy_time_transition = busy_time_transition;
 			//info->waiting_time_transition = waiting_time_transition;
 			//info->device_sender = id_device;
-			send_to_up_node(id_device, now + SHIFT_EVENT_TRANSITION, state, delay_up, &info_to_send);
+			send_to_up_node(id_device, now, state, delay_up, &info_to_send, SHIFT_EVENT_SECOND);
 			
 			//##################################################
 			//SAVE DATA TO DISK
@@ -308,12 +308,12 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 	}
 	else if(info->job_type == COMMAND){
 
-		send_command(id_device, now, state, info->device_destination, delay_down);
+		send_command(id_device, now, state, info->device_destination, delay_down, SHIFT_EVENT_FIRST);
 
 	}
 	else if(info->job_type == BATCH_DATA){
 
-		send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp, SHIFT_EVENT_BATCH);
+		send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp, SHIFT_EVENT_FIRST);
 
 	}
 	else if(info->job_type == REPLY){
@@ -402,12 +402,12 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 
 	if(info->job_type == TELEMETRY){
 		//printf("TELEMETRY\n");
-		send_to_up_node(id_device, now, state, SHIFT_EVENT_TELEMETRY, info);
+		send_to_up_node(id_device, now, state, 0.0, info, SHIFT_EVENT_FIRST);
 
 	}
 	else if(info->job_type == TRANSITION){
 		//printf("TRANSITION\n");
-		send_to_up_node(id_device, now, state, SHIFT_EVENT_TRANSITION, info);
+		send_to_up_node(id_device, now, state, 0.0, info, SHIFT_EVENT_FIRST);
 
 	}
 	else if(info->job_type == COMMAND){
@@ -423,7 +423,7 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 		msg.header.element_id = destination;
 		msg.info = *info;
 
-		ScheduleNewEvent(next_lp, SHIFT_EVENT_COMMAND + now, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(next_lp, SHIFT_EVENT_FIRST + now, ARRIVE, &msg, sizeof(message_arrive));
 
 	}
 	else if(info->job_type == BATCH_DATA){
