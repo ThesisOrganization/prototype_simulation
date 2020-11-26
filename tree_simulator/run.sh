@@ -246,15 +246,13 @@ else
 			echo "done; there are 2 executables, one for the parallel execution and one for the serial execution, they are called \"simulation_neurome_[parallel/serial]\" and can be found in the \"$output_location\" folder"
 		fi
 		if [[ $target == "execute" || $target == "all" ]]; then
-		cd $output_location
-			if [[ -n $options ]]; then
-				if [ "$options" == "parallel" ]; then
-					echo "parallel execution with $working_threads threads"
-					$dbg_param ./simulation_neurome_parallel --wt $working_threads --lp $number_lp
-				fi
+			cd $output_location
+			if [ "$run_type" == "parallel" ]; then
+				echo "parallel execution with $working_threads threads"
+				$dbg_param ./simulation_neurome_parallel --wt $working_threads --lp $number_lp
 			else
-					echo "serial execution"
-					$dbg_param ./simulation_neurome_serial --lp $number_lp
+				echo "serial execution"
+				$dbg_param ./simulation_neurome_serial --lp $number_lp
 			fi
 			err=$?
 			if [[ $err != 0  ]]; then
