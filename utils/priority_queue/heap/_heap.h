@@ -4,7 +4,7 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-	
+
 #include "../../application_datatypes.h"
 
 typedef struct _heap_entry{
@@ -14,7 +14,7 @@ typedef struct _heap_entry{
 } _heap_entry;
 
 typedef struct {
-	_heap_entry ** array;
+	_heap_entry * array;
 	int size;
 	int used;
 	int is_min_heap;

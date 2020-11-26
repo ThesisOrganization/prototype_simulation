@@ -124,13 +124,19 @@ void broadcast_message(int number_lps_enabled, simtime_t ts_to_send, events_type
 
 }
 
-void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_device){
+void schedule_update_timestamp(unsigned int me, simtime_t now, int id_device, double shift){
 
 	message_update msg_update;
 	simtime_t ts_update_timestamp;
-	ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP + id_device;
+	ts_update_timestamp = now + NEXT_UPDATE_TIMESTAMP + shift;
 	msg_update.header.element_id = id_device;
 	ScheduleNewEvent(me, ts_update_timestamp, UPDATE_TIMESTAMP, &msg_update, sizeof(message_update));
+
+}
+
+void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_device){
+	
+	schedule_update_timestamp(me, now, id_device, id_device);
 
 }
 
@@ -258,7 +264,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
-				ScheduleNewEvent(up_lp, now, ARRIVE, &msg_arrive, sizeof(message_arrive));
+				ScheduleNewEvent(up_lp, SHIFT_EVENT*Random() + now, ARRIVE, &msg_arrive, sizeof(message_arrive));
 
 				if(dev_state->type == SENSOR){
 
@@ -296,7 +302,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 				up_node = GET_UPPER_NODE(dev_state->topology);
 				msg_arrive.header.element_id = up_node;
 				up_lp = CONVERT_ELEMENT_TO_LP(dev_state->topology, up_node);
-				ScheduleNewEvent(up_lp, now, ARRIVE, &msg_arrive, sizeof(message_arrive));
+				ScheduleNewEvent(up_lp, SHIFT_EVENT*Random() + now, ARRIVE, &msg_arrive, sizeof(message_arrive));
 
 				if(dev_state->type == SENSOR){
 
@@ -500,12 +506,12 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 					}
 
 					if(dev_state->stability == ELEMENT_UNSTABLE && boolean_check){
-						broadcast_message(state->number_lps_enabled, now, STABILITY_ACQUIRED);
+						broadcast_message(state->number_lps_enabled, SHIFT_EVENT + now, STABILITY_ACQUIRED);
 						dev_state->stability = ELEMENT_STABLE;
 					}
 
 					if(dev_state->stability == ELEMENT_STABLE && !boolean_check){
-						broadcast_message(state->number_lps_enabled, now, STABILITY_LOST);
+						broadcast_message(state->number_lps_enabled, SHIFT_EVENT + now, STABILITY_LOST);
 						dev_state->stability = ELEMENT_UNSTABLE;
 					}
 
@@ -513,7 +519,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 				}
 
-				schedule_first_update_timestamp(me, now, id_device);
+				schedule_update_timestamp(me, now, id_device, 0.0);
 
 				break;
 

@@ -20,11 +20,11 @@ txt_path =args.config_path
 with open(txt_path) as f:
     lines = f.readlines()
     type_dict = {}
-    type_dict['regional'] = []
-    type_dict['local'] = []
-    type_dict['actuator'] = []
-    type_dict['sensor'] = []
-    type_dict['lan'] = []
+    dict_types_association = {}
+    temp_list = ['regional','local','actuator','sensor','lan']
+    for element in temp_list:
+        type_dict[element] = []
+        dict_types_association[element] = {}
 
     cci = lines[0][36:-1].split(",")
     central_type = cci[0]
@@ -37,6 +37,7 @@ with open(txt_path) as f:
     number_of_locals = 0
     countReg=0
     dict_total = {}
+
     for i in range(len(lines)-1):
         if len(lines[i+1]) <= 1:
             break
@@ -47,7 +48,9 @@ with open(txt_path) as f:
         loc = temp.split(":")[1].strip()
         reg_type = reg.split(" ")[1].strip() #TypeN
         if reg_type not in type_dict['regional']:
+            dict_types_association['regional'][reg_type] = len(type_dict['regional'])
             type_dict['regional'].append(reg_type)
+
         reg_amount = reg.split(" ")[0].strip() #how many
         number_of_regionals+=int(reg_amount)
 
@@ -55,6 +58,7 @@ with open(txt_path) as f:
         for element in loc.split(","):
             splitting = element.strip().split(" ")
             if splitting[1] not in type_dict['local']:
+                dict_types_association['local'][reg_type] = len(type_dict['local'])
                 type_dict['local'].append(splitting[1])
             number_of_locals+=int(splitting[0])*int(reg_amount)
             dict_regional_local_amount[splitting[1]] = splitting[0]
@@ -118,6 +122,7 @@ for i in type_dict['local']:
                 for lan_element in local_inf[element]:
                     if lan_element == 'type_lan':
                         if local_inf[element][lan_element] not in type_dict['lan']:
+                            dict_types_association['lan'][local_inf[element][lan_element]] = len(type_dict['lan'])
                             type_dict['lan'].append(local_inf[element][lan_element])
 
                         local_infos_dict[i]['lan'][element][lan_element] = local_inf[element][lan_element]
@@ -129,16 +134,21 @@ for i in type_dict['local']:
                         if lan_element.split("_")[0] == "sensor":
                             type = lan_element.split("_")[1] #type
                             if type not in type_dict['sensor']:
+                                dict_types_association['sensor'][type] = len(type_dict['sensor'])
                                 type_dict['sensor'].append(type)
+
                             if 'sensor' not in local_infos_dict[i]['lan'][element]:
                                 local_infos_dict[i]['lan'][element]['sensor'] = {}
                             local_infos_dict[i]['lan'][element]['sensor'][type] = local_inf[element][lan_element]
                         else:
                             if 'actuator' not in local_infos_dict[i]['lan'][element]:
                                 local_infos_dict[i]['lan'][element]['actuator'] = {}
+
                             type = lan_element.split("_")[1] #type
                             if type not in type_dict['actuator']:
+                                dict_types_association['actuator'][type] = len(type_dict['actuator'])
                                 type_dict['actuator'].append(type)
+
                             local_infos_dict[i]['lan'][element]['actuator'][type] = local_inf[element][lan_element]
 
     local_infos_dict[i]['service_times'] = service_time_local
@@ -449,7 +459,7 @@ for i in range(countReg):
                     amount_count = 0
                     while amount_count < amount:
                         associated_lan_down+=str(lan_id)
-                        associated_lan_down+=";"+str(indexLocal)+";3;LAN,"+type_lan+","+str(dict_lan_delay[type_lan])+"\n" #here need type, delay_lan_list[type]
+                        associated_lan_down+=";"+str(indexLocal)+";3;LAN,"+str(dict_types_association['lan'][type_lan])+","+str(dict_lan_delay[type_lan])+"\n" #here need type, delay_lan_list[type]
                         LP_start_list+=","+str(lan_id)
                         if lan_string == "":
                             lan_string+=str(indexLocal)+","+str(lan_id)+",Type"+type_lan
@@ -469,7 +479,7 @@ for i in range(countReg):
 
                                 while inner_sens_count < local_infos_dict[local_types]['lan'][lans]['sensor'][sens_type]:
                                     inner_sensor_count = 0
-                                    sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,"+dict_sensors[sens_type]['job_type']+","+str(sens_type)[4:]+","+dict_sensors[sens_type]['measure_type']+"\n"
+                                    sensor_actuator_string+= str(sensors_start)+";"+str(lan_id)+";4;SENSOR,"+dict_sensors[sens_type]['job_type']+","+str(dict_types_association['sensor'][sens_type])+","+dict_sensors[sens_type]['measure_type']+"\n"
                                     LP_start_list+=","+str(sensors_start)
 
                                     counter_elements+=1
@@ -486,7 +496,7 @@ for i in range(countReg):
                                     son_list+="."+act_type+"/"+str(local_infos_dict[local_types]['lan'][lans]['actuator'][act_type])
 
                                 while inner_act_count < local_infos_dict[local_types]['lan'][lans]['actuator'][act_type]:
-                                    sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,"+dict_actuators[act_type]['job_type']+","+str(act_type)[4:]+","+dict_actuators[act_type]['measure_type']+","+str(dict_actuators[act_type]['rate_trans_act'])+","+str(dict_actuators[act_type]['service_time_commands_act'])+"\n"
+                                    sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";6;ACTUATOR,"+dict_actuators[act_type]['job_type']+","+str(dict_types_association['actuator'][act_type])+","+dict_actuators[act_type]['measure_type']+","+str(dict_actuators[act_type]['rate_trans_act'])+","+str(dict_actuators[act_type]['service_time_commands_act'])+"\n"
                                     if act_string == "":
                                         act_string+=str(lan_id)+","+str(sensors_start)+","+str(act_type)
                                     else:
