@@ -67,7 +67,7 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 	int sum_arrived = 0;
 
 	//uncomment this to use a simulation time max decided a prior
-	return 0;
+	//return 0;
 
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
 		sum_arrived += queue_state->C[i];

@@ -2,6 +2,7 @@
 !.gitignore
 ROOT-Sim-*
 NeuRome-*
+Simulator
 Simulators
 USE-*
 *.o*
