@@ -64,7 +64,7 @@ static void send_reply(unsigned int id_device, simtime_t now, device_state * sta
 	msg.header.element_id = destination;
 	msg.info = info_to_send;
 
-	ScheduleNewEvent(next_lp, SHIFT_EVENT*Random() + now + delay, ARRIVE, &msg, sizeof(message_arrive));
+	ScheduleNewEvent(next_lp, SHIFT_EVENT_REPLY + now + delay, ARRIVE, &msg, sizeof(message_arrive));
 
 }
 
@@ -89,9 +89,9 @@ static void send_command(unsigned int id_device, simtime_t now, device_state  * 
 	msg.info = info_to_send;
 
 	if(state->info.node->type != LOCAL)
-		ScheduleNewEvent(next_lp, SHIFT_EVENT*Random() + now + delay_down, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(next_lp, SHIFT_EVENT_COMMAND + now + delay_down, ARRIVE, &msg, sizeof(message_arrive));
 	else
-		ScheduleNewEvent(next_lp, SHIFT_EVENT*Random() + now, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(next_lp, SHIFT_EVENT_COMMAND + now, ARRIVE, &msg, sizeof(message_arrive));
 
 }
 
@@ -198,7 +198,7 @@ static void send_to_up_node(unsigned int id_device, simtime_t now, device_state 
 	msg.info = *info;
 
 	if(up_node != -1)
-		ScheduleNewEvent(up_lp, SHIFT_EVENT*Random() + now + delay, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(up_lp, now + delay, ARRIVE, &msg, sizeof(message_arrive));
 
 }
 
@@ -212,11 +212,11 @@ static void save_data_on_disk(unsigned int id_device, simtime_t now, job_type ty
 	msg.header.element_id = id_device;
 	msg.info = info_to_send;
 
-	ScheduleNewEvent(id_lp, SHIFT_EVENT*Random() + now, ARRIVE_DISK, &msg, sizeof(message_arrive));
+	ScheduleNewEvent(id_lp, SHIFT_EVENT_DISK + now, ARRIVE_DISK, &msg, sizeof(message_arrive));
 
 }
 
-static void send_aggregated_data(unsigned int id_device, simtime_t now, device_state  * state, double delay_up, job_type type, int * num_aggregated, int max_aggregated, unsigned int id_lp){
+static void send_aggregated_data(unsigned int id_device, simtime_t now, device_state  * state, double delay_up, job_type type, int * num_aggregated, int max_aggregated, unsigned int id_lp, double shift){
 
 	int actual_aggr = ++(*num_aggregated);
 
@@ -226,7 +226,7 @@ static void send_aggregated_data(unsigned int id_device, simtime_t now, device_s
 		//fill_info_to_send(&info_to_send, type, -1, -1);
 		fill_job_info(&info_to_send, -1.0, -1.0, type, -1, -1.0, -1.0, -1);
 
-		send_to_up_node(id_device, now, state, delay_up, &info_to_send);
+		send_to_up_node(id_device, now, state, delay_up + shift, &info_to_send);
 
 		*num_aggregated = 0;
 
@@ -257,7 +257,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 
 	if(info->job_type == TELEMETRY){
 		//printf("TELEMETRY\n");
-		send_aggregated_data(id_device, now, state, delay_up, TELEMETRY, &state->info.node->num_telemetry_aggregated, state->info.node->telemetry_aggregation, id_lp);
+		send_aggregated_data(id_device, now, state, delay_up, TELEMETRY, &state->info.node->num_telemetry_aggregated, state->info.node->telemetry_aggregation, id_lp, SHIFT_EVENT_TELEMETRY);
 
 
 	}
@@ -279,7 +279,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 
 			//###################################################
 			//SEND BATCH_DATA
-			send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp);
+			send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp, SHIFT_EVENT_BATCH);
 			
 			//###################################################
 			//UPDATE TRANSITION METRICS (TO USE FOR REPLY UPDATE ALTERNATIVE)
@@ -296,7 +296,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 			//info->busy_time_transition = busy_time_transition;
 			//info->waiting_time_transition = waiting_time_transition;
 			//info->device_sender = id_device;
-			send_to_up_node(id_device, now, state, delay_up, &info_to_send);
+			send_to_up_node(id_device, now + SHIFT_EVENT_TRANSITION, state, delay_up, &info_to_send);
 			
 			//##################################################
 			//SAVE DATA TO DISK
@@ -313,7 +313,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 	}
 	else if(info->job_type == BATCH_DATA){
 
-		send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp);
+		send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp, SHIFT_EVENT_BATCH);
 
 	}
 	else if(info->job_type == REPLY){
@@ -402,12 +402,12 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 
 	if(info->job_type == TELEMETRY){
 		//printf("TELEMETRY\n");
-		send_to_up_node(id_device, now, state, 0, info);
+		send_to_up_node(id_device, now, state, SHIFT_EVENT_TELEMETRY, info);
 
 	}
 	else if(info->job_type == TRANSITION){
 		//printf("TRANSITION\n");
-		send_to_up_node(id_device, now, state, 0, info);
+		send_to_up_node(id_device, now, state, SHIFT_EVENT_TRANSITION, info);
 
 	}
 	else if(info->job_type == COMMAND){
@@ -423,7 +423,7 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 		msg.header.element_id = destination;
 		msg.info = *info;
 
-		ScheduleNewEvent(next_lp, SHIFT_EVENT*Random() + now, ARRIVE, &msg, sizeof(message_arrive));
+		ScheduleNewEvent(next_lp, SHIFT_EVENT_COMMAND + now, ARRIVE, &msg, sizeof(message_arrive));
 
 	}
 	else if(info->job_type == BATCH_DATA){
