@@ -67,7 +67,7 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 	int sum_arrived = 0;
 
 	//uncomment this to use a simulation time max decided a prior
-	//return 0;
+	return 0;
 
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
 		sum_arrived += queue_state->C[i];
@@ -135,7 +135,7 @@ void schedule_update_timestamp(unsigned int me, simtime_t now, int id_device, do
 }
 
 void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_device){
-	
+
 	schedule_update_timestamp(me, now, id_device, id_device);
 
 }
@@ -161,7 +161,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 	switch(event_type) {
 
 		case INIT:
-			printf("starting setup\n");
 			//all nodes except the master node are disabled by default
 			state = malloc(sizeof(lp_state));
 			//a safe memset to obtain a clean starting state
@@ -184,7 +183,6 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			break;
 
 		case START_SIMULATION:
-			printf("initializing devices and starting simulation\n");
 			//we enable the LP
 			state->lp_enabled=LP_ENABLED;
 			state->num_stable_elements=0;

@@ -1088,7 +1088,6 @@ int main(int argc, char** argv){
 	FILE *out_json=NULL, *out_tex=NULL, *order=NULL;
 	//out_tex=fopen("results.tex","w");
 	out_json=fopen(json_filename,"w");
-	printf("out_json file filename:%s\n",json_filename);
 	// order=fopen("order.txt","w");
 	int central_id;
 	//fprintf(out_tex,"\\documentclass{article}\n\\usepackage{booktabs}\n\\usepackage{float}\\begin{document}\n");

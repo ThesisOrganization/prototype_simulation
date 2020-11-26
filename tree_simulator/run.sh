@@ -33,7 +33,7 @@ do
 	elif [[ $arg == "valgrind" || $arg == "gdb" ]]; then
 		dbg_arg=$arg
 		# we need to add -g to the makefile so we make a backup
-		dbg_make="ENABLE_DBG_OPTS=1 clean"
+		dbg_make="DBG=1 clean"
 	elif [[ ${arg:0:5} == "--lp=" ]]; then
 		number_lp=${arg#"--lp="}
 	elif [[ ${arg:0:5} == "--wt=" ]]; then
