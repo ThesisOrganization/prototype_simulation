@@ -10,6 +10,7 @@ void funzione_stampa(int intero){
 void send_msg(void* state){
 
     device_state* ds = (device_state*) state;
-    //printf("Num acts types= %d\n", ds->type);
+		if(ds->info.actuator->queue_state->C[COMMAND] % 100 == 1)
+			printf("Num command received= %d\n", ds->info.actuator->queue_state->C[COMMAND]);
 
 }
