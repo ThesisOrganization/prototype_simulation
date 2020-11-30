@@ -187,6 +187,9 @@ void init_actuator(unsigned int id_device, simtime_t now, device_state * state, 
 
     double rate_transition = GET_RATE_TRANSITION(state->topology);
     state->info.actuator->rate_transition = rate_transition;
+		
+		init_ptr[P_ACTUATOR][0](state);
+
 
     //schedule generate for all actuators
 		if(rate_transition>0){

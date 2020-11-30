@@ -206,6 +206,7 @@ typedef struct _device_state {
 	int num_acts_types;
 	double * prob_actuators;
 	state_info info;
+	void* state_machine;
 } device_state;
 
 typedef struct _state {

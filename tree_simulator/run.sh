@@ -154,7 +154,18 @@ else
 		fi
 		if [[ $target == "all" || $target == "compile" ]]; then
 			echo "compiling model..."
-			make LOCATION=$output_location $dbg_make rootsim
+            
+            echo "taking state machines..."
+            files=$(python state_machine_linker.py)
+            
+            IFS='|'
+            read -ra divided <<< "$files"
+            
+            file_c=${divided[0]}
+            file_h=${divided[1]}
+            
+            
+			make PASSING_C="$file_c" PASSING_H="$file_h" LOCATION=$output_location $dbg_make rootsim 
 			err=$?
 			if [[ $err != 0  ]]; then
 				echo "error during compilation of model, aborting"

@@ -1,0 +1,15 @@
+GeneratorModel for yakindu::c {
+
+	const PROJECT : string = "state_machine_f"
+
+	const FOLDER : string = "src-gen"
+
+	statechart state_machine {
+
+		feature Outlet {
+			targetProject = PROJECT
+			targetFolder = FOLDER
+			libraryTargetFolder = "src"
+		}
+	}
+}

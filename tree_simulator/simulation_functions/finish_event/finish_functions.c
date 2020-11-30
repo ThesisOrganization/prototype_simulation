@@ -350,6 +350,8 @@ void finish_actuator(unsigned int id_device, simtime_t now, device_state  * stat
 	else if(info->job_type == COMMAND){
 
 		//printf("COMMAND received!!!!\n");
+		raise_ptr[P_ACTUATOR][0][0](state->state_machine);
+
 
 	}
 	else if(info->job_type == BATCH_DATA){

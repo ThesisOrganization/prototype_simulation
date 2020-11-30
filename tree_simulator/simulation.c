@@ -140,6 +140,9 @@ void schedule_first_update_timestamp(unsigned int me, simtime_t now, int id_devi
 
 }
 
+void (** init_ptr[NUM_OF_ELEMENTS_TYPES])();
+void (*** raise_ptr[NUM_OF_ELEMENTS_TYPES])();
+
 
 void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void *content, int size, lp_state * state)
 {
@@ -168,6 +171,11 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			SetState(state);
 			state->lp_enabled = LP_SETUP;
 			setup(me,state,n_prc_tot);
+			
+			if(me == 0){
+				fill_init_ptr(init_ptr);
+				fill_raise_ptr(raise_ptr);
+			}
 			break;
 
 		case DISABLE_UNUSED_LP:

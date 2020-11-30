@@ -6,9 +6,13 @@
 #include "../../utils/priority_queue/priority_queue.h"
 #include "../../utils/application_datatypes.h"
 #include "../../utils/message/message.h"
+#include "../linking.h"
 #include "../simulation.h"
 
 #define FREEJOB_NOTFOUND -1
+
+extern void (** init_ptr[NUM_OF_ELEMENTS_TYPES])();
+extern void (*** raise_ptr[NUM_OF_ELEMENTS_TYPES])();
 
 void fill_job_info(job_info * info, double arrived_in_node_timestamp, double deadline, job_type job_type, int device_sender, double busy_time_transition, double waiting_time_transition, int device_destination);
 
