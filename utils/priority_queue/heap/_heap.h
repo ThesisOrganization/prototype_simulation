@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "../../application_datatypes.h"
+#include "../../priority_scheduler/priority_scheduler_datatypes.h"
 
 typedef struct _heap_entry{
 	double key;

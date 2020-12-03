@@ -25,7 +25,7 @@ typedef enum _job_type {
 
 /// Metadata used to charhterize a job type and priority.
 typedef struct _job_info {
-	prio_type type; ///< The type of job.
+	prio_type prio; ///< The type of job.
 	double arrived_in_node_timestamp;
 	double deadline; ///< The deadline at which the job must be completed.
 	//void* payload; ///< The actual job data. (can't be sent on rootsim)
@@ -42,11 +42,13 @@ typedef struct _job_info {
  */
 typedef struct queue_conf{
 	void* queue; ///< The queue object.
-	prio_type type; ///< The queue type, see `::QUEUE_BATCH`, `::QUEUE_LOSSY`, `::QUEUE_RT`.
+	prio_type prio; ///< The queue priority, see `::QUEUE_BATCH`, `::QUEUE_LOSSY`, `::QUEUE_RT`.
+	job_type type; ///< The queue type if is ::INVALID_JOB than the queue accepts jobs on any type;
 	void (*enqueue)(void*,double,job_info); ///< The enqueue operation used for this queue.
 	job_info (*dequeue)(void*); ///< The dequeue operation used for this queue.
 	int (*check_presence)(void*); ///< Check is the queue is empty.
 	int (*check_full)(void*); ///< Check if the queue is full, this function can be NULL if the queue is infinite.
+	double (*peek)(void*); ///< returns the timestamp of the first element in the queue.
 } queue_conf;
 
 #endif

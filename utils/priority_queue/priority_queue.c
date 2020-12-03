@@ -38,3 +38,7 @@ void print_queue(priority_queue * pq){
     heap_print(pq);
 
 }
+
+double queue_peek(priority_queue* pq){
+	return heap_peek(pq);
+}

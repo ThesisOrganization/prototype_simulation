@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -g -fsanitize=address
 SRCS = heap/heap.c priority_queue.c
 OBJS = $(SRCS:.c=.o)
 HEADERS = $(SRCS:.c=.h)

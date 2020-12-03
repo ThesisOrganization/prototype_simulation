@@ -18,7 +18,7 @@ HEAP_TYPE heap_type(heap * hh) {
 	return h->is_min_heap;
 }
 
-int heap_peek(heap * hh) {
+double heap_peek(heap * hh) {
 	_heap * h = hh;
 	return h->array[0].key;
 }

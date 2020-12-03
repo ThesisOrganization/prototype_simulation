@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall
-SRCS = queue_quick_sort.c priority_scheduler.c ../priority_queue/heap/heap.c ../priority_queue/priority_queue.c
+SRCS = queue_quick_sort.c priority_scheduler.c ../priority_queue/heap/heap.c ../priority_queue/priority_queue.c scheduling_algorithms.c
 OBJS = $(SRCS:.c=.o)
 HEADERS = $(SRCS:.c=.h)
 MAIN = driver
@@ -15,4 +15,4 @@ $(MAIN): $(OBJS) $(MAIN).c
 	gcc -ggdb -c $(CFLAGS) $*.c -o $*.o
 
 clean:
-	$(RM) *.o $(MAIN)
+	$(RM) $(SRCS:.c=.o) $(MAIN)
