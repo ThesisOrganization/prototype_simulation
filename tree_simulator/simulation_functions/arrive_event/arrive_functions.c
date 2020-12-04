@@ -9,7 +9,18 @@ static void start_device(unsigned int id_device, simtime_t now, queue_state * qu
 	simtime_t ts_finish = Expent(rate);
 	info->total_computation = ts_finish;
 	info->remain_computation = info->total_computation;
+
+#if PREEMPTION == 0
 	info->time_slice = info->total_computation;
+	
+	//PREEPTION
+#else
+	if(info->total_computation < service_rates[TELEMETRY])
+		info->time_slice = info->total_computation;
+	else
+		info->time_slice = service_rates[TELEMETRY];
+#endif
+	
 
 	if(queue_state->num_running_jobs < queue_state->num_cores){
 		

@@ -49,11 +49,12 @@ static int round_robin_algorithm(int num_input_queues, queue_conf** input_queues
 	job_type type;
 //	printf("last scheduled: %d\n",last_scheduled);
 	//we start from the highest priority, exploiting the fact that queues are ordered by priority
+	type=(last_scheduled+1)% NUM_OF_JOB_TYPE;
 	for(prio=REAL_TIME;prio<NUM_OF_PRIO_TYPES && queue==SCHEDULE_FAIL ;prio++){
 	//	printf("checkgin prio %d\n",prio);
 	//	printf("type: %d\n",(last_scheduled+1)%NUM_OF_JOB_TYPE);
 		//we start searching from the type of data which is next from the last scheduled data
-		for(type=(last_scheduled+1)% NUM_OF_JOB_TYPE;type<NUM_OF_JOB_TYPE && queue==SCHEDULE_FAIL ;type=(type+1)%NUM_OF_JOB_TYPE){
+		for(int j=0; j<NUM_OF_JOB_TYPE && queue==SCHEDULE_FAIL; j++){
 	//		printf("checking type %d\n",type);
 			//we search all the queues with the matching type and priority
 			for(i=0;i<num_input_queues && queue==SCHEDULE_FAIL;i++){
@@ -64,6 +65,7 @@ static int round_robin_algorithm(int num_input_queues, queue_conf** input_queues
 					queue=i;
 				}
 			}
+		type=(type+1)%NUM_OF_JOB_TYPE;
 		}
 	}
 //	printf("queue:%d\n",queue);

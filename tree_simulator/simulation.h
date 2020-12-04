@@ -40,4 +40,6 @@
 #define SHIFT_EVENT_FIFTH 0.5
 #define SHIFT_EVENT_SIXTH 0.6
 
+#define PREEMPTION 1
+
 #endif /* SIMULATION_H */
