@@ -242,6 +242,10 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 	//job_info * info = state->info.node->queue_state->current_job;
 	job_info current_job = state->info.node->queue_state->current_jobs[core];
 	job_info * info = &current_job;
+	
+	//if not completed
+	//schedule in
+	//schedule next job
 
 	double busy_time_transition = now - state->info.node->queue_state->start_processing_timestamp[core];
 	double waiting_time_transition = now - info->arrived_in_node_timestamp;

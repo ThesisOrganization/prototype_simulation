@@ -1,6 +1,10 @@
 #include "arrive_functions.h"
 
 static void start_device(unsigned int id_device, simtime_t now, queue_state * queue_state, double * service_rates, job_info * info, lan_direction direction, events_type event_to_trigger, unsigned int id_lp){
+	
+	//compute servire time completo
+	//initializzi t_response e t_remain
+	//initializzi il quanto (in base a se c'è preemption o no)
 
 	if(queue_state->num_running_jobs < queue_state->num_cores){
 		
