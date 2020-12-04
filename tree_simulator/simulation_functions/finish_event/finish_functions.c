@@ -139,7 +139,8 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 		queue_state->W2 += (now - queue_state->last_update_ts) * queue_state->num_jobs_in_queue;
 		
 		queue_state->C[type]++;
-		queue_state->B[type] += now - queue_state->start_processing_timestamp[core];
+		//queue_state->B[type] += now - queue_state->start_processing_timestamp[core];
+		queue_state->B[type] += info->total_computation;
 		queue_state->W[type] += now - info->arrived_in_node_timestamp;
 		queue_state->A[type] = queue_state->A_post[type];
 		queue_state->actual_timestamp[type] = now;
@@ -173,15 +174,15 @@ static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state
 	
 	if(ret_schedule == SCHEDULE_DONE){
 		queue_state->current_jobs[core] = array_job_info[0];
-		double rate = service_rates[queue_state->current_jobs[core].job_type];
-		simtime_t ts_finish = now + Expent(rate);
+		//double rate = service_rates[queue_state->current_jobs[core].job_type];
+		//simtime_t ts_finish = now + Expent(rate);
 		queue_state->start_processing_timestamp[core] = now;
 		message_finish msg;
 		msg.header.element_id = id_device;
 		msg.core = core;
 		msg.direction = direction;
 
-		ScheduleNewEvent(id_lp, ts_finish, event_to_trigger, &msg, sizeof(message_finish));
+		ScheduleNewEvent(id_lp, now + queue_state->current_jobs[core].time_slice, event_to_trigger, &msg, sizeof(message_finish));
 		
 		queue_state->num_running_jobs++;
 	}

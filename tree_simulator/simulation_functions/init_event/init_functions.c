@@ -8,7 +8,7 @@ static queue_conf** create_new_queues(int num_queues){
     for(int i = 0; i < num_queues; i++){
         queues[i] = malloc(sizeof(queue_conf));
         queues[i]->queue = create_queue();
-        queues[i]->type = INVALID_JOB;
+        queues[i]->type = i;
 				queues[i]->prio = REAL_TIME;
         queues[i]->enqueue = enqueue;
         queues[i]->dequeue = dequeue;
@@ -101,7 +101,7 @@ void init_node(unsigned int id_device, device_state* state){
 
     init_metrics(state->info.node->queue_state, state->info.node->queue_state->num_cores);
 
-    int num_queues = 1;
+    int num_queues = NUM_OF_JOB_TYPE;
     state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
 
     state->info.node->service_rates = GET_SERVICE_TIMES_NODES(state->topology);
@@ -138,7 +138,7 @@ void init_node(unsigned int id_device, device_state* state){
 
         init_metrics(state->info.node->disk_state, state->info.node->disk_state->num_cores);
 
-        num_queues = 1;
+        num_queues = NUM_OF_JOB_TYPE;
         state->info.node->disk_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
     }
 
@@ -182,7 +182,7 @@ void init_actuator(unsigned int id_device, simtime_t now, device_state * state, 
 		
     init_metrics(state->info.actuator->queue_state, state->info.actuator->queue_state->num_cores);
 
-    int num_queues = 1;
+    int num_queues = NUM_OF_JOB_TYPE;
     state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
 
     state->info.actuator->service_rate_command = GET_SERVICE_COMMAND(state->topology);
@@ -218,7 +218,7 @@ void init_lan(unsigned int id_device, device_state * state){
     init_metrics(state->info.lan->queue_state_in, state->info.lan->queue_state_in->num_cores);
     init_metrics(state->info.lan->queue_state_out, state->info.lan->queue_state_out->num_cores);
 
-    int num_queues = 1;
+    int num_queues = NUM_OF_JOB_TYPE;
     state->info.lan->queue_state_in->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
     state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
 

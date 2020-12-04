@@ -33,6 +33,9 @@ typedef struct _job_info {
 	int device_sender; //used for the reply
 	double busy_time_transition; //used with the reply and transition
 	double waiting_time_transition; //used with the reply and transition
+	double time_slice; ///in italian we say: quanto
+	double remain_computation;
+	double total_computation;
 	int device_destination; //used for command
 } job_info;
 
