@@ -10,7 +10,7 @@ static void start_device(unsigned int id_device, simtime_t now, queue_state * qu
 	info->total_computation = ts_finish;
 	info->remain_computation = info->total_computation;
 
-#if PREEMPTION == 1
+#if PREEMPTION == 0 //if PREEMPTION == 1 (instead of PREEMPTION == 0) have round robin without preemption
 	info->time_slice = info->total_computation;
 	
 	//PREEPTION
