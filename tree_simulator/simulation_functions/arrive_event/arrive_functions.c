@@ -10,16 +10,20 @@ static void start_device(unsigned int id_device, simtime_t now, queue_state * qu
 	info->total_computation = ts_finish;
 	info->remain_computation = info->total_computation;
 
-#if PREEMPTION == 0
+#if PREEMPTION == 1
 	info->time_slice = info->total_computation;
 	
 	//PREEPTION
 #else
-	if(info->total_computation < service_rates[TELEMETRY])
+	if(info->total_computation < queue_state->time_slice)
 		info->time_slice = info->total_computation;
 	else
-		info->time_slice = service_rates[TELEMETRY];
+		info->time_slice = queue_state->time_slice;
 #endif
+	
+	//printf("timeslice in arrive: %f\n", info->time_slice);
+	//printf("total_computation: %f\n", info->total_computation);
+	//printf("service_rates: %f\n", service_rates[TELEMETRY]);
 	
 
 	if(queue_state->num_running_jobs < queue_state->num_cores){

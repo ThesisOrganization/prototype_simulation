@@ -2,6 +2,7 @@
  * This file exports the datastructres used to select the algorithms that will govern the scheduler.
  */
 #include "scheduling_algorithms.h"
+#include "../priority_queue/priority_queue.h"
 
 /** \brief selects the firsts non-empty queue according to the priority
  * \param[in] num_input_queues The number of input queues.
@@ -47,20 +48,22 @@ static int round_robin_algorithm(int num_input_queues, queue_conf** input_queues
 	int i=0;
 	prio_type prio;
 	job_type type;
-//	printf("last scheduled: %d\n",last_scheduled);
+// 	printf("last scheduled: %d\n",last_scheduled);
 	//we start from the highest priority, exploiting the fact that queues are ordered by priority
 	type=(last_scheduled+1)% NUM_OF_JOB_TYPE;
 	for(prio=REAL_TIME;prio<NUM_OF_PRIO_TYPES && queue==SCHEDULE_FAIL ;prio++){
-	//	printf("checkgin prio %d\n",prio);
-	//	printf("type: %d\n",(last_scheduled+1)%NUM_OF_JOB_TYPE);
+// 		printf("checkgin prio %d\n",prio);
+// 		printf("type: %d\n",(last_scheduled+1)%NUM_OF_JOB_TYPE);
 		//we start searching from the type of data which is next from the last scheduled data
 		for(int j=0; j<NUM_OF_JOB_TYPE && queue==SCHEDULE_FAIL; j++){
-	//		printf("checking type %d\n",type);
+// 			printf("checking type %d\n",type);
 			//we search all the queues with the matching type and priority
 			for(i=0;i<num_input_queues && queue==SCHEDULE_FAIL;i++){
-	//			printf("checking queue: %d,  typeod of queue: %d\n",i,input_queues[i]->type);
+// 				printf("checking queue: %d,  typeod of queue: %d\n",i,input_queues[i]->type);
 				if(input_queues[i]->type==type &&(input_queues[i]->check_presence)(input_queues[i]->queue)>0){
-	//				printf("queue non empty\n");
+// 					printf("queue non empty\n");
+// 					printf("output queue \n priority%d type: %d, items: %d\n contents:\n",input_queues[i]->prio,input_queues[i]->type,(input_queues[i]->check_presence)(input_queues[i]->queue));
+// 					print_queue(input_queues[i]->queue);
 					//if we get the right type
 					queue=i;
 				}
@@ -68,7 +71,11 @@ static int round_robin_algorithm(int num_input_queues, queue_conf** input_queues
 		type=(type+1)%NUM_OF_JOB_TYPE;
 		}
 	}
-//	printf("queue:%d\n",queue);
+	//if(queue == SCHEDULE_FAIL){
+	//	printf("output queue \n priority%d type: %d, items: %d\n contents:\n",o->prio,o->type,(o->check_presence)(o->queue));
+	//	print_queue(o->queue);
+	//}
+// 	printf("queue:%d\n",queue);
 	return queue;
 }
 
@@ -82,5 +89,6 @@ int select_queue(priority_scheduler* sched){
 			queue=round_robin_algorithm(sched->num_input_queues,sched->input_queues,sched->last_schedule_out);
 			break;
 	}
+	
 	return queue;
 }

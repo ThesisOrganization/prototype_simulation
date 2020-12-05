@@ -677,6 +677,11 @@ bool OnGVT(int me, lp_state *snapshot)
 			if(dev_state->type == NODE){
 
 				fprintf(output_file, "{\"id\": %d,", id_device);
+// #if PREEMPTION == 1
+// 				fprintf(output_file, "\"scheduler\": %d,", PREEMPTION);
+// #else
+// 				fprintf(output_file, "\"scheduler\": %d,", PREEMPTION);
+// #endif
 				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
 				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
 				fprintf(output_file, "\"type\": \"node\",");

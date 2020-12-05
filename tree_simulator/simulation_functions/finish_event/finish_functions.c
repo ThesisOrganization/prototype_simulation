@@ -174,10 +174,11 @@ static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state
 	queue_state->current_jobs[core].job_type = INVALID_JOB; ///set the actual core to free. It will be overwrite if there is a job in queue that can be served
 	queue_state->num_running_jobs--;
 	
-#if PREEMPTION == 1
-	if(ret_schedule != SCHEDULE_DONE)
-		printf("schedule return: %d\n", ret_schedule);
-#endif
+//#if PREEMPTION == 1
+//	if(ret_schedule != SCHEDULE_DONE){
+//		printf("schedule return: %d\n", ret_schedule);
+//	}
+//#endif
 	
 	if(ret_schedule == SCHEDULE_DONE){
 		queue_state->current_jobs[core] = array_job_info[0];
@@ -193,6 +194,9 @@ static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state
 		double time_slice = queue_state->current_jobs[core].time_slice;
 		double remain_computation = queue_state->current_jobs[core].remain_computation;
 		
+// 		printf("remain_computation: %f\n", remain_computation);
+// 		printf("time_slice: %f\n", time_slice);
+		
 		if( remain_computation >= time_slice){
 			ts_finish = time_slice;
 		}
@@ -201,6 +205,7 @@ static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state
 		}
 		
 		queue_state->current_jobs[core].time_slice = ts_finish;
+// 		printf("time_slice in finish: %f\n", queue_state->current_jobs[core].time_slice);
 
 		ScheduleNewEvent(id_lp, now + ts_finish, event_to_trigger, &msg, sizeof(message_finish));
 		

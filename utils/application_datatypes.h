@@ -60,6 +60,7 @@ typedef enum _setup_data_types{
 
 
 typedef struct _queue_state {
+	double time_slice;
 	simtime_t * start_processing_timestamp;
 	job_info * current_jobs;
 	int num_cores; ///max number of current jobs running
