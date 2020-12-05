@@ -40,6 +40,9 @@
 #define SHIFT_EVENT_FIFTH 0.5
 #define SHIFT_EVENT_SIXTH 0.6
 
+/// if preemption must be enabled
 #define PREEMPTION 1
+/// if the round robin algorithm must be used instead of the FIFO algorithm
+#define SCHEDULING_ROUND_ROBIN 1
 
 #endif /* SIMULATION_H */

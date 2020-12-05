@@ -117,7 +117,7 @@ void init_node(unsigned int id_device, device_state* state){
     init_metrics(state->info.node->queue_state, state->info.node->queue_state->num_cores);
 
     int num_queues = NUM_OF_JOB_TYPE;
-#if PREEMPTION == 1
+#if SCHEDULING_ROUND_ROBIN == 1
     state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_RR);
 #else
     state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
@@ -161,7 +161,7 @@ void init_node(unsigned int id_device, device_state* state){
         init_metrics(state->info.node->disk_state, state->info.node->disk_state->num_cores);
 
         num_queues = NUM_OF_JOB_TYPE;
-#if PREEMPTION == 1
+#if SCHEDULING_ROUND_ROBIN == 1
         state->info.node->disk_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_RR);
 #else
         state->info.node->disk_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
@@ -209,7 +209,7 @@ void init_actuator(unsigned int id_device, simtime_t now, device_state * state, 
     init_metrics(state->info.actuator->queue_state, state->info.actuator->queue_state->num_cores);
 
     int num_queues = NUM_OF_JOB_TYPE;
-#if PREEMPTION == 1
+#if SCHEDULING_ROUND_ROBIN == 1
     state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_RR);
 #else
     state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
@@ -254,13 +254,13 @@ void init_lan(unsigned int id_device, device_state * state){
     init_metrics(state->info.lan->queue_state_out, state->info.lan->queue_state_out->num_cores);
 
     int num_queues = NUM_OF_JOB_TYPE;
-#if PREEMPTION == 1
+#if SCHEDULING_ROUND_ROBIN == 1
     state->info.lan->queue_state_in->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_RR);
 #else
     state->info.lan->queue_state_in->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
 #endif
 		
-#if PREEMPTION == 1
+#if SCHEDULING_ROUND_ROBIN == 1
     state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_RR);
 #else
     state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
