@@ -411,7 +411,12 @@ for element in ordered_id_list:
             f_out.write(to_write);
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
-
+            f_out.write("Scheduling algorithm: "+dict_simulator[element]["scheduler"]+".\\\\")
+            if dict_simulator[element]["preemption"] == 1:
+                f_out.write("Preemption enabled. \\\\")
+                f_out.write("Time slice for the scheduler: "+str(dict_simulator[element]["time_slice"])+".\\\\")
+            else:
+                f_out.write("Preemption not enabled. \\\\")
             if dict_model[element]['num_cores'] > 1:
                 f_out.write("This node has "+str(dict_model[element]['num_cores'])+" processing units.\\\\")
             if dict_model[element]['node_type'] == 'regional':
@@ -461,7 +466,12 @@ for element in ordered_id_list:
                 str_to_write = "Central storage of Node "
                 to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
                 f_out.write(to_write);
-
+                f_out.write("Scheduling algorithm: "+dict_simulator[element]['storage']["scheduler"]+".\\\\")
+                if dict_simulator[element]['storage']["preemption"] == 1:
+                    f_out.write("Preemption enabled. \\\\")
+                    f_out.write("Time slice for the scheduler: "+str(dict_simulator[element]['storage']["time_slice"])+".\\\\")
+                else:
+                    f_out.write("Preemption not enabled. \\\\")
                 f_out.write(begin_table)
                 f_out.write(service_line(dict_model,params,'storage'))
 
@@ -475,6 +485,12 @@ for element in ordered_id_list:
             f_out.write(to_write);
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
+            f_out.write("Scheduling algorithm: "+dict_simulator[element]["scheduler"]+".\\\\")
+            if dict_simulator[element]["preemption"] == 1:
+                f_out.write("Preemption enabled. \\\\")
+                f_out.write("Time slice for the scheduler: "+str(dict_simulator[element]["time_slice"])+".\\\\")
+            else:
+                f_out.write("Preemption not enabled. \\\\")
             f_out.write("This actuator is of "+dict_ids_acts[element]['type']+"\\\\"+"\n")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\\n")
             flagSimilarity = False
@@ -502,6 +518,12 @@ for element in ordered_id_list:
             f_out.write(to_write)
             if dict_simulator[element]["stable"] == 0:
                 f_out.write("This element \\textbf{didn't} reach stability in the simulation!\\\\")
+            f_out.write("Scheduling algorithm: "+dict_simulator[element]['lan_in']["scheduler"]+".\\\\")
+            if dict_simulator[element]['lan_in']["preemption"] == 1:
+                f_out.write("Preemption enabled. \\\\")
+                f_out.write("Time slice for the scheduler: "+str(dict_simulator[element]['lan_in']["time_slice"])+".\\\\")
+            else:
+                f_out.write("Preemption not enabled. \\\\")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\\n")
             flagSimilarity = False
             if element in dict_lan_similar.keys():
@@ -523,7 +545,12 @@ for element in ordered_id_list:
             str_to_write = "Lan OUT "
             to_write = "\\subsection{"+str_to_write+str(element)+"}\n"
             f_out.write(to_write);
-
+            f_out.write("Scheduling algorithm: "+dict_simulator[element]['lan_out']["scheduler"]+".\\\\")
+            if dict_simulator[element]['lan_out']["preemption"] == 1:
+                f_out.write("Preemption enabled. \\\\")
+                f_out.write("Time slice for the scheduler: "+str(dict_simulator[element]['lan_out']["time_slice"])+".\\\\")
+            else:
+                f_out.write("Preemption not enabled. \\\\")
             f_out.write(begin_table)
             f_out.write(service_line(dict_model,params,'lan_out'))
 

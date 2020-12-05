@@ -674,16 +674,21 @@ bool OnGVT(int me, lp_state *snapshot)
 
 			if(index>0 &&  (dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR))
 				fprintf(output_file, ",");
-			if(dev_state->type == NODE){
-
+			if(dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR){
 				fprintf(output_file, "{\"id\": %d,", id_device);
-// #if PREEMPTION == 1
-// 				fprintf(output_file, "\"scheduler\": %d,", PREEMPTION);
-// #else
-// 				fprintf(output_file, "\"scheduler\": %d,", PREEMPTION);
-// #endif
 				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
 				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
+				if(dev_state->type!=LAN){
+					fprintf(output_file, "\"preemption\": %d,", PREEMPTION);
+#if SCHEDULING_ROUND_ROBIN == 1
+					fprintf(output_file, "\"scheduler\": \"%s\",","Round Robin");
+#else
+					fprintf(output_file, "\"scheduler\": \"%s\",","FIFO");
+#endif
+				}
+			}
+			if(dev_state->type == NODE){
+				fprintf(output_file, "\"time_slice\": %f,",dev_state->info.node->queue_state->time_slice);
 				fprintf(output_file, "\"type\": \"node\",");
 				fprintf(output_file, "\"parameters\": {");
 				print_metrics(dev_state->info.node->queue_state, output_file);
@@ -691,6 +696,13 @@ bool OnGVT(int me, lp_state *snapshot)
 				if(GET_NODE_TYPE(dev_state->topology) == CENTRAL){
 
 					fprintf(output_file, "\"storage\": {");
+					fprintf(output_file, "\"preemption\": %d,", PREEMPTION);
+#if SCHEDULING_ROUND_ROBIN == 1
+					fprintf(output_file, "\"scheduler\": \"%s\",","Round Robin");
+#else
+					fprintf(output_file, "\"scheduler\": \"%s\",","FIFO");
+#endif
+					fprintf(output_file, "\"time_slice\": %f,",dev_state->info.node->disk_state->time_slice);
 					print_metrics(dev_state->info.node->disk_state, output_file);
 					fprintf(output_file, "},");
 					fprintf(output_file, "\"node_type\": \"central\"}");
@@ -705,9 +717,7 @@ bool OnGVT(int me, lp_state *snapshot)
 			}
 			else if(dev_state->type == ACTUATOR){
 
-				fprintf(output_file, "{\"id\": %d,", id_device);
-				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
-				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
+				fprintf(output_file, "\"time_slice\": %f,",dev_state->info.actuator->queue_state->time_slice);
 				fprintf(output_file, "\"type\": \"actuator\",");
 				fprintf(output_file, "\"parameters\": {");
 				print_metrics(dev_state->info.actuator->queue_state, output_file);
@@ -717,15 +727,26 @@ bool OnGVT(int me, lp_state *snapshot)
 			}
 			else if(dev_state->type == LAN){
 
-				fprintf(output_file, "{\"id\": %d,", id_device);
-				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
-				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
 				fprintf(output_file, "\"type\": \"lan\",");
 				fprintf(output_file, "\"lan_in\": {");
+				fprintf(output_file, "\"preemption\": %d,", PREEMPTION);
+#if SCHEDULING_ROUND_ROBIN == 1
+				fprintf(output_file, "\"scheduler\": \"%s\",","Round Robin");
+#else
+				fprintf(output_file, "\"scheduler\": \"%s\",","FIFO");
+#endif
+				fprintf(output_file, "\"time_slice\": %f,",dev_state->info.lan->queue_state_in->time_slice);
 				print_metrics(dev_state->info.lan->queue_state_in, output_file);
 				fprintf(output_file, "},");
 
 				fprintf(output_file, "\"lan_out\": {");
+				fprintf(output_file, "\"preemption\": %d,", PREEMPTION);
+#if SCHEDULING_ROUND_ROBIN == 1
+				fprintf(output_file, "\"scheduler\": \"%s\",","Round Robin");
+#else
+				fprintf(output_file, "\"scheduler\": \"%s\",","FIFO");
+#endif
+				fprintf(output_file, "\"time_slice\": %f,",dev_state->info.lan->queue_state_out->time_slice);
 				print_metrics(dev_state->info.lan->queue_state_out, output_file);
 				fprintf(output_file, "},");
 				fprintf(output_file, "\"node_type\": \"\"}");
