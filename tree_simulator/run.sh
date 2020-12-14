@@ -8,6 +8,7 @@ working_threads=1
 options=""
 dbg_arg=""
 dbg_param=""
+opt_make=""
 dbg_make=""
 quiet="no"
 error="no"
@@ -32,8 +33,17 @@ do
 			working_threads=$(nproc)
 	elif [[ $arg == "valgrind" || $arg == "gdb" ]]; then
 		dbg_arg=$arg
-		# we need to add -g to the makefile so we make a backup
-		dbg_make="DBG=1 clean"
+		opt_make+="DBG=1 "
+		dbg_make="clean"
+	elif [[ $arg == "--preempt" ]]; then
+		opt_make+="PREEMPT=1 "
+	elif [[ ${arg,,} == "--sched=rr" ]]; then
+		opt_make+="SCHED_RR=1 "
+	elif [[ ${arg:0:16} == "--sim_processing" ]]; then
+		opt_make+="SIM_PROC=1 "
+		if [[  ${arg:17} > 0 ]]; then
+			opt_make+="SIM_PROC_MULTI=${arg:17} "
+		fi
 	elif [[ ${arg:0:5} == "--lp=" ]]; then
 		number_lp=${arg#"--lp="}
 	elif [[ ${arg:0:5} == "--wt=" ]]; then
@@ -77,28 +87,38 @@ if [[ $sim_name == "all" || $sim_name == "" ]] && [[ $options == "json" ]]; then
 	 error="yes"
 fi
 if [[ $quiet == "no" || $error == "yes" ]]; then
-	echo -e "This script will compile and run the model, using the configured simulator\n It will provide two json files:\n
-\"$file_json\": which will contain the data of all the model elements (sensors excluded), that is also available in a per LP fashion in the \"lp_data\" folder\n \"$stat_json\": which contains general statistics on the executed simulation\n"
-	echo -e "To run the model at least two files are required in this folder:\n
+	echo -e "This script can compile and run the model, using the configured simulator. The operation to perform and the simulator to target need to passed as a parameter (see below for the options).\n Running the model will generate two json files:\n
+ \"$file_json\": which will contain the data of all the model elements (sensors excluded), that is also available in a per LP fashion in the \"lp_data\" folder\n
+ \"$stat_json\": which contains general statistics on the executed simulation\n"
+	echo -e "\nTo run the model at least these files are required in this folder:\n
  \"topology.txt\", which will contain the topology and the characteristics of the elements in the model\n
  \"LP.txt\", which will contain the association between model elements and LPs.\n
- The default behaviour is resetting the model folder to a clean state, compiling and executing."
+ The binary data for each LP in the \"bin\", \"bin/gentop\" and \"bin/lptop\" folders.\n\n"
 	echo -e "The execution can be customized with some arguments:\n
+	\n General options:\n
  \"-q --quiet\": disable this message\n
- \"json\": only merge the json files in \"lp_data\"\n
  \"clean\": remove all products of compilation and execution, leaving only the source files\n
- \"gdb\" run the program under gdb (this will make a temporary modification to the makefile, adding -g  and -O0 to the compiler options)\n
- \"valgrind\": run the program under valgrind (this will make a temporary modification to the makefile, adding -g to the compiler options)\n
- \"--lp=\": specify the number of LPs, if this argument is not provided the number of LPs will be determined from \"LP.txt\"\n
- \"serial\": run with only one thread (used by default)\n \"parallel\": run with multiple threads\n \"--wt=\": specify the number of threads to use (if not given the minimum between the number of CPUs and the number of LP will be used in a parallel run)\n
- \"-c --compile-only\": compiles only the model. When the platform is USE the folder \"USE-model-sources\" is left untouched if it already exists\n
- \"-e --execute-only\": only executes the model passing parameters according to the type of simulator chosen\n
- \"--run-complete\": Compile and run the model with the chosen simulator\n
- \"--out=[path_to_output_folder]\": The path to the folder in which compilation results must be saved, defaults to \"tree_simulation_bin\"\n
+ \nSimulator options:\n
  \"USE\": choose USE as the simulator\n
  \"ROOT-Sim\": choose ROOT-Sim as the simulator\n
  \"NeuRome\": choose NeuRome as the simulator\n
- \"--all-sim\": choose all the simulators, this is valid only for the compilation operation"
+ \"--all-sim\": choose all the simulators, this is valid only for the compilation operation\n
+ \nExecution options:\n
+ \"-c --compile-only\": compiles only the model. When the platform is USE the folder \"USE-model-sources\" is left untouched if it already exists\n
+ \"-e --execute-only\": only executes the model passing parameters according to the type of simulator chosen\n
+ \"json\": only merge the json files in \"lp_data\"\n
+ \"--run-complete\": Compile and run the model with the chosen simulator\n
+ \nExecution tweaks:\n
+ \"--sched=[RR,FIFO]\": choose the scheduler type, the default is FIFO.\n
+ \"--preempt\": enable preemption of task, using as time slice for each node the smallest service time.\n
+ \"--sim_processing=[loops]\": activate the simulation of the message processing (via busy wait), the \"loops\" parameter is optional and should b ea power of 10 since it represents the number which will multiplicate the service time (or the time slice if the preemption is enabled) to determine how many cycles the busy wait will last. Default value is 100.\n
+ \"gdb\" run the program under gdb (this will make a temporary modification to the makefile, adding -g  and -O0 to the compiler options)\n
+ \"valgrind\": run the program under valgrind (this will make a temporary modification to the makefile, adding -g to the compiler options)\n
+ \"--lp=\": specify the number of LPs, if this argument is not provided the number of LPs will be determined from \"LP.txt\"\n
+ \"serial\": run with only one thread (used by default)\n
+ \"parallel\": run with multiple threads\n
+ \"--wt=\": specify the number of threads to use (if not given the minimum between the number of CPUs and the number of LP will be used in a parallel run)\n
+ \"--out=[path_to_output_folder]\": The path to the folder in which compilation results must be saved and from where the simulation mus be runned, defaults to \"tree_simulation_bin\"\n"
 	echo -e "\nUnrecognized arguments will be ignored."
 fi
 if [[ $error == "yes" ]]; then
@@ -154,7 +174,7 @@ else
 		fi
 		if [[ $target == "all" || $target == "compile" ]]; then
 			echo "compiling model..."
-			make LOCATION=$output_location $dbg_make rootsim
+			make LOCATION=$output_location $opt_make $dbg_make rootsim
 			err=$?
 			if [[ $err != 0  ]]; then
 				echo "error during compilation of model, aborting"
@@ -190,7 +210,7 @@ else
 	if [[ $sim_name == "USE" || $sim_name == "all" ]]; then
 		echo "Working with USE"
 		if [[ $target == "all" || $target == "compile" ]]; then
-			make LOCATION=$output_location $dbg_make use
+			make LOCATION=$output_location $opt_make $dbg_make use
 			err=$?
 			if [[ $err != 0  ]]; then
 				echo "error during compilation of model, aborting"
@@ -237,7 +257,7 @@ else
 		echo "Working with Neurome"
 		if [[ $target == "compile" || $target == "all" ]]; then
 			echo "compiling model..."
-			make LOCATION=$output_location $dbg_make neurome
+			make LOCATION=$output_location $opt_make $dbg_make neurome
 			err=$?
 			if [[ $err != 0  ]]; then
 				echo "error during compilation of model, aborting"
@@ -268,7 +288,7 @@ else
 	if [[ $target == "all" || $options == "json" ]]; then
 		echo "exporting simulation statistics to $stat_json..."
 		#creating the json file with stats
-		echo "{ \"run_type\": \"$run_type\", \"num_threads\": \"$working_threads\", \"used_mem\": \"$stat_used_mem\", \"duration\": \"$stat_duration seconds\", \"platform\":\"$sim_name\" }" > $output_location/$stat_json
+		echo "{ \"run_type\": \"$run_type\", \"num_threads\": \"$working_threads\", \"used_mem\": \"$stat_used_mem\", \"duration\": \"$stat_duration\", \"platform\":\"$sim_name\" }" > $output_location/$stat_json
 			echo "done"
 		# merging lp jsons
 		echo "merging jsons in lp_data..."

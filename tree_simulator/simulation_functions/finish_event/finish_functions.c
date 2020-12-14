@@ -270,12 +270,22 @@ void schedule_remaining_job(simtime_t now, queue_state * queue_state, job_info *
 	
 }
 
+static void simulate_computation(double time){
+	#if SIM_PROCESSING==1
+	int j;
+	for(int i=0;i<SIM_PROCESSING_MULTIPLIER*Expent(time);i++){
+		j=i*j;
+	}
+	#endif
+}
+
+
 void finish_node(unsigned int id_device, simtime_t now, device_state  * state, unsigned int id_lp, int core){
 
 	//job_info * info = state->info.node->queue_state->current_job;
 	job_info current_job = state->info.node->queue_state->current_jobs[core];
 	job_info * info = &current_job;
-	
+	simulate_computation(info->time_slice);
 	//if not completed
 	//schedule in
 	//schedule next job
@@ -382,7 +392,7 @@ void finish_actuator(unsigned int id_device, simtime_t now, device_state  * stat
 
 	job_info current_job = state->info.actuator->queue_state->current_jobs[core];
 	job_info * info = &current_job;
-
+	simulate_computation(info->time_slice);
 	//printf("%f\n", info->remain_computation);
 	info->remain_computation -= info->time_slice;
 	//printf("%f\n", info->remain_computation);
@@ -459,7 +469,7 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 
 	job_info current_job = queue_state->current_jobs[core];
 	job_info * info = &current_job;
-
+	simulate_computation(info->time_slice);
 	//printf("%f\n", info->remain_computation);
 	info->remain_computation -= info->time_slice;
 	//printf("%f\n", info->remain_computation);
@@ -522,7 +532,7 @@ void finish_disk(unsigned int id_device, simtime_t now, device_state * state, un
 
 	job_info current_job = state->info.node->disk_state->current_jobs[core];
 	job_info * info = &current_job;
-
+	simulate_computation(info->time_slice);
 	//printf("%f\n", info->remain_computation);
 	info->remain_computation -= info->time_slice;
 	//printf("%f\n", info->remain_computation);

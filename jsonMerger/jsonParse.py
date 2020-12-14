@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import os.path
+import math
 import argparse
 
 parser=argparse.ArgumentParser(description="Parse JSONs from the simulation and the analytical model and merge them in LaTeX.")
@@ -297,6 +298,11 @@ def service_line(dict,params,string1):
     return(" \\midrule\\multicolumn{2}{c|}{S} & \\multicolumn{2}{c}{"+serv['telemetry']+"} & \\multicolumn{2}{c}{"+serv['transition']+"} & \\multicolumn{2}{c}{"+serv['command']+"} & \\multicolumn{2}{c}{"+serv['batch']+"} & \\multicolumn{2}{|c}{"+serv['total']+"}\\\\")
 
 
+def sim_cycles(dict_sim,dict_model,parameters):
+  if dict_sim["preemption"] == 1:
+    return(" \\midrule\\multicolumn{2}{c|}{Sim cycles} & \\multicolumn{2}{c}{"+str(int(math.ceil(dict_sim['time_slice']*dict_sim['sim_proc_multi'])))+"} & \\multicolumn{2}{c}{"+str(int(math.ceil(dict_sim['time_slice']*dict_sim["sim_proc_multi"])))+"} & \\multicolumn{2}{c}{"+str(int(math.ceil(dict_sim['time_slice']*dict_sim['sim_proc_multi'])))+"} & \\multicolumn{2}{c}{"+str(int(math.ceil(dict_sim['time_slice']*dict_sim['sim_proc_multi'])))+"} & \\multicolumn{2}{|c}{ }\\\\")
+  else:
+    return(" \\midrule\\multicolumn{2}{c|}{Sim cycles} & \\multicolumn{2}{c}{"+str(int(math.ceil(dict_sim['sim_proc_multi']*dict_model[parameters]['telemetry']['service_time'])))+"} & \\multicolumn{2}{c}{"+str(int(math.ceil(dict_sim['sim_proc_multi']*dict_model[parameters]['transition']['service_time'])))+"} & \\multicolumn{2}{c}{"+str(int(math.ceil(dict_sim['sim_proc_multi']*dict_model[parameters]['command']['service_time'])))+"} & \\multicolumn{2}{c}{"+str(int(math.ceil(dict_sim['sim_proc_multi']*dict_model[parameters]['batch']['service_time'])))+"} & \\multicolumn{2}{|c}{ }\\\\")
 
 key_union = [];
 
@@ -415,8 +421,12 @@ for element in ordered_id_list:
             if dict_simulator[element]["preemption"] == 1:
                 f_out.write("Preemption enabled. \\\\")
                 f_out.write("Time slice for the scheduler: "+str(dict_simulator[element]["time_slice"])+".\\\\")
+                if dict_simulator[element]["sim_proc"] == 1:
+                    f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]["sim_proc_multi"])+" cycles multiplied by the time slice. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
             else:
                 f_out.write("Preemption not enabled. \\\\")
+                if dict_simulator[element]["sim_proc"] == 1:
+                    f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]["sim_proc_multi"])+" cycles multiplied by the service time of the considered message. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
             if dict_model[element]['num_cores'] > 1:
                 f_out.write("This node has "+str(dict_model[element]['num_cores'])+" processing units.\\\\")
             if dict_model[element]['node_type'] == 'regional':
@@ -451,6 +461,8 @@ for element in ordered_id_list:
 
             f_out.write(begin_table)
             f_out.write(aggr_line(dict_model,params,'parameters'))
+            if dict_simulator[element]['sim_proc']==1:
+                f_out.write(sim_cycles(dict_simulator[element],dict_model[element],'parameters'))
 
             if flagSimilarity:
                 if dict_model[element]['node_type'] == 'regional':
@@ -470,10 +482,16 @@ for element in ordered_id_list:
                 if dict_simulator[element]['storage']["preemption"] == 1:
                     f_out.write("Preemption enabled. \\\\")
                     f_out.write("Time slice for the scheduler: "+str(dict_simulator[element]['storage']["time_slice"])+".\\\\")
+                    if dict_simulator[element]['storage']["sim_proc"] == 1:
+                        f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]['storage']["sim_proc_multi"])+" cycles multiplied by the time slice. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
                 else:
                     f_out.write("Preemption not enabled. \\\\")
+                    if dict_simulator[element]['storage']["sim_proc"] == 1:
+                       f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]['storage']["sim_proc_multi"])+" cycles multiplied by the service time of the considered message. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
                 f_out.write(begin_table)
                 f_out.write(service_line(dict_model,params,'storage'))
+                if dict_simulator[element]['storage']['sim_proc']==1:
+                    f_out.write(sim_cycles(dict_simulator[element]['storage'],dict_model[element],'storage'))
 
                 aux(dict_model,dict_simulator,'storage',[])
 
@@ -489,8 +507,12 @@ for element in ordered_id_list:
             if dict_simulator[element]["preemption"] == 1:
                 f_out.write("Preemption enabled. \\\\")
                 f_out.write("Time slice for the scheduler: "+str(dict_simulator[element]["time_slice"])+".\\\\")
+                if dict_simulator[element]["sim_proc"] == 1:
+                    f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]["sim_proc_multi"])+" cycles multiplied by the time slice. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
             else:
                 f_out.write("Preemption not enabled. \\\\")
+                if dict_simulator[element]["sim_proc"] == 1:
+                    f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]["sim_proc_multi"])+" cycles multiplied by the service time of the considered message. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
             f_out.write("This actuator is of "+dict_ids_acts[element]['type']+"\\\\"+"\n")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\\n")
             flagSimilarity = False
@@ -504,6 +526,8 @@ for element in ordered_id_list:
 
             f_out.write(begin_table)
             f_out.write(service_line(dict_model,params,'parameters'))
+            if dict_simulator[element]['sim_proc']==1:
+                    f_out.write(sim_cycles(dict_simulator[element],dict_model[element],'parameters'))
             if flagSimilarity:
                 aux(dict_model,dict_simulator,'parameters',dict_actuator_similar[element])
             else:
@@ -522,8 +546,12 @@ for element in ordered_id_list:
             if dict_simulator[element]['lan_in']["preemption"] == 1:
                 f_out.write("Preemption enabled. \\\\")
                 f_out.write("Time slice for the scheduler: "+str(dict_simulator[element]['lan_in']["time_slice"])+".\\\\")
+                if dict_simulator[element]['lan_in']["sim_proc"] == 1:
+                    f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]['lan_in']["sim_proc_multi"])+" cycles multiplied by the time slice. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
             else:
                 f_out.write("Preemption not enabled. \\\\")
+                if dict_simulator[element]['lan_in']["sim_proc"] == 1:
+                    f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]['lan_in']["sim_proc_multi"])+" cycles multiplied by the service time of the considered message. The exact number of cycles is represented by the \"Sim cycles\" variable. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\\n")
             flagSimilarity = False
             if element in dict_lan_similar.keys():
@@ -536,6 +564,8 @@ for element in ordered_id_list:
 
             f_out.write(begin_table)
             f_out.write(service_line(dict_model,params,'lan_in'))
+            if dict_simulator[element]['lan_in']['sim_proc']==1:
+                    f_out.write(sim_cycles(dict_simulator[element]['lan_in'],dict_model[element],'lan_in'))
             if flagSimilarity:
                 aux(dict_model,dict_simulator,'lan_in',dict_lan_similar[element])
             else:
@@ -549,11 +579,16 @@ for element in ordered_id_list:
             if dict_simulator[element]['lan_out']["preemption"] == 1:
                 f_out.write("Preemption enabled. \\\\")
                 f_out.write("Time slice for the scheduler: "+str(dict_simulator[element]['lan_out']["time_slice"])+".\\\\")
+                if dict_simulator[element]['lan_out']["sim_proc"] == 1:
+                    f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]['lan_out']["sim_proc_multi"])+" cycles multiplied by the time slice. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
             else:
                 f_out.write("Preemption not enabled. \\\\")
+                if dict_simulator[element]['lan_out']["sim_proc"] == 1:
+                    f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]['lan_out']["sim_proc_multi"])+" cycles multiplied by the service time of the considered message. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
             f_out.write(begin_table)
             f_out.write(service_line(dict_model,params,'lan_out'))
-
+            if dict_simulator[element]['lan_out']['sim_proc']==1:
+                    f_out.write(sim_cycles(dict_simulator[element]['lan_out'],dict_model[element],'lan_out'))
             if flagSimilarity:
                 aux(dict_model,dict_simulator,'lan_out',dict_lan_similar[element])
             else:

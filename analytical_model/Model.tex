@@ -63,7 +63,7 @@ Instead in figure 3, which displays the connection between Local nodes and the e
 The whole scheme:
 \begin{figure}[H]
 	\hspace*{-3.75cm}
-	\frame{\includesvg[width=20cm]{structural_scheme_complete}}-shell-escape
+	\frame{\includesvg[width=20cm]{structural_scheme_complete}}
   \caption{Structural scheme}
 \end{figure}
 
@@ -357,7 +357,7 @@ From the previous formulas and the open queue model we can compute the Service D
         %R_{ln, b} = \frac{D_{ln, b}}{1 - U_{ln}} \\
     \end{array}
 \end{equation}
-In the case of a transition message received by a regional or a local node when the node does not react with a command ($1-p_{cmd,ln}$), the message will be forwarded to the upper level node, which will send a reply, so the service demand ($D_{ln,e}$) needs to take into account these replies.   
+In the case of a transition message received by a regional or a local node when the node does not react with a command ($1-p_{cmd,ln}$), the message will be forwarded to the upper level node, which will send a reply, so the service demand ($D_{ln,e}$) needs to take into account these replies.
 \subsection{WAN}
 Since the WAN is an external object that we decided to model as a delay, we will consider it in the response time functions but it won't have formulas of its own. In particular the value of the delay is equal to the round trip time divided by two of the specific link.
 \subsection{Regional Node}

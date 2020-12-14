@@ -13,7 +13,7 @@ static void start_device(unsigned int id_device, simtime_t now, queue_state * qu
 #if PREEMPTION == 0 //if PREEMPTION == 1 (instead of PREEMPTION == 0) have preemption
 	info->time_slice = info->total_computation;
 	
-	//PREEPTION
+	//PREEMPTION
 #else
 	if(info->total_computation < queue_state->time_slice)
 		info->time_slice = info->total_computation;

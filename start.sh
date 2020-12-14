@@ -67,27 +67,36 @@ if [[ $target == "" ]]; then
 		error="yes"
 fi
 if [[ $quiet == "no" || $error == "yes" ]]; then
-	echo "This script will test the tree_simulator model with the configuration provided in \"tests_topology\"."
-	echo "By default the script will generate the topology, run the analytical model, run the simulation model and present the result in a pdf located in \"pdf_result\". The file name will be: h-m-s-simulator_used-run_type-results"
-	echo -e "Argument list:\n
+	echo -e "This script will test the tree_simulator model with the configuration provided in \"tests_topology\"."
+	echo -e "\nThe script can generate the topology, run the analytical model, run the simulation model and present the result in a pdf located in \"pdf_result\". The pdf file name will be: h-m-s-simulator_used-run_type-results"
+	echo -e "\nHowever to run any of these operations an argument needs to be given, see below in \"Execution options\"."
+	echo -e "\nArgument list:\n
+	\nGeneral options\n
  \"-q --quiet\": suppress this message\n
- \"--cat=\": path to the catalog folder that stores element types, defaults to \"tests_topology/catalog\"\n
- \"--top=\": path to the topology file from the \"rootsim-models\" folder; if this argument is not specified the the default path will be \"tests_topology/config.txt\"\n
- \"--out=\": location where all the produced files (data and executables) will be located, defaults to \"tree_simulator_bin\"\n
+ \"clean\": remove all the products of a previous run, including the output location and all object files.
+ \n Execution options\n
  \"-g\": generate only the topology files\n
  \"-a\": only run the analytical model\n
  \"-s\": run only the simulation model\n
  \"-r\": create only the pdf with the results\n
- \"aggregated --aggregated -aggr\": to aggregate nodes that have similar characteristics (by default ver have a 20% olerance)\n
- \"clean\": remove all the products of a previous run, including the output location and all object files.
- \"-sc= --sim_coef=\": to define a custom tolerance value (as a number between 0 and 1) for the aggregation\n
+ \"all --all\":execute all the above steps\n
+ \nData options:\n
+  \"aggregated --aggregated -aggr\": in the pdf results, aggregate nodes that have similar characteristics (by default a 20% tolerance is used for aggreagtion)\n
+ \"--cat=\": path to the catalog folder that stores element types, defaults to \"tests_topology/catalog\"\n
+ \"--top=\": path to the topology file from the \"rootsim-models\" folder; if this argument is not specified the the default path will be \"tests_topology/config.txt\"\n
+ \"-sc= --sim_coef=\": to define a custom tolerance value (as a number between 0 and 1) for the results aggregation\n
+ \"--out=\": location where all the produced files (data and executables) will be located, defaults to \"tree_simulator_bin\"\n
+ \nSimulation options:
  All the arguments that can be passed to \"tree_simulator/run.sh\" are supported, here we will provide only a brief list of the most important ones:\n
   \"--wt=\":number of threads\n
   \"--lp=\":number of lps\n
   \"gdb\": run the simulation under gdb\n
   \"valgrind\": run the simulation under valgrind\n
   \"parallel\": run the simulation with more than one thread\n
-  \"serial\": run the simulation with only one thread (default choice)"
+  \"serial\": run the simulation with only one thread (default choice)\n
+  \"NeuRome\": use NeuRome as a simulation platform.\n
+  \"ROOT-Sim\": use ROOT-Sim as a simulation platform.\n
+  \"USE\": use USE as a simulation platform.\n"
 	echo -e "\nUnrecognized arguments will be ignored."
 fi
 if [[ $error == "yes" ]];then
