@@ -8,14 +8,14 @@ MAIN = driverBinaries
 all:    $(MAIN) driver-test
 
 $(MAIN): $(OBJS) $(MAIN).c
-	$(CC) $(CFLAGS) -o $(MAIN) $(MAIN).c $(OBJS)
+	@$(CC) $(CFLAGS) -o $(MAIN) $(MAIN).c $(OBJS)
 
 %.o: %.c %.h
-	gcc -c $(CFLAGS) $*.c -o $*.o
+	@gcc -c $(CFLAGS) $*.c -o $*.o
 
 driver-test :  parser.c topology.c ../idmap/idmap_quick_sort.c ../idmap/idmap.c
-	gcc -c $(CFLAGS) driver.c -o driver.o
-	gcc $(CFLAGS) -o driver driver.o parser.o topology.o ../idmap/idmap_quick_sort.o ../idmap/idmap.o
+	@gcc -c $(CFLAGS) driver.c -o driver.o
+	@gcc $(CFLAGS) -o driver driver.o parser.o topology.o ../idmap/idmap_quick_sort.o ../idmap/idmap.o
 
 clean:
-	$(RM) $(SRCS:.c=.o)  $(SRCS:.c=.o.rs)  driver driverBinaries $(MAIN)
+	@$(RM) $(SRCS:.c=.o)  $(SRCS:.c=.o.rs)  driver driverBinaries $(MAIN)

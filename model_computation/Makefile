@@ -15,13 +15,15 @@ $(TARGET): $(OBJS)
 ifdef DBG
 	DBG_OPTS=$(DBG_OPTS_TO_ENABLE)
 endif
-	$(CC) $(CFLAGS) $(DBG_OPTS) -o $(TARGET) $(OBJS)
+	@$(CC) $(CFLAGS) $(DBG_OPTS) -o $(TARGET) $(OBJS)
+
+copy:
 ifdef LOCATION
-	cp $(TARGET) $(LOCATION)/$(TARGET)
+	@cp $(TARGET) $(LOCATION)/$(TARGET)
 endif
 
 %.o : %.c $(DEPS)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	$(RM) $(SRCS:.c=.o*) $(TARGET) $(LOCATION)/$(TARGET)
+	@$(RM) $(SRCS:.c=.o*) $(TARGET) $(LOCATION)/$(TARGET)
