@@ -14,6 +14,7 @@ quiet="no"
 error="no"
 targets=()
 sim_name=""
+seed=""
 output_location="../tree_simulator_bin"
 
 for arg
@@ -46,6 +47,8 @@ do
 		if [[  ${arg:17} > 0 ]]; then
 			opt_make+="SIM_PROC_MULTI=${arg:17} "
 		fi
+	elif [[ ${arg:0:7} == "--seed=" ]]; then
+		seed=${arg#"--seed="}
 	elif [[ ${arg:0:5} == "--lp=" ]]; then
 		number_lp=${arg#"--lp="}
 	elif [[ ${arg:0:5} == "--wt=" ]]; then
@@ -118,6 +121,7 @@ The binary data for each LP in the \"bin\", \"bin/gentop\" and \"bin/lptop\" fol
 \"json\": only merge the json files in \"lp_data\"\n
 \"--run-complete\": Compile and run the model with the chosen simulator\n
 \nExecution tweaks:\n
+\"--seed=\":defines the seed to be used during the simulation.\n
 \"--sched=[RR,FIFO]\": choose the scheduler type, the default is FIFO.\n
 \"--preempt\": enable preemption of task, using as time slice for each node the smallest service time.\n
 \"--sim_processing=[loops]\": activate the simulation of the message processing (via busy wait), the \"loops\" parameter is optional and should b ea power of 10 since it represents the number which will multiplicate the service time (or the time slice if the preemption is enabled) to determine how many cycles the busy wait will last. Default value is 100.\n
@@ -137,8 +141,6 @@ else
 		read -n1 -r -p "Press any key to continue or CTRL+C to exit" key
 	fi
 fi
-
-echo ${targets[@]}
 
 for target in ${targets[@]}; do
 	if [ "$options" == "clean" ]; then

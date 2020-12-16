@@ -189,10 +189,10 @@ for target in ${targets[@]}; do
 		echo "Parsing jsons and merging them.."
 		if [[ $pdf_options == "-a" ]]; then
 			echo "...aggregated results."
-			python3 jsonMerger/jsonParse.py -a $output_location $output_location $output_location "jsonMerger"
+			python3 jsonMerger/jsonParse.py -a $output_location $output_location $output_location $output_location
 		else
 			echo "...standard."
-			python3 jsonMerger/jsonParse.py $output_location $output_location $output_location "jsonMerger"
+			python3 jsonMerger/jsonParse.py $output_location $output_location $output_location $output_location
 		fi
 		err=$?
 		if [[ $err != 0  ]]; then
@@ -200,11 +200,12 @@ for target in ${targets[@]}; do
 			exit $err
 		fi
 		echo "Done."
-		cd jsonMerger
-		echo `pwd`
+		cd $output_location
 		echo "Creating pdf.."
 		pdflatex complete_results.tex
 		err=$?
+		rm -f complete_results.log complete_results.aux
+		cd $initial_location
 		if [[ $err != 0  ]]; then
 			echo "error during document creation, aborting"
 			exit $err
@@ -212,7 +213,10 @@ for target in ${targets[@]}; do
 		echo "Done."
 		echo "Moving and renaming pdf.."
 		res_name=$(date +%H_%M_%S)-$sim_name-$run_type-complete_results.pdf
-		mv complete_results.pdf ../pdf_results/$res_name
+		if [[ $output_location == "tree_simulator_bin" ]]; then
+			output_location="pdf_result"
+		fi
+		mv complete_results.pdf $output_location/$res_name
 		if [[ $err != 0  ]]; then
 			echo "error during document rename, aborting"
 			exit $err
