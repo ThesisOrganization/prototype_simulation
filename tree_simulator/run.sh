@@ -48,7 +48,8 @@ do
 			opt_make+="SIM_PROC_MULTI=${arg:17} "
 		fi
 	elif [[ ${arg:0:7} == "--seed=" ]]; then
-		seed=${arg#"--seed="}
+        echo ${arg#"--seed="} > ~/.rootsim/numerical.conf
+		seed="--deterministic-seed"
 	elif [[ ${arg:0:5} == "--lp=" ]]; then
 		number_lp=${arg#"--lp="}
 	elif [[ ${arg:0:5} == "--wt=" ]]; then
@@ -202,10 +203,10 @@ for target in ${targets[@]}; do
 			echo `pwd`
 				if [[ $run_type == "parallel" ]]; then
 						echo "parallel execution with $working_threads threads"
-						$dbg_param ./simulation_rootsim --wt $working_threads --lp $number_lp
+						$dbg_param ./simulation_rootsim --wt $working_threads --lp $number_lp $seed
 					else
 						echo "serial execution"
-						$dbg_param ./simulation_rootsim --sequential --lp $number_lp
+                        $dbg_param ./simulation_rootsim --sequential --lp $number_lp $seed
 					fi
 				err=$?
 				if [[ $err != 0  ]]; then
@@ -283,10 +284,10 @@ for target in ${targets[@]}; do
 				cd $output_location
 				if [ "$run_type" == "parallel" ]; then
 					echo "parallel execution with $working_threads threads"
-					$dbg_param ./simulation_neurome_parallel --wt $working_threads --lp $number_lp
+					$dbg_param ./simulation_neurome_parallel --wt $working_threads --lp $number_lp $seed
 				else
 					echo "serial execution"
-					$dbg_param ./simulation_neurome_serial --lp $number_lp
+					$dbg_param ./simulation_neurome_serial --lp $number_lp $seed
 				fi
 				err=$?
 				if [[ $err != 0  ]]; then

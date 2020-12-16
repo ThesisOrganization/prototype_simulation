@@ -12,14 +12,14 @@ END_SESSION="COMPLETED SESSION $SESSION_DATE"
 thread_list="0" #("0" "1" "2" "4" "8" "16" "40")
 
 #the list of seeds to be used
-seed_list=("0" "1")
+seed_list=("1996" "1996" "2006")
 
 # yes means default configuration for simulation of message processing
 sim_processing_options=("no") #("no" "yes" "10000")
 
 scheduler_options=("FIFO") #("FIFO" "RR")
 
-preemption_options=("no" "yes")
+preemption_options=("no")
 
 simulator_list=("ROOT-Sim") #("USE" "ROOT-Sim" "NeuRome")
 
