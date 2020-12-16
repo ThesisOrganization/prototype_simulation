@@ -16,7 +16,7 @@ typedef void heap_entry;
 
 heap * heap_new(HEAP_TYPE type, int capacity);
 HEAP_TYPE heap_type(heap * h);
-int heap_peek(heap * h);
+double heap_peek(heap* h);
 job_info heap_poll(heap* h);
 heap_entry * heap_add(heap * h, double key, job_info payload);
 int get_key_entry(heap_entry * e);

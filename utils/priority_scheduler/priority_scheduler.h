@@ -11,10 +11,16 @@
  * from n input queues that have different priorities and schedule them on m output queues.
  */
 
-#include "../application_datatypes.h"
+#include "priority_scheduler_datatypes.h"
 
-/// This macro specifies that jobs from the ith input queue can be placed inside the jth queue when j < i.
+/// This macro specifies that jobs can have their priority upgraded.
 #define UPGRADE_PRIO 1
+
+///\brief This enum represents the available scheduling algorithms.
+typedef enum _scheduling_algorithm{
+	SCHED_PRIO_FIFO=0, ///< Fist In First Out scheduling according to the priority and type of the job
+	SCHED_RR ///< Round Robin scheduling between the differen priorities (preempted job are inserted at the end of the queue)
+} scheduling_algorithm;
 
 /** \brief The object that represents the scheduler.
  * The scheduler is composed by a set of input queues and a set of output queues, each set with its own priority,
@@ -23,7 +29,7 @@
  * caller.
  * __Note:__ Queues are required use the `::job_info` struct to charachterize the priority and timestamp of single jobs.
 */
-typedef struct priority_scheduler{
+typedef struct _priority_scheduler{
 	queue_conf** input_queues;	///< Array that holds the input queues.
 	queue_conf** output_queues;	///< Array that holds the output queues.
 	int num_input_queues;	///< Number of input queues
@@ -32,11 +38,13 @@ typedef struct priority_scheduler{
 																		///< If this number is 0 we move events from the input queues to the output queues
 																		///< until the input queues are all empty or the output queues are all full.
 																		///< If there are no output queues this parameter cannot be 0.
-	int mix_prio;	///< This parameter tells the scheduler if the events can change priority when are scheduled with more
+	int mix_prio; ///< If the priority of an event can be upgraded in output set this to ::UPGRADE_PRIO, otherwise set to 0.
+	scheduling_algorithm sched_algo;	///< This parameter tells the scheduler algorithm to use when scheduling the out jobs.
 								///< than one output queue. See `::UPGRADE_PRIO`.
 	int scheduler_timestamp;	///< The scheduler timestamp, used to schedule events in the output queues instead of the
 														///< real timestamp so the order of events in and between input queues is respected in the
 														///< output queues.
+	job_type last_schedule_out;
 } priority_scheduler;
 
 /** \brief Creates and returns a new priority_scheduler.
@@ -45,10 +53,11 @@ typedef struct priority_scheduler{
  * \param[in] num_input Number of input queues.
  * \param[in] num_output Number of output queues.
  * \param[in] events Number of events to be processes at each call.
- * \param[in] prio priority handling scheme.
+ * \param[in] prio If the priority of events in output can be upgraded.
+ * \param[in] algo priority handling algorithm.
  * \returns A configured priority scheduler.
  */
-priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, int num_input, int num_output, unsigned int events, int prio);
+priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, int num_input, int num_output, unsigned int events, int prio,scheduling_algorithm algo);
 
 /** \brief Schedules events from the input queues to the output queues.
  * \param[in] sched The scheduler which must be used to schedule events.

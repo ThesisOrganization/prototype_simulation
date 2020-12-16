@@ -12,7 +12,7 @@
           "batch": 0.66,
           "reply": 1.65
         },
-        "cores":4,
+        "cores":1,
         "prob_command_generated": 0.1,
         "scheduler_type": "1",
         "delay_wan": 0.45,

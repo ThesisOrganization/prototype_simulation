@@ -10,7 +10,7 @@ def print_warning(a,b):
     print(" =/= ", end="")
     print(b)
 
-PERCENTAGE_CHECK = 10.0
+PERCENTAGE_CHECK = 5.0
 
 def compare_U(a, b):
     print("I think that you don't want to go here")
@@ -86,7 +86,7 @@ def compare_dicts(a, b):
     return warning_check_final
 
 
-simulator_file = "simulation_results.json"
+simulator_file = "../tree_simulator_bin/simulation_results.json"
 fsimulator = open(simulator_file, "r")
 
 compare_file = "./compare_json/simulation_results.json"

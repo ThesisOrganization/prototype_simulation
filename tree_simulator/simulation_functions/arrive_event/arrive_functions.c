@@ -1,6 +1,30 @@
 #include "arrive_functions.h"
 
 static void start_device(unsigned int id_device, simtime_t now, queue_state * queue_state, double * service_rates, job_info * info, lan_direction direction, events_type event_to_trigger, unsigned int id_lp){
+	
+	//compute servire time completo
+	//initializzi t_response e t_remain
+	//initializzi il quanto (in base a se c'è preemption o no)
+	double rate = service_rates[info->job_type];
+	simtime_t ts_finish = Expent(rate);
+	info->total_computation = ts_finish;
+	info->remain_computation = info->total_computation;
+
+#if PREEMPTION == 0 //if PREEMPTION == 1 (instead of PREEMPTION == 0) have preemption
+	info->time_slice = info->total_computation;
+	
+	//PREEMPTION
+#else
+	if(info->total_computation < queue_state->time_slice)
+		info->time_slice = info->total_computation;
+	else
+		info->time_slice = queue_state->time_slice;
+#endif
+	
+	//printf("timeslice in arrive: %f\n", info->time_slice);
+	//printf("total_computation: %f\n", info->total_computation);
+	//printf("service_rates: %f\n", service_rates[TELEMETRY]);
+	
 
 	if(queue_state->num_running_jobs < queue_state->num_cores){
 		
@@ -13,13 +37,13 @@ static void start_device(unsigned int id_device, simtime_t now, queue_state * qu
 		queue_state->current_jobs[free_core] = *info; 
 		queue_state->start_processing_timestamp[free_core] = now;
 
-		double rate = service_rates[info->job_type];
-		simtime_t ts_finish = now + Expent(rate);
+		//double rate = service_rates[info->job_type];
+		//simtime_t ts_finish = now + Expent(rate);
 		message_finish msg;
 		msg.header.element_id = id_device;
 		msg.core = free_core;
 		msg.direction = direction;
-		ScheduleNewEvent(id_lp, ts_finish, event_to_trigger, &msg, sizeof(message_finish));
+		ScheduleNewEvent(id_lp, now + info->time_slice, event_to_trigger, &msg, sizeof(message_finish));
 		
 		queue_state->num_running_jobs++;
 

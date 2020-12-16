@@ -1,7 +1,7 @@
 #ifndef HEADER_H
 #define HEADER_H
 #include "../idmap/idmap.h"
-#include "../application_datatypes.h"
+#include "partop_datatypes.h"
 //PSA: "directly" means that the elements is the next hop in
 //any direction, the direction is specified by the function.
 //##################################

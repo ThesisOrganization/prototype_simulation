@@ -3,15 +3,17 @@
  */
 
 #include "priority_scheduler.h"
+#include "scheduling_algorithms.h"
 #include "queue_quick_sort.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 /** Allocates a new `::priority_scheduler` struct with the given parameters
  * If the order of the queue of the same type is meaningful (usually when `::UPDATE_PRIO` is not used) the array must be already sorted since the sorting algorithm will mess up the relative position of elements of the same type.
  * A `NULL` pointer and 0 can be used to configure a scheduler with no available output queues, it will return to the caller jobs extracted from the input queues.
  */
-priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, int num_input, int num_output, unsigned int events, int prio){
+priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, int num_input, int num_output, unsigned int events,int prio, scheduling_algorithm algo){
 
 	//we sort the input and output queues by their type
 	queue_quicksort(input,num_input);
@@ -32,8 +34,10 @@ priority_scheduler* new_prio_scheduler(queue_conf** input, queue_conf** output, 
 	} else {
 		sched->events_to_schedule=events;
 	}
+	sched->sched_algo=algo;
 	sched->mix_prio=prio;
 	sched->scheduler_timestamp=0;
+	sched->last_schedule_out=INVALID_JOB;
 	return sched;
 }
 
@@ -61,6 +65,7 @@ int check_queues(queue_conf* queue){
  * If there were no output queues supplied, the function will return up to `events_to_schedule` jobs, according to the scheduler configuration.
  */
 int schedule_out(priority_scheduler* sched,job_info* jobs,int num_jobs){
+	int out_queue;
 	int i,output_index=0,output_empty=1,job_index=0,events_to_schedule=0,res=SCHEDULE_FAIL;
 	job_info job;
 	job.job_type=INVALID_JOB;
@@ -88,10 +93,13 @@ int schedule_out(priority_scheduler* sched,job_info* jobs,int num_jobs){
 		sched->scheduler_timestamp=0;
 	}
 
-	// we schedule events from the input queues (sorted by type and priority) to the output queues (sorted by type and priority)
-	for(i=0;i<sched->num_input_queues && job_index<events_to_schedule;i++){
-		//we schedule jobs from the input queue to the output queues, according to the configured number of events to be scheduled
-		for(;job_index<events_to_schedule && (sched->input_queues[i]->check_presence)(sched->input_queues[i]->queue)>0;job_index++){
+	// we schedule events from the input queues (sorted by priority) to the output queues (sorted by priority)
+		for(job_index=0;job_index<events_to_schedule;job_index++){
+			//we select the output queue according to the scheduling algorithm
+			out_queue=select_queue(sched);
+			if(out_queue<0){
+				return out_queue;
+			}
 			if(sched->num_output_queues>0){
 				//we find a suitable output queue
 				if(sched->mix_prio==UPGRADE_PRIO){
@@ -105,8 +113,8 @@ int schedule_out(priority_scheduler* sched,job_info* jobs,int num_jobs){
 					}
 				} else {
 					// if the job priority must not be upgraded, we try to schedule jobs from the ith input queue to the ith output queue
-					if(check_queues(sched->output_queues[i])){
-						output_index=i;
+					if(check_queues(sched->output_queues[out_queue])){
+						output_index=out_queue;
 					} else {
 						// we cannot schedule an event from the ith input queue, so we jump to the next input queue
 						break;
@@ -115,8 +123,9 @@ int schedule_out(priority_scheduler* sched,job_info* jobs,int num_jobs){
 			}
 			//we can now schedule the job from the ith input queue to a suitable output queue
 			//we dequeue the job from the ith input queue
-			job=(sched->input_queues[i]->dequeue)(sched->input_queues[i]->queue);
+			job=(sched->input_queues[out_queue]->dequeue)(sched->input_queues[out_queue]->queue);
 			if(job.job_type!=INVALID_JOB || res==SCHEDULE_DONE){
+				sched->last_schedule_out=job.job_type;
 				res=SCHEDULE_DONE;
 			}
 
@@ -130,7 +139,6 @@ int schedule_out(priority_scheduler* sched,job_info* jobs,int num_jobs){
 				//we increment the timestamp of the scheduler since we have scheduled one more job
 				sched->scheduler_timestamp++;
 		}
-	}
 	return res;
 }
 
@@ -141,10 +149,13 @@ int schedule_in(priority_scheduler* sched, job_info job){
 	int i, done=SCHEDULE_FAIL;
 	//we find a suitable queue
 	for(i=0;i<sched->num_input_queues && done==SCHEDULE_FAIL;i++){
-		if(sched->input_queues[i]->type==job.type && check_queues(sched->input_queues[i])){
+		// we skip the queue if we have different queues per job type
+		if(sched->input_queues[i]->type==INVALID_JOB || sched->input_queues[i]->type==job.job_type){
+			if(sched->input_queues[i]->prio==job.prio && check_queues(sched->input_queues[i])){
 			//the queue has the same type of the event and is not full so we can add the job in it
 			(sched->input_queues[i]->enqueue)(sched->input_queues[i]->queue,job.deadline,job);
 			done=SCHEDULE_DONE;
+			}
 		}
 	}
 	return done;

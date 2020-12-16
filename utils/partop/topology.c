@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "header.h"
 #include "../idmap/idmap.h"
+#include<stdlib.h>
+#include<string.h>
 
 //GETs from specific_topology
 

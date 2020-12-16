@@ -1,5 +1,20 @@
 #include "init_functions.h"
 
+static double get_min_service_time(double* service_rates){
+	
+	double min_value = -1;
+	
+	for(int i = 1; i < NUM_OF_JOB_TYPE - 1; i++){
+		
+		if(service_rates[i] > 0 && (min_value == -1 || service_rates[i] < min_value))
+			min_value = service_rates[i];
+		
+	}
+	
+	return min_value;
+	
+}
+
 
 static queue_conf** create_new_queues(int num_queues){
 
@@ -9,10 +24,12 @@ static queue_conf** create_new_queues(int num_queues){
         queues[i] = malloc(sizeof(queue_conf));
         queues[i]->queue = create_queue();
         queues[i]->type = i;
+				queues[i]->prio = REAL_TIME;
         queues[i]->enqueue = enqueue;
         queues[i]->dequeue = dequeue;
         queues[i]->check_presence = check_presence;
         queues[i]->check_full = NULL;
+				queues[i]->peek = queue_peek;
     }
 
     return queues;
@@ -99,8 +116,12 @@ void init_node(unsigned int id_device, device_state* state){
 
     init_metrics(state->info.node->queue_state, state->info.node->queue_state->num_cores);
 
-    int num_queues = 1;
-    state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
+    int num_queues = NUM_OF_JOB_TYPE;
+#if SCHEDULING_ROUND_ROBIN == 1
+    state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_RR);
+#else
+    state->info.node->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
+#endif
 
     state->info.node->service_rates = GET_SERVICE_TIMES_NODES(state->topology);
 
@@ -122,6 +143,8 @@ void init_node(unsigned int id_device, device_state* state){
     //int node_type = state->info.node->type;
     //state->info.node->prob_cmd = state->topology->probNodeCommandArray[node_type];
     state->info.node->prob_cmd = GET_PROB_COMMAND(state->topology);
+		
+		state->info.node->queue_state->time_slice = get_min_service_time(state->info.node->service_rates);
 
     ///init disk queue
 
@@ -133,11 +156,16 @@ void init_node(unsigned int id_device, device_state* state){
 				state->info.node->disk_state->num_running_jobs = 0;
 				state->info.node->disk_state->num_cores = 1;
 				
+				state->info.node->disk_state->time_slice = get_min_service_time(GET_DISK_SERVICES(state->topology));
 
         init_metrics(state->info.node->disk_state, state->info.node->disk_state->num_cores);
 
-        num_queues = 1;
-        state->info.node->disk_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
+        num_queues = NUM_OF_JOB_TYPE;
+#if SCHEDULING_ROUND_ROBIN == 1
+        state->info.node->disk_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_RR);
+#else
+        state->info.node->disk_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
+#endif
     }
 
 }
@@ -180,13 +208,22 @@ void init_actuator(unsigned int id_device, simtime_t now, device_state * state, 
 		
     init_metrics(state->info.actuator->queue_state, state->info.actuator->queue_state->num_cores);
 
-    int num_queues = 1;
-    state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
+    int num_queues = NUM_OF_JOB_TYPE;
+#if SCHEDULING_ROUND_ROBIN == 1
+    state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_RR);
+#else
+    state->info.actuator->queue_state->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
+#endif
 
     state->info.actuator->service_rate_command = GET_SERVICE_COMMAND(state->topology);
 
     double rate_transition = GET_RATE_TRANSITION(state->topology);
     state->info.actuator->rate_transition = rate_transition;
+		
+		
+		double service_rates[NUM_OF_JOB_TYPE]; //meh
+		service_rates[COMMAND] = state->info.actuator->service_rate_command;
+		state->info.actuator->queue_state->time_slice = get_min_service_time(service_rates);
 
     //schedule generate for all actuators
 		if(rate_transition>0){
@@ -216,14 +253,26 @@ void init_lan(unsigned int id_device, device_state * state){
     init_metrics(state->info.lan->queue_state_in, state->info.lan->queue_state_in->num_cores);
     init_metrics(state->info.lan->queue_state_out, state->info.lan->queue_state_out->num_cores);
 
-    int num_queues = 1;
-    state->info.lan->queue_state_in->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
-    state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO);
+    int num_queues = NUM_OF_JOB_TYPE;
+#if SCHEDULING_ROUND_ROBIN == 1
+    state->info.lan->queue_state_in->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_RR);
+#else
+    state->info.lan->queue_state_in->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
+#endif
+		
+#if SCHEDULING_ROUND_ROBIN == 1
+    state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_RR);
+#else
+    state->info.lan->queue_state_out->queues = new_prio_scheduler(create_new_queues(num_queues), NULL, num_queues, 0, 1, UPGRADE_PRIO, SCHED_PRIO_FIFO);
+#endif
 
 
     //int lan_type = GET_LAN_TYPE(state->topology);
     state->info.lan->service_rates_in = GET_LAN_IN_TYPE_SERVICE(state->topology);
     state->info.lan->service_rates_out = GET_LAN_OUT_TYPE_SERVICE(state->topology);
+		
+		state->info.lan->queue_state_in->time_slice = get_min_service_time(state->info.lan->service_rates_in);
+		state->info.lan->queue_state_out->time_slice = get_min_service_time(state->info.lan->service_rates_out);
 
 }
 

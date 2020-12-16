@@ -1,4 +1,4 @@
-#include "../application_datatypes.h"
+#include "priority_scheduler_datatypes.h"
 /// A utility function to swap two elements
 static void swap(queue_conf** a, queue_conf** b)
 {
@@ -19,7 +19,7 @@ static int partition (queue_conf** arr, int low, int high)
 	int true_high=high-1;
 	for (int j = low; j <= true_high; j++){
 		// If current element is smaller than the pivot
-		if (arr[j]->type < pivot){
+		if (arr[j]->prio < pivot){
 			i++; // increment index of smaller element
 			if(arr[i]->type != arr[j]->type){
 				swap(&arr[i], &arr[j]);

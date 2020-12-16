@@ -1,5 +1,7 @@
 #include "header.h"
-
+#include <stdio.h>
+#include<stdlib.h>
+#include<string.h>
 void generateBinaries_elementTopology(general_topology * genTop,total_topology * totTop, int * elonelp, int a, int num,char* path){
 
   int at = getNumberOfActTypes(genTop);

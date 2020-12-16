@@ -5,7 +5,8 @@
 #include "./simulation_functions/arrive_event/arrive_functions.h"
 #include "./simulation_functions/finish_event/finish_functions.h"
 #include "./simulation_functions/setup_protocol/setup_protocol.h"
-
+#include "compatibility.h"
+#include "../utils/application_datatypes.h"
 #include <math.h>
 
 #define RANDOM_START 500
@@ -38,5 +39,10 @@
 #define SHIFT_EVENT_FOURTH 0.4
 #define SHIFT_EVENT_FIFTH 0.5
 #define SHIFT_EVENT_SIXTH 0.6
+
+/// if preemption must be enabled unused since now the makefile passes the correct value
+//#define PREEMPTION 1
+/// if the round robin algorithm must be used instead of the FIFO algorithm unused since the makefile passes the right value
+//#define SCHEDULING_ROUND_ROBIN 0
 
 #endif /* SIMULATION_H */
