@@ -9,10 +9,10 @@ END_SESSION="COMPLETED SESSION $SESSION_DATE"
 #now there are the variables which contain our variations for the tests
 
 # 0 is for pure serial execution, while 1 is for parallel configuration but with one working thread
-thread_list="0" #("0" "1" "2" "4" "8" "16" "40")
+thread_list=("0") #("0" "1" "2" "4" "8" "16" "40")
 
 #the list of seeds to be used
-seed_list=("1996" "1996" "2006")
+seed_list=("0")
 
 # yes means default configuration for simulation of message processing
 sim_processing_options=("no") #("no" "yes" "10000")
@@ -89,8 +89,6 @@ for seed in ${seed_list[@]}; do
 							#we get the output path to be same as the topology file
 							path="${topology%/*}"
 							# some variables for the logging
-							DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
-							BEGIN="BEGIN test:.............$DATE"
 							END="Test COMPLETE"
 							ERR_RETRY="MAX RETRY ($MAX_RETRY) reached! SKIPPING"
 							NUM_RETRIES=0
@@ -108,11 +106,12 @@ for seed in ${seed_list[@]}; do
 
 							#we use the below while to check if the test as already been executed correctly (we assume it happens when the END variable is written on the log file and there return value of the command is 0), otherwise we retry the test for a maximum of MAX_RETRY tentatives.
 							err=0
-							while [[ $(grep -c "$output\n$END" $LOG_FILE) == 0 ]];
+							while [[ $(grep -c -e "$END.*$output" $LOG_FILE) == 0 ]];
 							do
+								DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
+								BEGIN="BEGIN test:.............$DATE"
 							# we log the beginning of the test
 								echo -e "$BEGIN\ntest command:\t$test_cmd" >> $LOG_FILE
-								echo -e "test results path:\t$output">>$LOG_FILE
 								echo "$BEGIN"
 
 								#we execute the test
@@ -122,7 +121,7 @@ for seed in ${seed_list[@]}; do
 								if [[ $err == 0 ]]; then
 									#we save the completion time and we log the successful completion
 									DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
-									echo -e "$END at $DATE\n\n" >> $LOG_FILE
+									echo -e "$END at $DATE, results path: $output\n\n" >> $LOG_FILE
 									echo -e "$END at $DATE\n\n"
 								fi
 								NUM_RETRIES=$((NUM_RETRIES + 1))
