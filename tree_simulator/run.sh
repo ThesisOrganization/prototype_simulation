@@ -15,6 +15,7 @@ error="no"
 targets=()
 sim_name=""
 seed=""
+timeout=""
 output_location="../tree_simulator_bin"
 
 for arg
@@ -48,7 +49,7 @@ do
 			opt_make+="SIM_PROC_MULTI=${arg:17} "
 		fi
 	elif [[ ${arg:0:7} == "--seed=" ]]; then
-        echo ${arg#"--seed="} > ~/.rootsim/numerical.conf
+		echo ${arg#"--seed="} > ~/.rootsim/numerical.conf
 		seed="--deterministic-seed"
 	elif [[ ${arg:0:5} == "--lp=" ]]; then
 		number_lp=${arg#"--lp="}
@@ -56,6 +57,11 @@ do
 		working_threads=${arg#"--wt="}
 	elif [[ ${arg:0:6} == "--out=" ]];then
 		output_location=${arg#'--out='}
+	elif [[ ${arg:0:10} == "--timeout=" ]]; then
+		timeout=${arg#"--timeout="}
+		timeout_rootsim="--simulation-time $timeout"
+		timeout_use=$timeout
+		timeout_neurome="--time=$timeout"
 	elif [[ $arg == "--all-sim" ]]; then
 		sim_name="all"
 	else
@@ -122,6 +128,7 @@ The binary data for each LP in the \"bin\", \"bin/gentop\" and \"bin/lptop\" fol
 \"json\": only merge the json files in \"lp_data\"\n
 \"--run-complete\": Compile and run the model with the chosen simulator\n
 \nExecution tweaks:\n
+\"--timeout=[number]\": for USE it represente the number of seconds after which the simulation must be stopped. For ROOT-Sim instead it represents the logical virtual time after which the simulation must be stopped.
 \"--seed=\":defines the seed to be used during the simulation.\n
 \"--sched=[RR,FIFO]\": choose the scheduler type, the default is FIFO.\n
 \"--preempt\": enable preemption of task, using as time slice for each node the smallest service time.\n
@@ -203,10 +210,10 @@ for target in ${targets[@]}; do
 			echo `pwd`
 				if [[ $run_type == "parallel" ]]; then
 						echo "parallel execution with $working_threads threads"
-						$dbg_param ./simulation_rootsim --wt $working_threads --lp $number_lp $seed
+						$dbg_param ./simulation_rootsim --wt $working_threads --lp $number_lp $seed $timeout_rootsim
 					else
 						echo "serial execution"
-                        $dbg_param ./simulation_rootsim --sequential --lp $number_lp $seed
+                        $dbg_param ./simulation_rootsim --sequential --lp $number_lp $seed $timeout_rootsim
 					fi
 				err=$?
 				if [[ $err != 0  ]]; then
@@ -242,7 +249,7 @@ for target in ${targets[@]}; do
 				if [[ -z $dbg_arg ]]; then
 					# we save the output so we can grab the stats without redirecting output
 					# starting process in background and redirecting output to file
-					./simulation_use $working_threads $number_lp > $stat_source &
+					./simulation_use $working_threads $number_lp $timeout_use > $stat_source &
 					use_pid=$!
 					#Ctrl+C will kill USE process
 					echo "trap set to kill the model on Ctrl+C"
@@ -252,7 +259,7 @@ for target in ${targets[@]}; do
 					echo "waiting for simulation completion"
 					wait $use_pid
 				else
-					$dbg_param ./simulation_use $working_threads $number_lp
+					$dbg_param ./simulation_use $working_threads $number_lp $timeout_use
 				fi
 				err=$?
 				if [[ $err != 0  ]]; then
@@ -284,10 +291,10 @@ for target in ${targets[@]}; do
 				cd $output_location
 				if [ "$run_type" == "parallel" ]; then
 					echo "parallel execution with $working_threads threads"
-					$dbg_param ./simulation_neurome_parallel --wt $working_threads --lp $number_lp $seed
+					$dbg_param ./simulation_neurome_parallel --wt $working_threads --lp $number_lp $seed $timeout_neurome
 				else
 					echo "serial execution"
-					$dbg_param ./simulation_neurome_serial --lp $number_lp $seed
+					$dbg_param ./simulation_neurome_serial --lp $number_lp $seed $timeout_neurome
 				fi
 				err=$?
 				if [[ $err != 0  ]]; then

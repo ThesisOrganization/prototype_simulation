@@ -8,11 +8,17 @@ END_SESSION="COMPLETED SESSION $SESSION_DATE"
 
 #now there are the variables which contain our variations for the tests
 
-# 0 is for pure serial execution, while 1 is for parallel configuration but with one working thread
-thread_list=("0") #("0" "1" "2" "4" "8" "16" "40")
+#timeout argument for USE (in seconds). -1 means no timeout
+timeout_use="-1"
 
-#the list of seeds to be used
-seed_list=("0")
+#timeout argument for ROOT-Sim and NeuRome (in logical virtual time). -1 means no timeout
+timeout_rootsim="-1"
+
+# 0 is for pure serial execution, while 1 is for parallel configuration but with one working thread
+thread_list=("0") #("0" "2" "5" "10" "20" "30" "40")
+
+#the list of seeds to be used. -1 is for no seed specified
+seed_list=("-1")
 
 # yes means default configuration for simulation of message processing
 sim_processing_options=("no") #("no" "yes" "10000")
@@ -21,7 +27,7 @@ scheduler_options=("FIFO") #("FIFO" "RR")
 
 preemption_options=("no")
 
-simulator_list=("ROOT-Sim") #("USE" "ROOT-Sim" "NeuRome")
+simulator_list=("USE" "ROOT-Sim") #("USE" "ROOT-Sim" "NeuRome")
 
 # IMPORTANT: TO run test we need a catalog entry in the catalog_list for each element in the topology_list
 
@@ -46,9 +52,25 @@ echo -e "$BEGIN_SESSION\n\n"
 #now we need to create all the possible combination of the simulation parameters between each variable
 # also, for each variable we need to create the corresponding argument
 for seed in ${seed_list[@]}; do
-	seed_arg="--seed=$seed"
+	if [[ $seed == "-1" ]]; then
+		seed_arg=""
+	else
+		seed_arg="--seed=$seed"
+	fi
 	for simulator_arg in ${simulator_list[@]}
 	do
+	simulator_arg=${simulator_arg,,}
+	simulator_arg=${simulator_arg//'-'/''}
+	if [[ $simulator_arg == "rootsim" || $simulator_arg == "neurome" ]] && [[ $timeout_rootsim != "-1" ]]; then
+		timeout=$timeout_rootsim
+		timeout_arg="--timeout=$timeout_rootsim"
+	elif [[	$simulator_arg == "use" && $timeout_use != "-1" ]]; then
+		timeout_arg="--timeout=$timeout_use"
+		timeout=$timeout_use
+	else
+		timeout_arg=""
+		timeout="none"
+	fi
 		for thread_num in ${thread_list[@]}
 		do
 			if [[ $thread_num == "0" ]]; then
@@ -95,23 +117,25 @@ for seed in ${seed_list[@]}; do
 
 
 							topology_arg="--cat=$catalog --top=$topology"
-							output="$(pwd)/$path/tests/$seed-$simulator_arg-$execution_arg-threads_$thread_num-$scheduler-preempt_$preemption_choice-sim_proc_$sim_processing_choice"
+							output_base_dir="$(pwd)/$path/tests"
+							output="$output_base_dir/$simulator_arg-$execution_arg-threads_$thread_num-$scheduler-preempt_$preemption_choice-sim_proc_$sim_processing_choice-seed_$seed-timeout_$timeout"
 
 							out_arg="--out=$output"
 
-							test_cmd="bash start.sh -q all $topology_arg $simulator_arg $execution_arg $thread_arg $scheduler_arg  $preemption_arg $sim_processing_arg $seed_arg $out_arg "
+							test_cmd="bash start.sh -q all $topology_arg $simulator_arg $execution_arg $thread_arg $scheduler_arg  $preemption_arg $sim_processing_arg $seed_arg $timeout_arg $out_arg "
 
 							# we create the test directory
 							mkdir -p $output
 
 							#we use the below while to check if the test as already been executed correctly (we assume it happens when the END variable is written on the log file and there return value of the command is 0), otherwise we retry the test for a maximum of MAX_RETRY tentatives.
 							err=0
-							while [[ $(grep -c -e "$END.*$output" $LOG_FILE) == 0 ]];
+							while [[ $(tail -n 1 $output/test_esit.log | grep -c -e "^$END.*\$") == 0 ]];
 							do
-								DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
-								BEGIN="BEGIN test:.............$DATE"
-							# we log the beginning of the test
-								echo -e "$BEGIN\ntest command:\t$test_cmd" >> $LOG_FILE
+								DATE_BEGIN="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
+								BEGIN="BEGIN test:.............$DATE_BEGIN"
+								# we log the beginning of the test
+								begin_log="$BEGIN\ntest command:\t$test_cmd\nresults path: $output"
+								echo -e $begin_log >> $LOG_FILE
 								echo "$BEGIN"
 
 								#we execute the test
@@ -120,9 +144,11 @@ for seed in ${seed_list[@]}; do
 								#test is considered complete if there is no error
 								if [[ $err == 0 ]]; then
 									#we save the completion time and we log the successful completion
-									DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
-									echo -e "$END at $DATE, results path: $output\n\n" >> $LOG_FILE
-									echo -e "$END at $DATE\n\n"
+									DATE_END="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
+									end_log="$END at $DATE_END"
+									echo -e "$end_log\n\n" >> $LOG_FILE
+									echo -e "$begin_log\n$end_log" > $output/test_esit.log
+									echo -e "$end_log\n\n"
 								fi
 								NUM_RETRIES=$((NUM_RETRIES + 1))
 								#if we exceeded the maximum allowed tentatives we skip the test and proceed further.
