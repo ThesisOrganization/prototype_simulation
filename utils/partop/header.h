@@ -58,6 +58,8 @@ double * getLANsOUTserviceTimesByType(Element_topology * lpt);
 
 //CENTRAL/REGIONAL/LOCAL
 int getNodeType(Element_topology * lpt);
+double getCostDisk(Element_topology * lpt);
+double getCost(Element_topology * lpt);
 //Returns the list of service times for the element index, will be deprecated
 //by getServiceTimesNodes
 double * getServiceRates(Element_topology * lpt);

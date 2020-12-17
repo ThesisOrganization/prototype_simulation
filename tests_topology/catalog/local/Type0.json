@@ -23,5 +23,6 @@
           "sensor_Type0":5,
           "sensor_Type1":1,
           "actuator_Type0":1
-        }
+        },
+        "cost": 92.3
 }
