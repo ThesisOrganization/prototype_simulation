@@ -13,17 +13,17 @@ int main(int argc, char** argv)
   //char * path = "topology.txt";
   char * path = argv[1];
   char * path1 = argv[2];
-
 	lp_aggregation_criteria criteria=LP_AGGR_REGIONAL;
-	char* chosen_criteria=argv[4];
-	if(strncmp(chosen_criteria,"--lp_aggregation_criteria=local",strlen("--lp_aggregation_criteria=local"))==0){
+	if(argc > 4){
+		char* chosen_criteria=argv[4];
+		if(strncmp(chosen_criteria,"--lp_aggregation_criteria=local",strlen("--lp_aggregation_criteria=local"))==0){
 			criteria = LP_AGGR_LOCAL;
+		}
+		if(strncmp(chosen_criteria,"--lp_aggregation_criteria=lan",strlen("--lp_aggregation_criteria=lan"))==0){
+			criteria = LP_AGGR_LAN;
+		}
 	}
-	if(strncmp(chosen_criteria,"--lp_aggregation_criteria=lan",strlen("--lp_aggregation_criteria=lan"))==0){
-				criteria = LP_AGGR_LAN;
-	}
-
-  lp_topology * lptopo =  NULL;
+	lp_topology * lptopo =  NULL;
 
   total_topology * totTop = getTopology(path,path1,criteria);
   general_topology * genTop = getGenTopology(totTop);

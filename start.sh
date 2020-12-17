@@ -114,7 +114,7 @@ else
 		read -n1 -r -p "Press any key to continue or CTRL+C to exit" key
 	fi
 fi
-
+mkdir -p $output_location
 for target in ${targets[@]}; do
 	if [[ $target == "clean" ]]; then
 	echo "cleaning"
@@ -157,7 +157,7 @@ for target in ${targets[@]}; do
 	fi
 	if [[ $target == "all" || $target == "analytical model" ]]; then
 		echo "Starting analytical model computation.."
-		make LOCATION=$output_location -C model_computation
+		make LOCATION="$(pwd)/$output_location" -C model_computation
 		err=$?
 		if [[ $err != 0  ]]; then
 			echo "error during compilation of analytical model, aborting"

@@ -1094,7 +1094,7 @@ int main(int argc, char** argv){
 	//fprintf(out_tex,"\\section{Computed Formulas Example}\n");
 	fprintf(out_json,"[");
 
-	total_topology * totTop = getTopology(topology_path,lp_path);
+	total_topology * totTop = getTopology(topology_path,lp_path,LP_AGGR_NONE);
 
 	general_topology * genTop = getGenTopology(totTop);
 	Element_topology ** elTop = totTop->lpt;

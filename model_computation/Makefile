@@ -22,6 +22,7 @@ ifdef LOCATION
 	@cp $(TARGET) $(LOCATION)/$(TARGET)
 endif
 
+
 %.o : %.c $(DEPS)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
