@@ -11,7 +11,6 @@ parser.add_argument("out",help="location where topology.txt and LP.txt should be
 args=parser.parse_args()
 
 f_out = open(args.out+"/topology.txt", "w")
-f_out_LP = open(args.out+"/LP.txt", "w")
 
 f_out_txt = open(args.out+"/jsonAdditionalInfo.txt","w")
 
@@ -197,8 +196,7 @@ numbersString+=str(len(type_dict['actuator']))+"\n"
 numbersString+=str(len(type_dict['sensor']))+"\n"
 numbersString+=str(len(type_dict['lan']))+"\n"
 f_out.write(numbersString);
-f_out_LP.write(str(number_of_elements_to_write)+"\n")
-f_out_LP.write(str(number_of_regionals)+"\n");
+
 #USER SHOULD CHANGE THESE
 ####################################
 #rate_trans_act = "0.0005,"
@@ -519,8 +517,6 @@ for i in range(countReg):
         regional_count+=1
 
         tot = LP_num_elements+tot
-        total_write = str(LP_index)+";"+str(tot)+";"+LP_start_list+"\n"
-        f_out_LP.write(total_write)
         LP_index+=1
         wan_id+=1
         index+=1

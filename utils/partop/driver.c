@@ -5,7 +5,7 @@
 
 int main()
 {
-
+/*
   lp_topology * lptopo =  getLPtopoogy("../../tree_simulator/LP.txt");
   int nlp = getNumLP(lptopo);
   printf("Number of LPs: %d.\n",nlp);
@@ -26,6 +26,7 @@ int main()
     printf("Element %d maps to LP %d\n",x,res);
     x+=1;
   }
+*/
 
   //We retrieve the topology, answer the question of who needs to receive for each sender node in the data
   printf("Main starting, retrieving topology..\n");

@@ -319,6 +319,59 @@ lp_topology * getLPtopoogy(char * path){
 
 }
 
+void auxCreateLP(Element_topology ** lpt, int id, int* returnCount){
+  int * lowerSet = getLowers(lpt[id]);
+  int numLow = getNumberLower(lpt[id]);
+  *returnCount+=1;
+  for(int i = 0; i < numLow; i++){
+    auxCreateLP(lpt, lowerSet[i],returnCount);
+  }
+}
+void auxWrite(Element_topology ** lpt,FILE * fp, int id, int start){
+  int * lowerSet = getLowers(lpt[id]);
+  int numLow = getNumberLower(lpt[id]);
+  if(id == start){
+    fprintf(fp, "%d",id);
+  }
+  else{
+    fprintf(fp, ",%d",id);
+  }
+  for(int i = 0; i < numLow; i++){
+    auxWrite(lpt,fp, lowerSet[i],start);
+  }
+}
+void createLPtxt(Element_topology ** lpt,int totalNumberOfElements, int numRegionals,char * path1){
+  FILE * fp;
+  fp = fopen(path1, "w");
+  fprintf(fp,"%d\n",totalNumberOfElements);
+  fprintf(fp,"%d",numRegionals);
+  int counter = 0;
+  int idToSkip = -1;
+  for(int i = 0; i < totalNumberOfElements; i++){
+    if(getType(lpt[i]) == NODE && getNodeType(lpt[i]) != LOCAL){
+      if(i != idToSkip){
+        fprintf(fp,"\n%d;",counter);
+        counter+=1;
+        if(getNodeType(lpt[i]) == CENTRAL){
+          idToSkip = getLowers(lpt[getLowers(lpt[i])[0]])[0];
+          int numEle = 2;
+          auxCreateLP(lpt,idToSkip,&numEle);
+          fprintf(fp,"%d;%d,%d,",numEle,i,getLowers(lpt[i])[0]);
+          auxWrite(lpt,fp, idToSkip,idToSkip);
+        }
+        else if (getNodeType(lpt[i]) == REGIONAL){
+          int numEle = 0;
+          auxCreateLP(lpt,i,&numEle);
+          fprintf(fp,"%d;",numEle);
+          auxWrite(lpt,fp, i,i);
+        }
+      }
+    }
+  }
+
+  fclose(fp);
+}
+
 total_topology * getTopology(char * path, char * path1){
   FILE * fp;
   char * line = malloc(sizeof(char)*MAX_LINE_LEN);
@@ -564,7 +617,6 @@ total_topology * getTopology(char * path, char * path1){
   genTop->numberOfSensTypes = nts;
   genTop->numberOfLANsTypes = ntl;
   genTop->probOfActuators = probArray;
-
   EST->gn = genTop;
 
   int ** typesSensArray = malloc(sizeof(int*) * totalNumberOfElements);
@@ -803,6 +855,7 @@ total_topology * getTopology(char * path, char * path1){
   }
   free(id_arr);
 
+  int numRegionals = 0;
   //setup some of the informations we computed
   for(int c = 0; c < totalNumberOfElements; c+=1){
     int typeC = getType(lpt[c]);
@@ -811,6 +864,9 @@ total_topology * getTopology(char * path, char * path1){
     setArrayActuatorPaths(lpt[c],idmap_actPaths[c],valid[c]);
     free(idmap_actPaths[c]);
     if(typeC == 0){
+      if(getNodeType(lpt[c]) == REGIONAL){
+        numRegionals+=1;
+      }
       setWANdown(lpt[c], WANsDownArray[c]);
       setWANup(lpt[c],lpt);
       setListActuatorsByType(lpt[c],resultAct[c],nt);
@@ -877,6 +933,7 @@ total_topology * getTopology(char * path, char * path1){
   }
   free(arrayActuatorPaths);
 
+  createLPtxt(lpt,totalNumberOfElements,numRegionals, path1);
 
   lp_topology * lp_element_topology = getLPtopoogy(path1);
   int ** reachableSetElement = malloc(sizeof(int*)*totalNumberOfElements);
