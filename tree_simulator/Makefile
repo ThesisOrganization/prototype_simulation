@@ -28,7 +28,7 @@ max_lp=0
 sim_max_duration=60
 
 ifdef DBG
-OPTS= $(DBG_OPTS)
+CFLAGS:= $(CFLAGS) $(DBG_OPTS)
 endif
 
 ifdef SCHED_RR
@@ -57,7 +57,7 @@ endif
 all: rootsim use neurome
 
 use : $(SRCS) $(DEPS)
-	make PHOLD_SOURCES="$(SRCS:%=$(shell pwd)/%)" TARGET=simulation_use THR_POOL_SIZE=$(queue_len) MAX_ALLOCABLE_GIGAS=$(MAX_GIGAS) NBC=$(nbc) MAX_SKIPPED_LP=$(max_lp) REVERSIBLE=0 LOOKAHEAD=$(lookahead) PERC_USED_BUCKET=$(pub) ELEM_PER_BUCKET=$(epb) REPORT=$(report) DEBUG=$(dbg) SPERIMENTAL=$(sperimental) CHECKPOINT_PERIOD=$(ck) LINEAR_PINNING=$(lin_pin) -C ../Simulators/USE/ _phold executable
+	make PHOLD_SOURCES="$(SRCS:%=$(shell pwd)/%)" TARGET=simulation_use THR_POOL_SIZE=$(queue_len) MAX_ALLOCABLE_GIGAS=$(MAX_GIGAS) NBC=$(nbc) MAX_SKIPPED_LP="$(max_lp) $(OPTS)" REVERSIBLE=0 LOOKAHEAD=$(lookahead) PERC_USED_BUCKET=$(pub) ELEM_PER_BUCKET=$(epb) REPORT=$(report) DEBUG=$(dbg) SPERIMENTAL=$(sperimental) CHECKPOINT_PERIOD=$(ck) LINEAR_PINNING=$(lin_pin) -C ../Simulators/USE/ _phold executable
 	mkdir -p $(LOCATION) ; mv ../Simulators/USE/simulation_use $(LOCATION)/simulation_use
 
 rootsim : $(OBJS_rootsim) $(DEPS)
