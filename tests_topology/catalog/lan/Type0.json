@@ -4,5 +4,6 @@
             "transition": 0.02,
             "command": 0.01
         },
-        "delay": 0.5
+        "delay": 0.5,
+        "cost": 2.3
 }

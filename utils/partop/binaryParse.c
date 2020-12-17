@@ -67,6 +67,7 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
       temp_elem_top[c]->ElementToLPMapping = malloc(sizeof(idmap)*nvel);
       fread(temp_elem_top[c]->ElementToLPMapping,sizeof(idmap),nvel,output_file);
 
+      fread(&temp_elem_top[c]->cost,sizeof(double),1,output_file);
       if(lp_type == 0){//node
         node_topology * nodeTop = malloc(sizeof(node_topology));
 
@@ -78,6 +79,7 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
         nodeTop->scheduler = scheduler;
 
         if(node_type == 0){//Central
+          fread(&nodeTop->disk_cost,sizeof(double),1,output_file);
 
           fread(&nodeTop->disk_type,sizeof(int),1,output_file);
           nodeTop->diskServices = malloc(sizeof(double)*4);

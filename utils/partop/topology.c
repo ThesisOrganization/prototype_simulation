@@ -399,7 +399,12 @@ int getActuatorPathsIndex(Element_topology * lpt, int index){
   int result = idmap_search(idm,index,valid);
   return result;
 }
-
+double getCostDisk(Element_topology * lpt){
+  return(lpt->spec_top.node->disk_cost);
+}
+double getCost(Element_topology * lpt){
+  return(lpt->cost);
+}
 
 //SETUP FUNCTIONS
 void setLowerElements(Element_topology * lpt, int * lowerEle, int numberLower)
@@ -488,6 +493,7 @@ void setSensorRates(Element_topology * lpt, double * array, int size){
 
 void setSensorTypes(Element_topology * lpt, int * array, int nts,int size){
   int * results = malloc(size);
+
   memcpy(results, array, size);
 
   int type = getType(lpt);

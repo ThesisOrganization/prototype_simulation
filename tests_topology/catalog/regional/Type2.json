@@ -16,6 +16,8 @@
         "prob_command_generated": 0.1,
         "scheduler_type": "1",
         "delay_wan": 0.45,
+        "cost_wan":0.3,
         "delay_upper_router": 0.3,
-        "delay_lower_router": 0.1
+        "delay_lower_router": 0.1,
+        "cost": 143.3
 }

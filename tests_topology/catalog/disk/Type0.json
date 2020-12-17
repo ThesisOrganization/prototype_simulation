@@ -5,5 +5,6 @@
             "command": 0.00,
             "batch": 0.23
         },
-        "disk_type": "3"
+        "disk_type": "3",
+        "cost": 200.3
 }

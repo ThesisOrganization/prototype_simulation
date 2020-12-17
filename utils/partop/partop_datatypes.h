@@ -41,6 +41,7 @@ typedef struct _node_topology{
 	int * sensorsTypesBelow;
 	int * ListSensorsByType;
 	int * ListActuatorsByType; //[x][y] element è il y-esimo elemento nella lista di attuatori di tipo x
+	double disk_cost;
 } node_topology;
 
 typedef struct _sensor_topology{
@@ -110,6 +111,7 @@ typedef struct _general_topology{
 
 typedef struct _Element_topology{
 	int id;
+	double cost;
   state_type lp_type;
   int upperNode;
   int numberOfLowerElements;

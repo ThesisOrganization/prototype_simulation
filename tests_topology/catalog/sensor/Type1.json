@@ -2,5 +2,6 @@
         "rate_sensors_telemetry": 0.000,
         "rate_sensors_transition": 0.0042,
         "measure_type": "0",
-        "job_type": "BATCH"
+        "job_type": "BATCH",
+        "cost": 23.3
 }
