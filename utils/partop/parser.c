@@ -340,11 +340,65 @@ void auxWrite(Element_topology ** lpt,FILE * fp, int id, int start){
     auxWrite(lpt,fp, lowerSet[i],start);
   }
 }
-void createLPtxt(Element_topology ** lpt,int totalNumberOfElements, int numRegionals,char * path1){
+
+void createLPtxt_bylan(Element_topology ** lpt,int totalNumberOfElements, int numlp,char * path1){
+	FILE * fp;
+	fp = fopen(path1, "w");
+	fprintf(fp,"%d\n",totalNumberOfElements);
+	fprintf(fp,"%d",numlp);
+	int counter = 0;
+	for(int i = 0; i < totalNumberOfElements; i++){
+		if(getType(lpt[i]) == LAN){
+			fprintf(fp,"\n%d;",counter);
+			counter+=1;
+			int numEle = 0;
+			auxCreateLP(lpt,i,&numEle);
+			fprintf(fp,"%d;",numEle);
+			auxWrite(lpt,fp, i,i);
+		}
+		if(getType(lpt[i]) == NODE ){
+			if(getNodeType(lpt[i]) == REGIONAL || getNodeType(lpt[i]) == CENTRAL){
+				fprintf(fp,"\n%d;%d,%d",counter,i,getLowers(lpt[i])[0]);
+				counter+=1;
+			}else{
+				fprintf(fp,"\n%d;%d",counter,i);
+				counter+=1;
+			}
+		}
+	}
+	fclose(fp);
+}
+
+void createLPtxt_bylocal(Element_topology ** lpt,int totalNumberOfElements, int numlp,char * path1){
+	FILE * fp;
+	fp = fopen(path1, "w");
+	fprintf(fp,"%d\n",totalNumberOfElements);
+	fprintf(fp,"%d",numlp);
+	int counter = 0;
+	for(int i = 0; i < totalNumberOfElements; i++){
+		if(getType(lpt[i]) == NODE){
+			if(getNodeType(lpt[i]) == LOCAL){
+				fprintf(fp,"\n%d;",counter);
+				counter+=1;
+				int numEle = 0;
+				auxCreateLP(lpt,i,&numEle);
+				fprintf(fp,"\n%d;",numEle);
+				auxWrite(lpt,fp, i,i);
+			}else {
+				fprintf(fp,"\n%d;%d,%d",counter,i,getLowers(lpt[i])[0]);
+				counter+=1;
+			}
+		}
+	}
+
+	fclose(fp);
+}
+
+void createLPtxt_byregion(Element_topology ** lpt,int totalNumberOfElements, int numlp,char * path1){
   FILE * fp;
   fp = fopen(path1, "w");
   fprintf(fp,"%d\n",totalNumberOfElements);
-  fprintf(fp,"%d",numRegionals);
+  fprintf(fp,"%d",numlp);
   int counter = 0;
   int idToSkip = -1;
   for(int i = 0; i < totalNumberOfElements; i++){
@@ -372,7 +426,7 @@ void createLPtxt(Element_topology ** lpt,int totalNumberOfElements, int numRegio
   fclose(fp);
 }
 
-total_topology * getTopology(char * path, char * path1){
+total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria aggregation_criteria){
   FILE * fp;
   char * line = malloc(sizeof(char)*MAX_LINE_LEN);
 	char * temp = malloc(sizeof(char)*MAX_LINE_LEN);
@@ -855,7 +909,7 @@ total_topology * getTopology(char * path, char * path1){
   }
   free(id_arr);
 
-  int numRegionals = 0;
+  int numRegionals = 0,numLocals=0,numLANs=0;
   //setup some of the informations we computed
   for(int c = 0; c < totalNumberOfElements; c+=1){
     int typeC = getType(lpt[c]);
@@ -867,6 +921,9 @@ total_topology * getTopology(char * path, char * path1){
       if(getNodeType(lpt[c]) == REGIONAL){
         numRegionals+=1;
       }
+      if(getNodeType(lpt[c]) == LOCAL){
+				numLocals+=1;
+			}
       setWANdown(lpt[c], WANsDownArray[c]);
       setWANup(lpt[c],lpt);
       setListActuatorsByType(lpt[c],resultAct[c],nt);
@@ -881,6 +938,7 @@ total_topology * getTopology(char * path, char * path1){
       setListSensorsByType(lpt[c],resultSens[c],nts);
     }
     else if(typeC == 4){
+			numLANs+=1;
       int lanType = getLanType(lpt[c]);
       setLANserviceTimes(lpt[c],LANsINserviceTimes[lanType],LANsOUTserviceTimes[lanType],sizeof(LANsINserviceTimes[lanType][0])*5,sizeof(LANsOUTserviceTimes[lanType][0])*5);
       setListActuatorsByType(lpt[c],resultAct[c],nt);
@@ -933,7 +991,19 @@ total_topology * getTopology(char * path, char * path1){
   }
   free(arrayActuatorPaths);
 
-  createLPtxt(lpt,totalNumberOfElements,numRegionals, path1);
+	switch(aggregation_criteria){
+		case LP_AGGR_REGIONAL:
+			createLPtxt_byregion(lpt,totalNumberOfElements,numRegionals, path1);
+			break;
+		case LP_AGGR_LOCAL:
+			createLPtxt_bylocal(lpt,totalNumberOfElements,numRegionals+1+numLocals, path1);
+		break;
+		case LP_AGGR_LAN:
+			createLPtxt_bylan(lpt,totalNumberOfElements,numRegionals+1+numLocals+numLANs, path1);
+		break;
+		default:
+			break;
+	}
 
   lp_topology * lp_element_topology = getLPtopoogy(path1);
   int ** reachableSetElement = malloc(sizeof(int*)*totalNumberOfElements);

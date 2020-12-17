@@ -109,7 +109,7 @@ if (! (x)) {\
 #define GET_NUMBER_ACT_TYPES(a) getNumberOfActTypes(a)
 #define GET_NUMBER_SENS_TYPES(a) getNumberOfSensTypes(a)
 #define GET_PROB_ACTUATORS(a) getProbOfActuators(a)
-#define GET_TOPOLOGY(a,b) getTopology(a,b)
+#define GET_TOPOLOGY(a,b,c) getTopology(a,b,c)
 #define GET_GEN_TOPOLOGY(a) getGenTopology(a)
 
 //ELEMENT TOPOLOGY

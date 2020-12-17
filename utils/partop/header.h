@@ -2,6 +2,15 @@
 #define HEADER_H
 #include "../idmap/idmap.h"
 #include "partop_datatypes.h"
+
+///The LP aggregation criteria
+typedef enum _lp_aggregation_criteria{
+	LP_AGGR_NONE=0, /// disables the generation of the LP.txt file
+	LP_AGGR_REGIONAL, /// one lp per region, with the central node inside the first region
+	LP_AGGR_LOCAL, ///one lp per local node, with the central and regional node in an lp each (WAN included)
+	LP_AGGR_LAN ///one lp per lan with regional, local and central node in one lp each (WAN included)
+} lp_aggregation_criteria;
+
 //PSA: "directly" means that the elements is the next hop in
 //any direction, the direction is specified by the function.
 //##################################
@@ -101,7 +110,7 @@ int * getListSensorsByType(Element_topology * lpt, int sensorType);
 //#################################
 
 //Create topology from txt file in path
-total_topology *  getTopology(char * path,char * path1);
+total_topology *  getTopology(char * path,char * path1,lp_aggregation_criteria aggregation_criteria);
 //topology struct GETs, first 8 are general informations
 //self-explanatory.
 int getTotalNodes(general_topology * genTop);

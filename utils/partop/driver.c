@@ -34,7 +34,7 @@ int main()
   char * path = "../../tree_simulator/topology.txt";
   char * path1 = "../../tree_simulator/LP.txt";
 
-  total_topology * totTop = getTopology(path,path1);
+  total_topology * totTop = getTopology(path,path1,LP_AGGR_REGIONAL);
   general_topology * genTop = getGenTopology(totTop);
 
   int nn = getTotalNodes(genTop);

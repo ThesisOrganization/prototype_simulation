@@ -10,7 +10,7 @@
 void setup_master(int n_prc_tot){
 	int lp;
 	//we use the parser to get informations about the general topology
-	total_topology *tot_top=GET_TOPOLOGY("topology.txt","LP.txt");
+	total_topology *tot_top=GET_TOPOLOGY("topology.txt","LP.txt", LP_AGGR_NONE);
 	printf("Loaded topology\n");
 	//then we need to get the general topology
 	general_topology *gen_top=GET_GEN_TOPOLOGY(tot_top);
