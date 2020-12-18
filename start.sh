@@ -14,6 +14,7 @@ targets=()
 error="no"
 initial_location=$(pwd)
 options=""
+lp_aggregation="regional"
 
 for arg
 do
@@ -42,6 +43,8 @@ do
 		sim_options+="--run-complete "
 	elif [[ ${arg:0:6} == "--cat=" ]]; then
 		catalog_path=${arg#'--cat='}
+	elif [[ ${arg:0:17} == "--lp_aggregation=" ]]; then
+		lp_aggregation="--lp_aggregation_criteria=${arg#"--lp_aggregation="}"
 	elif [[ ${arg:0:6} == "--out=" ]]; then
 		output_location=${arg#'--out='}
 		sim_options+=$arg
@@ -90,6 +93,7 @@ if [[ $quiet == "no" || $error == "yes" ]]; then
 \"all --all\":execute all the above steps (don't use this argument with the ones above)\n
 \nData options:\n
 		\"aggregated --aggregated -aggr\": in the pdf results, aggregate nodes that have similar characteristics (by default a 20% tolerance is used for aggreagtion)\n
+	\"--lp_aggregation=[regional,local,lan]\": customizes how the elements are to be aggregated into LPs.
 	\"--cat=\": path to the catalog folder that stores element types, defaults to \"tests_topology/catalog\"\n
 	\"--top=\": path to the topology file from the \"rootsim-models\" folder; if this argument is not specified the the default path will be \"tests_topology/config.txt\"\n
 	\"-sc= --sim_coef=\": to define a custom tolerance value (as a number between 0 and 1) for the results aggregation\n
@@ -113,6 +117,11 @@ else
 	if [[ $quiet == "no" ]]; then
 		read -n1 -r -p "Press any key to continue or CTRL+C to exit" key
 	fi
+fi
+
+#converting into absolute path
+if [[ $output_location =~ ^[^/].*$ ]]; then
+	output_location="$(pwd)/$output_location"
 fi
 mkdir -p $output_location
 for target in ${targets[@]}; do
@@ -147,7 +156,7 @@ for target in ${targets[@]}; do
 		mkdir -p $output_location"/bin/gentop" $output_location"/bin/lptop"
 		echo "Done"
 		echo "Creating binary files"
-		./utils/partop/driverBinaries $output_location"/topology.txt" $output_location"/LP.txt" $output_location
+		./utils/partop/driverBinaries $output_location"/topology.txt" $output_location"/LP.txt" $output_location $lp_aggregation
 		echo "Done"
 		err=$?
 		if [[ $err != 0  ]]; then
@@ -157,7 +166,7 @@ for target in ${targets[@]}; do
 	fi
 	if [[ $target == "all" || $target == "analytical model" ]]; then
 		echo "Starting analytical model computation.."
-		make LOCATION="$(pwd)/$output_location" -C model_computation
+		LOCATION="$output_location" make -C model_computation
 		err=$?
 		if [[ $err != 0  ]]; then
 			echo "error during compilation of analytical model, aborting"
@@ -205,7 +214,6 @@ for target in ${targets[@]}; do
 		pdflatex complete_results.tex
 		err=$?
 		rm -f complete_results.log complete_results.aux
-		cd $initial_location
 		if [[ $err != 0  ]]; then
 			echo "error during document creation, aborting"
 			exit $err
@@ -213,8 +221,8 @@ for target in ${targets[@]}; do
 		echo "Done."
 		echo "Moving and renaming pdf.."
 		res_name=$(date +%H_%M_%S)-$sim_name-$run_type-complete_results.pdf
-		if [[ $output_location == "tree_simulator_bin" ]]; then
-			output_location="pdf_result"
+		if [[ $output_location =~ ^.*tree_simulator_bin$ ]]; then
+			output_location="$initial_location/pdf_results"
 		fi
 		mv complete_results.pdf $output_location/$res_name
 		if [[ $err != 0  ]]; then
@@ -222,6 +230,6 @@ for target in ${targets[@]}; do
 			exit $err
 		fi
 		echo "Done, results are in file $res_name located in the \"pdf_results\" folder"
-		cd ..
+		cd $initial_location
 	fi
 done

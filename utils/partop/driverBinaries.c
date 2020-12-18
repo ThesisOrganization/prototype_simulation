@@ -5,8 +5,8 @@
 
 int main(int argc, char** argv)
 {
-	if(argc <4){
-		printf("not enough arguments specified:\n Usage: driverBinaries [path_to_topology.txt] [path_to_LP.txt]  [output_path]\n optional positional argument (to use as last argument):[--lp_aggregation_criteria=[region,local,lan]]\n the lp aggregation criteria controls how the elements are aggregated in LPs, refere to header.h documentation for more info.");
+	if(argc < 4){
+		printf("not enough arguments specified:\n Usage: driverBinaries [path_to_topology.txt] [path_to_LP.txt]  [output_path]\n optional positional argument (to use as last argument):[--lp_aggregation_criteria=[regional,local,lan]]\n the lp aggregation criteria controls how the elements are aggregated in LPs, refere to header.h documentation for more info.");
 		exit(EXIT_FAILURE);
 	}
   //We retrieve the topology, answer the question of who needs to receive for each sender node in the data
@@ -16,6 +16,10 @@ int main(int argc, char** argv)
 	lp_aggregation_criteria criteria=LP_AGGR_REGIONAL;
 	if(argc > 4){
 		char* chosen_criteria=argv[4];
+		if(strncmp(chosen_criteria,"--lp_aggregation_criteria=local",strlen("--lp_aggregation_criteria=local"))!=0 && strncmp(chosen_criteria,"--lp_aggregation_criteria=lan",strlen("--lp_aggregation_criteria=lan"))!=0 && strncmp(chosen_criteria,"--lp_aggregation_criteria=regional",strlen("--lp_aggregation_criteria=regional"))!=0 ){
+			printf("unrecognized lp aggregation criteria\n");
+			exit(EXIT_FAILURE);
+		}
 		if(strncmp(chosen_criteria,"--lp_aggregation_criteria=local",strlen("--lp_aggregation_criteria=local"))==0){
 			criteria = LP_AGGR_LOCAL;
 		}

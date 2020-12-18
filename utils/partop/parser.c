@@ -369,10 +369,10 @@ void createLPtxt_bylan(Element_topology ** lpt,int totalNumberOfElements, int nu
 		}
 		if(getType(lpt[i]) == NODE ){
 			if(getNodeType(lpt[i]) == REGIONAL || getNodeType(lpt[i]) == CENTRAL){
-				fprintf(fp,"\n%d;%d,%d",counter,i,getLowers(lpt[i])[0]);
+				fprintf(fp,"\n%d;2;%d,%d",counter,i,getLowers(lpt[i])[0]);
 				counter+=1;
 			}else{
-				fprintf(fp,"\n%d;%d",counter,i);
+				fprintf(fp,"\n%d;1;%d",counter,i);
 				counter+=1;
 			}
 		}
@@ -393,10 +393,10 @@ void createLPtxt_bylocal(Element_topology ** lpt,int totalNumberOfElements, int 
 				counter+=1;
 				int numEle = 0;
 				auxCreateLP(lpt,i,&numEle);
-				fprintf(fp,"\n%d;",numEle);
+				fprintf(fp,"%d;",numEle);
 				auxWrite(lpt,fp, i,i);
 			}else {
-				fprintf(fp,"\n%d;%d,%d",counter,i,getLowers(lpt[i])[0]);
+				fprintf(fp,"\n%d;2;%d,%d",counter,i,getLowers(lpt[i])[0]);
 				counter+=1;
 			}
 		}
@@ -406,6 +406,7 @@ void createLPtxt_bylocal(Element_topology ** lpt,int totalNumberOfElements, int 
 }
 
 void createLPtxt_byregion(Element_topology ** lpt,int totalNumberOfElements, int numlp,char * path1){
+	printf("creating LP.txt\n");
   FILE * fp;
   fp = fopen(path1, "w");
   fprintf(fp,"%d\n",totalNumberOfElements);
@@ -558,6 +559,7 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
     while(ptr2){
       if(counter == 0){
         LANsOUTserviceTimes[index] = malloc(sizeof(double) * 5);//fixed, 5 types messages
+
         LANsOUTserviceTimes[index][counter] = strtod(ptr2, &end_ptr);
       }
       else{

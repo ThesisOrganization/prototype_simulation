@@ -649,6 +649,7 @@ bool OnGVT(int me, lp_state *snapshot)
 
 	if(snapshot->num_stable_elements == total_number_of_elements){
 #ifdef PRINT_RESULTS
+		int print_started;
 		char file_name_complete[64];
 		sprintf(file_name_complete, "%s%d%s", file_name, me, end_file_name);
 
@@ -664,17 +665,18 @@ bool OnGVT(int me, lp_state *snapshot)
 
 		fprintf(output_file, "[");
 
-
+		print_started=0;
 		for(index = 0; index < snapshot->num_devices; index++){
 
 			map = snapshot->element_to_index[index];
 			id_device = map.id;
 			index_map = map.content;
 			dev_state = snapshot->devices_array[index_map];
-
-			if(index>0 &&  (dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR))
+			if(print_started == 1 && index>0 &&  (dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR)){
 				fprintf(output_file, ",");
+			}
 			if(dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR){
+				print_started=1;
 				fprintf(output_file, "{\"id\": %d,", id_device);
 				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
 				fprintf(output_file, "\"stable\": %d,", dev_state->stability);

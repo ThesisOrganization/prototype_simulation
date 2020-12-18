@@ -3,9 +3,9 @@
 static double get_min_service_time(double* service_rates){
 	
 	double min_value = -1;
-	
+	memset(service_rates,-1,NUM_OF_JOB_TYPE);
 	for(int i = 1; i < NUM_OF_JOB_TYPE - 1; i++){
-		
+
 		if(service_rates[i] > 0 && (min_value == -1 || service_rates[i] < min_value))
 			min_value = service_rates[i];
 		
@@ -222,6 +222,7 @@ void init_actuator(unsigned int id_device, simtime_t now, device_state * state, 
 		
 		
 		double service_rates[NUM_OF_JOB_TYPE]; //meh
+		memset(service_rates,0,sizeof(double)*NUM_OF_JOB_TYPE);
 		service_rates[COMMAND] = state->info.actuator->service_rate_command;
 		state->info.actuator->queue_state->time_slice = get_min_service_time(service_rates);
 

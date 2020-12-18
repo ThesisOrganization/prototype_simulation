@@ -14,7 +14,7 @@ static void swap(queue_conf** a, queue_conf** b)
  * of pivot */
 static int partition (queue_conf** arr, int low, int high)
 {
-	prio_type pivot = arr[high]->type; // pivot
+	prio_type pivot = arr[high]->prio; // pivot
 	int i = (low - 1); // Index of smaller element
 	int true_high=high-1;
 	for (int j = low; j <= true_high; j++){

@@ -43,7 +43,7 @@ void setup_master(int n_prc_tot){
 }
 
 void setup_independent(int lp,lp_state* state, int n_prc_tot){
-	int i,j,map_len;
+	int i,map_len;
 	///Each LP reads from file the information about the topology.
 	state->general_topology= parseBinaryGeneralTopology();
 	/// Then checks if the number of LPs is right

@@ -72,7 +72,7 @@ void generateBinaries_elementTopology(general_topology * genTop,total_topology *
 
       //int numValidElToLP;
       //idmap * ElementToLPMapping;
-      int cost = getCost(temp_lpt);
+      double cost = getCost(temp_lpt);
       fwrite(&cost,sizeof(double),1,output_file);
       if(lp_type == 0){//node
         int node_type = getNodeType(temp_lpt);
@@ -81,7 +81,7 @@ void generateBinaries_elementTopology(general_topology * genTop,total_topology *
         fwrite(&scheduler,sizeof(int),1,output_file);
 
         if(node_type == 0){//Central
-          int disk_cost = getCostDisk(temp_lpt);
+          double disk_cost = getCostDisk(temp_lpt);
           fwrite(&disk_cost,sizeof(double),1,output_file);
           int disk_type = getDiskType(temp_lpt);
           fwrite(&disk_type,sizeof(int),1,output_file);
