@@ -672,14 +672,20 @@ bool OnGVT(int me, lp_state *snapshot)
 			id_device = map.id;
 			index_map = map.content;
 			dev_state = snapshot->devices_array[index_map];
-			if(print_started == 1 && index>0 &&  (dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR)){
+			if(print_started == 1 && index>0 &&  (dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR || dev_state->type == WAN)){
 				fprintf(output_file, ",");
+			}
+			if(dev_state->type == WAN){
+				fprintf(output_file, "{\"id\": %d,", id_device);
+				fprintf(output_file, "\"upper_node\": %d,", GET_UPPER_NODE(dev_state->topology));
+				fprintf(output_file, "\"type\": \"wan\"}");
 			}
 			if(dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR){
 				print_started=1;
 				fprintf(output_file, "{\"id\": %d,", id_device);
 				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
 				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
+				fprintf(output_file, "\"upper_node\": %d,", GET_UPPER_NODE(dev_state->topology));
 				if(dev_state->type!=LAN){
 					fprintf(output_file,"\"sim_proc\": %d,",SIM_PROCESSING);
 					fprintf(output_file, "\"sim_proc_multi\": %d,", SIM_PROCESSING_MULTIPLIER);

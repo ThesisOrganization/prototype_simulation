@@ -148,18 +148,28 @@ flagStable = True
 count = 0;
 dict_simulator = {}
 dict_model = {}
-num_elements = len(data_simulator)
+num_elements_simulator = len(data_simulator)
+num_elements_model = len(data_model)
+
 ordered_id_list = []
-while(count < num_elements):
-    id_simulator = data_simulator[count]['id']
-    dict_simulator[id_simulator] = {}
-    ordered_id_list.append(id_simulator);
-    for element in data_simulator[count]:
-        if element != 'id':
-            dict_simulator[id_simulator][element] = data_simulator[count][element]
-        if element == 'stable':
-            if (dict_simulator[id_simulator][element] != 1):
-                flagStable = False
+
+while(count < num_elements_simulator):
+    type = data_simulator[count]['type']
+    if type != 'wan':
+        id_simulator = data_simulator[count]['id']
+        dict_simulator[id_simulator] = {}
+        ordered_id_list.append(id_simulator);
+        for element in data_simulator[count]:
+            if element != 'id':
+                dict_simulator[id_simulator][element] = data_simulator[count][element]
+            if element == 'stable':
+                if (dict_simulator[id_simulator][element] != 1):
+                    flagStable = False
+
+    count+=1
+
+count = 0
+while(count < num_elements_model):
     id_model = data_model[count]['id']
     dict_model[id_model] = {}
     for element in data_model[count]:
