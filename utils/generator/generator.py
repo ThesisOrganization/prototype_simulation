@@ -133,7 +133,12 @@ for i in type_dict['local']:
                     else:
                         #lan_element == "sensor_type0"
                         if lan_element.split("_")[0] == "sensor":
-                            type = lan_element.split("_")[1] #type
+                            type=""
+                            bits=lan_element.split("_")
+                            for bit_index in range(1,len(bits)): #type
+                                type+=bits[bit_index]
+                                if bit_index < len(bits)-1:
+                                    type+="_"
                             if type not in type_dict['sensor']:
                                 dict_types_association['sensor'][type] = len(type_dict['sensor'])
                                 type_dict['sensor'].append(type)
@@ -145,7 +150,12 @@ for i in type_dict['local']:
                             if 'actuator' not in local_infos_dict[i]['lan'][element]:
                                 local_infos_dict[i]['lan'][element]['actuator'] = {}
 
-                            type = lan_element.split("_")[1] #type
+                            type=""
+                            bits=lan_element.split("_")
+                            for bit_index in range(1,len(bits)): #type
+                                type+=bits[bit_index]
+                                if bit_index < len(bits)-1:
+                                    type+="_"
                             if type not in type_dict['actuator']:
                                 dict_types_association['actuator'][type] = len(type_dict['actuator'])
                                 type_dict['actuator'].append(type)

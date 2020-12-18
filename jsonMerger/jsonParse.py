@@ -4,6 +4,19 @@ import os.path
 import math
 import argparse
 
+
+def escape(char):
+	if char in ["_"]:
+		return "\\"+char
+	return char
+
+def filter_escape_string(string):
+	arr=map(escape,string)
+	string=""
+	for elem in arr:
+		string+=elem
+	return string
+
 parser=argparse.ArgumentParser(description="Parse JSONs from the simulation and the analytical model and merge them in LaTeX.")
 parser.add_argument("topology_path",help="folder where the topology.txt and LP.txt are located")
 parser.add_argument("simulation_path",help="folder where simulation the JSONs are located")
@@ -430,16 +443,16 @@ for element in ordered_id_list:
             if dict_model[element]['num_cores'] > 1:
                 f_out.write("This node has "+str(dict_model[element]['num_cores'])+" processing units.\\\\")
             if dict_model[element]['node_type'] == 'regional':
-                f_out.write("This regional node of "+dict_ids_regional[element]['type']+" has in its subtree: \\begin{itemize}\n")
+                f_out.write("This regional node of type "+filter_escape_string(dict_ids_regional[element]['type'])+" has in its subtree: \\begin{itemize}\n")
 
                 for type_local_dict_ids in dict_ids_regional[element]['type_local']:
                     amount = dict_ids_regional[element]['type_local'][type_local_dict_ids]
-                    f_out.write("\\item "+amount+" local nodes of type "+type_local_dict_ids+"\n")
+                    f_out.write("\\item "+amount+" local nodes of type "+filter_escape_string(type_local_dict_ids)+"\n")
                 f_out.write("\\end{itemize}\n")
 
 
             if dict_model[element]['node_type'] == 'local':
-                f_out.write("This node is of : "+dict_ids_local[element]['type']+"\\\\"+"\n")
+                f_out.write("This node is of type : "+filter_escape_string(dict_ids_local[element]['type'])+"\\\\"+"\n")
 
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\\n")
             flagSimilarity = False
@@ -513,7 +526,7 @@ for element in ordered_id_list:
                 f_out.write("Preemption not enabled. \\\\")
                 if dict_simulator[element]["sim_proc"] == 1:
                     f_out.write("Message processing is simulated with a loop of "+str(dict_simulator[element]["sim_proc_multi"])+" cycles multiplied by the service time of the considered message. The exact number of cycles is represented by the \"Sim cycles\" variable.\\\\")
-            f_out.write("This actuator is of "+dict_ids_acts[element]['type']+"\\\\"+"\n")
+            f_out.write("This actuator is of type: "+filter_escape_string(dict_ids_acts[element]['type'])+"\\\\"+"\n")
             f_out.write("This element finished the simulation at simulation time: "+str(dict_simulator[element]["sim_time"])+".\\\\\n")
             flagSimilarity = False
             if element in dict_actuator_similar.keys():

@@ -8,8 +8,10 @@ END_SESSION="COMPLETED SESSION $SESSION_DATE"
 
 #now there are the variables which contain our variations for the tests
 
+# when using path use prefer realpath command to resolve relative paths
+
 #this variables is used to determine the location of the folder which contains the start.sh script which will be executed to start each test
-script_location="."
+script_location=$(realpath .)
 
 #timeout argument for USE (in seconds). -1 means no timeout
 timeout_use="-1"
@@ -33,15 +35,27 @@ preemption_options=("no") #("no" "yes")
 simulator_list=("ROOT-Sim") #("USE" "ROOT-Sim" "NeuRome")
 
 # currently available choices are local, reagional and lan
-lp_aggregation=("local" "regional" "lan")
+lp_aggregation=("lan")
 
-# IMPORTANT: to run test we need a catalog entry in the catalog_list for each element in the topology_list
+# IMPORTANT: to run test we need a catalog entry in the catalog_list for each element in the topology_list, if you want to use a unique catalog for each test set the following variable to "yes", otherwise set it to "no"
+unique_catalog="yes"
+
+#The following variable will need to contain the location of the unique catalog.
+unique_catalog_location="$(realpath ..)/test/catalog"
 
 #this is the list of paths to the topology config txt files.
-topology_list=("../test/tests_topology/config.txt")
+topology_list=("$(realpath ..)/test/performance_tests/test80-400/config.txt")
 
 # this is the list of catalogs which will be accessed to get the elements information for each topology file
-catalog_list=("../test/tests_topology/catalog")
+catalog_list=()
+if [[ $unique_catalog == "no" ]]; then
+	#this is the list which will be used when there is no unique catalog, it needs a catalog entry for each test entry.
+	catalog_list=("$(realpath ..)/test/catalog")
+else
+	for ((i=0; i < ${#topology_list[@]}; i++)); do
+	catalog_list[i]=$unique_catalog_location
+	done
+fi
 
 if [[ ${#topology_list[@]} != ${#catalog_list[@]} ]]; then
 	echo "ERROR:The topology list and the catalog list mus have a 1:1 association between their elements!"
@@ -127,7 +141,7 @@ for seed in ${seed_list[@]}; do
 
 
 								topology_arg="--cat=$catalog --top=$topology"
-								output_base_dir="$(pwd)/$path/tests"
+								output_base_dir="$path/tests"
 								output="$output_base_dir/$simulator_arg-$execution_arg-threads_$thread_num-$scheduler-preempt_$preemption_choice-sim_proc_$sim_processing_choice-lp_aggr_$lp_aggr_choice-seed_$seed-timeout_$timeout"
 
 								out_arg="--out=$output"
@@ -143,7 +157,6 @@ for seed in ${seed_list[@]}; do
 								while [[ $(tail -n 1 $output/test_esit.log | grep -c -e "^$END.*\$") == 0 ]]; do
 									DATE_BEGIN="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
 									BEGIN="BEGIN test:.............$DATE_BEGIN"
-									echo $lp_aggr_arg
 									# we log the beginning of the test
 									begin_log="$BEGIN\ntest command:\t$test_cmd\nresults path: $output"
 									echo -e $begin_log >> $LOG_FILE
@@ -163,9 +176,9 @@ for seed in ${seed_list[@]}; do
 										echo -e "$end_log\n\n"
 									else
 										error_log="test FAILED at $DATE_END with error code $err"
-										echo -e $error_log >> $output/test_esit.log
-										echo $error_log >> $LOG_FILE
-										echo $error_log
+										echo -e "$error_log\n\n" >> $output/test_esit.log
+										echo -e "$error_log\n\n" >> $LOG_FILE
+										echo -e "$error_log\n\n"
 									fi
 									NUM_RETRIES=$((NUM_RETRIES + 1))
 									#if we exceeded the maximum allowed tentatives we skip the test and proceed further.

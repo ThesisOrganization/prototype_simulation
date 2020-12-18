@@ -229,7 +229,7 @@ for target in ${targets[@]}; do
 			echo "error during document rename, aborting"
 			exit $err
 		fi
-		echo "Done, results are in file $res_name located in the \"pdf_results\" folder"
+		echo "Done, results are in file $res_name located in the \"$output_location\" folder"
 		cd $initial_location
 	fi
 done
