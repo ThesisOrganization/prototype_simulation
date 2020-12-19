@@ -413,6 +413,13 @@ actuator_start = "ACTUATORS\n"
 act_string = ""
 lan_start = "LAN\n"
 lan_string = ""
+
+data = {}
+data['REGIONALS'] = []
+data['LOCALS'] = []
+data['LAN'] = []
+data['ACTUATORS'] = []
+
 for i in range(countReg):
     upper_node = wan_id
     amount_same_regionals = dict_total[i][0]
@@ -426,6 +433,7 @@ for i in range(countReg):
 
         regional_string = str(index)+";"+regional_type_now#regional id, type, #below local of each type
 
+        local_dict_json = {}
         associated_wan_down +=str(wan_id)+";"+str(index)+";4;WAN,0,"+str(dict_regional[regional_type_now]['cost_wan'])+","+dict_regional[regional_type_now]['delay_wan']+"\n"
         #to_write = str(LP_index)+";"+str(2)+";"+str(index)+","+str(wan_id)+"\n"counter_elements
         #f_out_LP.write(to_write)
@@ -444,7 +452,7 @@ for i in range(countReg):
             local_amounts_this_iteration = dict_total[i][2][local_types]
 
             regional_string+=";"+local_types+","+local_amounts_this_iteration
-
+            local_dict_json[local_types] = local_amounts_this_iteration
 
             same_locals = 0
             prob_command_generated_local = local_infos_dict[local_types]['prob_command_generated']
@@ -466,6 +474,10 @@ for i in range(countReg):
                 else:
                     locals_string+=";"+str(count)+","+str(indexLocal)+","+str(local_types)
 
+                data['LOCALS'].append({
+                'upper' : count,
+                'id' : indexLocal,
+                'type' : local_types})
 
                 LP_start_list+=","+str(indexLocal)
                 counter_elements = 1
@@ -485,6 +497,10 @@ for i in range(countReg):
                             lan_string+=";"+str(indexLocal)+","+str(lan_id)+",Type"+type_lan
                         son_list = ""
                         counter_elements+=1
+                        son_list_json = {}
+                        son_list_json['SENSOR'] = []
+                        son_list_json['ACTUATOR'] = []
+
                         if 'sensor' in local_infos_dict[local_types]['lan'][lans]:
 
                             for sens_type in local_infos_dict[local_types]['lan'][lans]['sensor']:
@@ -494,6 +510,10 @@ for i in range(countReg):
                                 else:
                                     son_list+="."+str(sens_type)+"/"+str(local_infos_dict[local_types]['lan'][lans]['sensor'][sens_type])
 
+                                son_list_json['SENSOR'].append({
+                                'type':sens_type,
+                                'amount': local_infos_dict[local_types]['lan'][lans]['sensor'][sens_type]
+                                })
 
                                 while inner_sens_count < local_infos_dict[local_types]['lan'][lans]['sensor'][sens_type]:
                                     inner_sensor_count = 0
@@ -503,7 +523,6 @@ for i in range(countReg):
                                     counter_elements+=1
                                     sensors_start+=1
                                     inner_sens_count+=1
-
                         if 'actuator' in local_infos_dict[local_types]['lan'][lans]:
                             son_list+=","
                             for act_type in local_infos_dict[local_types]['lan'][lans]['actuator']:
@@ -512,19 +531,34 @@ for i in range(countReg):
                                     son_list+=act_type+"/"+str(local_infos_dict[local_types]['lan'][lans]['actuator'][act_type])
                                 else:
                                     son_list+="."+act_type+"/"+str(local_infos_dict[local_types]['lan'][lans]['actuator'][act_type])
-
+                                son_list_json['ACTUATOR'].append({
+                                'type':act_type,
+                                'amount': local_infos_dict[local_types]['lan'][lans]['actuator'][act_type]
+                                })
                                 while inner_act_count < local_infos_dict[local_types]['lan'][lans]['actuator'][act_type]:
                                     sensor_actuator_string += str(sensors_start)+";"+str(lan_id)+";7;ACTUATOR,"+str(dict_actuators[act_type]['cost'])+","+dict_actuators[act_type]['job_type']+","+str(dict_types_association['actuator'][act_type])+","+dict_actuators[act_type]['measure_type']+","+str(dict_actuators[act_type]['rate_trans_act'])+","+str(dict_actuators[act_type]['service_time_commands_act'])+"\n"
                                     if act_string == "":
                                         act_string+=str(lan_id)+","+str(sensors_start)+","+str(act_type)
                                     else:
                                         act_string+=";"+str(lan_id)+","+str(sensors_start)+","+str(act_type)
+
+                                    data['ACTUATORS'].append({
+                                    'upper' : lan_id,
+                                    'id' : sensors_start,
+                                    'type' : act_type})
+
                                     LP_start_list+=","+str(sensors_start)
 
                                     counter_elements+=1
                                     sensors_start+=1
                                     inner_act_count+=1
                         lan_string+=son_list
+                        data['LAN'].append({
+                        'upper' : indexLocal,
+                        'id' : lan_id,
+                        'type' : type_lan,
+                        'son_list':son_list_json
+                        })
                         #print(lan_string)
                         lan_id+=1
                         amount_count+=1
@@ -533,6 +567,11 @@ for i in range(countReg):
                 indexLocal+=1
                 same_locals+=1
         f_out_txt.write(regional_string+"\n")
+        data['REGIONALS'].append({
+            "id": index,
+            "type": regional_type_now,
+            "locals": local_dict_json
+        })
         count+=1
         regional_count+=1
 
@@ -540,6 +579,8 @@ for i in range(countReg):
         LP_index+=1
         wan_id+=1
         index+=1
+with open('jsonAddInf.json','w') as outfile:
+    json.dump(data,outfile,indent=4);
 
 f_out_txt.write(locals_string_start+locals_string+"\n")
 f_out_txt.write(actuator_start+act_string+"\n")
