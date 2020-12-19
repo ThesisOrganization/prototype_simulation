@@ -579,7 +579,8 @@ for i in range(countReg):
         LP_index+=1
         wan_id+=1
         index+=1
-with open('jsonAddInf.json','w') as outfile:
+print(args.out+'/jsonAddInf.json')
+with open(args.out+'/jsonAddInf.json','w') as outfile:
     json.dump(data,outfile,indent=4);
 
 f_out_txt.write(locals_string_start+locals_string+"\n")
