@@ -4,7 +4,7 @@ number_lp=""
 file_json="simulation_results.json"
 stat_json="simulation_stats.json"
 run_type="serial"
-working_threads=1
+working_threads=-1
 options=""
 dbg_arg=""
 dbg_param=""
@@ -12,6 +12,7 @@ opt_make=""
 dbg_make=""
 quiet="no"
 error="no"
+threads_equal_lp="no"
 targets=()
 sim_name=""
 seed=""
@@ -34,13 +35,14 @@ do
 			options=$arg
 	elif [[ $arg == "parallel" ]]; then
 			run_type="parallel"
-			working_threads=$(nproc)
 	elif [[ $arg == "valgrind" || $arg == "gdb" ]]; then
 		dbg_arg=$arg
 		opt_make+="DBG=1 "
 		dbg_make="clean"
 	elif [[ $arg == "--preempt" ]]; then
 		opt_make+="PREEMPT=1 "
+	elif [[ $arg == "--threads-less-than-lps" ]]; then
+		threads_less_than_lps="yes"
 	elif [[ ${arg,,} == "--sched=rr" ]]; then
 		opt_make+="SCHED_RR=1 "
 	elif [[ ${arg:0:16} == "--sim_processing" ]]; then
@@ -76,6 +78,10 @@ do
 		fi
 	fi
 done
+
+if [[ $run_type == "parallel" && $working_threads == -1 ]]; then
+	working_threads=$(nproc)
+fi
 
 if [ "$dbg_arg" == "valgrind" ]; then
 	dbg_param="valgrind --leak-check=full -s"
@@ -128,6 +134,7 @@ The binary data for each LP in the \"bin\", \"bin/gentop\" and \"bin/lptop\" fol
 \"json\": only merge the json files in \"lp_data\"\n
 \"--run-complete\": Compile and run the model with the chosen simulator\n
 \nExecution tweaks:\n
+\"--threads-less-than-lps\": Ties the number of threads for parallel execution to be less or equal to the number of LPs, otherwise the simulation will be aborted with error code 150.\n
 \"--timeout=[number]\": for USE it represente the number of seconds after which the simulation must be stopped. For ROOT-Sim instead it represents the logical virtual time after which the simulation must be stopped.
 \"--seed=\":defines the seed to be used during the simulation.\n
 \"--sched=[RR,FIFO]\": choose the scheduler type, the default is FIFO.\n
@@ -182,8 +189,13 @@ for target in ${targets[@]}; do
 		#it makes no sense to have more threads than LPs
 		if [[ $target == "all" || $target == "execute" ]]; then
 			if [[ $working_threads -gt $number_lp ]]; then
-				echo "number of working threads grater than number of lp, matching number of lp"
-				working_threads=$number_lp
+				if [[ $threads_less_than_lps == "yes" ]]; then
+					echo "EXECUTION ABORTED AS REQUESTED: more threads ($working_threads) than LPs ($number_lp)"
+					exit 150
+				else
+					echo "number of working threads ($working_threads) greater than number of lps ($number_lp), matching number of lps"
+					working_threads=$number_lp
+				fi
 			fi
 		fi
 

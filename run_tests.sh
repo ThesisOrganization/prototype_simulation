@@ -23,10 +23,13 @@ script_target="all"
 timeout_use="-1"
 
 #timeout argument for ROOT-Sim and NeuRome (in logical virtual time). -1 means no timeout
-timeout_rootsim="-1"
+timeout_rootsim="1"
 
 # 0 is for pure serial execution, while 1 is for parallel configuration but with one working thread
-thread_list=("0") # ("0" "2" "5" "10" "20" "30" "40")
+thread_list=("40") # ("0" "2" "5" "10" "20" "30" "40")
+
+# makes the test fail if there are more threads than LPs. Available options: yes, no
+threads_less_than_lps="yes"
 
 #the list of seeds to be used. -1 is for no seed specified
 seed_list=("-1")
@@ -165,10 +168,6 @@ for seed in ${seed_list[@]}; do
 							fi
 
 							for ((topology_id=0; topology_id < ${#topology_list[@]}; topology_id++)); do
-								# some variables for the logging
-								END="Test COMPLETE"
-								ERR_RETRY="MAX RETRY ($MAX_RETRY) reached! SKIPPING"
-								NUM_RETRIES=0
 
 								# we get the matching topology and catalog from the lists
 								topology_file=${topology_list[topology_id]}
@@ -198,7 +197,13 @@ for seed in ${seed_list[@]}; do
 
 								out_arg="--out=$output"
 
-								test_cmd="bash $script_location/start.sh -q $script_target $topology_arg $simulator_arg $execution_arg $thread_arg $scheduler_arg  $preemption_arg $sim_processing_arg $seed_arg $timeout_arg $lp_aggr_arg $out_arg"
+								if [[ $threads_less_than_lps == "yes" ]]; then
+									threads_less_than_lps_arg="--threads-less-than-lps"
+								else
+									threads_less_than_lps_arg=""
+								fi
+
+								test_cmd="bash $script_location/start.sh -q $script_target $topology_arg $simulator_arg $execution_arg $thread_arg $scheduler_arg  $preemption_arg $sim_processing_arg $seed_arg $timeout_arg $lp_aggr_arg $threads_less_than_lps_arg $out_arg"
 
 								# we create the test directory
 								mkdir -p $output
@@ -206,6 +211,8 @@ for seed in ${seed_list[@]}; do
 								#we use the below while to check if the test as already been executed correctly (we assume it happens when the END variable is written on the log file and there return value of the command is 0), otherwise we retry the test for a maximum of MAX_RETRY tentatives.
 								err=0
 								touch $output/test_esit.log
+								NUM_RETRIES=0
+								END="Test $topology_name COMPLETE"
 								while [[ $(tail -n 1 $output/test_esit.log | grep -c -e "^$END.*\$") == 0 ]]; do
 									DATE_BEGIN="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
 									BEGIN="BEGIN test $topology_name:.............$DATE_BEGIN"
@@ -222,7 +229,7 @@ for seed in ${seed_list[@]}; do
 									#test is considered complete if there is no error
 									if [[ $err < 128 ]]; then
 										#we save the completion time and we log the successful completion
-										end_log="$END test $topology_name at $DATE_END"
+										end_log="$END at $DATE_END"
 										echo -e "$end_log\n\n" >> $LOG_FILE
 										echo -e "$end_log" >> $output/test_esit.log
 										echo -e "$end_log\n\n"
@@ -235,6 +242,7 @@ for seed in ${seed_list[@]}; do
 									NUM_RETRIES=$((NUM_RETRIES + 1))
 									#if we exceeded the maximum allowed tentatives we skip the test and proceed further.
 									if [[ $NUM_RETRIES -ge $MAX_RETRY ]]; then
+										ERR_RETRY="MAX RETRY ($MAX_RETRY) reached! SKIPPING"
 										echo -e "$ERR_RETRY\n\n"
 										echo -e "$ERR_RETRY\n\n" >> $LOG_FILE
 										echo -e $ERR_RETRY >> $output/test_esit.log
