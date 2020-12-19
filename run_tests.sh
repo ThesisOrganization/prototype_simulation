@@ -53,7 +53,7 @@ unique_topologies_location="yes"
 unique_topologies_path="$(realpath ..)/test/topologies/"
 
 #this is the list of paths to the topology config files, if there is a unique folder this array can contain only the topology file basepath and not the camplete path to each file.
-topology_list=("80-400.txt")
+topology_list=("80-400.txt" "2-4-8-16.txt")
 
 # this is the list of catalogs which will be accessed to get the elements information for each topology, it is used only if there is no unique catalog. Thus, the number of entries in this list must be the exact number of entries of the topology_list
 catalog_list=("$(realpath ..)/test/catalog")
@@ -70,6 +70,28 @@ SESSION_DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(da
 BEGIN_SESSION="START SESSION AT $SESSION_DATE"
 END_SESSION="COMPLETED SESSION $SESSION_DATE"
 
+target=""
+if [[ $script_target =~ all ]]; then
+	target="all"
+else
+	if [[ $script_target =~ -g ]]; then
+		target+="generation"
+	fi
+	if [[ $script_target =~ -a ]]; then
+		target+="_analytic"
+	fi
+	if [[ $script_target =~ -s ]]; then
+		target+="_simulation"
+	fi
+	if [[ $script_target =~ -r ]]; then
+		target+="_results"
+	fi
+fi
+
+if [[ $script_target =~ [\ gars-]*all[\ -gasr]* ]] && [[ $script_target != "all" ]]; then
+	echo "ERROR: wrong target specified: $script_target"
+	exit 255
+fi
 
 if [[ ${#topology_list[@]} != ${#catalog_list[@]} ]] && [[ $unique_catalog == "no" ]]; then
 	echo "ERROR:The topology list and the catalog list mus have a 1:1 association between their elements!"
@@ -169,7 +191,7 @@ for seed in ${seed_list[@]}; do
 									topology_arg="--cat=$catalog --top=$unique_topologies_path/$topology_file"
 								fi
 
-								output="$output_base_dir/$topology_name/$simulator_arg-$execution_arg-threads_$thread_num-$scheduler-preempt_$preemption_choice-sim_proc_$sim_processing_choice-lp_aggr_$lp_aggr_choice-seed_$seed-timeout_$timeout"
+								output="$output_base_dir/$topology_name/target_$target-seed_$seed-timeout_$timeout-$simulator_arg-$execution_arg-threads_$thread_num-$scheduler-preempt_$preemption_choice-sim_proc_$sim_processing_choice-lp_aggr_$lp_aggr_choice"
 
 								out_arg="--out=$output"
 
@@ -183,7 +205,7 @@ for seed in ${seed_list[@]}; do
 								touch $output/test_esit.log
 								while [[ $(tail -n 1 $output/test_esit.log | grep -c -e "^$END.*\$") == 0 ]]; do
 									DATE_BEGIN="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
-									BEGIN="BEGIN test:.............$DATE_BEGIN"
+									BEGIN="BEGIN test $topology_name:.............$DATE_BEGIN"
 									# we log the beginning of the test
 									begin_log="$BEGIN\ntest command:\t$test_cmd\nresults path: $output"
 									echo -e $begin_log >> $LOG_FILE
@@ -197,12 +219,12 @@ for seed in ${seed_list[@]}; do
 									#test is considered complete if there is no error
 									if [[ $err == 0 ]]; then
 										#we save the completion time and we log the successful completion
-										end_log="$END at $DATE_END"
+										end_log="$END test $topology_name at $DATE_END"
 										echo -e "$end_log\n\n" >> $LOG_FILE
 										echo -e "$end_log" >> $output/test_esit.log
 										echo -e "$end_log\n\n"
 									else
-										error_log="test FAILED at $DATE_END with error code $err"
+										error_log="test $topology_name FAILED at $DATE_END with error code $err"
 										echo -e "$error_log\n\n" >> $output/test_esit.log
 										echo -e "$error_log\n\n" >> $LOG_FILE
 										echo -e "$error_log\n\n"
