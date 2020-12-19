@@ -1,17 +1,17 @@
 #!/bin/bash
+########################################################################################################################
+# USER-CONFIGURABLE VARIABLES                                                                                          #
+########################################################################################################################
 
-# some global variables which should not be edited, they are used to keep track of the test sessions
-LOG_FILE="tests.log"
-SESSION_DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
-BEGIN_SESSION="START SESSION AT $SESSION_DATE"
-END_SESSION="COMPLETED SESSION $SESSION_DATE"
+# The following variable will need to be edited by the user to customize the automated tests behaviour.
 
-#now there are the variables which contain our variations for the tests
+# when using paths consider the realpath command to resolve relative paths
 
-# when using path use prefer realpath command to resolve relative paths
-
-#this variables is used to determine the location of the folder which contains the start.sh script which will be executed to start each test
+# this variables is used to determine the location of the folder which contains the start.sh script which will be executed to start each test
 script_location=$(realpath .)
+
+# the base directory where all the executed tests can be found (separated by the topology name)
+output_base_dir="$(realpath ..)/test/performance_tests"
 
 #customize the test execution, targets must separated by spaces. Available values: all, -g, -a, -s, -r. Refer to the start.sh help message for info. (all must be used by itself, without other targets)
 script_target="all"
@@ -23,49 +23,58 @@ timeout_use="-1"
 timeout_rootsim="-1"
 
 # 0 is for pure serial execution, while 1 is for parallel configuration but with one working thread
-thread_list=("0") #("0" "2" "5" "10" "20" "30" "40")
+thread_list=("0") # ("0" "2" "5" "10" "20" "30" "40")
 
 #the list of seeds to be used. -1 is for no seed specified
 seed_list=("-1")
 
 # yes means default configuration for simulation of message processing
-sim_processing_options=("no") #("no" "yes" "10000")
+sim_processing_options=("no") # ("no" "yes" "10000")
 
-scheduler_options=("FIFO") #("FIFO" "RR")
+scheduler_options=("FIFO") # ("FIFO" "RR")
 
-preemption_options=("no") #("no" "yes")
+preemption_options=("no") # ("no" "yes")
 
-simulator_list=("ROOT-Sim") #("USE" "ROOT-Sim" "NeuRome")
+simulator_list=("ROOT-Sim") # ("USE" "ROOT-Sim" "NeuRome")
 
-# currently available choices are local, reagional and lan
-lp_aggregation=("lan")
+# currently available choices are local, regional and lan, refer to the documentation of utils/partop/header:lp_aggregation_criteria for details.
+lp_aggregation=("lan") # ("regional" "local" "lan")
 
-# IMPORTANT: to run test we need a catalog entry in the catalog_list for each element in the topology_list, if you want to use a unique catalog for each test set the following variable to "yes", otherwise set it to "no"
-unique_catalog="yes"
+#to run test we need a catalog entry in the catalog_list for each element in the topology_list, if you want to use a unique catalog for each test set the following variable to "yes", otherwise set it to "no"
+unique_catalog_location="yes"
 
 #The following variable will need to contain the location of the unique catalog.
-unique_catalog_location="$(realpath ..)/test/catalog"
+unique_catalog_path="$(realpath ..)/test/catalog"
 
-#this is the list of paths to the topology config txt files.
-topology_list=("$(realpath ..)/test/performance_tests/test80-400/config.txt")
+#this variable will determine if there is a single folder that stores all the topologies. Possible values: "yes","no"
+unique_topologies_location="yes"
 
-# this is the list of catalogs which will be accessed to get the elements information for each topology file
-catalog_list=()
-if [[ $unique_catalog == "no" ]]; then
-	#this is the list which will be used when there is no unique catalog, it needs a catalog entry for each test entry.
-	catalog_list=("$(realpath ..)/test/catalog")
-else
-	for ((i=0; i < ${#topology_list[@]}; i++)); do
-	catalog_list[i]=$unique_catalog_location
-	done
-fi
+#this variable will maintain the location of the topology base folder
+unique_topologies_path="$(realpath ..)/test/topologies/"
 
-if [[ ${#topology_list[@]} != ${#catalog_list[@]} ]]; then
+#this is the list of paths to the topology config files, if there is a unique folder this array can contain only the topology file basepath and not the camplete path to each file.
+topology_list=("80-400.txt")
+
+# this is the list of catalogs which will be accessed to get the elements information for each topology, it is used only if there is no unique catalog. Thus, the number of entries in this list must be the exact number of entries of the topology_list
+catalog_list=("$(realpath ..)/test/catalog")
+
+# the maximum number of retires to do when a test fails
+MAX_RETRY=2
+
+########################################################################################################################
+#STARTING TESTS                                                                                                        #
+########################################################################################################################
+# some global variables which should not be edited, they are used to keep track of the test sessions
+LOG_FILE="tests.log"
+SESSION_DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
+BEGIN_SESSION="START SESSION AT $SESSION_DATE"
+END_SESSION="COMPLETED SESSION $SESSION_DATE"
+
+
+if [[ ${#topology_list[@]} != ${#catalog_list[@]} ]] && [[ $unique_catalog == "no" ]]; then
 	echo "ERROR:The topology list and the catalog list mus have a 1:1 association between their elements!"
 	exit 255
 fi
-
-MAX_RETRY=2
 
 #creation of the log file and the logging of the session start
 touch $LOG_FILE
@@ -131,21 +140,36 @@ for seed in ${seed_list[@]}; do
 							fi
 
 							for ((topology_id=0; topology_id < ${#topology_list[@]}; topology_id++)); do
-
-								# we get the matching topology and catalog from the lists
-								topology=${topology_list[topology_id]}
-								catalog=${catalog_list[topology_id]}
-								#we get the output path to be same as the topology file
-								path="${topology%/*}"
 								# some variables for the logging
 								END="Test COMPLETE"
 								ERR_RETRY="MAX RETRY ($MAX_RETRY) reached! SKIPPING"
 								NUM_RETRIES=0
 
+								# we get the matching topology and catalog from the lists
+								topology_file=${topology_list[topology_id]}
 
-								topology_arg="--cat=$catalog --top=$topology"
-								output_base_dir="$path/tests"
-								output="$output_base_dir/$simulator_arg-$execution_arg-threads_$thread_num-$scheduler-preempt_$preemption_choice-sim_proc_$sim_processing_choice-lp_aggr_$lp_aggr_choice-seed_$seed-timeout_$timeout"
+								if [[ $unique_catalog_location == "no" ]]; then
+									catalog=${catalog_list[topology_id]}
+								else
+									catalog=$unique_catalog_path
+								fi
+
+								if [[ $unique_topologies_location == "no" ]]; then
+									#we get the topology name
+									#step 1, get the basepath
+									topology_name="${topology_file##*/}"
+									#step 2, we remove the extension of the topology file
+									topology_name=${topology_name%.*}
+									# we build the topology argument
+									topology_arg="--cat=$catalog --top=$topology_file"
+								else
+									#we get the topology name
+									topology_name=${topology_file%.*}
+									# we build the topology argument
+									topology_arg="--cat=$catalog --top=$unique_topologies_path/$topology_file"
+								fi
+
+								output="$output_base_dir/$topology_name/$simulator_arg-$execution_arg-threads_$thread_num-$scheduler-preempt_$preemption_choice-sim_proc_$sim_processing_choice-lp_aggr_$lp_aggr_choice-seed_$seed-timeout_$timeout"
 
 								out_arg="--out=$output"
 
