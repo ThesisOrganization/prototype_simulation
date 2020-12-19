@@ -7,6 +7,9 @@
 
 # when using paths consider the realpath command to resolve relative paths
 
+#if you want to run a program (for example timeout) in which the script must be executed the tou can set it up here. te content of this varaible vill be executed before the script, it's jour job to insert ; && or & and so on to ensure that averything works.
+parent_cmd=""
+
 # this variables is used to determine the location of the folder which contains the start.sh script which will be executed to start each test
 script_location=$(realpath .)
 
@@ -53,7 +56,7 @@ unique_topologies_location="yes"
 unique_topologies_path="$(realpath ..)/test/topologies/"
 
 #this is the list of paths to the topology config files, if there is a unique folder this array can contain only the topology file basepath and not the camplete path to each file.
-topology_list=("80-400.txt" "2-4-8-16.txt")
+topology_list=("2-4-8-16.txt")
 
 # this is the list of catalogs which will be accessed to get the elements information for each topology, it is used only if there is no unique catalog. Thus, the number of entries in this list must be the exact number of entries of the topology_list
 catalog_list=("$(realpath ..)/test/catalog")
@@ -213,11 +216,11 @@ for seed in ${seed_list[@]}; do
 									echo "$BEGIN"
 
 									#we execute the test
-									$test_cmd
+									$parent_cmd $test_cmd
 									err=$?
 									DATE_END="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
 									#test is considered complete if there is no error
-									if [[ $err == 0 ]]; then
+									if [[ $err < 128 ]]; then
 										#we save the completion time and we log the successful completion
 										end_log="$END test $topology_name at $DATE_END"
 										echo -e "$end_log\n\n" >> $LOG_FILE
