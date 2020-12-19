@@ -112,6 +112,8 @@ if (! (x)) {\
 #define GET_TOPOLOGY(a,b,c) getTopology(a,b,c)
 #define GET_GEN_TOPOLOGY(a) getGenTopology(a)
 
+#define GET_COST(a) getCost(a)
+
 //ELEMENT TOPOLOGY
 #define GET_ELEMENT_TOPOLOGY(a,b) getLPTopology(a,b)
 #define GET_NUMBER_ACT_BELOW(a) getNumberOfBelowActuators(a)
