@@ -13,6 +13,9 @@ END_SESSION="COMPLETED SESSION $SESSION_DATE"
 #this variables is used to determine the location of the folder which contains the start.sh script which will be executed to start each test
 script_location=$(realpath .)
 
+#customize the test execution, targets must separated by spaces. Available values: all, -g, -a, -s, -r. Refer to the start.sh help message for info. (all must be used by itself, without other targets)
+script_target="all"
+
 #timeout argument for USE (in seconds). -1 means no timeout
 timeout_use="-1"
 
@@ -146,7 +149,7 @@ for seed in ${seed_list[@]}; do
 
 								out_arg="--out=$output"
 
-								test_cmd="bash $script_location/start.sh -q all $topology_arg $simulator_arg $execution_arg $thread_arg $scheduler_arg  $preemption_arg $sim_processing_arg $seed_arg $timeout_arg $lp_aggr_arg $out_arg"
+								test_cmd="bash $script_location/start.sh -q $script_target $topology_arg $simulator_arg $execution_arg $thread_arg $scheduler_arg  $preemption_arg $sim_processing_arg $seed_arg $timeout_arg $lp_aggr_arg $out_arg"
 
 								# we create the test directory
 								mkdir -p $output
