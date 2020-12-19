@@ -23,13 +23,13 @@ script_target="all"
 timeout_use="-1"
 
 #timeout argument for ROOT-Sim and NeuRome (in logical virtual time). -1 means no timeout
-timeout_rootsim="1"
+timeout_rootsim="-1"
 
 # 0 is for pure serial execution, while 1 is for parallel configuration but with one working thread
-thread_list=("40") # ("0" "2" "5" "10" "20" "30" "40")
+thread_list=("0") # ("0" "2" "5" "10" "20" "30" "40")
 
 # makes the test fail if there are more threads than LPs. Available options: yes, no
-threads_less_than_lps="yes"
+threads_less_than_lps="no"
 
 #the list of seeds to be used. -1 is for no seed specified
 seed_list=("-1")
