@@ -438,6 +438,28 @@ void createLPtxt_byregion(Element_topology ** lpt,int totalNumberOfElements, int
   fclose(fp);
 }
 
+
+
+void createLPtxt_bycentral(Element_topology ** lpt,int totalNumberOfElements, int numlp,char * path1){
+	printf("creating LP.txt\n");
+  FILE * fp;
+  fp = fopen(path1, "w");
+  fprintf(fp,"%d\n",totalNumberOfElements);
+  fprintf(fp,"%d",numlp);
+  int counter = 0;
+  //int idToSkip = -1;
+	fprintf(fp,"\n%d;%d;",counter, totalNumberOfElements);
+  for(int i = 0; i < totalNumberOfElements; i++){
+    if(getType(lpt[i]) == NODE){
+			if(getNodeType(lpt[i]) == CENTRAL){
+				auxWrite(lpt,fp, i, i);
+			}
+    }
+  }
+
+  fclose(fp);
+}
+
 total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria aggregation_criteria){
   FILE * fp;
   char * line = malloc(sizeof(char)*MAX_LINE_LEN);
@@ -1013,6 +1035,9 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
   free(arrayActuatorPaths);
 
 	switch(aggregation_criteria){
+		case LP_AGGR_CENTRAL:
+			createLPtxt_bycentral(lpt,totalNumberOfElements,1,path1);
+			break;
 		case LP_AGGR_REGIONAL:
 			createLPtxt_byregion(lpt,totalNumberOfElements,numRegionals, path1);
 			break;

@@ -14,7 +14,7 @@ targets=()
 error="no"
 initial_location=$(pwd)
 options=""
-lp_aggregation="regional"
+lp_aggregation="--lp_aggregation_criteria=regional"
 
 for arg
 do
@@ -93,7 +93,7 @@ if [[ $quiet == "no" || $error == "yes" ]]; then
 \"all --all\":execute all the above steps (don't use this argument with the ones above)\n
 \nData options:\n
 		\"aggregated --aggregated -aggr\": in the pdf results, aggregate nodes that have similar characteristics (by default a 20% tolerance is used for aggreagtion)\n
-	\"--lp_aggregation=[regional,local,lan]\": customizes how the elements are to be aggregated into LPs.
+	\"--lp_aggregation=[central,regional,local,lan]\": customizes how the elements are to be aggregated into LPs.
 	\"--cat=\": path to the catalog folder that stores element types, defaults to \"tests_topology/catalog\"\n
 	\"--top=\": path to the topology file from the \"rootsim-models\" folder; if this argument is not specified the the default path will be \"tests_topology/config.txt\"\n
 	\"-sc= --sim_coef=\": to define a custom tolerance value (as a number between 0 and 1) for the results aggregation\n
@@ -157,12 +157,12 @@ for target in ${targets[@]}; do
 		echo "Done"
 		echo "Creating binary files"
 		./utils/partop/driverBinaries $output_location"/topology.txt" $output_location"/LP.txt" $output_location $lp_aggregation
-		echo "Done"
 		err=$?
 		if [[ $err != 0  ]]; then
 			echo "error during generation of topology binary files, aborting"
 			exit $err
 		fi
+		echo "Done"
 	fi
 	if [[ $target == "all" || $target == "analytical model" ]]; then
 		echo "Starting analytical model computation.."

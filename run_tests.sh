@@ -32,7 +32,7 @@ thread_list=("0") # ("0" "2" "5" "10" "20" "30" "40")
 threads_less_than_lps="no"
 
 #the list of seeds to be used. -1 is for no seed specified
-seed_list=("-1")
+seed_list=("1996")
 
 # yes means default configuration for simulation of message processing
 sim_processing_options=("no") # ("no" "yes" "10000")
@@ -43,8 +43,8 @@ preemption_options=("no") # ("no" "yes")
 
 simulator_list=("ROOT-Sim") # ("USE" "ROOT-Sim" "NeuRome")
 
-# currently available choices are local, regional and lan, refer to the documentation of utils/partop/header:lp_aggregation_criteria for details.
-lp_aggregation=("regional") # ("regional" "local" "lan")
+# currently available choices are central, local, regional and lan, refer to the documentation of utils/partop/header:lp_aggregation_criteria for details.
+lp_aggregation=("central") # ("central" "regional" "local" "lan")
 
 #to run test we need a catalog entry in the catalog_list for each element in the topology_list, if you want to use a unique catalog for each test set the following variable to "yes", otherwise set it to "no"
 unique_catalog_location="yes"
