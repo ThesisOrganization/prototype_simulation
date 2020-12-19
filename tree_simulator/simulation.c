@@ -679,6 +679,7 @@ bool OnGVT(int me, lp_state *snapshot)
 				fprintf(output_file, "{\"id\": %d,", id_device);
 				fprintf(output_file, "\"upper_node\": %d,", GET_UPPER_NODE(dev_state->topology));
 				fprintf(output_file, "\"delay\": %f,", GET_DELAY(dev_state->topology));
+				fprintf(output_file, "\"cost\": %f,", GET_COST(dev_state->topology));
 				fprintf(output_file, "\"type\": \"wan\"}");
 			}
 			if(dev_state->type == NODE || dev_state->type == LAN  || dev_state->type == ACTUATOR){
@@ -686,6 +687,7 @@ bool OnGVT(int me, lp_state *snapshot)
 				fprintf(output_file, "{\"id\": %d,", id_device);
 				fprintf(output_file, "\"sim_time\": %f,",dev_state->device_timestamp);
 				fprintf(output_file, "\"stable\": %d,", dev_state->stability);
+				fprintf(output_file, "\"cost\": %f,", GET_COST(dev_state->topology));
 				fprintf(output_file, "\"upper_node\": %d,", GET_UPPER_NODE(dev_state->topology));
 				if(dev_state->type!=LAN){
 					fprintf(output_file,"\"sim_proc\": %d,",SIM_PROCESSING);

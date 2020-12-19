@@ -14,7 +14,7 @@ parent_cmd=""
 script_location=$(realpath .)
 
 # the base directory where all the executed tests can be found (separated by the topology name)
-output_base_dir="$(realpath ..)/test/performance_tests"
+output_base_dir="$(realpath ..)/test/model_tests"
 
 #customize the test execution, targets must separated by spaces. Available values: all, -g, -a, -s, -r. Refer to the start.sh help message for info. (all must be used by itself, without other targets)
 script_target="all"
@@ -41,7 +41,7 @@ preemption_options=("no") # ("no" "yes")
 simulator_list=("ROOT-Sim") # ("USE" "ROOT-Sim" "NeuRome")
 
 # currently available choices are local, regional and lan, refer to the documentation of utils/partop/header:lp_aggregation_criteria for details.
-lp_aggregation=("lan") # ("regional" "local" "lan")
+lp_aggregation=("regional") # ("regional" "local" "lan")
 
 #to run test we need a catalog entry in the catalog_list for each element in the topology_list, if you want to use a unique catalog for each test set the following variable to "yes", otherwise set it to "no"
 unique_catalog_location="yes"
@@ -52,8 +52,8 @@ unique_catalog_path="$(realpath ..)/test/catalog"
 #this variable will determine if there is a single folder that stores all the topologies. Possible values: "yes","no"
 unique_topologies_location="yes"
 
-#this variable will maintain the location of the topology base folder
-unique_topologies_path="$(realpath ..)/test/topologies/"
+#this variable will maintain the location of the topology base folder (don't put a final '/')
+unique_topologies_path="$(realpath ..)/test/topologies"
 
 #this is the list of paths to the topology config files, if there is a unique folder this array can contain only the topology file basepath and not the camplete path to each file.
 topology_list=("2-4-8-16.txt")
