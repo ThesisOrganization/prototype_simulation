@@ -42,8 +42,8 @@ do
 		targets[${#targets[@]}]="all"
 		options="all"
 		sim_options+="--run-complete "
-	elif [[ ${arg:0:29} == "--redir-compilation_messages=" ]]; then
-		make_redirect=">>${arg#"--redir-compilation_messages="} 2>&1"
+	elif [[ ${arg:0:29} == "--redir_compilation_messages=" ]]; then
+		make_redirect=">>${arg#"--redir_compilation_messages="} 2>&1"
 		sim_options+="$arg "
 	elif [[ ${arg:0:6} == "--cat=" ]]; then
 		catalog_path=${arg#'--cat='}
@@ -73,22 +73,22 @@ do
 done
 
 if [[ ${#targets[@]} > 1 && $options == "all" ]]; then
-		echo -e "ERROR: all and other execution options specified, use ONLY all or -g, -a, -s, -r"
+		echo -e "ERROR: all and other execution options specified, use ONLY all or -g, -a, -s, -r."
 		error="yes"
 fi
 
 if [[ ${#targets[@]} == 0 ]]; then
-		echo -e "ERROR: no command specified, use at least one of these: -g -a -s -r --all\n"
+		echo -e "ERROR: no command specified, use at least one of these: -g -a -s -r --all.\n"
 		error="yes"
 fi
 if [[ $quiet == "no" || $error == "yes" ]]; then
 	echo -e "This script will test the tree_simulator model with the configuration provided in \"tests_topology\"."
-	echo -e "\nThe script can generate the topology, run the analytical model, run the simulation model and present the result in a pdf located in \"pdf_result\". The pdf file name will be: h-m-s-simulator_used-run_type-results"
+	echo -e "\nThe script can generate the topology, run the analytical model, run the simulation model and present the result in a pdf located in \"pdf_result\". The pdf file name will be: h-m-s-simulator_used-run_type-results."
 	echo -e "\nHowever to run any of these operations an argument needs to be given, see below in \"Execution options\"."
 	echo -e "\nArgument list:\n
 	\nGeneral options\n
 \"-q --quiet\": suppress this message\n
-\"--redir-compilation_messages=[path to file]\": redirect compilation messages to a file. The file will be used in append.
+\"--redir_compilation_messages=[path to file]\": redirect compilation messages to a file. The file will be used in append.\n
 \"clean\": remove all the products of a previous run, including the output location and all object files.
 \n Execution options\n
 \"-g\": generate only the topology files\n
@@ -131,50 +131,49 @@ fi
 mkdir -p $output_location
 for target in ${targets[@]}; do
 	if [[ $target == "clean" ]]; then
-	echo "cleaning"
+	echo "Cleaning..."
 	rm -rf $output_location
 	make -C utils/partop clean >/dev/null
 	make -C model_computation clean >/dev/null
 	cd tree_simulator
 	bash run.sh $sim_options
 	cd ..
-	echo "Done"
+	echo "Done."
 	fi
 	if [[ $target == "all" || $target == "generator" ]]; then
-		echo "Starting generator.."
+		echo "Starting generator..."
 		python3 utils/generator/generator.py $catalog_path $topology_path $output_location
 		err=$?
 		if [[ $err != 0  ]]; then
-			echo "error during topology generation, aborting"
+			echo "error during topology generation, aborting."
 			exit $err
 		fi
 		echo "Done."
-		echo "Generating topology binary files"
 		eval make -C utils/partop driverBinaries $make_redirect
 		err=$?
 		if [[ $err != 0  ]]; then
-			echo "error during compilation of topology binary files generator, aborting"
+			echo "Error during compilation of topology binary files generator, aborting."
 			exit $err
 		fi
-		echo "setting up folders for binary files"
+		echo "Setting up folders for binary files..."
 		rm -rf $output_location"/bin"
 		mkdir -p $output_location"/bin/gentop" $output_location"/bin/lptop"
-		echo "Done"
-		echo "Creating binary files"
+		echo "Done."
+		echo "Creating binary files..."
 		./utils/partop/driverBinaries $output_location"/topology.txt" $output_location"/LP.txt" $output_location $lp_aggregation
 		err=$?
 		if [[ $err != 0  ]]; then
-			echo "error during generation of topology binary files, aborting"
+			echo "Error during generation of topology binary files, aborting."
 			exit $err
 		fi
-		echo "Done"
+		echo "Done."
 	fi
 	if [[ $target == "all" || $target == "analytical model" ]]; then
-		echo "Starting analytical model computation.."
+		echo "Starting analytical model computation..."
 		eval LOCATION="$output_location" make -C model_computation $make_redirect
 		err=$?
 		if [[ $err != 0  ]]; then
-			echo "error during compilation of analytical model, aborting"
+			echo "Error during compilation of analytical model, aborting."
 			exit $err
 		fi
 		cd $output_location
@@ -182,25 +181,25 @@ for target in ${targets[@]}; do
 		err=$?
 		cd $initial_location
 		if [[ $err != 0  ]]; then
-			echo "error during analytical model computation, aborting"
+			echo "Error during analytical model computation, aborting."
 			exit $err
 		fi
 		echo "Done."
 	fi
 	if [[ $target == "all" || $target == "simulation" ]]; then
-		echo "Starting simulation.."
+		echo "Starting simulation..."
 		cd tree_simulator
 		bash run.sh $sim_options
 		err=$?
 		cd ..
 		if [[ $err != 0  ]]; then
-			echo "error during model simulation, aborting"
+			echo "Error during model simulation, aborting."
 			exit $err
 		fi
 		echo "Done."
 	fi
 	if [[ $target == "all" || $target == "results" ]]; then
-		echo "Parsing jsons and merging them.."
+		echo "Parsing jsons and merging them..."
 		if [[ $pdf_options == "-a" ]]; then
 			echo "...aggregated results."
 			python3 jsonMerger/jsonParse.py -a $output_location $output_location $output_location $output_location
@@ -210,31 +209,31 @@ for target in ${targets[@]}; do
 		fi
 		err=$?
 		if [[ $err != 0  ]]; then
-			echo "error during data parsing, aborting"
+			echo "Error during data parsing, aborting."
 			exit $err
 		fi
 		echo "Done."
 		cd $output_location
-		echo "Creating pdf.."
+		echo "Creating pdf..."
 		eval pdflatex complete_results.tex $make_redirect
 		err=$?
 		rm -f complete_results.log complete_results.aux
 		if [[ $err != 0  ]]; then
-			echo "error during document creation, aborting"
+			echo "Error during document creation, aborting."
 			exit $err
 		fi
 		echo "Done."
-		echo "Moving and renaming pdf.."
+		echo "Moving and renaming pdf..."
 		res_name=$(date +%H_%M_%S)-$sim_name-$run_type-complete_results.pdf
 		if [[ $output_location =~ ^.*tree_simulator_bin$ ]]; then
 			output_location="$initial_location/pdf_results"
 		fi
 		mv complete_results.pdf $output_location/$res_name
 		if [[ $err != 0  ]]; then
-			echo "error during document rename, aborting"
+			echo "Error during document rename, aborting."
 			exit $err
 		fi
-		echo "Done, results are in file $res_name located in the \"$output_location\" folder"
+		echo "Done, results are in file $res_name located in the \"$output_location\" folder."
 		cd $initial_location
 	fi
 done

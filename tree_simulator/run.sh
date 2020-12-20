@@ -51,8 +51,8 @@ do
 		if [[  ${arg:17} > 0 ]]; then
 			opt_make+="SIM_PROC_MULTI=${arg:17} "
 		fi
-	elif [[ ${arg:0:29} == "--redir-compilation_messages=" ]]; then
-		make_redirect=" >>${arg#"--redir-compilation_messages="} 2>&1"
+	elif [[ ${arg:0:29} == "--redir_compilation_messages=" ]]; then
+		make_redirect=" >>${arg#"--redir_compilation_messages="} 2>&1"
 	elif [[ ${arg:0:7} == "--seed=" ]]; then
 		echo ${arg#"--seed="} > ~/.rootsim/numerical.conf
 		seed="--deterministic-seed"
@@ -86,6 +86,10 @@ if [[ $run_type == "parallel" && $working_threads == -1 ]]; then
 	working_threads=$(nproc)
 fi
 
+if [[ $run_type == "serial" ]]; then
+	working_threads=1
+fi
+
 if [ "$dbg_arg" == "valgrind" ]; then
 	dbg_param="valgrind --leak-check=full -s"
 elif [ "$dbg_arg" == "gdb" ]; then
@@ -94,16 +98,16 @@ fi
 
 
 if [[ ${#targets[@]} > 1 && $options == "all" ]]; then
-	echo -e "ERROR: --run-complete and other execution options specified, use ONLY --run-complete or -c or -e"
+	echo -e "ERROR: --run-complete and other execution options specified, use ONLY --run-complete or -c or -e."
 	error="yes"
 fi
 
 if [[ ${#targets[@]} == 0 ]]; then
-	echo -e "ERROR: no operation specified, use at least one of these: -c -e --run-complete json clean\n"
+	echo -e "ERROR: no operation specified, use at least one of these: -c -e --run-complete json clean.\n"
 	error="yes"
 fi
 if [[ $sim_name == "" ]] &&  [[ ^.*execute.*$ =~ ${targets[@]} || $options == "all" ]]; then
-	echo -e "ERROR: no simulator specified, use at least one of these: USE, ROOT-Sim, NeuRome\n"
+	echo -e "ERROR: no simulator specified, use at least one of these: USE, ROOT-Sim, NeuRome.\n"
 	error="yes"
 fi
 if [[ $sim_name == "all" ]] && [[ ^.*execute.*$ =~ ${targets[@]} || $options == "all" ]]; then
@@ -125,7 +129,7 @@ The binary data for each LP in the \"bin\", \"bin/gentop\" and \"bin/lptop\" fol
 	echo -e "The execution can be customized with some arguments:\n
 	\n General options:\n
 \"-q --quiet\": disable this message\n
-\"--redir-compilation_messages=[path to file]\": redirect compilation messages to a file which will be used in append.
+\"--redir_compilation_messages=[path to file]\": redirect compilation messages to a file which will be used in append.
 \"clean\": remove all products of compilation and execution, leaving only the source files\n
 \nSimulator options:\n
 \"USE\": choose USE as the simulator\n
@@ -157,7 +161,7 @@ if [[ $error == "yes" ]]; then
 	exit 255
 else
 	if [[ $quiet == "no" ]]; then
-		read -n1 -r -p "Press any key to continue or CTRL+C to exit" key
+		read -n1 -r -p "Press any key to continue or CTRL+C to exit." key
 	fi
 fi
 
@@ -169,98 +173,101 @@ for target in ${targets[@]}; do
 			rm -f $output_location/*.txt
 			rm -f $output_location/*.json
 	else
-		echo "Using $sim_name as the simulation platform"
+		echo "Using $sim_name as the simulation platform."
 		if [[ $target == "all" || $target == "execute" ]]; then
 			#we read the LP.txt to get the number of lps and we search for the longest line in LP.txt and topology.txt, since we don't want a realloc by libc when parsing these files.
 			if [[ -e "$output_location/LP.txt" && -r "$output_location/LP.txt" ]]; then
 				number_lp=$(sed -n 2p $output_location/LP.txt)
 			else
-				echo "ERROR: no LP.txt in $output_location"
+				echo "ERROR: no LP.txt in $output_location."
 				exit 255
 			fi
 			if [[ ! -e "$output_location/topology.txt" || ! -r "$output_location/topology.txt" ]]; then
-				echo "ERROR: no topology.txt in $output_location"
+				echo "ERROR: no topology.txt in $output_location.".
 				exit 255
 			fi
-			echo "removing previous output files"
+			echo "Removing previous output files.."
 			# we remove folders and files conating the output data of the simulation
 			rm -rf $output_location/outputs
 			rm -rf $output_location/lp_data/
 			rm -f $output_location/$stat_json
 			rm -f $output_location/$file_json
 			mkdir -p $output_location/lp_data
+			echo "Done."
 		fi
 		#it makes no sense to have more threads than LPs
 		if [[ $target == "all" || $target == "execute" ]]; then
 			if [[ $working_threads -gt $number_lp ]]; then
 				if [[ $threads_less_than_lps == "yes" ]]; then
-					echo "EXECUTION ABORTED AS REQUESTED: more threads ($working_threads) than LPs ($number_lp)"
+					echo "EXECUTION ABORTED AS REQUESTED: more threads ($working_threads) than LPs ($number_lp)."
 					exit 150
 				else
-					echo "number of working threads ($working_threads) greater than number of lps ($number_lp), matching number of lps"
+					echo "Number of working threads ($working_threads) greater than number of lps ($number_lp), matching number of lps."
 					working_threads=$number_lp
 				fi
 			fi
 		fi
 
 		if [[ $sim_name == "ROOT-Sim" || $sim_name == "all" ]]; then
-			echo "Working with ROOT-Sim"
 			if [[ $run_type == "parallel" ]]; then
 				stat_source="$output_location/outputs/execution_stats"
 			else
 				stat_source="$output_location/outputs/sequential_stats"
 			fi
 			if [[ $target == "all" || $target == "compile" ]]; then
-				echo "compiling model..."
+				echo "Compiling model..."
 				eval make LOCATION=$output_location $opt_make $dbg_make rootsim $make_redirect
 				err=$?
 				if [[ $err != 0  ]]; then
-					echo "error during compilation of model, aborting"
+					echo "Error during compilation of model, aborting."
 					exit $err
 				fi
-				echo "done, executable is called \"simulation_rootsim\" and can be found in the \"$output_location\" folder"
+				echo "Done, executable is called \"simulation_rootsim\" and can be found in the \"$output_location\" folder."
 			fi
 			if [[ $target == "all" || $target == "execute" ]]; then
-			echo "executing model"
+			echo "Executing model..."
 			cd $output_location
-			echo `pwd`
 				if [[ $run_type == "parallel" ]]; then
-						echo "parallel execution with $working_threads threads"
+						echo "Parallel execution with $working_threads threads."
 						$dbg_param ./simulation_rootsim --wt $working_threads --lp $number_lp $seed $timeout_rootsim
 					else
-						echo "serial execution"
+						echo "Serial execution."
                         $dbg_param ./simulation_rootsim --sequential --lp $number_lp $seed $timeout_rootsim
 					fi
 				err=$?
 				if [[ $err != 0  ]]; then
-					echo "ROOT-Sim has raised an error, aborting"
+					echo "ROOT-Sim has raised an error, aborting."
 					exit $err
 				fi
 				cd $source_location
+				echo "Done."
 			fi
 			if [[ $target == "all" || $options == "json" ]]; then
-				echo "parsing statistics..."
+				echo "Parsing statistics..."
 				stat_used_mem=$(sed -n 's/PEAK MEMORY USAGE.......... : //p' $stat_source)
 				stat_duration=$(sed -n 's/TOTAL SIMULATION TIME ..... : //p' $stat_source)
-				echo "done"
+				echo "Done."
 			fi
 		fi
 		if [[ $sim_name == "USE" || $sim_name == "all" ]]; then
-			echo "Working with USE"
 			if [[ $target == "all" || $target == "compile" ]]; then
 				eval make LOCATION=$output_location $opt_make $dbg_make use $make_redirect
 				err=$?
 				if [[ $err != 0  ]]; then
-					echo "error during compilation of model, aborting"
+					echo "Error during compilation of model, aborting."
 					exit $err
 				fi
-				echo "done, executable is called \"simulation_use\" and can be found in the \"$output_location\" folder."
+				echo "Done, executable is called \"simulation_use\" and can be found in the \"$output_location\" folder."
 			fi
 			cd $output_location
 			stat_source="USE_output.txt"
 			if [[ $target == "all" || $target == "execute" ]]; then
-				echo "executing model"
-				echo "parallel execution with $working_threads threads"
+				echo "Executing model"
+				if [[ $run_type == "parallel" ]]; then
+					echo "Parallel execution with $working_threads threads."
+				else
+					echo "Serial execution."
+				fi
 				# during debug we don't save the stats
 				if [[ -z $dbg_arg ]]; then
 					# we save the output so we can grab the stats without redirecting output
@@ -268,18 +275,18 @@ for target in ${targets[@]}; do
 					./simulation_use $working_threads $number_lp $timeout_use >$stat_source 2>&1 &
 					use_pid=$!
 					#Ctrl+C will kill USE process
-					echo "trap set to kill the model on Ctrl+C"
+					echo "Trap set to kill the model on Ctrl+C."
 					trap "kill -s KILL $use_pid" INT
-					echo "following output on $stat_source with tail"
+					echo "Following output on $stat_source with tail."
 					tail --pid=$use_pid -F $stat_source
-					echo "waiting for simulation completion"
+					echo "Waiting for simulation completion..."
 					wait $use_pid
 				else
 					$dbg_param ./simulation_use $working_threads $number_lp $timeout_use
 				fi
 				err=$?
 				if [[ $err != 0  ]]; then
-					echo "USE has raised an error, aborting"
+					echo "USE has raised an error, aborting."
 					exit $err
 				fi
 			fi
@@ -287,34 +294,33 @@ for target in ${targets[@]}; do
 				echo "parsing statistics..."
 				stat_used_mem=$(sed -E -n -e 's/Total allocated space\.+: //p' $stat_source)
 				stat_duration=$(sed -E -n -e 's/Simulation ended \(seconds\):[ ]+//p' $stat_source)
-				echo "done"
+				echo "Done."
 			fi
 			cd $source_location
 		fi
 		if [[ $sim_name == "NeuRome" || $sim_name == "all" ]]; then
-			echo "Working with Neurome"
 			if [[ $target == "compile" || $target == "all" ]]; then
-				echo "compiling model..."
+				echo "Compiling model..."
 				eval make LOCATION=$output_location $opt_make $dbg_make neurome $make_redirect
 				err=$?
 				if [[ $err != 0  ]]; then
-					echo "error during compilation of model, aborting"
+					echo "Error during compilation of model, aborting."
 					exit $err
 				fi
-				echo "done; there are 2 executables, one for the parallel execution and one for the serial execution, they are called \"simulation_neurome_[parallel/serial]\" and can be found in the \"$output_location\" folder"
+				echo "dDne; there are 2 executables, one for the parallel execution and one for the serial execution, they are called \"simulation_neurome_[parallel/serial]\" and can be found in the \"$output_location\" folder."
 			fi
 			if [[ $target == "execute" || $target == "all" ]]; then
 				cd $output_location
 				if [ "$run_type" == "parallel" ]; then
-					echo "parallel execution with $working_threads threads"
+					echo "Parallel execution with $working_threads threads."
 					$dbg_param ./simulation_neurome_parallel --wt $working_threads --lp $number_lp $seed $timeout_neurome
 				else
-					echo "serial execution"
+					echo "Serial execution."
 					$dbg_param ./simulation_neurome_serial --lp $number_lp $seed $timeout_neurome
 				fi
 				err=$?
 				if [[ $err != 0  ]]; then
-					echo "NeuRome has raised an error, aborting"
+					echo "NeuRome has raised an error, aborting."
 					exit $err
 				fi
 			fi
@@ -324,14 +330,14 @@ for target in ${targets[@]}; do
 			#fi
 		fi
 		if [[ $target == "all" || $options == "json" ]]; then
-			echo "exporting simulation statistics to $stat_json..."
+			echo "Exporting simulation statistics to $stat_json..."
 			#creating the json file with stats
 			echo "{ \"run_type\": \"$run_type\", \"num_threads\": \"$working_threads\", \"used_mem\": \"$stat_used_mem\", \"duration\": \"$stat_duration\", \"platform\":\"$sim_name\" }" > $output_location/$stat_json
-				echo "done"
+				echo "Done."
 			# merging lp jsons
-			echo "merging jsons in lp_data..."
+			echo "Merging jsons in lp_data..."
 			python3 generate_json.py $output_location"/lp_data" $output_location/$file_json
-			echo "done, results are in $file_json"
+			echo "Done, results are in $file_json."
 		fi
 	fi
 done
