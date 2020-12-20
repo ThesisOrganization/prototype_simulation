@@ -80,7 +80,7 @@ BEGIN_SESSION="START SESSION AT $SESSION_DATE"
 END_SESSION="COMPLETED SESSION $SESSION_DATE"
 
 if [[ $redir_compilation != "" ]]; then
-	redir_compilation_arg="--redir-compilation_messages=$redir_compilation"
+	redir_compilation_arg="--redir_compilation_messages=$redir_compilation"
 else
 	redir_compilation_arg=""
 fi
@@ -227,12 +227,12 @@ for seed in ${seed_list[@]}; do
 									BEGIN="BEGIN test $topology_name:.............$DATE_BEGIN"
 									# we log the beginning of the test
 									begin_log="$BEGIN\ntest command:\t$test_cmd\nresults path: $output"
-									echo -e $begin_log >> $LOG_FILE
+									echo -e "$begin_log" >> $LOG_FILE
 									echo -e $begin_log > $output/test_esit.log
 									echo "$BEGIN"
 
 									#we execute the test
-									$parent_cmd $test_cmd
+									script -a -e -q -O $output/test_esit.log -c "$parent_cmd $test_cmd"
 									err=$?
 									DATE_END="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
 									#test is considered complete if there is no error

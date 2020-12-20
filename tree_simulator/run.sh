@@ -251,6 +251,7 @@ for target in ${targets[@]}; do
 		fi
 		if [[ $sim_name == "USE" || $sim_name == "all" ]]; then
 			if [[ $target == "all" || $target == "compile" ]]; then
+				echo "Compiling model..."
 				eval make LOCATION=$output_location $opt_make $dbg_make use $make_redirect
 				err=$?
 				if [[ $err != 0  ]]; then
@@ -262,7 +263,7 @@ for target in ${targets[@]}; do
 			cd $output_location
 			stat_source="USE_output.txt"
 			if [[ $target == "all" || $target == "execute" ]]; then
-				echo "Executing model"
+				echo "Executing model..."
 				if [[ $run_type == "parallel" ]]; then
 					echo "Parallel execution with $working_threads threads."
 				else
@@ -272,15 +273,7 @@ for target in ${targets[@]}; do
 				if [[ -z $dbg_arg ]]; then
 					# we save the output so we can grab the stats without redirecting output
 					# starting process in background and redirecting output to file
-					./simulation_use $working_threads $number_lp $timeout_use >$stat_source 2>&1 &
-					use_pid=$!
-					#Ctrl+C will kill USE process
-					echo "Trap set to kill the model on Ctrl+C."
-					trap "kill -s KILL $use_pid" INT
-					echo "Following output on $stat_source with tail."
-					tail --pid=$use_pid -F $stat_source
-					echo "Waiting for simulation completion..."
-					wait $use_pid
+					script -e -O $stat_source -c "./simulation_use $working_threads $number_lp $timeout_use"
 				else
 					$dbg_param ./simulation_use $working_threads $number_lp $timeout_use
 				fi
@@ -307,9 +300,10 @@ for target in ${targets[@]}; do
 					echo "Error during compilation of model, aborting."
 					exit $err
 				fi
-				echo "dDne; there are 2 executables, one for the parallel execution and one for the serial execution, they are called \"simulation_neurome_[parallel/serial]\" and can be found in the \"$output_location\" folder."
+				echo "Done; there are 2 executables, one for the parallel execution and one for the serial execution, they are called \"simulation_neurome_[parallel/serial]\" and can be found in the \"$output_location\" folder."
 			fi
 			if [[ $target == "execute" || $target == "all" ]]; then
+				echo "Executing model..."
 				cd $output_location
 				if [ "$run_type" == "parallel" ]; then
 					echo "Parallel execution with $working_threads threads."
