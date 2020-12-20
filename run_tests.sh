@@ -73,10 +73,15 @@ MAX_RETRY=2
 ########################################################################################################################
 #STARTING TESTS                                                                                                        #
 ########################################################################################################################
+
+# we compute the number of test to execute in this session
+num_tests=$(( ${#topology_list[@]} * ${#lp_aggregation[@]} * ${#simulator_list[@]} * ${#preemption_options[@]} * ${#scheduler_options[@]} * ${#sim_processing_options[@]} * ${#seed_list[@]} * ${#thread_list[@]} ))
+test_num=0
+
 # some global variables which should not be edited, they are used to keep track of the test sessions
 LOG_FILE="tests.log"
 SESSION_DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
-BEGIN_SESSION="START SESSION AT $SESSION_DATE"
+BEGIN_SESSION="START SESSION AT $SESSION_DATE with $num_tests tests"
 END_SESSION="COMPLETED SESSION $SESSION_DATE"
 
 if [[ $redir_compilation != "" ]]; then
@@ -222,9 +227,10 @@ for seed in ${seed_list[@]}; do
 								touch $output/test_esit.log
 								NUM_RETRIES=0
 								END="Test $topology_name COMPLETE"
+								test_num=$(( $test_num +1 ))
 								while [[ $(tail -n 1 $output/test_esit.log | grep -c -e "^$END.*\$") == 0 ]]; do
 									DATE_BEGIN="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
-									BEGIN="BEGIN test $topology_name:.............$DATE_BEGIN"
+									BEGIN="BEGIN test $test_num of $num_tests with topology $topology_name:.............$DATE_BEGIN"
 									# we log the beginning of the test
 									begin_log="$BEGIN\ntest command:\t$test_cmd\nresults path: $output"
 									echo -e "$begin_log" >> $LOG_FILE
