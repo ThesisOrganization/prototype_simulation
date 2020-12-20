@@ -88,5 +88,5 @@ void setup_independent(int lp,lp_state* state, int n_prc_tot){
 	}
 	/// Finally, when the setup is completed, the LP will schedule the START_SIMULATION event for itself.
 	ScheduleNewEvent(lp,TS_START_SIMULATION,START_SIMULATION,NULL,0);
-	printf("LP %d has completed the setup.\n",lp);
+	//printf("LP %d has completed the setup.\n",lp);
 }

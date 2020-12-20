@@ -13,6 +13,9 @@ parent_cmd=""
 # this variables is used to determine the location of the folder which contains the start.sh script which will be executed to start each test
 script_location=$(realpath .)
 
+# this variable will be used to redirect compilation messages to a file, possible a values are "" to turn off redirection or the path to the file.
+redir_compilation="/dev/null"
+
 # the base directory where all the executed tests can be found (separated by the topology name)
 output_base_dir="$(realpath ..)/test/model_tests"
 
@@ -75,6 +78,12 @@ LOG_FILE="tests.log"
 SESSION_DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
 BEGIN_SESSION="START SESSION AT $SESSION_DATE"
 END_SESSION="COMPLETED SESSION $SESSION_DATE"
+
+if [[ $redir_compilation != "" ]]; then
+	redir_compilation_arg="--redir-compilation_messages=$redir_compilation"
+else
+	redir_compilation_arg=""
+fi
 
 target=""
 if [[ $script_target =~ all ]]; then
@@ -203,7 +212,7 @@ for seed in ${seed_list[@]}; do
 									threads_less_than_lps_arg=""
 								fi
 
-								test_cmd="bash $script_location/start.sh -q $script_target $topology_arg $simulator_arg $execution_arg $thread_arg $scheduler_arg  $preemption_arg $sim_processing_arg $seed_arg $timeout_arg $lp_aggr_arg $threads_less_than_lps_arg $out_arg"
+								test_cmd="bash $script_location/start.sh -q $script_target $topology_arg $simulator_arg $execution_arg $thread_arg $scheduler_arg  $preemption_arg $sim_processing_arg $seed_arg $timeout_arg $lp_aggr_arg $threads_less_than_lps_arg $redir_compilation_arg $out_arg"
 
 								# we create the test directory
 								mkdir -p $output

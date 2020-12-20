@@ -15,6 +15,7 @@ error="no"
 initial_location=$(pwd)
 options=""
 lp_aggregation="--lp_aggregation_criteria=regional"
+make_redirect=""
 
 for arg
 do
@@ -41,6 +42,9 @@ do
 		targets[${#targets[@]}]="all"
 		options="all"
 		sim_options+="--run-complete "
+	elif [[ ${arg:0:29} == "--redir-compilation_messages=" ]]; then
+		make_redirect=">>${arg#"--redir-compilation_messages="} 2>&1"
+		sim_options+="$arg "
 	elif [[ ${arg:0:6} == "--cat=" ]]; then
 		catalog_path=${arg#'--cat='}
 	elif [[ ${arg:0:17} == "--lp_aggregation=" ]]; then
@@ -84,6 +88,7 @@ if [[ $quiet == "no" || $error == "yes" ]]; then
 	echo -e "\nArgument list:\n
 	\nGeneral options\n
 \"-q --quiet\": suppress this message\n
+\"--redir-compilation_messages=[path to file]\": redirect compilation messages to a file. The file will be used in append.
 \"clean\": remove all the products of a previous run, including the output location and all object files.
 \n Execution options\n
 \"-g\": generate only the topology files\n
@@ -128,8 +133,8 @@ for target in ${targets[@]}; do
 	if [[ $target == "clean" ]]; then
 	echo "cleaning"
 	rm -rf $output_location
-	make -C utils/partop clean
-	make -C model_computation clean
+	make -C utils/partop clean >/dev/null
+	make -C model_computation clean >/dev/null
 	cd tree_simulator
 	bash run.sh $sim_options
 	cd ..
@@ -145,7 +150,7 @@ for target in ${targets[@]}; do
 		fi
 		echo "Done."
 		echo "Generating topology binary files"
-		make -C utils/partop driverBinaries
+		eval make -C utils/partop driverBinaries $make_redirect
 		err=$?
 		if [[ $err != 0  ]]; then
 			echo "error during compilation of topology binary files generator, aborting"
@@ -166,7 +171,7 @@ for target in ${targets[@]}; do
 	fi
 	if [[ $target == "all" || $target == "analytical model" ]]; then
 		echo "Starting analytical model computation.."
-		LOCATION="$output_location" make -C model_computation
+		eval LOCATION="$output_location" make -C model_computation $make_redirect
 		err=$?
 		if [[ $err != 0  ]]; then
 			echo "error during compilation of analytical model, aborting"
@@ -211,7 +216,7 @@ for target in ${targets[@]}; do
 		echo "Done."
 		cd $output_location
 		echo "Creating pdf.."
-		pdflatex complete_results.tex
+		eval pdflatex complete_results.tex $make_redirect
 		err=$?
 		rm -f complete_results.log complete_results.aux
 		if [[ $err != 0  ]]; then

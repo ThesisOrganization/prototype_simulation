@@ -18,6 +18,7 @@ sim_name=""
 seed=""
 timeout=""
 output_location="../tree_simulator_bin"
+make_redirect=""
 
 for arg
 do
@@ -50,6 +51,8 @@ do
 		if [[  ${arg:17} > 0 ]]; then
 			opt_make+="SIM_PROC_MULTI=${arg:17} "
 		fi
+	elif [[ ${arg:0:29} == "--redir-compilation_messages=" ]]; then
+		make_redirect=" >>${arg#"--redir-compilation_messages="} 2>&1"
 	elif [[ ${arg:0:7} == "--seed=" ]]; then
 		echo ${arg#"--seed="} > ~/.rootsim/numerical.conf
 		seed="--deterministic-seed"
@@ -122,6 +125,7 @@ The binary data for each LP in the \"bin\", \"bin/gentop\" and \"bin/lptop\" fol
 	echo -e "The execution can be customized with some arguments:\n
 	\n General options:\n
 \"-q --quiet\": disable this message\n
+\"--redir-compilation_messages=[path to file]\": redirect compilation messages to a file which will be used in append.
 \"clean\": remove all products of compilation and execution, leaving only the source files\n
 \nSimulator options:\n
 \"USE\": choose USE as the simulator\n
@@ -161,7 +165,7 @@ for target in ${targets[@]}; do
 	if [ "$options" == "clean" ]; then
 			rm -r -f $output_location/lp_data/
 			rm -r -f $output_location/outputs
-			make clean
+			make clean >/dev/null
 			rm -f $output_location/*.txt
 			rm -f $output_location/*.json
 	else
@@ -208,7 +212,7 @@ for target in ${targets[@]}; do
 			fi
 			if [[ $target == "all" || $target == "compile" ]]; then
 				echo "compiling model..."
-				make LOCATION=$output_location $opt_make $dbg_make rootsim
+				eval make LOCATION=$output_location $opt_make $dbg_make rootsim $make_redirect
 				err=$?
 				if [[ $err != 0  ]]; then
 					echo "error during compilation of model, aborting"
@@ -244,7 +248,7 @@ for target in ${targets[@]}; do
 		if [[ $sim_name == "USE" || $sim_name == "all" ]]; then
 			echo "Working with USE"
 			if [[ $target == "all" || $target == "compile" ]]; then
-				make LOCATION=$output_location $opt_make $dbg_make use
+				eval make LOCATION=$output_location $opt_make $dbg_make use $make_redirect
 				err=$?
 				if [[ $err != 0  ]]; then
 					echo "error during compilation of model, aborting"
@@ -261,7 +265,7 @@ for target in ${targets[@]}; do
 				if [[ -z $dbg_arg ]]; then
 					# we save the output so we can grab the stats without redirecting output
 					# starting process in background and redirecting output to file
-					./simulation_use $working_threads $number_lp $timeout_use > $stat_source &
+					./simulation_use $working_threads $number_lp $timeout_use >$stat_source 2>&1 &
 					use_pid=$!
 					#Ctrl+C will kill USE process
 					echo "trap set to kill the model on Ctrl+C"
@@ -291,7 +295,7 @@ for target in ${targets[@]}; do
 			echo "Working with Neurome"
 			if [[ $target == "compile" || $target == "all" ]]; then
 				echo "compiling model..."
-				make LOCATION=$output_location $opt_make $dbg_make neurome
+				eval make LOCATION=$output_location $opt_make $dbg_make neurome $make_redirect
 				err=$?
 				if [[ $err != 0  ]]; then
 					echo "error during compilation of model, aborting"
