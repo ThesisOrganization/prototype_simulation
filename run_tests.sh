@@ -20,7 +20,7 @@ redir_compilation="/dev/null"
 output_base_dir="$(realpath ..)/test/model_tests"
 
 #customize the test execution, targets must separated by spaces. Available values: all, -g, -a, -s, -r. Refer to the start.sh help message for info. (all must be used by itself, without other targets)
-script_target="all"
+script_target="-g"
 
 #timeout argument for USE (in seconds). -1 means no timeout
 timeout_use="-1"
@@ -78,6 +78,9 @@ MAX_RETRY=2
 num_tests=$(( ${#topology_list[@]} * ${#lp_aggregation[@]} * ${#simulator_list[@]} * ${#preemption_options[@]} * ${#scheduler_options[@]} * ${#sim_processing_options[@]} * ${#seed_list[@]} * ${#thread_list[@]} ))
 test_num=0
 
+num_tests_failed=0
+num_tests_completed=0
+num_tests_skipped=0
 # some global variables which should not be edited, they are used to keep track of the test sessions
 LOG_FILE="tests.log"
 SESSION_DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
@@ -228,8 +231,14 @@ for seed in ${seed_list[@]}; do
 								NUM_RETRIES=0
 								END="Test $topology_name COMPLETE"
 								test_num=$(( $test_num +1 ))
+
+								DATE_BEGIN="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
+
+								if [[ $(tail -n 1 $output/test_esit.log | grep -c -e "^$END.*\$") != 0 ]]; then
+									echo -e "Test $test_num  of $num_tests with topology $topology_name already completed, SKIPPED.\n\n"
+									echo -e "Test $test_num  of $num_tests with topology $topology_name already completed, SKIPPED.\n\n" >> $LOG_FILE
+								fi
 								while [[ $(tail -n 1 $output/test_esit.log | grep -c -e "^$END.*\$") == 0 ]]; do
-									DATE_BEGIN="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
 									BEGIN="BEGIN test $test_num of $num_tests with topology $topology_name:.............$DATE_BEGIN"
 									# we log the beginning of the test
 									begin_log="$BEGIN\ntest command:\t$test_cmd\nresults path: $output"
@@ -248,6 +257,7 @@ for seed in ${seed_list[@]}; do
 										echo -e "$end_log\n\n" >> $LOG_FILE
 										echo -e "$end_log" >> $output/test_esit.log
 										echo -e "$end_log\n\n"
+										num_tests_completed=$(( num_tests_completed + 1 ))
 									else
 										error_log="test $topology_name FAILED at $DATE_END with error code $err"
 										echo -e "$error_log\n\n" >> $output/test_esit.log
@@ -261,6 +271,7 @@ for seed in ${seed_list[@]}; do
 										echo -e "$ERR_RETRY\n\n"
 										echo -e "$ERR_RETRY\n\n" >> $LOG_FILE
 										echo -e $ERR_RETRY >> $output/test_esit.log
+										num_tests_failed=$(( num_tests_failed + 1 ))
 										break
 									fi
 								done
@@ -274,5 +285,5 @@ for seed in ${seed_list[@]}; do
 done
 # we log the successful end of the test session
 DATE="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
-echo -e "$END_SESSION AT $DATE\n\n" >> $LOG_FILE
-echo -e "$END_SESSION AT $DATE\n\n"
+echo -e "$END_SESSION at $DATE with $num_tests_completed completed tests, $num_tests_failed failed tests and $num_tests_skipped skipped tests out of $num_tests.\n\n" >> $LOG_FILE
+echo -e "$END_SESSION at $DATE with $num_tests_completed completed tests, $num_tests_failed failed tests and $num_tests_skipped skipped tests out of $num_tests.\n\n"

@@ -54,7 +54,7 @@ do
 		sim_options+=$arg
 	elif [[ $arg == "clean" ]]; then
 		targets[${#targets[@]}]="clean"
-		sim_options+=$arg
+		sim_options+="$arg "
 	else
 		sim_options+=$arg" "
 		arg=${arg//'-'/''}
@@ -136,7 +136,7 @@ for target in ${targets[@]}; do
 	make -C utils/partop clean >/dev/null
 	make -C model_computation clean >/dev/null
 	cd tree_simulator
-	bash run.sh $sim_options
+	bash run.sh -q clean
 	cd ..
 	echo "Done."
 	fi
