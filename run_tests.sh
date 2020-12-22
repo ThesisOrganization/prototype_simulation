@@ -20,7 +20,7 @@ redir_compilation="/dev/null"
 output_base_dir="$(realpath ..)/test/model_tests"
 
 #customize the test execution, targets must separated by spaces. Available values: all, -g, -a, -s, -r. Refer to the start.sh help message for info. (all must be used by itself, without other targets)
-script_target="-g"
+script_target="all"
 
 #timeout argument for USE (in seconds). -1 means no timeout
 timeout_use="-1"
@@ -237,6 +237,7 @@ for seed in ${seed_list[@]}; do
 								if [[ $(tail -n 1 $output/test_esit.log | grep -c -e "^$END.*\$") != 0 ]]; then
 									echo -e "Test $test_num  of $num_tests with topology $topology_name already completed, SKIPPED.\n\n"
 									echo -e "Test $test_num  of $num_tests with topology $topology_name already completed, SKIPPED.\n\n" >> $LOG_FILE
+									num_tests_skipped=$(( num_tests_skipped + 1 ))
 								fi
 								while [[ $(tail -n 1 $output/test_esit.log | grep -c -e "^$END.*\$") == 0 ]]; do
 									BEGIN="BEGIN test $test_num of $num_tests with topology $topology_name:.............$DATE_BEGIN"
