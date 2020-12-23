@@ -579,7 +579,7 @@ void destroyElementTopologyArray(Element_topology ** lpt,int total_elements){
       free(lpt[i]->spec_top.node->aggregation_rate);
       free(lpt[i]->spec_top.node->actuatorsTypesBelow);
       free(lpt[i]->spec_top.node->sensorsTypesBelow);
-      free(lpt[i]->spec_top.node->ListSensorsByType);
+      //free(lpt[i]->spec_top.node->ListSensorsByType);
       free(lpt[i]->spec_top.node->ListActuatorsByType);
       free(lpt[i]->spec_top.node);
     }
@@ -593,7 +593,7 @@ void destroyElementTopologyArray(Element_topology ** lpt,int total_elements){
     else if (type == 3){//wan
       free(lpt[i]->spec_top.wan->actuatorsTypesBelow);
       free(lpt[i]->spec_top.wan->sensorsTypesBelow);
-      free(lpt[i]->spec_top.wan->ListSensorsByType);
+      //free(lpt[i]->spec_top.wan->ListSensorsByType);
       free(lpt[i]->spec_top.wan->ListActuatorsByType);
       free(lpt[i]->spec_top.wan);
     }
@@ -602,7 +602,7 @@ void destroyElementTopologyArray(Element_topology ** lpt,int total_elements){
       free(lpt[i]->spec_top.lan->LANsOUTserviceTimes);
       free(lpt[i]->spec_top.lan->actuatorsTypesBelow);
       free(lpt[i]->spec_top.lan->sensorsTypesBelow);
-      free(lpt[i]->spec_top.lan->ListSensorsByType);
+      //free(lpt[i]->spec_top.lan->ListSensorsByType);
       free(lpt[i]->spec_top.lan->ListActuatorsByType);
       free(lpt[i]->spec_top.lan);
     }

@@ -165,20 +165,6 @@ int main()
 
       }
 
-      int numberOfBelowSensors = getNumberOfBelowSensors(temp_lpt);
-      printf("Node %d has %d sensors below(undirectly).\n",i,numberOfBelowSensors);
-      int * sensorsTypesBelow = getSensorsTypesBelowList(temp_lpt);
-      for(int k = 0;k < st;k++){
-        int * ListSensorsByType = getListSensorsByType(temp_lpt, k);
-        if(sensorsTypesBelow[k] != 0){
-          printf("Node %d has %d sensors of type %d: %d",i,sensorsTypesBelow[k],k,ListSensorsByType[0]);
-          for(int t = 1; t < sensorsTypesBelow[k]; t++){
-            printf(", %d",ListSensorsByType[t]);
-          }
-          printf(".\n");
-        }
-
-      }
 
       int numLANS = getNumberLANS(temp_lpt);
 
@@ -266,21 +252,6 @@ int main()
 
       }
 
-      int numberOfBelowSensors = getNumberOfBelowSensors(temp_lpt);
-      printf("WAN %d has %d sensors below(undirectly).\n",i,numberOfBelowSensors);
-      int * sensorsTypesBelow = getSensorsTypesBelowList(temp_lpt);
-      for(int k = 0;k < at;k++){
-        int * ListSensorsByType = getListSensorsByType(temp_lpt, k);
-        if(sensorsTypesBelow[k] != 0){
-          printf("WAN %d has %d sensors of type %d: %d",i,sensorsTypesBelow[k],k,ListSensorsByType[0]);
-          for(int t = 1; t < sensorsTypesBelow[k]; t++){
-            printf(", %d",ListSensorsByType[t]);
-          }
-          printf(".\n");
-        }
-
-      }
-
     }
     else if(lp_type == 4){//lan
       int lan_type = getLanType(temp_lpt);
@@ -312,21 +283,6 @@ int main()
           }
           printf(".\n");
         }
-      }
-
-      int numberOfBelowSensors = getNumberOfBelowSensors(temp_lpt);
-      printf("LAN %d has %d sensors below(undirectly).\n",i,numberOfBelowSensors);
-      int * sensorsTypesBelow = getSensorsTypesBelowList(temp_lpt);
-      for(int k = 0;k < at;k++){
-        int * ListSensorsByType = getListSensorsByType(temp_lpt, k);
-        if(sensorsTypesBelow[k] != 0){
-          printf("LAN %d has %d sensors of type %d: %d",i,sensorsTypesBelow[k],k,ListSensorsByType[0]);
-          for(int t = 1; t < sensorsTypesBelow[k]; t++){
-            printf(", %d",ListSensorsByType[t]);
-          }
-          printf(".\n");
-        }
-
       }
 
       double * LANsINserviceTimes = getLANsINserviceTimesByType(temp_lpt);

@@ -240,28 +240,37 @@ void upwardSearchSubtreeFilling(Element_topology ** lpt, int up, int index, int 
 }
 
 //search the graph upward, trying to reach the destination node from the index node
-void upwardSearchActuatorPaths(Element_topology ** lpt, int index, int destination, int number, int ** array){
+
+void upwardSearchActuatorPaths(Element_topology ** lpt, int index, int destination, int number, idmap * idmap_act_paths,int * counter){
   if(index != number){//not first run
     number = getUpperNode(lpt[number]);
   }
   else{
     number = getUpperNode(lpt[index]);
-    array[destination][index] = index;//initialized for those who have actuators directly below
+    idmap_act_paths[*counter].id = index;
+    idmap_act_paths[*counter].content = index;
+    //array[destination][index] = index;//initialized for those who have actuators directly below
   }
 
-  if(number == -1 ){ //reached central node, processed it and didn't find a match, can't reach destination from index!
-    array[destination][index] = -1;
+  if(number == -1){ //reached central node, processed it and didn't find a match, can't reach destination from index!
+    return;
+    //array[destination][index] = -1;
   }
-  else if(number == destination){//Reached the destination, last step of previous iteration contains the correct next step
+  //else
+  if(number == destination){//Reached the destination, last step of previous iteration contains the correct next step
+    (*counter)+=1;
     return;
   }
   else{
-    array[destination][index] = number;
-    upwardSearchActuatorPaths(lpt,index,destination,number,array);
+    //array[destination][index] = number;
+    idmap_act_paths[*counter].id = index;
+    idmap_act_paths[*counter].content = number;
+    upwardSearchActuatorPaths(lpt,index,destination,number,idmap_act_paths,counter);
   }
 }
 
 lp_topology * getLPtopoogy(char * path){
+  printf("start lp top\n");
   FILE * fp;
   char * line = malloc(sizeof(char)*MAX_LINE_LEN);
   char * temp = malloc(sizeof(char)*MAX_LINE_LEN);
@@ -285,6 +294,7 @@ lp_topology * getLPtopoogy(char * path){
   int * EleToLP = malloc(sizeof(int)*numberOfElements);
   int * amountsOfElementsInLP = malloc(sizeof(int)*numberOfLPs);
   while ((read = getline(&line, &len, fp)) != -1) {
+
     //tokenize the line using ";" as a separator
     char *end_str;
     ptr = strtok_r(line, ";", &end_str);
@@ -307,6 +317,7 @@ lp_topology * getLPtopoogy(char * path){
       ptr = strtok_r(NULL,",",&end_str);
     }
   }
+
   free(line);
   lp_topology * LPreturn = malloc(sizeof(lp_topology));
   LPreturn->numLP=numberOfLPs;
@@ -317,15 +328,21 @@ lp_topology * getLPtopoogy(char * path){
   for(int i = 0; i < numberOfElements;i++){
     idArray[i] = i;
   }
-
   int valid = 0;
-  idmap* ElementToLP = create_idmap(idArray,EleToLP,numberOfElements,&valid);
+  idmap* ElementToLP = malloc(sizeof(idmap)*numberOfElements);
+  for(int i = 0; i < numberOfElements; i++){
+    ElementToLP[i].id = i;
+    ElementToLP[i].content = EleToLP[i];
+  }
+
+  //idmap* ElementToLP = create_idmap(idArray,EleToLP,numberOfElements,&valid);
   free(idArray);
   free(EleToLP);
   LPreturn->amountsOfElementsInLP = amountsOfElementsInLP;
   LPreturn->ElementToLPMapping = ElementToLP;
   LPreturn->numValid = valid;
 	fclose(fp);
+
   return(LPreturn);
 
 }
@@ -461,6 +478,7 @@ void createLPtxt_bycentral(Element_topology ** lpt,int totalNumberOfElements, in
 }
 
 total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria aggregation_criteria){
+
   FILE * fp;
   char * line = malloc(sizeof(char)*MAX_LINE_LEN);
 	char * temp = malloc(sizeof(char)*MAX_LINE_LEN);
@@ -601,12 +619,15 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
   double * weight = malloc((sizeof(double)) * nt); //fixed, 4 type of data.
   double sum = 0.0;
   counter = 0;
-  while(ptr){
-    weight[counter] = strtod(ptr, &end_ptr);
-    sum+=weight[counter];
-    ptr = strtok_r(NULL,";",&end_str);
-    counter+=1;
+  if(nt != 0){
+    while(ptr){
+      weight[counter] = strtod(ptr, &end_ptr);
+      sum+=weight[counter];
+      ptr = strtok_r(NULL,";",&end_str);
+      counter+=1;
+    }
   }
+
   free(temp);
   double * probArray = malloc((sizeof(double)*nt));
   for(int i = 0; i < nt; i++){
@@ -632,6 +653,7 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
     char ** infoArray = NULL;
     ptr = strtok_r(NULL, ";", &end_str);
     //loop through all the other tokens in the line
+
     while(ptr){
       char * end_token;
       char *ptr2 = strtok_r(ptr,",",&end_token);
@@ -757,7 +779,6 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
   index = 0;
   while(index < totalNumberOfElements){
     type = getType(lpt[index]);
-
     //printf("index %d, type %d",index, type);
     if(type == 0 || type == 3 || type == 4){
 
@@ -777,18 +798,17 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
   free(typesActArray);
 
   int *** resultAct = malloc(sizeof(int**)*totalNumberOfElements);
-  int *** resultSens = malloc(sizeof(int**)*totalNumberOfElements);
 
   index = 0;
   //initialization
   //resultAct is a matrix where [x][y][z] is the z-th actuator of type y in the sub-tree of the node x.
   //for each element in the system, we check its type. If it is a LAN, WAN or NODE
   //we allocate an array.
+
   while(index < totalNumberOfElements){
     int type =  getType(lpt[index]);
     if(type == 0  || type == 3 || type == 4){//node, lan or wan
       resultAct[index] = malloc(sizeof(int*)*nt);
-      resultSens[index] = malloc(sizeof(int*)*nts);
       //Retrieve array of actuators types below
       //eg. teA[0] = 3 means that element index has 3 actuators of type 0 below.
       int * teA = getActType(lpt[index]);
@@ -808,54 +828,276 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
         }
         index2+=1;
       }
-      //repeat for sensors
-      int * teS = getSensType(lpt[index]);
-      index2 = 0;
-      while(index2 < nts){
-        if(teS[index2] == 0){
-          resultSens[index][index2] = malloc(sizeof(int));
-          resultSens[index][index2][0] = -1;
+    }
+    index+=1;
+  }
+  printf("Start first recursion\n");
+  fflush(stdout);
+
+  int * layer_list = malloc(sizeof(int)*totalNumberOfElements);
+  int * layer_list2 = malloc(sizeof(int)*totalNumberOfElements);
+
+  for(int ind = 0; ind < totalNumberOfElements; ind+=1){
+    if(getType(lpt[ind]) != 1 && getType(lpt[ind]) != 2){
+      layer_list[ind] = 0;
+      layer_list2[ind] = 0;
+    }
+  }
+  int * act_list = malloc(sizeof(int)*na);
+  int counter_act_list = 0 ;
+
+  for(int ind = 0; ind < totalNumberOfElements; ind+=1){
+    int up = getUpperNode(lpt[ind]);
+    if(getType(lpt[ind]) == 2){
+      act_list[counter_act_list] = ind;
+      counter_act_list+=1;
+      int at = getActuatorType(lpt[ind]);
+      int * te = getActType(lpt[up]);
+      layer_list[up] = 1;
+
+      for(int js = 0; js < te[at]; js++){
+        //So there are three cases, we meet ourself, thus we need to skip
+        //We meet another node, simply we go on with the cycle
+        //We meet an empty space(-1) and fill it with ourself.
+        if(resultAct[up][at][js] == ind){//already inserted, skip
+          js = te[at];
         }
-        else{
-          resultSens[index][index2] = malloc(sizeof(int) * teS[index2]);
-          for(int js = 0; js < teS[index2];js+=1){
-            resultSens[index][index2][js] = -1;
+        else if(resultAct[up][at][js] == -1){//empty space, fill it and skip the rest of the cycle
+          resultAct[up][at][js] = ind;
+          js = te[at];
+        }
+      }
+    }
+  }
+  printf("done layer LAN\n");
+  for(int ind = 0; ind < totalNumberOfElements; ind+=1){
+    if(layer_list[ind] > 0 && getType(lpt[ind]) != 1 && getType(lpt[ind]) != 2){
+      layer_list[ind] = 0;
+      int up = getUpperNode(lpt[ind]);
+      layer_list2[up] = 1;
+
+      int * teA = getActType(lpt[ind]); //Number of sensors for each type
+      int * teAUp = getActType(lpt[up]);
+      int index2 = 0;
+      while(index2 < nt){ //iterate through sens types
+        if (teA[index2] != 0){ // != 0, need to put into the upper level
+          index3 = 0;
+          while (index3 < teA[index2]){ //iterating all sensors of type index2
+            int act_to_input = resultAct[ind][index2][index3]; //save the sensor to input
+            for(int js = 0; js < teAUp[index2]; js++){
+              //So there are three cases, we meet ourself, thus we need to skip
+              //We meet another node, simply we go on with the cycle
+              //We meet an empty space(-1) and fill it with ourself.
+              if(resultAct[up][index2][js] == act_to_input){//already inserted, skip
+                js = teAUp[index2];
+              }
+              else if(resultAct[up][index2][js] == -1){//empty space, fill it and skip the rest of the cycle
+                resultAct[up][index2][js] = act_to_input;
+                js = teAUp[index2];
+              }
+            }
+          index3+=1;
           }
         }
         index2+=1;
       }
     }
-    index+=1;
   }
 
-  //iterate, each time you find an actuator or sensor do an upward search
+  printf("Done layer Local\n");
+  fflush(stdout);
   for(int ind = 0; ind < totalNumberOfElements; ind+=1){
-    int type =  getType(lpt[ind]);
-    if(type == 1){//Sensor
-      //the function below is explained in its definition
-      upwardSearchSubtreeFilling(lpt, ind, ind, resultSens);
-      }
-    else if(type == 2){//Actuator
-      upwardSearchSubtreeFilling(lpt, ind, ind, resultAct);
+    if(layer_list2[ind] > 0 && getType(lpt[ind]) != 1 && getType(lpt[ind]) != 2){
+      layer_list2[ind] = 0;
+      int up = getUpperNode(lpt[ind]);
+      layer_list[up] = 1;
+
+      int * teA = getActType(lpt[ind]); //Number of sensors for each type
+      int * teAUp = getActType(lpt[up]);
+      int index2 = 0;
+      while(index2 < nt){ //iterate through sens types
+        if (teA[index2] != 0){ // != 0, need to put into the upper level
+          index3 = 0;
+          while (index3 < teA[index2]){ //iterating all sensors of type index2
+            int act_to_input = resultAct[ind][index2][index3]; //save the sensor to input
+            for(int js = 0; js < teAUp[index2]; js++){
+              //So there are three cases, we meet ourself, thus we need to skip
+              //We meet another node, simply we go on with the cycle
+              //We meet an empty space(-1) and fill it with ourself.
+              if(resultAct[up][index2][js] == act_to_input){//already inserted, skip
+                js = teAUp[index2];
+              }
+              else if(resultAct[up][index2][js] == -1){//empty space, fill it and skip the rest of the cycle
+                resultAct[up][index2][js] = act_to_input;
+                js = teAUp[index2];
+              }
+            }
+          index3+=1;
+          }
+        }
+        index2+=1;
       }
     }
+  }
+  printf("Done layer Wan Local-reg\n");
+  fflush(stdout);
 
+  for(int ind = 0; ind < totalNumberOfElements; ind+=1){
+    if(layer_list[ind] > 0 && getType(lpt[ind]) != 1 && getType(lpt[ind]) != 2){
+      layer_list[ind] = 0;
+      int up = getUpperNode(lpt[ind]);
+      layer_list2[up] = 1;
+
+      int * teA = getActType(lpt[ind]); //Number of sensors for each type
+      int * teAUp = getActType(lpt[up]);
+      int index2 = 0;
+      while(index2 < nt){ //iterate through sens types
+        if (teA[index2] != 0){ // != 0, need to put into the upper level
+          index3 = 0;
+          while (index3 < teA[index2]){ //iterating all sensors of type index2
+            int act_to_input = resultAct[ind][index2][index3]; //save the sensor to input
+            for(int js = 0; js < teAUp[index2]; js++){
+              //So there are three cases, we meet ourself, thus we need to skip
+              //We meet another node, simply we go on with the cycle
+              //We meet an empty space(-1) and fill it with ourself.
+              if(resultAct[up][index2][js] == act_to_input){//already inserted, skip
+                js = teAUp[index2];
+              }
+              else if(resultAct[up][index2][js] == -1){//empty space, fill it and skip the rest of the cycle
+                resultAct[up][index2][js] = act_to_input;
+                js = teAUp[index2];
+              }
+            }
+          index3+=1;
+          }
+        }
+        index2+=1;
+      }
+    }
+  }
+  printf("Done layer REGIONAL\n");
+  fflush(stdout);
+
+  for(int ind = 0; ind < totalNumberOfElements; ind+=1){
+    if(layer_list2[ind] > 0 && getType(lpt[ind]) != 1 && getType(lpt[ind]) != 2){
+      layer_list2[ind] = 0;
+      int up = getUpperNode(lpt[ind]);
+      layer_list[up] = 1;
+
+      int * teA = getActType(lpt[ind]); //Number of sensors for each type
+      int * teAUp = getActType(lpt[up]);
+      int index2 = 0;
+      while(index2 < nt){ //iterate through sens types
+        if (teA[index2] != 0){ // != 0, need to put into the upper level
+          index3 = 0;
+          while (index3 < teA[index2]){ //iterating all sensors of type index2
+            int act_to_input = resultAct[ind][index2][index3]; //save the sensor to input
+            for(int js = 0; js < teAUp[index2]; js++){
+              //So there are three cases, we meet ourself, thus we need to skip
+              //We meet another node, simply we go on with the cycle
+              //We meet an empty space(-1) and fill it with ourself.
+              if(resultAct[up][index2][js] == act_to_input){//already inserted, skip
+                js = teAUp[index2];
+              }
+              else if(resultAct[up][index2][js] == -1){//empty space, fill it and skip the rest of the cycle
+                resultAct[up][index2][js] = act_to_input;
+                js = teAUp[index2];
+              }
+            }
+          index3+=1;
+          }
+        }
+        index2+=1;
+      }
+    }
+  }
+  printf("Done layer WAN-Reg-Centr\n");
+  fflush(stdout);
+
+  for(int ind = 0; ind < totalNumberOfElements; ind+=1){
+    if(layer_list[ind] > 0 && getType(lpt[ind]) != 1 && getType(lpt[ind]) != 2){
+      layer_list[ind] = 0;
+      int up = getUpperNode(lpt[ind]);
+
+      layer_list2[up] = 1;
+
+      int * teA = getActType(lpt[ind]); //Number of sensors for each type
+      int * teAUp = getActType(lpt[up]);
+      int index2 = 0;
+      while(index2 < nt){ //iterate through sens types
+        if (teA[index2] != 0){ // != 0, need to put into the upper level
+          index3 = 0;
+          while (index3 < teA[index2]){ //iterating all sensors of type index2
+            int act_to_input = resultAct[ind][index2][index3]; //save the sensor to input
+            for(int js = 0; js < teAUp[index2]; js++){
+              //So there are three cases, we meet ourself, thus we need to skip
+              //We meet another node, simply we go on with the cycle
+              //We meet an empty space(-1) and fill it with ourself.
+              if(resultAct[up][index2][js] == act_to_input){//already inserted, skip
+                js = teAUp[index2];
+              }
+              else if(resultAct[up][index2][js] == -1){//empty space, fill it and skip the rest of the cycle
+                resultAct[up][index2][js] = act_to_input;
+                js = teAUp[index2];
+              }
+            }
+          index3+=1;
+          }
+        }
+        index2+=1;
+      }
+    }
+  }
+  printf("Done layer CENT\n");
+  fflush(stdout);
+
+  //int * id_arr = malloc(sizeof(int)*totalNumberOfElements);
+  int * valid = malloc(sizeof(int)*totalNumberOfElements);
+  //for(int c = 0; c < totalNumberOfElements; c+=1){
+    //id_arr[c] = c;
+  //}
+  idmap** idmap_actPaths = malloc(sizeof(idmap*)*totalNumberOfElements);
+  printf("start actuator paths \n");
+  fflush(stdout);
   //initialize and fill actuator paths
-  int ** arrayActuatorPaths = malloc(sizeof(int *) * (totalNumberOfElements));
   int tot = 0;
+
   while(tot < totalNumberOfElements){
-    arrayActuatorPaths[tot] = malloc(sizeof(int)*(totalNumberOfElements));
-    for(int ind = 0; ind < totalNumberOfElements; ind+=1){
-      int type =  getType(lpt[ind]);
-      if(type == 2){//Is an actuator
-        upwardSearchActuatorPaths(lpt, ind, tot, ind, arrayActuatorPaths);
+    if (getType(lpt[tot]) != 1 && getType(lpt[tot]) != 2){
+      int * teAUp = getActType(lpt[tot]);
+      valid[tot] = 0;
+      for(int act_type = 0; act_type < nt; act_type+=1){
+        valid[tot]+=teAUp[act_type];
       }
-      else{
-        arrayActuatorPaths[tot][ind] = -1;
+      idmap_actPaths[tot] = malloc(sizeof(idmap)*valid[tot]);
+      int counter = 0;
+      /*arrayActuatorPaths[tot] = malloc(sizeof(int)*(totalNumberOfElements));
+      for(int i = 0; i < totalNumberOfElements; i++){
+        arrayActuatorPaths[tot][i] = -1;
+      }*/
+      for(int act = 0; act < na; act+=1){
+        int ind = act_list[act];
+
+        upwardSearchActuatorPaths(lpt, ind, tot, ind, idmap_actPaths[tot],&counter);
+        if(counter == valid[tot]){
+          act = na;
+        }
       }
+      //idmap_actPaths[tot] = create_idmap(id_arr,arrayActuatorPaths[tot],totalNumberOfElements,&valid[tot]);
+      //free(arrayActuatorPaths[tot]);
+    }
+    else{
+      idmap_actPaths[tot] = NULL;
+      valid[tot] = 0;
     }
     tot+=1;
   }
+  free(act_list);
+
+  printf("done act paths\n");
+  fflush(stdout);
+  free(layer_list);
+  free(layer_list2);
   //initilize array containing how many lans each node manages
   int * numberofLANs = malloc(sizeof(int)*totalNumberOfElements);
   for(int c = 0; c < totalNumberOfElements; c+=1){
@@ -936,18 +1178,9 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
       }
     }
   }
-  int * id_arr = malloc(sizeof(int)*totalNumberOfElements);
-  int * valid = malloc(sizeof(int)*totalNumberOfElements);
-  for(int c = 0; c < totalNumberOfElements; c+=1){
-    id_arr[c] = c;
-  }
 
-  idmap** idmap_actPaths = malloc(sizeof(idmap*)*totalNumberOfElements);
 
-  for(int c = 0; c < totalNumberOfElements; c+=1){
-    idmap_actPaths[c] = create_idmap(id_arr,arrayActuatorPaths[c],totalNumberOfElements,&valid[c]);
-  }
-  free(id_arr);
+
 
   int numRegionals = 0,numLocals=0,numLANs=0;
   //setup some of the informations we computed
@@ -967,7 +1200,7 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
       setWANdown(lpt[c], WANsDownArray[c]);
       setWANup(lpt[c],lpt);
       setListActuatorsByType(lpt[c],resultAct[c],nt);
-      setListSensorsByType(lpt[c],resultSens[c],nts);
+      //setListSensorsByType(lpt[c],resultSens[c],nts);
     }
     else if(typeC == 1){
       int sensType = getSensorType(lpt[c]);
@@ -975,14 +1208,14 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
     }
     else if(typeC == 3){ //WAN
       setListActuatorsByType(lpt[c],resultAct[c],nt);
-      setListSensorsByType(lpt[c],resultSens[c],nts);
+      //setListSensorsByType(lpt[c],resultSens[c],nts);
     }
     else if(typeC == 4){
 			numLANs+=1;
       int lanType = getLanType(lpt[c]);
       setLANserviceTimes(lpt[c],LANsINserviceTimes[lanType],LANsOUTserviceTimes[lanType],sizeof(LANsINserviceTimes[lanType][0])*5,sizeof(LANsOUTserviceTimes[lanType][0])*5);
       setListActuatorsByType(lpt[c],resultAct[c],nt);
-      setListSensorsByType(lpt[c],resultSens[c],nts);
+      //setListSensorsByType(lpt[c],resultSens[c],nts);
     }
 
   }
@@ -1007,15 +1240,7 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
   free(LANsINserviceTimes);
   free(LANsOUTserviceTimes);
 
-  for(int j = 0; j  < totalNumberOfElements; j++){
-    if(getType(lpt[j]) != 1 && getType(lpt[j]) != 2){
-      for(int i = 0; i < nts; i++){
-        free(resultSens[j][i]);
-      }
-    free(resultSens[j]);
-    }
-  }
-  free(resultSens);
+
 
   for(int j = 0; j  < totalNumberOfElements; j++){
 
@@ -1029,10 +1254,9 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
 
   free(resultAct);
 
-  for(int i = 0; i < totalNumberOfElements; i ++){
-    free(arrayActuatorPaths[i]);
-  }
-  free(arrayActuatorPaths);
+  //for(int i = 0; i < totalNumberOfElements; i ++){
+    //free(arrayActuatorPaths[i]);
+  //}
 
 	switch(aggregation_criteria){
 		case LP_AGGR_CENTRAL:
@@ -1050,6 +1274,8 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
 		default:
 			break;
 	}
+  printf("done LP.txt\n");
+  fflush(stdout);
 
   lp_topology * lp_element_topology = getLPtopoogy(path1);
   int ** reachableSetElement = malloc(sizeof(int*)*totalNumberOfElements);
@@ -1080,7 +1306,6 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
     }
 
   }
-
   for(int i = 0; i < totalNumberOfElements; i ++){
     int valid = 0;
     int upp = getUpperNode(lpt[i]);
@@ -1104,4 +1329,5 @@ total_topology * getTopology(char * path, char * path1,lp_aggregation_criteria a
   EST->lpt = lpt;
   EST->lp_topology = lp_element_topology;
   return EST;
+
 }

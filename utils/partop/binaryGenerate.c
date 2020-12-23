@@ -16,7 +16,6 @@ void generateBinaries_elementTopology(general_topology * genTop,total_topology *
   char *file_name_complete=malloc(sizeof(char)*len_complete);
   snprintf(file_name_complete,len_complete, "%s%s" ,file_name,end_file_name);
 	free(file_name);
-
   FILE * output_file = fopen(file_name_complete, "w");
     for(int id = 0; id < num; id++){
       int i = elonelp[id];
@@ -204,7 +203,7 @@ void generateBinaries_elementTopology(general_topology * genTop,total_topology *
         for(int k = 0; k < st; k ++){
           fwrite(&sensorsTypesBelow[k],sizeof(int),1,output_file);
         }
-
+/*
         for(int k = 0;k < st;k++){
           int * ListSensorsByType = getListSensorsByType(temp_lpt, k);
           if(sensorsTypesBelow[k] != 0){
@@ -217,6 +216,7 @@ void generateBinaries_elementTopology(general_topology * genTop,total_topology *
           }
 
         }
+        */
 
         for(int k = 0;k < at;k++){
           int * ListActuatorsByType = getListActuatorsByType(temp_lpt, k);

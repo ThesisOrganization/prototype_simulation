@@ -117,7 +117,7 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
         //nodeTop->ListSensorsByType = malloc(sizeof(int)*nodeTop->numberOfBelowSensors);
         //fread(nodeTop->ListSensorsByType,sizeof(int),nodeTop->numberOfBelowSensors,output_file);
 
-        nodeTop->ListSensorsByType = NULL;
+        //nodeTop->ListSensorsByType = NULL;
         fseek(output_file,sizeof(int)*nodeTop->numberOfBelowSensors,SEEK_CUR);
 
         nodeTop->ListActuatorsByType = malloc(sizeof(int)*nodeTop->numberOfBelowActuators);

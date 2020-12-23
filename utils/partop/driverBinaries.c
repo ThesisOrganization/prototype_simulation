@@ -31,8 +31,8 @@ int main(int argc, char** argv)
 		}
 	}
 	lp_topology * lptopo =  NULL;
-
   total_topology * totTop = getTopology(path,path1,criteria);
+
   general_topology * genTop = getGenTopology(totTop);
 	lptopo=totTop->lp_topology;
 
@@ -47,7 +47,6 @@ int main(int argc, char** argv)
   //int lt = getNumberOfLANsTypes(genTop);
   generateBinaries(genTop,totTop,totalElements, lptopo,argv[3]);
   generateBinaries_lpTopology(lptopo,totalElements,argv[3]);
-
   destroyTotalTopology(totTop);
 
   //lp_topology * lptop = parseBinaryLpTopology();
