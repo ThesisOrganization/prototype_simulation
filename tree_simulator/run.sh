@@ -273,7 +273,7 @@ for target in ${targets[@]}; do
 				if [[ -z $dbg_arg ]]; then
 					# we save the output so we can grab the stats without redirecting output
 					# starting process in background and redirecting output to file
-					script -e -O $stat_source -c "./simulation_use $working_threads $number_lp $timeout_use"
+					script -e $stat_source -c "./simulation_use $working_threads $number_lp $timeout_use"
 				else
 					$dbg_param ./simulation_use $working_threads $number_lp $timeout_use
 				fi

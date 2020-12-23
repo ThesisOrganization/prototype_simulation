@@ -117,8 +117,8 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
         //nodeTop->ListSensorsByType = malloc(sizeof(int)*nodeTop->numberOfBelowSensors);
         //fread(nodeTop->ListSensorsByType,sizeof(int),nodeTop->numberOfBelowSensors,output_file);
 
-        //nodeTop->ListSensorsByType = NULL;
-        fseek(output_file,sizeof(int)*nodeTop->numberOfBelowSensors,SEEK_CUR);
+        nodeTop->ListSensorsByType = NULL;
+        //fseek(output_file,sizeof(int)*nodeTop->numberOfBelowSensors,SEEK_CUR);
 
         nodeTop->ListActuatorsByType = malloc(sizeof(int)*nodeTop->numberOfBelowActuators);
         fread(nodeTop->ListActuatorsByType,sizeof(int),nodeTop->numberOfBelowActuators,output_file);
@@ -172,7 +172,7 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
         fseek(output_file,sizeof(int)*st,SEEK_CUR);
 
         wanTop->ListSensorsByType = NULL;
-        fseek(output_file,sizeof(int)*wanTop->numberOfBelowSensors,SEEK_CUR);
+        //fseek(output_file,sizeof(int)*wanTop->numberOfBelowSensors,SEEK_CUR);
 
         wanTop->ListActuatorsByType = malloc(sizeof(int)*wanTop->numberOfBelowActuators);
 
@@ -205,7 +205,7 @@ Element_topology ** parseBinaryElementTopology(int id, int numElements){
         fseek(output_file,sizeof(int)*st,SEEK_CUR);
 
         lanTop->ListSensorsByType = NULL;
-        fseek(output_file,sizeof(int)*lanTop->numberOfBelowSensors,SEEK_CUR);
+        //fseek(output_file,sizeof(int)*lanTop->numberOfBelowSensors,SEEK_CUR);
 
         lanTop->ListActuatorsByType = malloc(sizeof(int)*lanTop->numberOfBelowActuators);
 

@@ -293,7 +293,7 @@ int main()
       }
     }
   }
-  /*
+
   for(int i = 0; i < totalElements; i++){
     Element_topology * temp_lpt =  getLPTopology(totTop,i);
     int numLowers = getNumberLower(temp_lpt);
@@ -314,10 +314,10 @@ int main()
     }
 
   }
-  */
+  
 
   destroyTotalTopology(totTop);
-
+/*
   for(int i = 0; i < totalElements; i++){
     int intero;
     char file_name[] = "bin/lp";
@@ -334,5 +334,5 @@ int main()
     //printf("%d \n",type);
     fclose(output_file);
   }
-
+*/
 }

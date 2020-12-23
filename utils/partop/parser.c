@@ -333,6 +333,7 @@ lp_topology * getLPtopoogy(char * path){
   for(int i = 0; i < numberOfElements; i++){
     ElementToLP[i].id = i;
     ElementToLP[i].content = EleToLP[i];
+    valid+=1;
   }
 
   //idmap* ElementToLP = create_idmap(idArray,EleToLP,numberOfElements,&valid);

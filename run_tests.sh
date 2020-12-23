@@ -62,7 +62,7 @@ unique_topologies_location="yes"
 unique_topologies_path="$(realpath ..)/test/topologies"
 
 #this is the list of paths to the topology config files, if there is a unique folder this array can contain only the topology file basepath and not the camplete path to each file.
-topology_list=("2-4-8-16.txt")
+topology_list=("UseCase0.txt")
 
 # this is the list of catalogs which will be accessed to get the elements information for each topology, it is used only if there is no unique catalog. Thus, the number of entries in this list must be the exact number of entries of the topology_list
 catalog_list=("$(realpath ..)/test/catalog")
@@ -248,11 +248,12 @@ for seed in ${seed_list[@]}; do
 									echo "$BEGIN"
 
 									#we execute the test
-									script -a -e -q -O $output/test_esit.log -c "$parent_cmd $test_cmd"
+									script -a -e -q $output/test_esit.log -c "$parent_cmd $test_cmd"
 									err=$?
+									echo $err
 									DATE_END="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
 									#test is considered complete if there is no error
-									if [[ $err < 128 ]]; then
+									if [[ $err != 0 ]]; then
 										#we save the completion time and we log the successful completion
 										end_log="$END at $DATE_END"
 										echo -e "$end_log\n\n" >> $LOG_FILE
