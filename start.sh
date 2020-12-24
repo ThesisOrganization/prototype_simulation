@@ -31,8 +31,8 @@ do
 		topology_path=${arg#"--top="}
 	elif [[ $arg == "-g" || $arg == "--generator" ]]; then
 		targets[${#targets[@]}]="generator"
-	elif [[ $arg == "-a" || $arg == "--analytical_model" ]]; then
-		targets[${#targets[@]}]="analytical model"
+	elif [[ $arg == "-a" || $arg == "--analytical-model" ]]; then
+		targets[${#targets[@]}]="analytical"
 	elif [[ $arg == "-s" || $arg == "--simulation" ]]; then
 		targets[${#targets[@]}]="simulation"
 		sim_options+="--run-complete "
@@ -42,13 +42,13 @@ do
 		targets[${#targets[@]}]="all"
 		options="all"
 		sim_options+="--run-complete "
-	elif [[ ${arg:0:29} == "--redir_compilation_messages=" ]]; then
-		make_redirect=">>${arg#"--redir_compilation_messages="} 2>&1"
+	elif [[ ${arg:0:29} == "--redir-compilation-messages=" ]]; then
+		make_redirect=">>${arg#"--redir-compilation-messages="} 2>&1"
 		sim_options+="$arg "
 	elif [[ ${arg:0:6} == "--cat=" ]]; then
 		catalog_path=${arg#'--cat='}
-	elif [[ ${arg:0:17} == "--lp_aggregation=" ]]; then
-		lp_aggregation="--lp_aggregation_criteria=${arg#"--lp_aggregation="}"
+	elif [[ ${arg:0:17} == "--lp-aggregation=" ]]; then
+		lp_aggregation="--lp_aggregation_criteria=${arg#"--lp-aggregation="}"
 	elif [[ ${arg:0:6} == "--out=" ]]; then
 		output_location=${arg#'--out='}
 		sim_options+=$arg
@@ -168,7 +168,7 @@ for target in ${targets[@]}; do
 		fi
 		echo "Done."
 	fi
-	if [[ $target == "all" || $target == "analytical model" ]]; then
+	if [[ $target == "all" || $target == "analytical" ]]; then
 		echo "Starting analytical model computation..."
 		eval LOCATION="$output_location" make -C model_computation $make_redirect
 		err=$?
@@ -194,6 +194,7 @@ for target in ${targets[@]}; do
 		cd ..
 		if [[ $err != 0  ]]; then
 			echo "Error during model simulation, aborting."
+			echo $err
 			exit $err
 		fi
 		echo "Done."

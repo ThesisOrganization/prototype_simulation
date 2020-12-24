@@ -19,6 +19,7 @@ seed=""
 timeout=""
 output_location="../tree_simulator_bin"
 make_redirect=""
+real_time_timeout=-1
 
 for arg
 do
@@ -46,13 +47,13 @@ do
 		threads_less_than_lps="yes"
 	elif [[ ${arg,,} == "--sched=rr" ]]; then
 		opt_make+="SCHED_RR=1 "
-	elif [[ ${arg:0:16} == "--sim_processing" ]]; then
+	elif [[ ${arg:0:16} == "--sim-processing" ]]; then
 		opt_make+="SIM_PROC=1 "
 		if [[  ${arg:17} > 0 ]]; then
 			opt_make+="SIM_PROC_MULTI=${arg:17} "
 		fi
-	elif [[ ${arg:0:29} == "--redir_compilation_messages=" ]]; then
-		make_redirect=" >>${arg#"--redir_compilation_messages="} 2>&1"
+	elif [[ ${arg:0:29} == "--redir-compilation-messages=" ]]; then
+		make_redirect=" >>${arg#"--redir-compilation-messages="} 2>&1"
 	elif [[ ${arg:0:7} == "--seed=" ]]; then
 		echo ${arg#"--seed="} > ~/.rootsim/numerical.conf
 		seed="--deterministic-seed"
@@ -64,8 +65,10 @@ do
 		output_location=${arg#'--out='}
 	elif [[ ${arg:0:10} == "--timeout=" ]]; then
 		timeout=${arg#"--timeout="}
-		timeout_rootsim="--simulation-time $timeout"
 		timeout_use=$timeout
+		real_time_timeout=$timeout
+	elif [[ ${arg:0:21} == "--simulation-timeout=" ]]; then
+		timeout_rootsim="--simulation-time $timeout"
 		timeout_neurome="--time=$timeout"
 	elif [[ $arg == "--all-sim" ]]; then
 		sim_name="all"
@@ -96,6 +99,9 @@ elif [ "$dbg_arg" == "gdb" ]; then
 		dbg_param="gdb --args"
 fi
 
+if [[ $sim_name != "USE" ]]; then
+	opt_make+="REAL_TIMEOUT=$real_time_timeout"
+fi
 
 if [[ ${#targets[@]} > 1 && $options == "all" ]]; then
 	echo -e "ERROR: --run-complete and other execution options specified, use ONLY --run-complete or -c or -e."
@@ -129,7 +135,7 @@ The binary data for each LP in the \"bin\", \"bin/gentop\" and \"bin/lptop\" fol
 	echo -e "The execution can be customized with some arguments:\n
 	\n General options:\n
 \"-q --quiet\": disable this message\n
-\"--redir_compilation_messages=[path to file]\": redirect compilation messages to a file which will be used in append.
+\"--redir-compilation-messages=[path to file]\": redirect compilation messages to a file which will be used in append.
 \"clean\": remove all products of compilation and execution, leaving only the source files\n
 \nSimulator options:\n
 \"USE\": choose USE as the simulator\n
@@ -143,11 +149,12 @@ The binary data for each LP in the \"bin\", \"bin/gentop\" and \"bin/lptop\" fol
 \"--run-complete\": Compile and run the model with the chosen simulator\n
 \nExecution tweaks:\n
 \"--threads-less-than-lps\": Ties the number of threads for parallel execution to be less or equal to the number of LPs, otherwise the simulation will be aborted with error code 150.\n
-\"--timeout=[number]\": for USE it represente the number of seconds after which the simulation must be stopped. For ROOT-Sim instead it represents the logical virtual time after which the simulation must be stopped.
+\"--timeout=[number]\": the number of seconds after which the simulation must be stopped (In ROOT-Sim and NeuRome this will alter the ongvt, since there is no way to stop the simulation after a certain amount of seconds).\n
+\"--simulation-timeout=[number]\" Only for ROOT-Sim and NeuRome, it represents the logical virtual time after which the simulation must be stopped.\n
 \"--seed=\":defines the seed to be used during the simulation.\n
 \"--sched=[RR,FIFO]\": choose the scheduler type, the default is FIFO.\n
 \"--preempt\": enable preemption of task, using as time slice for each node the smallest service time.\n
-\"--sim_processing=[loops]\": activate the simulation of the message processing (via busy wait), the \"loops\" parameter is optional and should b ea power of 10 since it represents the number which will multiplicate the service time (or the time slice if the preemption is enabled) to determine how many cycles the busy wait will last. Default value is 100.\n
+\"--sim-processing=[loops]\": activate the simulation of the message processing (via busy wait), the \"loops\" parameter is optional and should b ea power of 10 since it represents the number which will multiplicate the service time (or the time slice if the preemption is enabled) to determine how many cycles the busy wait will last. Default value is 100.\n
 \"gdb\" run the program under gdb (this will make a temporary modification to the makefile, adding -g  and -O0 to the compiler options)\n
 \"valgrind\": run the program under valgrind (this will make a temporary modification to the makefile, adding -g to the compiler options)\n
 \"--lp=\": specify the number of LPs, if this argument is not provided the number of LPs will be determined from \"LP.txt\"\n

@@ -1,5 +1,6 @@
 #include "./simulation.h"
 #include <string.h>
+#include<time.h>
 
 char topology_path[] = "./topology.txt";
 char file_name[] = "lp_data/lp";
@@ -166,6 +167,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			//a safe memset to obtain a clean starting state
 			memset(state,0,sizeof(lp_state));
 			SetState(state);
+			state->start_simulation_timestamp=time(NULL);
 			state->lp_enabled = LP_SETUP;
 			setup(me,state,n_prc_tot);
 			break;

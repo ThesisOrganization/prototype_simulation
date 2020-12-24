@@ -8,25 +8,25 @@
 # when using paths consider the realpath command to resolve relative paths
 
 #if you want to run a program (for example timeout) in which the script must be executed the tou can set it up here. te content of this varaible vill be executed before the script, it's jour job to insert ; && or & and so on to ensure that averything works.
-parent_cmd=""
+parent_cmd="../test/utils/timeout/timeout -m 14000000"
 
 # this variables is used to determine the location of the folder which contains the start.sh script which will be executed to start each test
 script_location=$(realpath .)
 
 # this variable will be used to redirect compilation messages to a file, possible a values are "" to turn off redirection or the path to the file.
-redir_compilation="/dev/null"
+redir_compilation="" #"/dev/null"
 
 # the base directory where all the executed tests can be found (separated by the topology name)
 output_base_dir="$(realpath ..)/test/model_tests"
 
 #customize the test execution, targets must separated by spaces. Available values: all, -g, -a, -s, -r. Refer to the start.sh help message for info. (all must be used by itself, without other targets)
-script_target="all"
+script_target="-g -a -s"
 
-#timeout argument for USE (in seconds). -1 means no timeout
-timeout_use="-1"
+#timeout argument in seconds. -1 means no timeout
+real_timeout="-1"
 
-#timeout argument for ROOT-Sim and NeuRome (in logical virtual time). -1 means no timeout
-timeout_rootsim="-1"
+#timeout argument in logical virtual time. -1 means no timeout
+timeout_lvt="-1"
 
 # 0 is for pure serial execution, while 1 is for parallel configuration but with one working thread
 thread_list=("0") # ("0" "2" "5" "10" "20" "30" "40")
@@ -38,7 +38,7 @@ threads_less_than_lps="no"
 seed_list=("1996")
 
 # yes means default configuration for simulation of message processing
-sim_processing_options=("no") # ("no" "yes" "10000")
+sim_processing_options=("no") #("no" "yes" "10000")
 
 scheduler_options=("FIFO") # ("FIFO" "RR")
 
@@ -47,7 +47,7 @@ preemption_options=("no") # ("no" "yes")
 simulator_list=("ROOT-Sim") # ("USE" "ROOT-Sim" "NeuRome")
 
 # currently available choices are central, local, regional and lan, refer to the documentation of utils/partop/header:lp_aggregation_criteria for details.
-lp_aggregation=("central") # ("central" "regional" "local" "lan")
+lp_aggregation=("central") #("central" "regional" "local" "lan")
 
 #to run test we need a catalog entry in the catalog_list for each element in the topology_list, if you want to use a unique catalog for each test set the following variable to "yes", otherwise set it to "no"
 unique_catalog_location="yes"
@@ -88,7 +88,7 @@ BEGIN_SESSION="START SESSION AT $SESSION_DATE with $num_tests tests"
 END_SESSION="COMPLETED SESSION $SESSION_DATE"
 
 if [[ $redir_compilation != "" ]]; then
-	redir_compilation_arg="--redir_compilation_messages=$redir_compilation"
+	redir_compilation_arg="--redir-compilation-messages=$redir_compilation"
 else
 	redir_compilation_arg=""
 fi
@@ -139,19 +139,19 @@ for seed in ${seed_list[@]}; do
 
 	simulator_arg=${simulator_arg,,}
 	simulator_arg=${simulator_arg//'-'/''}
-	if [[ $simulator_arg == "rootsim" || $simulator_arg == "neurome" ]] && [[ $timeout_rootsim != "-1" ]]; then
-		timeout=$timeout_rootsim
-		timeout_arg="--timeout=$timeout_rootsim"
-	elif [[	$simulator_arg == "use" && $timeout_use != "-1" ]]; then
-		timeout_arg="--timeout=$timeout_use"
-		timeout=$timeout_use
+	if [[ $timeout_lvt != "-1" ]]; then
+		timeout=$timeout_lvt
+		timeout_arg="--simulation-timeout=$timeout_lvt"
+	elif [[	$real_timeout != "-1" ]]; then
+		timeout_arg="--timeout=$real_timeout"
+		timeout=$real_timeout
 	else
 		timeout_arg=""
 		timeout="none"
 	fi
 
 		for lp_aggr_choice in ${lp_aggregation[@]}; do
-			lp_aggr_arg="--lp_aggregation=$lp_aggr_choice"
+			lp_aggr_arg="--lp-aggregation=$lp_aggr_choice"
 
 			for thread_num in ${thread_list[@]}; do
 				if [[ $thread_num == "0" ]]; then
@@ -179,9 +179,9 @@ for seed in ${seed_list[@]}; do
 							if [[ $sim_processing_choice == "no" ]]; then
 								sim_processing_arg=""
 							elif [[ $sim_processing_choice == "yes" ]]; then
-								sim_processing_arg="--sim_processing"
+								sim_processing_arg="--sim-processing"
 							else
-								sim_processing_arg="--sim_processing=$sim_processing_choice"
+								sim_processing_arg="--sim-processing=$sim_processing_choice"
 							fi
 
 							for ((topology_id=0; topology_id < ${#topology_list[@]}; topology_id++)); do
@@ -239,6 +239,7 @@ for seed in ${seed_list[@]}; do
 									echo -e "Test $test_num  of $num_tests with topology $topology_name already completed, SKIPPED.\n\n" >> $LOG_FILE
 									num_tests_skipped=$(( num_tests_skipped + 1 ))
 								fi
+								test_result="failed"
 								while [[ $(tail -n 1 $output/test_esit.log | grep -c -e "^$END.*\$") == 0 ]]; do
 									BEGIN="BEGIN test $test_num of $num_tests with topology $topology_name:.............$DATE_BEGIN"
 									# we log the beginning of the test
@@ -253,13 +254,14 @@ for seed in ${seed_list[@]}; do
 									echo $err
 									DATE_END="$(date +%d)/$(date +%m)/$(date +%Y) - $(date +%H):$(date +%M):$(date +%S)"
 									#test is considered complete if there is no error
-									if [[ $err != 0 ]]; then
+									if [[ $err == 0 ]]; then
 										#we save the completion time and we log the successful completion
 										end_log="$END at $DATE_END"
 										echo -e "$end_log\n\n" >> $LOG_FILE
 										echo -e "$end_log" >> $output/test_esit.log
 										echo -e "$end_log\n\n"
 										num_tests_completed=$(( num_tests_completed + 1 ))
+										test_result="completed"
 									else
 										error_log="test $topology_name FAILED at $DATE_END with error code $err"
 										echo -e "$error_log\n\n" >> $output/test_esit.log
@@ -268,7 +270,7 @@ for seed in ${seed_list[@]}; do
 									fi
 									NUM_RETRIES=$((NUM_RETRIES + 1))
 									#if we exceeded the maximum allowed tentatives we skip the test and proceed further.
-									if [[ $NUM_RETRIES -ge $MAX_RETRY ]]; then
+									if [[ $NUM_RETRIES -ge $MAX_RETRY ]] && [[ $test_result == "failed" ]]; then
 										ERR_RETRY="MAX RETRY ($MAX_RETRY) reached! SKIPPING"
 										echo -e "$ERR_RETRY\n\n"
 										echo -e "$ERR_RETRY\n\n" >> $LOG_FILE

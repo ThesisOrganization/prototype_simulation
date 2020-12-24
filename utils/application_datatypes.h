@@ -5,7 +5,7 @@
 #include "idmap/idmap.h"
 #include "partop/partop_datatypes.h"
 #include "priority_scheduler/priority_scheduler_datatypes.h"
-
+#include <time.h>
 //#############################################
 //APPLICATION DATA
 //#############################################
@@ -218,6 +218,7 @@ typedef struct _state {
 	int num_devices;
 	general_topology* general_topology;
 	idmap* element_to_index;
+	time_t start_simulation_timestamp;
 } lp_state;
 
 

@@ -53,6 +53,9 @@ endif
 else
 OPTS:= $(OPTS) -DSIM_PROCESSING=0 -DSIM_PROCESSING_MULTIPLIER=0
 endif
+ifdef REAL_TIMEOUT
+OPTS := $(OPTS) -DREAL_TIMEOUT=$(REAL_TIMEOUT)
+endif
 
 all: rootsim use neurome
 
