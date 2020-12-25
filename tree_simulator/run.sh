@@ -20,6 +20,8 @@ timeout=""
 output_location="../tree_simulator_bin"
 make_redirect=""
 real_time_timeout=-1
+checkpoint_period_rootsim=""
+checkpoint_period_use=""
 
 for arg
 do
@@ -68,8 +70,12 @@ do
 		timeout_use=$timeout
 		real_time_timeout=$timeout
 	elif [[ ${arg:0:21} == "--simulation-timeout=" ]]; then
+		timeout=${arg#--simulation-timeout=}
 		timeout_rootsim="--simulation-time $timeout"
 		timeout_neurome="--time=$timeout"
+	elif [[ ${arg:0:20} == "--checkpoint-period=" ]]; then
+		checkpoint_period_rootsim="--p ${arg#"--checkpoint-period="}"
+		checkpoint_period_use="ck=${arg#"--checkpoint-period="}"
 	elif [[ $arg == "--all-sim" ]]; then
 		sim_name="all"
 	else
@@ -153,6 +159,7 @@ The binary data for each LP in the \"bin\", \"bin/gentop\" and \"bin/lptop\" fol
 \"--simulation-timeout=[number]\" Only for ROOT-Sim and NeuRome, it represents the logical virtual time after which the simulation must be stopped.\n
 \"--seed=\":defines the seed to be used during the simulation.\n
 \"--sched=[RR,FIFO]\": choose the scheduler type, the default is FIFO.\n
+\"--checkpoint-period=[number]:\" allows to specify after how mani events a checkpoint must be taken, if not specified this will be decided by the simulation platform. Cannot be used with neurome\n
 \"--preempt\": enable preemption of task, using as time slice for each node the smallest service time.\n
 \"--sim-processing=[loops]\": activate the simulation of the message processing (via busy wait), the \"loops\" parameter is optional and should b ea power of 10 since it represents the number which will multiplicate the service time (or the time slice if the preemption is enabled) to determine how many cycles the busy wait will last. Default value is 100.\n
 \"gdb\" run the program under gdb (this will make a temporary modification to the makefile, adding -g  and -O0 to the compiler options)\n
@@ -236,10 +243,10 @@ for target in ${targets[@]}; do
 			cd $output_location
 				if [[ $run_type == "parallel" ]]; then
 						echo "Parallel execution with $working_threads threads."
-						$dbg_param ./simulation_rootsim --wt $working_threads --lp $number_lp $seed $timeout_rootsim
+						$dbg_param ./simulation_rootsim --wt $working_threads --lp $number_lp $seed $timeout_rootsim $checkpoint_period_rootsim
 					else
 						echo "Serial execution."
-                        $dbg_param ./simulation_rootsim --sequential --lp $number_lp $seed $timeout_rootsim
+                        $dbg_param ./simulation_rootsim --sequential --lp $number_lp $seed $timeout_rootsim $checkpoint_period_rootsim
 					fi
 				err=$?
 				if [[ $err != 0  ]]; then
@@ -259,7 +266,7 @@ for target in ${targets[@]}; do
 		if [[ $sim_name == "USE" || $sim_name == "all" ]]; then
 			if [[ $target == "all" || $target == "compile" ]]; then
 				echo "Compiling model..."
-				eval make LOCATION=$output_location $opt_make $dbg_make use $make_redirect
+				eval make LOCATION=$output_location $opt_make $dbg_make $checkpoint_period_use use $make_redirect
 				err=$?
 				if [[ $err != 0  ]]; then
 					echo "Error during compilation of model, aborting."

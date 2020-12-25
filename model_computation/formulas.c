@@ -17,6 +17,7 @@ typedef enum _graph_visit_type {
 	GRAPH_COMPUTE_RATES=0, ///< This visit will compute all the paramters for telemetry, transition and batch send messages
 	GRAPH_COMPUTE_COMMANDS, ///< This visit will compute the parameters for command messages.
 	GRAPH_PRINT_DATA, ///< This visit will print the computed parameters on the output file and free memory.
+	GRAPH_CLEANUP,
 	NUM_GRAPH_VISITS ///< total number of visits __KEEP THIS AT LAST POSITION__.
 } graph_visit_type;
 
@@ -390,7 +391,44 @@ void print_json(node_data* node,FILE* out){
 	fprintf(out,"\"id\" : %d,",node->node_id);
 	//we print node type
 	fprintf(out,"\"type\" : \"%s\",",node->type);
+	int father_id=-1;
+	node_data *tmp=node;
+	if(node->father!=NULL){
+		father_id=node->father->node_id;
+		while(tmp!=NULL && getType(tmp->father->top)==WAN){
+			tmp=tmp->father;
+			father_id=tmp->father->node_id;
+		}
+	}
+	fprintf(out,"\"father\" : %d,",father_id);
 
+	fprintf(out,"\"childrens\":[");
+	int i,j;
+	//we avoid printing sensors and wans as childrens since they do not hold any useful data (was are delays and sensors cannot be separated from lans)
+	for(i=0;i<node->num_childrens;i++){
+		tmp=node->childrens[i];
+		if(tmp!=NULL && getType(tmp->top)==WAN){
+			for(j=0;j<tmp->num_childrens;j++){
+				if(tmp!=NULL && getType(tmp->childrens[j]->top)!=SENSOR){
+					fprintf(out,"%d",tmp->childrens[j]->node_id);
+					if(j<tmp->num_childrens-1){
+						fprintf(out,",");
+					}
+				}
+			}
+			if(i<node->num_childrens-1){
+				fprintf(out,",");
+			}
+		}else {
+			if(tmp!=NULL && getType(tmp->top)!=SENSOR){
+				fprintf(out,"%d",tmp->node_id);
+				if(i<node->num_childrens-1){
+					fprintf(out,",");
+				}
+			}
+		}
+	}
+	fprintf(out,"],");
 	//we now print the parameters accordingly with the node type
 	switch(getType(node->top)){
 		case SENSOR:
@@ -459,7 +497,7 @@ int* find_nodes_to_visit(Element_topology* elTop,int* num_lowers){
 	int *lans=getLANS(elTop);
 	// the array below is used to visit the lower nodes will be terminated by -1
 	int *lowers=NULL;
-	//when both the number of node and lans is not 0 we need to detect duplicates before exploring the subtrees to avoid doinf the same computation multiple times
+	//when both the number of node and lans is not 0 we need to detect duplicates before exploring the subtrees to avoid doing the same computation multiple times
 	lowers=malloc(sizeof(int)*(num_lans+num_nodes+1));
 	memset(lowers,-1,sizeof(int)*(num_lans+num_nodes+1));
 	if(num_lans>0 && num_nodes>0){
@@ -1052,6 +1090,8 @@ void graph_visit(node_data* data,Element_topology ** elTop,graph_visit_type visi
 				}
 			}
 		}
+	}
+	if(visit_type==GRAPH_CLEANUP){
 		free_node_data(data);
 	}
 }
@@ -1112,6 +1152,7 @@ int main(int argc, char** argv){
 	graph_visit(central,elTop,GRAPH_COMPUTE_COMMANDS,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
 	//3rd visit, to print results
 	graph_visit(central,elTop,GRAPH_PRINT_DATA,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
+	graph_visit(central,elTop,GRAPH_CLEANUP,out_tex,out_json,order,central->node_id,getProbOfActuators(genTop),getNumberOfActTypes(genTop),getNumberOfSensTypes(genTop));
 	free(central);
 	//fprintf(out_tex,"\\end{document}");
 	fprintf(out_json,"]");

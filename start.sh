@@ -17,6 +17,8 @@ initial_location=$(pwd)
 options=""
 lp_aggregation="--lp_aggregation_criteria=regional"
 make_redirect=""
+checkpoint_interval=""
+working_threads=""
 
 for arg
 do
@@ -34,6 +36,8 @@ do
 		targets[${#targets[@]}]="generator"
 	elif [[ $arg == "-a" || $arg == "--analytical-model" ]]; then
 		targets[${#targets[@]}]="analytical"
+	elif [[ $arg == "-o" ]]; then
+		targets[${#targets[@]}]="optimize"
 	elif [[ $arg == "-s" || $arg == "--simulation" ]]; then
 		targets[${#targets[@]}]="simulation"
 		sim_options+="--run-complete "
@@ -93,6 +97,7 @@ if [[ $quiet == "no" || $error == "yes" ]]; then
 \"clean\": remove all the products of a previous run, including the output location and all object files.
 \n Execution options\n
 \"-g\": generate only the topology files\n
+\"-o\":optimize simulation performance\n
 \"-a\": only run the analytical model\n
 \"-s\": run only the simulation model\n
 \"-r\": create only the pdf with the results\n
@@ -186,6 +191,75 @@ for target in ${targets[@]}; do
 			exit $err
 		fi
 		echo "Done."
+	fi
+	if [[ $target == "all" || $target == "optimize" ]]; then
+		mkdir -p $output_location/perf_traces/parallel
+		mkdir -p $output_location/perf_traces/serial
+		mkdir -p $output_location/perf_traces/bin
+		mkdir -p $output_location/perf_traces/bin/gentop
+		mkdir -p $output_location/perf_traces/bin/lptop
+		ln -P $output_location/LP.txt -t $output_location/perf_traces
+		ln -P $output_location/topology.txt -t $output_location/perf_traces
+		ln -P $output_location/bin/lp*.bin -t $output_location/perf_traces/bin
+		ln -P $output_location/bin/lptop/* -t $output_location/perf_traces/bin/lptop
+		ln -P $output_location/bin/gentop/* -t $output_location/perf_traces/bin/gentop
+		sim_options=${sim_options/--out=$output_location/}
+		sim_options=${sim_options/--wt=[0-9]*/}
+		sim_options=${sim_options/parallel/}
+		sim_options=${sim_options/serial/}
+		sim_options=${sim_options/--checkpoint-period=[0-9]/}
+		sim_options=${sim_options/--run-complete/}
+
+		if [[ $sim_name == "USE" ]]; then
+			timeout="--timeout=5"
+		else
+			timeout="--simulation-timeout=1000"
+		fi
+
+		cd $initial_location/tree_simulator
+		bash run.sh -q $sim_name $timeout -c -e --redir-compilation-messages=/dev/null $sim_options serial --out=$output_location/perf_traces
+		err=$?
+		if [[ $err != 0 ]]; then
+			echo Error during serial model tracing aborting
+			rm -r $output_location/perf_traces
+			exit $err
+		fi
+		if [[ $sim_name == "USE" ]]; then
+			mv $output_location/perf_traces/USE_output.txt $output_location/perf_traces/serial/USE_output.txt
+		else
+			mkdir -p $output_location/perf_traces/serial/outputs
+			mv $output_location/perf_traces/outputs/sequential_stats $output_location/perf_traces/serial/outputs/sequential_stats
+		fi
+		bash run.sh -q $sim_name $timeout -c -e $sim_options parallel --wt=$(nproc) --redir-compilation-messages=/dev/null --out=$output_location/perf_traces
+		err=$?
+		if [[ $err != 0 ]]; then
+			echo Error during parallel model tracing aborting
+			rm -r $output_location/perf_traces
+			exit $err
+		fi
+		if [[ $sim_name == "USE" ]]; then
+			mv $output_location/perf_traces/USE_output.txt $output_location/perf_traces/parallel/USE_output.txt
+		else
+			mkdir -p $output_location/perf_traces/parallel/outputs
+			mv $output_location/perf_traces/outputs/execution_stats $output_location/perf_traces/parallel/outputs/execution_stats
+		fi
+		rm -r $output_location/perf_traces/bin $output_location/perf_traces/LP.txt $output_location/perf_traces/topology.txt
+		cd $initial_location
+		cd utils/tuning
+		python3 sim_optimize.py $sim_name $output_location $output_location $output_location $output_location/perf_traces/serial $output_location/perf_traces/parallel
+		cd $initial_location
+
+		opt_params=$(cat $output_location/sim_config.json)
+		threads=${opt_params#*\"Chosen_threads\":}
+		threads=${threads/"}"/}
+		ckp_period=${opt_params#*\"Checkpoint_period_opt\":}
+		ckp_period=${ckp_period/,*/}
+		if [[ $threads > 1 ]]; then
+			t_arg="parallel --wt=$threads"
+		else
+			t_arg="serial"
+		fi
+		sim_options+=" --run-complete --out=$output_location $t_arg --checkpoint-period=$ckp_period"
 	fi
 	if [[ $target == "all" || $target == "simulation" ]]; then
 		echo "Starting simulation..."
