@@ -1,4 +1,5 @@
 #!/bin/bash
+source .venv/edgecomputing/bin/activate
 
 run_type="serial"
 sim_name=""

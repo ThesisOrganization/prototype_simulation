@@ -3,7 +3,7 @@ quiet="no"
 PREFIX=$PWD
 ROOTSIM_ARGS=""
 NeuRome_args=""
-sim_name="all"
+target="all"
 debugging="no"
 for arg
 do
@@ -29,19 +29,23 @@ do
 	fi
 	arg=${arg//'-'/''}
 	if [[ ${arg,,} == "rootsim" ]]; then
-		sim_name="ROOT-Sim"
+		target="ROOT-Sim"
 	fi
 	if [[ ${arg,,} == "use" ]]; then
-		sim_name="USE"
+		target="USE"
 	fi
 	if [[ ${arg,,} == "rootsim3" || ${arg,,} == "neurome" ]]; then
-		sim_name="NeuRome"
+		target="NeuRome"
+	fi
+	if [[ ${arg} == "python" ]];then
+		target=$arg
 	fi
 done
 
 if [[ $quiet == "no" ]]; then
-	echo "This script will download and setup ROOT-Sim, USE and NeuRome simulators for the current machine"
+	echo "This script will download and setup ROOT-Sim, USE and NeuRome simulators for the current machine, ina ddition in will create a virtual ypthon environment called edgecomputing inside the .venv folder to hold al the necessary python libraries"
 	echo "A single simulator can be chosen by passing its name (ROOT-Sim, USE or NeuRome/ROOT-Sim3) as an argument, by default this script will setup all of them."
+	echo "You can choose to execute only the virtual environment setup by using th \"python\" argument."
 	echo "The simulators will be found in the \"./Simulators\" folder, according to the simulator name and type of installation."
 	echo -e "When setting up ROOT-Sim some arguments can be used to customize the installation:\n
 	 \"debug\": enable debug symbols\n
@@ -58,7 +62,7 @@ fi
 
 echo "Starting setup and installation in the Simulators folder."
 mkdir -p Simulators
-if [[ $sim_name == "all" || $sim_name == "ROOT-Sim" ]]; then
+if [[ $target == "all" || $target == "ROOT-Sim" ]]; then
 	echo "Setting up ROOT-Sim"
 	echo "We assume to have all the prerequisites installed (git,autotools, autoconf, automake, make, gcc and libtoolize)."
 
@@ -77,7 +81,7 @@ if [[ $sim_name == "all" || $sim_name == "ROOT-Sim" ]]; then
 	echo -e $header > Simulators/ROOT-Sim-bin/include/compatibility.h
 	echo "done"
 fi
-if [[ $sim_name == "all" || $sim_name == "USE" ]]; then
+if [[ $target == "all" || $target == "USE" ]]; then
 	echo "Setting up USE"
 	echo "Needed dependencies: libcap2, libcap-dev, g++, gcc, gdb, make, libnuma-dev, git, time, linux-tools-`uname -r`, linux-cloud-tools-`uname -r`"
 
@@ -93,7 +97,7 @@ if [[ $sim_name == "all" || $sim_name == "USE" ]]; then
 	echo -e $header > Simulators/USE/include/compatibility.h
 	echo "done"
 fi
-if [[ $sim_name == "all" || $sim_name == "NeuRome" ]]; then
+if [[ $target == "all" || $target == "NeuRome" ]]; then
 	echo "setting up NeuRome"
 	echo "We assume to have all the prerequisites installed (git,gcc>=8,meson)."
 
@@ -119,5 +123,11 @@ if [[ $sim_name == "all" || $sim_name == "NeuRome" ]]; then
 	#endif"
 	echo -e $header > Simulators/NeuRome-bin/include/compatibility.h
 	echo "done"
+fi
+if [[ $target == "all" || $target == "python" ]]; then
+	echo "setting up the required python environment, don't forget to run \"source .venv/edgecomputing/bin/activate\" before using our python scripts!"
+	python3 -m venv .venv/edgecomputing
+	source .venv/edgecomputing/bin/activate
+	python3 -m pip install -r python3-dependencies.txt
 fi
 echo "setup complete"
