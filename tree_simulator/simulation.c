@@ -166,8 +166,9 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 			state = malloc(sizeof(lp_state));
 			//a safe memset to obtain a clean starting state
 			memset(state,0,sizeof(lp_state));
+
+			state->start_simulation_timestamp=0;
 			SetState(state);
-			state->start_simulation_timestamp=time(NULL);
 			state->lp_enabled = LP_SETUP;
 			setup(me,state,n_prc_tot);
 			break;
@@ -245,6 +246,7 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 
 			}
 
+			state->start_simulation_timestamp=time(NULL);
 
 			break;
 
