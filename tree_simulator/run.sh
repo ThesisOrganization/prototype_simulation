@@ -41,6 +41,8 @@ do
 		dbg_make="clean"
 	elif [[ $arg == "--preempt" ]]; then
 		opt_make+="PREEMPT=1 "
+    elif [[ ${arg:0:22} == "--simulation_time_end=" ]]; then
+        opt_make+="SIMULATION_TIME_END=${arg:22} "
 	elif [[ $arg == "--threads-less-than-lps" ]]; then
 		threads_less_than_lps="yes"
 	elif [[ ${arg,,} == "--sched=rr" ]]; then

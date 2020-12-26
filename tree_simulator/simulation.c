@@ -67,7 +67,7 @@ unsigned int check_metrics(queue_state * queue_state, unsigned int bitmap, int m
 	int sum_arrived = 0;
 
 	//uncomment this to use a simulation time max decided a prior
-	//return 0;
+	return 0;
 
 	for(i=0; i < NUM_OF_JOB_TYPE; i++){
 		sum_arrived += queue_state->C[i];
@@ -540,13 +540,13 @@ void ProcessEvent(unsigned int me, simtime_t now, unsigned int event_type, void 
 void print_class_metrics(queue_state * queue_state, FILE * output_file, int i){
 
 	//all data here are averages
-	double T = queue_state->actual_timestamp_stable[i] - queue_state->start_timestamp[i];
-	double S = queue_state->B_stable[i] / queue_state->C_stable[i];
-	double R = queue_state->W_stable[i] / queue_state->C_stable[i];
+	double T = queue_state->actual_timestamp[i] - queue_state->start_timestamp[i];
+	double S = queue_state->B[i] / queue_state->C[i];
+	double R = queue_state->W[i] / queue_state->C[i];
 	//TODO: verify the N and U metrics with multiple cores
-	double N = (queue_state->W_stable[i] / queue_state->num_cores) / T;
-	double U = (queue_state->B_stable[i] / queue_state->num_cores) / T;
-	double lambda = queue_state->A_stable[i] / T;
+	double N = (queue_state->W[i] / queue_state->num_cores) / T;
+	double U = (queue_state->B[i] / queue_state->num_cores) / T;
+	double lambda = queue_state->A[i] / T;
 	//double X = queue_state->C_stable[i] / T;
 
 	if (isnan(S))
