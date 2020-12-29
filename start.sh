@@ -257,11 +257,11 @@ for target in ${targets[@]}; do
 			mv $output_location/perf_traces/outputs/execution_stats $output_location/perf_traces/parallel/outputs/execution_stats
 		fi
 		rm -r $output_location/perf_traces/bin $output_location/perf_traces/LP.txt $output_location/perf_traces/topology.txt
+		make clean > /dev/null #we remove all the traces of previous compilations
 		cd $initial_location
 		cd utils/tuning
 		echo "Executing optimization..."
 		python3 sim_optimize.py $sim_name $output_location $output_location $output_location $output_location/perf_traces/serial $output_location/perf_traces/parallel
-		make clean > /dev/null #we remove all the traces of previous compilations
 		cd $initial_location
 
 		opt_params=$(cat $output_location/sim_config.json)
