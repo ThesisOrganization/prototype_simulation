@@ -71,10 +71,10 @@ do
 		real_time_timeout=$timeout
 	elif [[ ${arg:0:21} == "--simulation-timeout=" ]]; then
 		timeout=${arg#--simulation-timeout=}
-		timeout_rootsim="--simulation-time $timeout"
+		timeout_rootsim="--simulation-time=$timeout"
 		timeout_neurome="--time=$timeout"
 	elif [[ ${arg:0:20} == "--checkpoint-period=" ]]; then
-		checkpoint_period_rootsim="--p ${arg#"--checkpoint-period="}"
+		checkpoint_period_rootsim="--p=${arg#"--checkpoint-period="}"
 		checkpoint_period_use="ck=${arg#"--checkpoint-period="}"
 	elif [[ $arg == "--all-sim" ]]; then
 		sim_name="all"
@@ -243,10 +243,10 @@ for target in ${targets[@]}; do
 			cd $output_location
 				if [[ $run_type == "parallel" ]]; then
 						echo "Parallel execution with $working_threads threads."
-						$dbg_param ./simulation_rootsim --wt $working_threads --lp $number_lp $seed $timeout_rootsim $checkpoint_period_rootsim
+						$dbg_param ./simulation_rootsim $checkpoint_period_rootsim --wt=$working_threads --lp=$number_lp $seed $timeout_rootsim
 					else
 						echo "Serial execution."
-                        $dbg_param ./simulation_rootsim --sequential --lp $number_lp $seed $timeout_rootsim $checkpoint_period_rootsim
+						$dbg_param ./simulation_rootsim $checkpoint_period_rootsim --sequential --lp=$number_lp $seed $timeout_rootsim
 					fi
 				err=$?
 				if [[ $err != 0  ]]; then

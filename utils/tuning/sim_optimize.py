@@ -193,6 +193,8 @@ for n_proc in range(2,num_lps+1):
 	if R < R_min and R>=0 or R_min < 0:
 		R_min=R
 		chosen_procs=n_proc
+		if ckp > 40:
+			ckp=40
 		checkpoint_period=ckp
 
 print(f"R {R_min} checkpoint period {checkpoint_period} threads {chosen_procs}")

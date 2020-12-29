@@ -193,6 +193,16 @@ for target in ${targets[@]}; do
 		echo "Done."
 	fi
 	if [[ $target == "all" || $target == "optimize" ]]; then
+		echo "Starting optimzation..."
+		usr_timeout=""
+		for opt in $sim_options; do
+			if [[ ${opt:0:10} == "--timeout=" ]]; then
+				usr_timeout=$opt
+			fi
+			if [[ ${opt:0:21} == "--simulation-timeout=" ]];then
+				usr_timeout=$opt
+			fi
+		done
 		mkdir -p $output_location/perf_traces/parallel
 		mkdir -p $output_location/perf_traces/serial
 		mkdir -p $output_location/perf_traces/bin
@@ -207,9 +217,10 @@ for target in ${targets[@]}; do
 		sim_options=${sim_options/--wt=[0-9]*/}
 		sim_options=${sim_options/parallel/}
 		sim_options=${sim_options/serial/}
-		sim_options=${sim_options/--checkpoint-period=[0-9]/}
+		sim_options=${sim_options/--checkpoint-period=[0-9]*/}
 		sim_options=${sim_options/--run-complete/}
-
+		sim_options=${sim_options/--simulation-timeout=[0-9]*/}
+		sim_options=${sim_options/--timeout=[0-9]*/}
 		if [[ $sim_name == "USE" ]]; then
 			timeout="--timeout=5"
 		else
@@ -217,6 +228,7 @@ for target in ${targets[@]}; do
 		fi
 
 		cd $initial_location/tree_simulator
+		echo "Getting serial trace..."
 		bash run.sh -q $sim_name $timeout -c -e --redir-compilation-messages=/dev/null $sim_options serial --out=$output_location/perf_traces
 		err=$?
 		if [[ $err != 0 ]]; then
@@ -230,6 +242,7 @@ for target in ${targets[@]}; do
 			mkdir -p $output_location/perf_traces/serial/outputs
 			mv $output_location/perf_traces/outputs/sequential_stats $output_location/perf_traces/serial/outputs/sequential_stats
 		fi
+		echo "Getting parallel trace..."
 		bash run.sh -q $sim_name $timeout -c -e $sim_options parallel --wt=$(nproc) --redir-compilation-messages=/dev/null --out=$output_location/perf_traces
 		err=$?
 		if [[ $err != 0 ]]; then
@@ -246,7 +259,9 @@ for target in ${targets[@]}; do
 		rm -r $output_location/perf_traces/bin $output_location/perf_traces/LP.txt $output_location/perf_traces/topology.txt
 		cd $initial_location
 		cd utils/tuning
+		echo "Executing optimization..."
 		python3 sim_optimize.py $sim_name $output_location $output_location $output_location $output_location/perf_traces/serial $output_location/perf_traces/parallel
+		make clean > /dev/null #we remove all the traces of previous compilations
 		cd $initial_location
 
 		opt_params=$(cat $output_location/sim_config.json)
@@ -259,7 +274,9 @@ for target in ${targets[@]}; do
 		else
 			t_arg="serial"
 		fi
-		sim_options+=" --run-complete --out=$output_location $t_arg --checkpoint-period=$ckp_period"
+		sim_options+=" --run-complete --out=$output_location $t_arg --checkpoint-period=$ckp_period $usr_timeout"
+		echo $sim_options
+		echo "Done."
 	fi
 	if [[ $target == "all" || $target == "simulation" ]]; then
 		echo "Starting simulation..."
