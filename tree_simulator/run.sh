@@ -220,6 +220,10 @@ for target in ${targets[@]}; do
 					working_threads=$number_lp
 				fi
 			fi
+			if [[ $working_threads -gt $(nproc) ]]; then
+				echo "number of threads ($working_threads) greater than number of processors ($(nproc)), adjusting to number of processors"
+				working_threads=$(nproc)
+			fi
 		fi
 
 		if [[ $sim_name == "ROOT-Sim" || $sim_name == "all" ]]; then

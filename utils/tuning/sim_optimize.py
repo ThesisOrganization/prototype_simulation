@@ -187,7 +187,7 @@ for n_proc in range(2,num_lps+1):
 	Pr_ub=compute_rollback_prob_upper_bound(alpha,delta,num_lps,n_proc)
 	UB_pl=compute_UB_pl(Pr_ub,delta,n_proc)
 	# we minimize R in respect to the checkpoint period
-	min_res=minimize_scalar(compute_R,bounds=[1,n_parallel_events],method='bounded',args=(Pr_ub,t_extract,t_out,t_r,t_ev,t_s,t_in,serial_cost,n_proc,UB_pl))
+	min_res=minimize_scalar(compute_R,bounds=[1,40],method='bounded',args=(Pr_ub,t_extract,t_out,t_r,t_ev,t_s,t_in,serial_cost,n_proc,UB_pl))
 	ckp=int(min_res.x)
 	R=compute_R(ckp,Pr_ub,t_extract,t_out,t_r,t_ev,t_s,t_in,serial_cost,n_proc,UB_pl)
 	if R < R_min and R>=0 or R_min < 0:
