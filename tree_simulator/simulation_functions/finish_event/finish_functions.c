@@ -217,7 +217,7 @@ static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state
 static void send_to_up_node(unsigned int id_device, simtime_t now, device_state  * state, double delay, job_info * info, double order_shift){
 	int up_node;
 #ifdef NO_CENTRAL
-	if GET_NODE_TYPE(state->topology == REGIONAL){
+	if(GET_NODE_TYPE(state->topology) == REGIONAL){
 		up_node = -1;
 	}else{
 		up_node = GET_UPPER_NODE(state->topology);
