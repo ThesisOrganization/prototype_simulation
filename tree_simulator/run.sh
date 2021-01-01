@@ -76,6 +76,8 @@ do
 	elif [[ ${arg:0:20} == "--checkpoint-period=" ]]; then
 		checkpoint_period_rootsim="--p=${arg#"--checkpoint-period="}"
 		checkpoint_period_use="ck=${arg#"--checkpoint-period="}"
+	elif [[ ${arg} == "--no-central" ]]; then
+		opt_make+="NO_CENTRAL=1"
 	elif [[ $arg == "--all-sim" ]]; then
 		sim_name="all"
 	else
@@ -157,6 +159,7 @@ The binary data for each LP in the \"bin\", \"bin/gentop\" and \"bin/lptop\" fol
 \"--threads-less-than-lps\": Ties the number of threads for parallel execution to be less or equal to the number of LPs, otherwise the simulation will be aborted with error code 150.\n
 \"--timeout=[number]\": the number of seconds after which the simulation must be stopped (In ROOT-Sim and NeuRome this will alter the ongvt, since there is no way to stop the simulation after a certain amount of seconds).\n
 \"--simulation-timeout=[number]\" Only for ROOT-Sim and NeuRome, it represents the logical virtual time after which the simulation must be stopped.\n
+\"--ignore-central\": do not simulate the central node.\n
 \"--seed=\":defines the seed to be used during the simulation.\n
 \"--sched=[RR,FIFO]\": choose the scheduler type, the default is FIFO.\n
 \"--checkpoint-period=[number]:\" allows to specify after how mani events a checkpoint must be taken, if not specified this will be decided by the simulation platform. Cannot be used with neurome\n

@@ -17,10 +17,10 @@ script_location=$(realpath .)
 redir_compilation="" #"/dev/null"
 
 # the base directory where all the executed tests can be found (separated by the topology name)
-output_base_dir="$(realpath ..)/test/model_tests"
+output_base_dir="$(realpath ..)/test/use_cases"
 
 #customize the test execution, targets must separated by spaces. Available values: all, -g, -a, -s, -r. Refer to the start.sh help message for info. (all must be used by itself, without other targets)
-script_target="-g -a -s"
+script_target="-g -a -o -s"
 
 #timeout argument in seconds. -1 means no timeout
 real_timeout="-1"
@@ -35,10 +35,10 @@ thread_list=("0") # ("0" "2" "5" "10" "20" "30" "40")
 threads_less_than_lps="no"
 
 #the list of seeds to be used. -1 is for no seed specified
-seed_list=("1996")
+seed_list=("-1")
 
 # yes means default configuration for simulation of message processing
-sim_processing_options=("no") #("no" "yes" "10000")
+sim_processing_options=("yes") #("no" "yes" "10000")
 
 scheduler_options=("FIFO") # ("FIFO" "RR")
 
@@ -67,8 +67,11 @@ topology_list=("UseCase0.txt")
 # this is the list of catalogs which will be accessed to get the elements information for each topology, it is used only if there is no unique catalog. Thus, the number of entries in this list must be the exact number of entries of the topology_list
 catalog_list=("$(realpath ..)/test/catalog")
 
+#if the central node must be ignored in the simulation (yes/no)
+ignore_central="yes"
+
 # the maximum number of retires to do when a test fails
-MAX_RETRY=2
+MAX_RETRY=1
 
 ########################################################################################################################
 #STARTING TESTS                                                                                                        #
@@ -220,7 +223,13 @@ for seed in ${seed_list[@]}; do
 									threads_less_than_lps_arg=""
 								fi
 
-								test_cmd="bash $script_location/start.sh -q $script_target $topology_arg $simulator_arg $execution_arg $thread_arg $scheduler_arg  $preemption_arg $sim_processing_arg $seed_arg $timeout_arg $lp_aggr_arg $threads_less_than_lps_arg $redir_compilation_arg $out_arg"
+								if [[ $ignore_central == "yes" ]]; then
+									ignore_central_arg="--no-central"
+								else
+									ignore_central_arg=""
+								fi
+
+								test_cmd="bash $script_location/start.sh -q $script_target $topology_arg $simulator_arg $execution_arg $thread_arg $scheduler_arg  $preemption_arg $sim_processing_arg $seed_arg $timeout_arg $lp_aggr_arg $threads_less_than_lps_arg $redir_compilation_arg $ignore_central_arg $out_arg"
 
 								# we create the test directory
 								mkdir -p $output

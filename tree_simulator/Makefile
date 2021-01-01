@@ -31,6 +31,10 @@ ifdef DBG
 CFLAGS:= $(CFLAGS) $(DBG_OPTS)
 endif
 
+ifdef NO_CENTRAL
+OPTS:=$(OPTS) -DNO_CENTRAL
+endif
+
 ifdef SCHED_RR
 OPTS:= $(OPTS) -DSCHEDULING_ROUND_ROBIN=1
 else

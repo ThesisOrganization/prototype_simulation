@@ -154,7 +154,7 @@ for line in f_lp:
 		for elem in elems:
 			elem=int(elem)
 			lp_list[elem]=lp_id
-
+f_lp.close()
 #we need to get some informations from the results of the analytical model
 f_model=open(args.model_res+"/model_res.json","r")
 model=json.load(f_model)
@@ -164,6 +164,7 @@ total_message_rate=jmespath.search("sum([].*.*.lambda_in[][])",model)
 #this node will contain the rate of the communication between two lps with the key "[lp1]-[lp2]", this key is not ordered, so also "[lp2]-[lp1]" could be found
 comms_dict={}
 visit_graph(0,comms_dict,lp_list,model)
+f_model.close()
 
 parallel_costs=get_Tev_parallel(args.simulator,args.parallel_run)
 t_extract=parallel_costs[0]
