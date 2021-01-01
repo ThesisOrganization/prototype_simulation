@@ -213,7 +213,7 @@ with open(args.topology_path+"/jsonAdditionalInfo.txt") as f:
     #stringAdditionalInfo+=lines[4]#WAN
     if lines[4].strip() == "REGIONALS":
         line_counter = 5
-        while lines[line_counter].strip() != "LOCALS":
+        while lines[line_counter].strip() != "LOCALS" and lines[line_counter] != "":
             line_list = lines[line_counter].split(";")
             id_regional = int(line_list[0])
             type_regional = line_list[1]
@@ -228,7 +228,9 @@ with open(args.topology_path+"/jsonAdditionalInfo.txt") as f:
                 dict_ids_regional[id_regional]['type_local'][type] = amount
 
             line_counter+=1
-    for line_element in lines[line_counter+1].split(";"):
+    for line_element in lines[line_counter+1].strip().split(";"):
+        if line_element  == "":
+          break
         id_father = int(line_element.split(",")[0].strip())
         id_local = int(line_element.split(",")[1].strip())
         type = line_element.split(",")[2].strip()
@@ -236,7 +238,9 @@ with open(args.topology_path+"/jsonAdditionalInfo.txt") as f:
         dict_ids_local[id_local]['id_father'] = id_father
         dict_ids_local[id_local]['type'] = type
 
-    for line_element in lines[line_counter+3].split(";"):
+    for line_element in lines[line_counter+3].strip().split(";"):
+        if line_element  == "":
+          break
         id_father = int(line_element.split(",")[0].strip())
         id_actuator = int(line_element.split(",")[1].strip())
         type = line_element.split(",")[2].strip()
@@ -244,7 +248,9 @@ with open(args.topology_path+"/jsonAdditionalInfo.txt") as f:
         dict_ids_acts[id_actuator]['id_father'] = id_father
         dict_ids_acts[id_actuator]['type'] = type
 
-    for line_element in lines[line_counter+5].split(";"):
+    for line_element in lines[line_counter+5].strip().split(";"):
+        if line_element == "":
+          break
         #print(line_element)
         id_father = int(line_element.split(",")[0].strip())
         id_lan = int(line_element.split(",")[1].strip())
@@ -260,11 +266,12 @@ with open(args.topology_path+"/jsonAdditionalInfo.txt") as f:
             type = element.split("/")[0]
             amount = element.split("/")[1]
             dict_ids_lans[id_lan]['sensors'][type] = amount
-        act = line_element.split(",")[4]
-        for element in act.split("."):
-            type = element.split("/")[0]
-            amount = element.split("/")[1]
-            dict_ids_lans[id_lan]['actuators'][type] = amount
+        if len(line_element.split(","))>5:
+          act = line_element.split(",")[4]
+          for element in act.split("."):
+              type = element.split("/")[0]
+              amount = element.split("/")[1]
+              dict_ids_lans[id_lan]['actuators'][type] = amount
 
 list_regional = []
 list_local = []

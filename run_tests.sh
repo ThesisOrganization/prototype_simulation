@@ -20,7 +20,7 @@ redir_compilation="" #"/dev/null"
 output_base_dir="$(realpath ..)/test/use_cases"
 
 #customize the test execution, targets must separated by spaces. Available values: all, -g, -a, -s, -r. Refer to the start.sh help message for info. (all must be used by itself, without other targets)
-script_target="-g -a -o -s"
+script_target="-g -a -s"
 
 #timeout argument in seconds. -1 means no timeout
 real_timeout="-1"
@@ -68,7 +68,7 @@ topology_list=("UseCase0.txt")
 catalog_list=("$(realpath ..)/test/catalog")
 
 #if the central node must be ignored in the simulation (yes/no)
-ignore_central="yes"
+ignore_central="no"
 
 # the maximum number of retires to do when a test fails
 MAX_RETRY=1

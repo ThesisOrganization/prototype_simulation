@@ -619,7 +619,11 @@ void compute_data(node_data* node,graph_visit_type visit_type,double * probOfAct
 				node->output_rates[CLASS_TRANSITION]=rate_transition_sensors_below+rate_transition_actuators_below;
 			}
 			if(visit_type==GRAPH_COMPUTE_COMMANDS){
-				node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num;
+				if(total_command_dest_weight_num==0){
+					node->input_rates[CLASS_COMMAND]=0;
+				}else{
+					node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num;
+				}
 			}
 			if(node->node_split_status==NODE_SPLIT_IN_OUT){
 				node->input_service_times[CLASS_COMMAND]=getLANsINserviceTimesByType(node->top)[COMMAND];
@@ -649,9 +653,13 @@ void compute_data(node_data* node,graph_visit_type visit_type,double * probOfAct
 			}
 			if(visit_type==GRAPH_COMPUTE_COMMANDS){
 				if(getNodeType(node->top)!=CENTRAL){
+					if(total_command_dest_weight_num==0){
+						node->input_rates[CLASS_COMMAND]=0;
+					}else{
 					//generated messages are not considered in the queue
-					node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num; // generated messages not counted in the queue
-					node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND]+getProbCommandResponse(node->top)*node->input_rates[CLASS_TRANSITION];
+						node->input_rates[CLASS_COMMAND]=rates[CLASS_COMMAND] * branch_command_dest_weight_num / total_command_dest_weight_num; // generated messages not counted in the queue
+					}
+						node->output_rates[CLASS_COMMAND]=node->input_rates[CLASS_COMMAND]+getProbCommandResponse(node->top)*node->input_rates[CLASS_TRANSITION];
 				} else{
 					node->output_rates[CLASS_COMMAND]=getProbCommandResponse(node->top)*node->input_rates[CLASS_TRANSITION];
 				}
