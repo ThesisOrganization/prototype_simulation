@@ -3,7 +3,7 @@
 static double get_min_service_time(double* service_rates){
 	
 	double min_value = -1;
-	memset(service_rates,-1,NUM_OF_JOB_TYPE);
+	//memset(service_rates,-1,NUM_OF_JOB_TYPE);
 	for(int i = 0; i < NUM_OF_JOB_TYPE - 1; i++){
 
 		if(service_rates[i] > 0 && (min_value == -1 || service_rates[i] < min_value))
