@@ -130,14 +130,14 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 	job_type type = info->job_type;
 
 	if(queue_state->start_timestamp[type] > TRANSITION_TIME_LIMIT){
-		
+
 		queue_state->global_actual_timestamp = now;
 
 		//queue_state->B_global += (now - queue_state->last_timestamp_B_global) * queue_state->num_running_jobs;
 		//queue_state->last_timestamp_B_global = now;
-		
+
 		queue_state->W2 += (now - queue_state->last_update_ts) * queue_state->num_jobs_in_queue;
-		
+
 		queue_state->C[type]++;
 		//queue_state->B[type] += now - queue_state->start_processing_timestamp[core];
 		queue_state->B[type] += info->total_computation;
@@ -150,7 +150,7 @@ static void update_metrics(simtime_t now, queue_state * queue_state, job_info * 
 			//queue_state->C[TRANSITION]++; //(TO USE FOR REPLY UPDATE ALTERNATIVE)
 			//queue_state->B[TRANSITION] += info->busy_time_transition; //(TO USE FOR REPLY UPDATE ALTERNATIVE)
 			//queue_state->W[TRANSITION] += info->waiting_time_transition; //(TO USE FOR REPLY UPDATE ALTERNATIVE)
-			
+
 			//queue_state->B[TRANSITION] += now - queue_state->start_processing_timestamp[core];
 			queue_state->B[TRANSITION] += info->total_computation;
 			queue_state->W[TRANSITION] += now - info->arrived_in_node_timestamp;
@@ -170,16 +170,16 @@ static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state
 	int num_job_in_array = 1;
 	job_info array_job_info[num_job_in_array];
 	int ret_schedule = schedule_out(queue_state->queues, array_job_info, num_job_in_array);
-	
+
 	queue_state->current_jobs[core].job_type = INVALID_JOB; ///set the actual core to free. It will be overwrite if there is a job in queue that can be served
 	queue_state->num_running_jobs--;
-	
+
 //#if PREEMPTION == 1
 //	if(ret_schedule != SCHEDULE_DONE){
 //		printf("schedule return: %d\n", ret_schedule);
 //	}
 //#endif
-	
+
 	if(ret_schedule == SCHEDULE_DONE){
 		queue_state->current_jobs[core] = array_job_info[0];
 		//double rate = service_rates[queue_state->current_jobs[core].job_type];
@@ -189,26 +189,26 @@ static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state
 		msg.header.element_id = id_device;
 		msg.core = core;
 		msg.direction = direction;
-		
+
 		simtime_t ts_finish;
 		double time_slice = queue_state->current_jobs[core].time_slice;
 		double remain_computation = queue_state->current_jobs[core].remain_computation;
-		
+
 // 		printf("remain_computation: %f\n", remain_computation);
 // 		printf("time_slice: %f\n", time_slice);
-		
+
 		if( remain_computation >= time_slice){
 			ts_finish = time_slice;
 		}
 		else{
 			ts_finish = remain_computation;
 		}
-		
+
 		queue_state->current_jobs[core].time_slice = ts_finish;
 // 		printf("time_slice in finish: %f\n", queue_state->current_jobs[core].time_slice);
 
 		ScheduleNewEvent(id_lp, now + ts_finish, event_to_trigger, &msg, sizeof(message_finish));
-		
+
 		queue_state->num_running_jobs++;
 	}
 
@@ -216,17 +216,19 @@ static void schedule_next_job(unsigned int id_device, simtime_t now, queue_state
 
 static void send_to_up_node(unsigned int id_device, simtime_t now, device_state  * state, double delay, job_info * info, double order_shift){
 	int up_node;
-#ifdef NO_CENTRAL
-	if(GET_NODE_TYPE(state->topology) == REGIONAL){
-		up_node = -1;
-	}else{
+	int up_lp;
+	#ifdef NO_CENTRAL
+		if(GET_NODE_TYPE(state->topology) == REGIONAL){
+			up_node = -1;
+			up_lp=-1;
+		}else{
+			up_node = GET_UPPER_NODE(state->topology);
+			up_lp= CONVERT_ELEMENT_TO_LP(state->topology, up_node);
+		}
+	#else
 		up_node = GET_UPPER_NODE(state->topology);
-	}
-#else
-	up_node = GET_UPPER_NODE(state->topology);
-#endif
-	int up_lp = CONVERT_ELEMENT_TO_LP(state->topology, up_node);
-
+		up_lp = CONVERT_ELEMENT_TO_LP(state->topology, up_node);
+	#endif
 	message_arrive msg;
 	msg.header.element_id = up_node;
 	msg.info = *info;
@@ -272,10 +274,10 @@ static void send_aggregated_data(unsigned int id_device, simtime_t now, device_s
 }
 //unsigned int id_device, simtime_t now, queue_state * queue_state, double * service_rates, lan_direction direction, events_type event_to_trigger, unsigned int id_lp, int core
 void schedule_remaining_job(simtime_t now, queue_state * queue_state, job_info * info){
-	
+
 	info->deadline = now;
 	schedule_in(queue_state->queues, *info);
-	
+
 }
 
 static void simulate_computation(double time){
@@ -300,11 +302,11 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 	//printf("%f\n", info->remain_computation);
 	info->remain_computation -= info->time_slice;
 	//printf("%f\n", info->remain_computation);
-	
+
 	if(info->remain_computation < 0)
 		printf("WARNING: remain_computation it's less than zero..\n");
 
-	
+
 	if(info->remain_computation > 0){
 		schedule_remaining_job(now, state->info.node->queue_state, info);
 		schedule_next_job(id_device, now, state->info.node->queue_state, state->info.node->service_rates, 0, FINISH, id_lp, core);
@@ -348,7 +350,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 			//###################################################
 			//SEND BATCH_DATA
 			send_aggregated_data(id_device, now, state, delay_up, BATCH_DATA, &state->info.node->num_batch_aggregated, state->info.node->batch_aggregation, id_lp, SHIFT_EVENT_THIRD);
-			
+
 			//###################################################
 			//UPDATE TRANSITION METRICS (TO USE FOR REPLY UPDATE ALTERNATIVE)
 			//if(state->info.node->type == LOCAL || state->info.node->type == REGIONAL) //(TO USE FOR REPLY UPDATE ALTERNATIVE)
@@ -358,21 +360,21 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 		else{
 			//###################################################
 			//FORWARD TRANSITION
-			
+
 			job_info info_to_send; //this should be a copy of the transition that we are processing (in terms of payload). At least in the old implementation
 			fill_job_info(&info_to_send, -1.0, -1, info->job_type, id_device, busy_time_transition, waiting_time_transition, -1);
 			//info->busy_time_transition = busy_time_transition;
 			//info->waiting_time_transition = waiting_time_transition;
 			//info->device_sender = id_device;
 			send_to_up_node(id_device, now, state, delay_up, &info_to_send, SHIFT_EVENT_SECOND);
-			
+
 			//##################################################
 			//SAVE DATA TO DISK
 			if(GET_NODE_TYPE(state->topology) == CENTRAL)
 				save_data_on_disk(id_device, now, TRANSITION, id_lp);
-			
+
 		}
-		
+
 	}
 	else if(info->job_type == COMMAND){
 
@@ -390,7 +392,7 @@ void finish_node(unsigned int id_device, simtime_t now, device_state  * state, u
 		//printf("%f, %d, %d\n", now, me, info->lp_sender);
 
 	}
-	
+
 	//Schedule the next job if present
 	schedule_next_job(id_device, now, state->info.node->queue_state, state->info.node->service_rates, 0, FINISH, id_lp, core);
 
@@ -406,7 +408,7 @@ void finish_actuator(unsigned int id_device, simtime_t now, device_state  * stat
 	//printf("%f\n", info->remain_computation);
 	if(info->remain_computation < 0)
 		printf("WARNING: remain_computation it's less than zero..\n");
-	
+
 	if(info->remain_computation > 0){
 		schedule_remaining_job(now, state->info.node->queue_state, info);
 		double service_rates[NUM_OF_JOB_TYPE]; //meh
@@ -414,7 +416,7 @@ void finish_actuator(unsigned int id_device, simtime_t now, device_state  * stat
 		schedule_next_job(id_device, now, state->info.actuator->queue_state, service_rates, 0, FINISH, id_lp, core);
 		return;
 	}
-	
+
 	//Update metrics
 	update_metrics(now, state->info.actuator->queue_state, info, core);
 
@@ -448,7 +450,7 @@ void finish_actuator(unsigned int id_device, simtime_t now, device_state  * stat
 	double service_rates[NUM_OF_JOB_TYPE]; //meh
 	service_rates[COMMAND] = state->info.actuator->service_rate_command;
 	schedule_next_job(id_device, now, state->info.actuator->queue_state, service_rates, 0, FINISH, id_lp, core);
-	
+
 }
 
 void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, lan_direction direction, unsigned int id_lp, int core){
@@ -483,13 +485,13 @@ void finish_lan(unsigned int id_device, simtime_t now, device_state  * state, la
 	//printf("%f\n", info->remain_computation);
 	if(info->remain_computation < 0)
 		printf("WARNING: remain_computation it's less than zero..\n");
-	
+
 	if(info->remain_computation > 0){
 		schedule_remaining_job(now, queue_state, info);
 		schedule_next_job(id_device, now, queue_state, service_rates, direction, FINISH, id_lp, core);
 		return;
 	}
-	
+
 	//Update metrics
 	update_metrics(now, queue_state, info, core);
 
@@ -546,13 +548,13 @@ void finish_disk(unsigned int id_device, simtime_t now, device_state * state, un
 	//printf("%f\n", info->remain_computation);
 	if(info->remain_computation < 0)
 		printf("WARNING: remain_computation it's less than zero..\n");
-	
+
 	if(info->remain_computation > 0){
 		schedule_remaining_job(now, state->info.node->disk_state, info);
 		schedule_next_job(id_device, now, state->info.node->disk_state, GET_DISK_SERVICES(state->topology), 0, FINISH_DISK, id_lp, core);
 		return;
 	}
-	
+
 	//Update metrics
 	update_metrics(now, state->info.node->disk_state, info, core);
 

@@ -17,19 +17,19 @@ script_location=$(realpath .)
 redir_compilation="" #"/dev/null"
 
 # the base directory where all the executed tests can be found (separated by the topology name)
-output_base_dir="$(realpath ..)/test/use_cases"
+output_base_dir="$(realpath ..)/test/performance_tests"
 
 #customize the test execution, targets must separated by spaces. Available values: all, -g, -a, -s, -r. Refer to the start.sh help message for info. (all must be used by itself, without other targets)
-script_target="-g -a -s"
+script_target="-g -s"
 
 #timeout argument in seconds. -1 means no timeout
-real_timeout="-1"
+real_timeout="300"
 
 #timeout argument in logical virtual time. -1 means no timeout
-timeout_lvt="-1"
+timeout_lvt="500000"
 
 # 0 is for pure serial execution, while 1 is for parallel configuration but with one working thread
-thread_list=("0") # ("0" "2" "5" "10" "20" "30" "40")
+thread_list=("5") # ("0" "2" "5" "10" "20" "30" "40")
 
 # makes the test fail if there are more threads than LPs. Available options: yes, no
 threads_less_than_lps="no"
@@ -38,16 +38,16 @@ threads_less_than_lps="no"
 seed_list=("-1")
 
 # yes means default configuration for simulation of message processing
-sim_processing_options=("yes") #("no" "yes" "10000")
+sim_processing_options=("no" "yes") #("no" "yes" "10000")
 
 scheduler_options=("FIFO") # ("FIFO" "RR")
 
-preemption_options=("no") # ("no" "yes")
+preemption_options=("no" "yes") # ("no" "yes")
 
-simulator_list=("ROOT-Sim") # ("USE" "ROOT-Sim" "NeuRome")
+simulator_list=("ROOT-Sim" "USE") # ("USE" "ROOT-Sim" "NeuRome")
 
 # currently available choices are central, local, regional and lan, refer to the documentation of utils/partop/header:lp_aggregation_criteria for details.
-lp_aggregation=("central") #("central" "regional" "local" "lan")
+lp_aggregation=("regional" "local" "lan")
 
 #to run test we need a catalog entry in the catalog_list for each element in the topology_list, if you want to use a unique catalog for each test set the following variable to "yes", otherwise set it to "no"
 unique_catalog_location="yes"
@@ -62,7 +62,7 @@ unique_topologies_location="yes"
 unique_topologies_path="$(realpath ..)/test/topologies"
 
 #this is the list of paths to the topology config files, if there is a unique folder this array can contain only the topology file basepath and not the camplete path to each file.
-topology_list=("UseCase0.txt")
+topology_list=("80-400.txt")
 
 # this is the list of catalogs which will be accessed to get the elements information for each topology, it is used only if there is no unique catalog. Thus, the number of entries in this list must be the exact number of entries of the topology_list
 catalog_list=("$(realpath ..)/test/catalog")
@@ -71,7 +71,7 @@ catalog_list=("$(realpath ..)/test/catalog")
 ignore_central="no"
 
 # the maximum number of retires to do when a test fails
-MAX_RETRY=1
+MAX_RETRY=2
 
 ########################################################################################################################
 #STARTING TESTS                                                                                                        #
@@ -145,9 +145,12 @@ for seed in ${seed_list[@]}; do
 	if [[ $timeout_lvt != "-1" ]]; then
 		timeout=$timeout_lvt
 		timeout_arg="--simulation-timeout=$timeout_lvt"
-	elif [[	$real_timeout != "-1" ]]; then
-		timeout_arg="--timeout=$real_timeout"
+	fi
+	if [[	$real_timeout != "-1" ]]; then
+		timeout_arg+=" --timeout=$real_timeout"
+		if [[ $timeout_lvt == "-1" ]]; then
 		timeout=$real_timeout
+		fi
 	else
 		timeout_arg=""
 		timeout="none"
@@ -256,7 +259,7 @@ for seed in ${seed_list[@]}; do
 									echo -e "$begin_log" >> $LOG_FILE
 									echo -e $begin_log > $output/test_esit.log
 									echo "$BEGIN"
-
+									bash start.sh -q clean
 									#we execute the test
 									script -a -e -q $output/test_esit.log -c "$parent_cmd $test_cmd"
 									err=$?
