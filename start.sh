@@ -221,11 +221,7 @@ for target in ${targets[@]}; do
 		sim_options=${sim_options/--run-complete/}
 		sim_options=${sim_options/--simulation-timeout=[0-9]*/}
 		sim_options=${sim_options/--timeout=[0-9]*/}
-		if [[ $sim_name == "USE" ]]; then
-			timeout="--timeout=5"
-		else
-			timeout="--simulation-timeout=1000"
-		fi
+		timeout="--timeout=10 --simulation-timeout=100000"
 
 		cd $initial_location/tree_simulator
 		echo "Getting serial trace..."
