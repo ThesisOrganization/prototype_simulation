@@ -48,7 +48,7 @@ def compute_alpha(simulator,comms_dict,n_proc,num_lps,total_message_rate):
 					alpha+=comms_dict[f'{dest_thread}-{src_thread}']
 	elif simulator == "USE":
 		#with USE we need to take into account all the communication between LPs
-		for elem in comms_dict.Values():
+		for elem in comms_dict.values():
 			alpha+=elem
 	return alpha/total_message_rate
 
@@ -72,6 +72,7 @@ def get_Tev_parallel(simulator,parallel_run):
 	t_ev=0
 	t_s=0
 	t_in=0
+	n_events=0
 	if simulator == "ROOT-Sim":
 		f_run=open(parallel_run+"/outputs/execution_stats")
 		lines=f_run.readlines()
@@ -93,8 +94,8 @@ def get_Tev_parallel(simulator,parallel_run):
 				t_s+=float(line.strip().split(" ")[-3])
 			if "Average time spent to Enqueue...................:" in line:
 				t_out+=float(line.strip().split(" ")[-3])
-			if "TOTAL EXECUTED EVENTS ..... :" in line:
-				n_events=int(line.strip().split(" ")[-1])
+			if "Committed events................................:" in line:
+				n_events=int(line.strip().split(" ")[-2])
 
 	return t_extract,t_out,t_r,t_ev,t_s,t_in,n_events
 
@@ -112,11 +113,11 @@ def get_Tev_serial(simulator,serial_run):
 			if "Average time to process any event..............." in line:
 				tev_serial+=float(line.strip().split(" ")[-2])
 			if "Save Checkpoint time............................" in line:
-				tev_serial+=float(line.strip().split(" ")[-2])
+				tev_serial+=float(line.strip().split(" ")[-3])
 			if "Average time spent to fetch....................." in line:
-				tev_serial+=float(line.strip().split(" ")[-2])
+				tev_serial+=float(line.strip().split(" ")[-3])
 			if "Average time spent to Enqueue..................." in line:
-				tev_serial+=float(line.strip().split(" ")[-2])
+				tev_serial+=float(line.strip().split(" ")[-3])
 	return tev_serial
 
 def compute_R(checkpoint_period,Pr_ub,t_extract,t_out,t_r,t_ev,t_s,t_in,serial_cost,n_proc,UB_pl):
