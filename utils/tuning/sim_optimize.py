@@ -84,15 +84,15 @@ def get_Tev_parallel(simulator,parallel_run):
 		line=[""]
 		for line in f_run:
 			if "Average time spent to fetch....................." in line:
-				t_extract+=float(line.strip().split(" ")[-2])
+				t_extract+=float(line.strip().split(" ")[-3])
 			if "Restore Checkpoint time........................." in line:
-				t_r+=float(line.strip().split(" ")[-2])
+				t_r+=float(line.strip().split(" ")[-3])
 			if "Average time to process any event...............: " in line:
 				t_ev+=float(line.strip().split(" ")[-2])
 			if "Save Checkpoint time............................" in line:
-				t_s+=float(line.strip().split(" ")[-2])
+				t_s+=float(line.strip().split(" ")[-3])
 			if "Average time spent to Enqueue...................:" in line:
-				t_out+=float(line.strip().split(" ")[-2])
+				t_out+=float(line.strip().split(" ")[-3])
 			if "TOTAL EXECUTED EVENTS ..... :" in line:
 				n_events=int(line.strip().split(" ")[-1])
 
